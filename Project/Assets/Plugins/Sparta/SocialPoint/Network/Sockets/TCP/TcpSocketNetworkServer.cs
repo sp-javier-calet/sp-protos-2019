@@ -11,7 +11,7 @@ namespace SocialPoint.Network
 {
     public class TcpSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
-        public struct ClientData
+        struct ClientData
         {
             public TcpClient Client;
             public byte Id;

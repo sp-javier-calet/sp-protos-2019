@@ -18,7 +18,7 @@ namespace SocialPoint.Network
         bool _connected;
         IUpdateScheduler _scheduler;
         List<NetworkStream> _stream;
-        NetworkStreamMessageReader _socketMessageData;
+        TcpSocketMessageReader _socketMessageReader;
 
         public TcpSocketNetworkClient(IUpdateScheduler scheduler, string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
         {
@@ -110,8 +110,9 @@ namespace SocialPoint.Network
                 {
                     _delegates[i].OnClientConnected();
                 }
-                _socketMessageData = new NetworkStreamMessageReader(_client);
-                _socketMessageData.MessageReceived += OnServerMessageReceived;
+
+                _socketMessageReader = new TcpSocketMessageReader(_client.GetStream());
+                _socketMessageReader.MessageReceived += OnServerMessageReceived;
             }
         }
 
@@ -152,7 +153,7 @@ namespace SocialPoint.Network
         {
             while(_client.Available > 0 && _client.Connected)
             {
-                _socketMessageData.Receive();
+                _socketMessageReader.Receive();
             }
         }
 
@@ -163,7 +164,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnClientDisconnected();
             }
-            _socketMessageData.MessageReceived -= OnServerMessageReceived;
+            _socketMessageReader.MessageReceived -= OnServerMessageReceived;
             _scheduler.Remove(this);
         }
 
