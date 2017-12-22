@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using SocialPoint.IosKeychain;
+using System.Runtime.InteropServices;
 using SocialPoint.Base;
+using SocialPoint.IosKeychain;
 using UnityEngine;
 
 namespace SocialPoint.Hardware
@@ -10,6 +11,9 @@ namespace SocialPoint.Hardware
         // check: https://socialpoint.atlassian.net/wiki/display/MT/iOS+Keychain
         const string UidKeychainItemId = "SPDeviceID";
         const string UidKeychainAccessGroup = "es.socialpoint";
+
+        [DllImport("__Internal")]
+        private extern static void GetSafeAreaImpl(out float x, out float y, out float w, out float h);
 
         static Dictionary<string, int> CpuFreqMap = new Dictionary<string, int> {
             { "iPhone1,1", 412 },  // iPhone
@@ -228,6 +232,27 @@ namespace SocialPoint.Hardware
                     _screenSize.y = Screen.height;
                 }
                 return _screenSize;
+            }
+        }
+
+        Rect _safeAreaRectSize = Rect.zero;
+
+        public Rect SafeAreaRectSize
+        {
+            get
+            {
+                if(_safeAreaRectSize == Rect.zero)
+                {
+                    float x = 0f;
+                    float y = 0f;
+                    float w = ScreenSize.x;
+                    float h = ScreenSize.y;
+
+                    // TODO change this or add #if UNITY_2017.2 and use Screen.safeArea;
+                    GetSafeAreaImpl(out x, out y, out w, out h);
+                    _safeAreaRectSize = new Rect(x, y, w, h); 
+                }
+                return _safeAreaRectSize;
             }
         }
 

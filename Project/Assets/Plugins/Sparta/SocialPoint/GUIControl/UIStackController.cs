@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Base;
 using SocialPoint.AppEvents;
-using UnityEngine;
+using SocialPoint.Base;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
