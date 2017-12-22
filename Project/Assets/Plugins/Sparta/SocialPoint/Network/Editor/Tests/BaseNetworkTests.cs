@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 using SocialPoint.IO;
@@ -220,7 +218,7 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public virtual void ClientReceivedMessageSendOnClientConnected()
+        public void ClientReceivedMessageSendOnClientConnected()
         {
             _server.Start();
             var sdlg = Substitute.For<INetworkServerDelegate>();

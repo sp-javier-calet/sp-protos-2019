@@ -1,16 +1,13 @@
 using System;
 using NUnit.Framework;
-using NSubstitute;
 using SocialPoint.Utils;
-using SocialPoint.IO;
-using System.Collections.Generic;
 using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
     [TestFixture]
     [Category("SocialPoint.Network")]
-    class SocketNetworkTests : BaseNetworkTests
+    class TcpSocketNetworkTests : BaseNetworkTests
     {
         UpdateScheduler _scheduler;
 

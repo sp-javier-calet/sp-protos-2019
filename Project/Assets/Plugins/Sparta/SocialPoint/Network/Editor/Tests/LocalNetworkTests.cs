@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 
@@ -27,7 +25,6 @@ namespace SocialPoint.Network
             var reader = msg.Receive();
             Assert.That(reader.ReadString() == "test");
         }
-
 
         [Test]
         public void ClientConnectBeforeServerStart()
