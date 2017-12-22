@@ -58,6 +58,9 @@ namespace SocialPoint.GUIControl
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
+                
+            ctrl.SetupAppearAnimation(AppearAnimationFactory, AppearAnimation);
+            ctrl.SetupDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
 
             if(ctrl.ParentController != this)
             {

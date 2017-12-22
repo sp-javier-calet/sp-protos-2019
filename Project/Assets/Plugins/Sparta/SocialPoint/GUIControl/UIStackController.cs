@@ -332,22 +332,6 @@ namespace SocialPoint.GUIControl
             {
                 from.Controller.SetParent(BackContainer.transform);
             }
-                
-            if(IsValidStackNode(from))
-            {
-                if(!IsImmediateAction(act))
-                {
-                    from.Controller.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
-                }
-            }
-
-            if(IsValidStackNode(to))
-            {
-                if(!IsImmediateAction(act))
-                {
-                    to.Controller.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
-                }
-            }
         }
 
         void NotifyActionEvent(UIViewController ctrl, ActionType action)
