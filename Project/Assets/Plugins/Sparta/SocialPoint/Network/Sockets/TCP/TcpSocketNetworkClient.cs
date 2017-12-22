@@ -9,14 +9,13 @@ namespace SocialPoint.Network
 {
     public class TcpSocketNetworkClient : INetworkClient, IDisposable, IUpdateable
     {
-
-        private List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
-        private INetworkMessageReceiver _receiver;
-        private string _serverAddr;
-        private int _serverPort;
-        private TcpClient _client;
-        private bool _connecting;
-        private bool _connected;
+        List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
+        INetworkMessageReceiver _receiver;
+        string _serverAddr;
+        int _serverPort;
+        TcpClient _client;
+        bool _connecting;
+        bool _connected;
         IUpdateScheduler _scheduler;
         List<NetworkStream> _stream;
         TcpSocketClientData _socketMessageData;

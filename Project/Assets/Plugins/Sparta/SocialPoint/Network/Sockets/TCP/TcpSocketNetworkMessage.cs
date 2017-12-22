@@ -8,9 +8,9 @@ namespace SocialPoint.Network
 {
     public sealed class TcpSocketNetworkMessage : INetworkMessage
     {
-        readonly NetworkMessageData _data;
-        readonly SystemBinaryWriter _writer;
-        readonly MemoryStream _memStream;
+        NetworkMessageData _data;
+        SystemBinaryWriter _writer;
+        MemoryStream _memStream;
         List<NetworkStream> _netStreams;
 
 

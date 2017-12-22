@@ -5,19 +5,11 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
-    public enum Protocol
-    {
-        TCP,
-        UDP,
-        ReliableUDP
-    }
-
-    public class SocketNetworkInstaller : SubInstaller
+    public class TcpSocketNetworkInstaller : SubInstaller
     {
         [Serializable]
-        public class SocketNetworkConfig
+        public class TcpSocketNetworkConfig
         {
-            public Protocol Protocol = Protocol.TCP;
             public string ServerAddress = TcpSocketNetworkServer.DefaultAddress;
             public int ServerPort = TcpSocketNetworkServer.DefaultPort;
         }
@@ -25,7 +17,7 @@ namespace SocialPoint.Network
         [Serializable]
         public class SettingsData
         {
-            public SocketNetworkConfig Config;
+            public TcpSocketNetworkConfig Config;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -45,39 +37,19 @@ namespace SocialPoint.Network
 
         TcpSocketNetworkClient CreateSocketClient()
         {
-            TcpSocketNetworkClient socketClient = null;
-            switch(Settings.Config.Protocol)
-            {
-            case Protocol.TCP:
-                socketClient = new TcpSocketNetworkClient(
-                    Container.Resolve<IUpdateScheduler>(),
-                    Settings.Config.ServerAddress, 
-                    Settings.Config.ServerPort);
-                break;
-            case Protocol.UDP:
-                break;
-            case Protocol.ReliableUDP:
-                break;
-            }
+            TcpSocketNetworkClient socketClient =  new TcpSocketNetworkClient(
+                Container.Resolve<IUpdateScheduler>(),
+                Settings.Config.ServerAddress, 
+                Settings.Config.ServerPort);
             return socketClient; 
         }
 
         TcpSocketNetworkServer CreateSocketServer()
         {
-            TcpSocketNetworkServer socketServer = null;
-            switch(Settings.Config.Protocol)
-            {
-            case Protocol.TCP:
-                socketServer = new TcpSocketNetworkServer(
-                    Container.Resolve<IUpdateScheduler>(),
-                    Settings.Config.ServerAddress, 
-                    Settings.Config.ServerPort);
-                break;
-            case Protocol.UDP:
-                break;
-            case Protocol.ReliableUDP:
-                break;
-            }
+            TcpSocketNetworkServer socketServer = new TcpSocketNetworkServer(
+                Container.Resolve<IUpdateScheduler>(),
+                Settings.Config.ServerAddress, 
+                Settings.Config.ServerPort);
             return socketServer; 
         }
 
