@@ -12,6 +12,7 @@ namespace SocialPoint.Notifications
         InputField _messageInput;
         InputField _actionInput;
         InputField _secondsInput;
+        InputField _channelInput;
         AdminPanelConsole _console;
 
         public AdminPanelNotifications(INotificationServices services)
@@ -36,6 +37,8 @@ namespace SocialPoint.Notifications
                     .WithDescription("message of the notification"))
                 .WithOption(new ConsoleCommandOption("d|delay")
                     .WithDescription("seconds after now when to show"))
+                .WithOption(new ConsoleCommandOption("c|channel")
+                    .WithDescription("identifier of the notifications channel"))
                 .WithDelegate(OnNotifyCommand);
             adminPanel.RegisterCommand("notify", cmd);
         }
@@ -45,6 +48,7 @@ namespace SocialPoint.Notifications
             var notify = new Notification(cmd["delay"].IntValue, Notification.OffsetType.None);
             notify.Title = cmd["title"].Value;
             notify.Message = cmd["message"].Value;
+            notify.ChannelID = cmd["channel"].Value;
         }
 
         void ConsolePrint(string msg)
@@ -97,6 +101,9 @@ namespace SocialPoint.Notifications
             flayout.CreateFormLabel("Fire seconds");
             _secondsInput = flayout.CreateTextInput();
             _secondsInput.text = "2";
+            flayout = layout.CreateHorizontalLayout();
+            flayout.CreateFormLabel("Channel ID");
+            _channelInput = flayout.CreateTextInput();
 
             layout.CreateButton("Set Notification", () => {
                 int secs = 0;
@@ -104,6 +111,7 @@ namespace SocialPoint.Notifications
                 var notif = new Notification(secs, Notification.OffsetType.None);
                 notif.Message = _messageInput.text;
                 notif.Title = _actionInput.text;
+                notif.ChannelID = _channelInput.text;
                 _services.Schedule(notif);
                 ConsolePrint(string.Format("A test notification should appear in {0} seconds.", secs));
             });

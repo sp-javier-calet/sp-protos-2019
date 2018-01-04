@@ -8,6 +8,7 @@ namespace SocialPoint.Notifications
             - ANDROID deletes automatically the clicked notification
             - IOS gets the Unity app icon automatically and ANDROID needs to get the icon from Assets/Plugins/Android/res/drawable/app_icon.png file
             - For compatibility with IOS, ANDROID progress and big style notifications aren't implemented (http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
+            - On ANDROID notifications go through channels, on IOS the channel is ignored
     */
     public sealed class Notification
     {
@@ -74,7 +75,7 @@ namespace SocialPoint.Notifications
         public string Title = string.Empty;
 
         /**
-         * he message displayed in the notification alert
+         * the message displayed in the notification alert
          */
         public string Message = string.Empty;
 
@@ -103,12 +104,18 @@ namespace SocialPoint.Notifications
             }
         }
 
+        /**
+         * the identifier of the notifications channel
+         */
+        public string ChannelID = string.Empty;
+
         public override string ToString()
         {
-            return string.Format("Notification: -- Title: {0}-- Message: {1}  -- FireDelay: {2}", 
+            return string.Format("Notification: -- Title: {0}-- Message: {1}  -- FireDelay: {2} -- Channel: {3}", 
                 Title, 
                 Message, 
-                FireDelay);
+                FireDelay,
+                ChannelID);
         }
     }
        

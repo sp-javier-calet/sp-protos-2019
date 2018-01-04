@@ -26,6 +26,7 @@ namespace SocialPoint.Notifications
         {
             #if ANDROID_DEVICE
             _notifClass = new AndroidJavaClass(FullClassName);
+            _notifClass.CallStatic("setupChannels");
             #endif
         }
 
@@ -39,7 +40,7 @@ namespace SocialPoint.Notifications
         {
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("schedule", 0, notif.FireDelay, notif.Title, notif.Message);
+                _notifClass.CallStatic("schedule", 0, notif.FireDelay, notif.Title, notif.Message, notif.ChannelID);
             }
         }
 
