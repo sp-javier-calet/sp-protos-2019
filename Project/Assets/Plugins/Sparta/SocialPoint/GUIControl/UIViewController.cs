@@ -393,24 +393,14 @@ namespace SocialPoint.GUIControl
             ShowDebugLogMessage(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
-        public void LoadAppearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
+        public void SetupAppearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
             AppearAnimation = GetAnimation(AppearAnimationFactory, defaultAnimationFactory, defaultAnimation);
-            LoadAnimation(AppearAnimation);
         }
 
-        public void LoadDisappearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
+        public void SetupDisappearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
             DisappearAnimation = GetAnimation(DisappearAnimationFactory, defaultAnimationFactory, defaultAnimation);
-            LoadAnimation(DisappearAnimation);
-        }
-
-        void LoadAnimation(UIViewAnimation anim)
-        {
-            if(anim != null)
-            {
-                anim.Load(gameObject);
-            }
         }
 
         UIViewAnimation GetAnimation(UIViewAnimationFactory viewAnimationFactory, UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
@@ -426,6 +416,14 @@ namespace SocialPoint.GUIControl
             else
             {
                 return (IsFullScreen ? null : defaultAnimation);
+            }
+        }
+
+        void LoadAnimation(UIViewAnimation anim)
+        {
+            if(anim != null)
+            {
+                anim.Load(gameObject);
             }
         }
 
@@ -493,7 +491,7 @@ namespace SocialPoint.GUIControl
 
             Setup();
         }
-
+            
         void Setup()
         {
             if(ParentController == null)
@@ -666,7 +664,7 @@ namespace SocialPoint.GUIControl
         {
             if(ViewEvent != null)
             {
-                DebugLog(string.Format("UIVIewController::NotifyViewEvent {0}", _viewState));
+                DebugLog(string.Format("UIVIewController::NotifyViewEvent {0} - {1}", _viewState, this != null ? this.name : "null"));
                 ViewEvent(this, _viewState);
             }
         }
@@ -697,6 +695,7 @@ namespace SocialPoint.GUIControl
         {
             if(AppearAnimation != null)
             {
+                LoadAnimation(AppearAnimation);
                 var enm = AppearAnimation.Animate();
                 while(enm.MoveNext())
                 {
@@ -752,6 +751,8 @@ namespace SocialPoint.GUIControl
             if(DisappearAnimation != null)
             {
                 yield return new WaitForEndOfFrame();
+
+                LoadAnimation(DisappearAnimation);
                 var enm = DisappearAnimation.Animate();
                 while(enm.MoveNext())
                 {

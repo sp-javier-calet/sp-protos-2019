@@ -86,7 +86,7 @@ namespace SocialPoint.GUIControl
                     {
                         spTooltipItem.HideTimedCallback = HideTooltipTimed;
                         spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose);
-                        spTooltipItem.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
+                        spTooltipItem.SetupAppearAnimation(AppearAnimationFactory, AppearAnimation);
                         spTooltipItem.Show();
                     }
                 }
@@ -105,7 +105,7 @@ namespace SocialPoint.GUIControl
                 {
                     if(spTooltipItem.IsStable)
                     {
-                        spTooltipItem.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
+                        spTooltipItem.SetupDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
                     }
 
                     spTooltipItem.FinishHideCallback = (() => DestroyTooltip(tempTooltipGO));

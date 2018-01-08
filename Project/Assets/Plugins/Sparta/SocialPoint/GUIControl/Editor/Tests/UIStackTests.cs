@@ -210,6 +210,24 @@ namespace SocialPoint.GUIControl
         }
 
         [Test]
+        public void Push_Two_Screens_And_Pop()
+        {
+            Reset();
+            BasicPush(ScreenGO);
+            BasicPush(ScreenGO);
+            UITestStackController.Pop();
+        }
+
+        [Test]
+        public void Push_Two_Popups_And_Pop()
+        {
+            Reset();
+            BasicPush(PopupGO);
+            BasicPush(PopupGO);
+            UITestStackController.Pop();
+        }
+
+        [Test]
         public void Push_Immediate_Screen()
         {
             Reset();
