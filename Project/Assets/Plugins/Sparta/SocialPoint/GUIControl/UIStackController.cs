@@ -379,15 +379,13 @@ namespace SocialPoint.GUIControl
             {   
                 if(StackNode.IsValid(from) && StackNode.IsValid(to))
                 {
-                    if(IsPushAction(act))
-                    {
-                        UpdateStackVisibility(act);
-                    }
-                    else
+                    if(IsPopAction(act) || IsReplaceAction(act))
                     {
                         from.Controller.Hide();
                     }
 
+                    UpdateStackVisibility(act);
+                        
                     while(!to.Controller.IsStable || !from.Controller.IsStable)
                     {
                         yield return null;
@@ -480,6 +478,8 @@ namespace SocialPoint.GUIControl
         {
             // prevent the stack controller
             // from appearing when the scene is loaded
+
+            Load();
         }
 
         override protected void OnAppearing()

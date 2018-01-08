@@ -35,10 +35,9 @@ namespace SocialPoint.GUIControl
         public UIViewAnimation DisappearAnimation;
 
         bool _loaded;
+        CanvasGroup _canvasGroup;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
-
-        [SerializeField]
         ViewState _viewState = ViewState.Initial;
 
         [HideInInspector]
@@ -110,11 +109,16 @@ namespace SocialPoint.GUIControl
         {
             set
             {
-                var group = gameObject.GetComponent<CanvasGroup>();
-                if(group != null)
+                if(_canvasGroup == null)
                 {
-                    group.alpha = value;
+                    _canvasGroup = gameObject.GetComponent<CanvasGroup>();
                 }
+
+                if(_canvasGroup != null)
+                {
+                    _canvasGroup.alpha = value;
+                }
+
                 for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
                     var mat = Materials3d[i];
@@ -124,11 +128,15 @@ namespace SocialPoint.GUIControl
 
             get
             {
-                var group = gameObject.GetComponent<CanvasGroup>();
-                var alpha = 0.0f;
-                if(group != null)
+                if(_canvasGroup == null)
                 {
-                    alpha = group.alpha;
+                    _canvasGroup = gameObject.GetComponent<CanvasGroup>();
+                }
+
+                var alpha = 0.0f;
+                if(_canvasGroup != null)
+                {
+                    alpha = _canvasGroup.alpha;
                 }
                 for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
@@ -357,7 +365,6 @@ namespace SocialPoint.GUIControl
                 _containers3d.Add(gameObject);
 
                 var container = gameObject.GetComponent<UI3DContainer>() ?? gameObject.AddComponent<UI3DContainer>();
-
                 container.OnDestroyed += On3dContainerDestroyed;
 
                 LayersController.Add3DContainer(this, gameObject);
@@ -515,10 +522,10 @@ namespace SocialPoint.GUIControl
                 return null;
             }
 
-            GameObject parent = transform.parent.gameObject;
+            Transform parent = transform.parent;
             while(parent != null)
             {
-                var ctrl = parent.GetComponent(typeof(UIViewController)) as UIViewController;
+                var ctrl = parent.GetComponent<UIViewController>();
                 if(ctrl != null)
                 {
                     return ctrl;
@@ -527,7 +534,8 @@ namespace SocialPoint.GUIControl
                 {
                     break;
                 }
-                parent = parent.transform.parent.gameObject;
+
+                parent = parent.transform.parent;
             }
             return null;
         }
@@ -607,7 +615,6 @@ namespace SocialPoint.GUIControl
         public void HideImmediate(bool destroy = false)
         {
             DebugLog("HideImmediate");
-            Load();
             if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappearing();
@@ -623,7 +630,6 @@ namespace SocialPoint.GUIControl
         public bool Hide()
         {
             DebugLog("Hide");
-            Load();
             var enm = DoHideCoroutine();
             if(enm != null)
             {
@@ -636,7 +642,6 @@ namespace SocialPoint.GUIControl
         public IEnumerator HideCoroutine()
         {
             DebugLog("HideCoroutine");
-            Load();
             yield return StartHideCoroutine(DoHideCoroutine());
         }
 
