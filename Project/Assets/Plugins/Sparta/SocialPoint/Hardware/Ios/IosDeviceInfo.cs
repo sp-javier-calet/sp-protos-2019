@@ -12,8 +12,7 @@ namespace SocialPoint.Hardware
         const string UidKeychainItemId = "SPDeviceID";
         const string UidKeychainAccessGroup = "es.socialpoint";
 
-        #if UNITY_2017_2_OR_NEWER
-        #else
+        #if !UNITY_2017_2_OR_NEWER
         [DllImport("__Internal")]
         private extern static void GetSafeAreaImpl(out float x, out float y, out float w, out float h);
         #endif
