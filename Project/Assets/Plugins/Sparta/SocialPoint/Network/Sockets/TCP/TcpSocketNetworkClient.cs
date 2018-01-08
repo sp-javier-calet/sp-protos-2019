@@ -130,7 +130,7 @@ namespace SocialPoint.Network
 
         void DisconnectClient()
         {
-            if(_connected && IsClientDisconnected())
+            if(Connected && IsClientDisconnected())
             {
                 OnDisconnected();
             }
