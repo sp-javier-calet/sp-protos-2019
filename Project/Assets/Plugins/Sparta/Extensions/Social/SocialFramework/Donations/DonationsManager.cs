@@ -46,7 +46,7 @@ namespace SocialPoint.Social
         public const string kDonationContributeMethod = "donation.contribute";
         public const string kDonationCollectMethod = "donation.collect";
         public const string kDonationRemoveMethod = "donation.remove";
-         
+
         #endregion
 
         public event Action<ActionType, AttrDic> DonationsSignal;
@@ -95,17 +95,23 @@ namespace SocialPoint.Social
         {
             if(IsLoggedIn)
             {
-                completionCallback(new Error());
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error());
+                }
                 return;
             }
 
             var dict = new AttrDic();
             dict.SetValue(kUserId, _connectionManager.LoginData.UserId.ToString());
 
-            SocialPoint.WAMP.Caller.HandlerCall handler = (error, args, kwargs) => {
+            _connectionManager.Call(kDonationLoginMethod, null, dict, (error, args, kwargs) => {
                 if(!Error.IsNullOrEmpty(error))
                 {
-                    completionCallback(error);
+                    if(completionCallback != null)
+                    {
+                        completionCallback(error);
+                    }
                     return;
                 }
 
@@ -113,14 +119,19 @@ namespace SocialPoint.Social
 
                 if(!IsLoggedIn)
                 {
-                    completionCallback(new Error("[DonationsManager] Failed to process services while Login"));
+                    if(completionCallback != null)
+                    {
+                        completionCallback(new Error("[DonationsManager] Failed to process services while Login"));
+                    }
                 }
                 else
                 {
-                    completionCallback(new Error());
+                    if(completionCallback != null)
+                    {
+                        completionCallback(new Error());
+                    }
                 }
-            };
-            _connectionManager.Call(kDonationLoginMethod, null, dict, handler);
+            });
         }
 
         void Clear()
@@ -138,7 +149,10 @@ namespace SocialPoint.Social
             {
                 const string msg = "[DonationsManager] Trying to request an item when not logged in";
                 Log.e(msg);
-                completionCallback(new Error(msg), null);
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error(msg), null);
+                }
                 return;
             }
 
@@ -153,8 +167,7 @@ namespace SocialPoint.Social
             dict.SetValue(kType, type);
             dict.Set(kMetadata, metadata);
 
-
-            SocialPoint.WAMP.Caller.HandlerCall handler = (error, args, kwargs) => {
+            _connectionManager.Call(kDonationRequestMethod, null, dict, (error, args, kwargs) => {
                 if(!Error.IsNullOrEmpty(error))
                 {
                     completionCallback(error, null);
@@ -163,9 +176,11 @@ namespace SocialPoint.Social
 
                 var itemRequest = CreateItemRequest(userId, requestUuid, itemId, amount, type, TimeSpan.FromSeconds(TimeUtils.Timestamp), metadata);
 
-                completionCallback(new Error(), itemRequest);
-            };
-            _connectionManager.Call(kDonationRequestMethod, null, dict, handler);
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error(), itemRequest);
+                }
+            });
         }
 
         public void ContributeItem(long requesterId, string requestUuid, int amount, string type, Action<Error> completionCallback)
@@ -174,7 +189,10 @@ namespace SocialPoint.Social
             {
                 const string msg = "[DonationsManager] Trying to contribute to an item when not logged in";
                 Log.e(msg);
-                completionCallback(new Error(msg));
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error(msg));
+                }
                 return;
             }
 
@@ -187,19 +205,24 @@ namespace SocialPoint.Social
             dict.SetValue(kAmount, amount);
             dict.SetValue(kType, type);
 
-            SocialPoint.WAMP.Caller.HandlerCall handler = (error, args, kwargs) => {
+            _connectionManager.Call(kDonationContributeMethod, null, dict, (error, args, kwargs) => {
                 if(!Error.IsNullOrEmpty(error))
                 {
-                    completionCallback(error);
+                    if(completionCallback != null)
+                    {
+                        completionCallback(error);
+                    }
                     return;
                 }
 
                 ItemRequest itemRequest = FindItemRequest(requesterId, requestUuid);
                 AddContribution(itemRequest, userId, amount);
 
-                completionCallback(new Error());
-            };
-            _connectionManager.Call(kDonationContributeMethod, null, dict, handler);
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error());
+                }
+            });
         }
 
         public void CollectItem(long contributorId, string requestUuid, string type, Action<Error> completionCallback)
@@ -208,7 +231,10 @@ namespace SocialPoint.Social
             {
                 const string msg = "[DonationsManager] Trying to collect an item when not logged in";
                 Log.e(msg);
-                completionCallback(new Error(msg));
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error(msg));
+                }
                 return;
             }
 
@@ -223,19 +249,24 @@ namespace SocialPoint.Social
             dict.SetValue(kAmount, amount);
             dict.SetValue(kType, type);
 
-            SocialPoint.WAMP.Caller.HandlerCall handler = (error, args, kwargs) => {
+            _connectionManager.Call(kDonationCollectMethod, null, dict, (error, args, kwargs) => {
                 if(!Error.IsNullOrEmpty(error))
                 {
-                    completionCallback(error);
+                    if(completionCallback != null)
+                    {
+                        completionCallback(error);
+                    }
                     return;
                 }
 
                 ItemRequest itemRequest = FindItemRequest(userId, requestUuid);
                 CollectContribution(itemRequest, contributorId, amount);
 
-                completionCallback(new Error());
-            };
-            _connectionManager.Call(kDonationCollectMethod, null, dict, handler);
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error());
+                }
+            });
         }
 
         public void RemoveRequest(string requestUuid, string type, Action<Error> completionCallback)
@@ -244,7 +275,10 @@ namespace SocialPoint.Social
             {
                 const string msg = "[DonationsManager] Trying to remove an item when not logged in";
                 Log.e(msg);
-                completionCallback(new Error(msg));
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error(msg));
+                }
                 return;
             }
 
@@ -255,18 +289,23 @@ namespace SocialPoint.Social
             dict.SetValue(kRequestUuid, requestUuid);
             dict.SetValue(kType, type);
 
-            SocialPoint.WAMP.Caller.HandlerCall handler = (error, args, kwargs) => {
+            _connectionManager.Call(kDonationRemoveMethod, null, dict, (error, args, kwargs) => {
                 if(!Error.IsNullOrEmpty(error))
                 {
-                    completionCallback(error);
+                    if(completionCallback != null)
+                    {
+                        completionCallback(error);
+                    }
                     return;
                 }
 
                 RemoveItemRequest(userId, requestUuid);
 
-                completionCallback(new Error());
-            };
-            _connectionManager.Call(kDonationRemoveMethod, null, dict, handler);
+                if(completionCallback != null)
+                {
+                    completionCallback(new Error());
+                }
+            });
         }
 
         public ItemRequest GetItemRequest(long requesterId, string requestUuid)
