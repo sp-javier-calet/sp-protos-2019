@@ -96,8 +96,8 @@ namespace SocialPoint.Network
         public void Update()
         {
             ConnectClient();
-            DisconnectClient();
             ReceiveServerMessages();
+            DisconnectClient();
         }
 
         void ConnectClient()
@@ -170,6 +170,7 @@ namespace SocialPoint.Network
 
         public void Dispose()
         {
+            DisconnectClient();
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
