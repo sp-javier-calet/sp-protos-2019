@@ -26,7 +26,6 @@ namespace SocialPoint.Network
         IUpdateScheduler _updateScheduler;
         TcpListener _listener;
         List<ClientData> _connectedDataClients = new List<ClientData>();
-        List<ClientData> _disconnectedDataClients = new List<ClientData>();
         byte _nextClientID = 1;
 
         public TcpSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = DefaultAddress, int port = DefaultPort)
@@ -200,24 +199,13 @@ namespace SocialPoint.Network
                 var c = _connectedDataClients[i];
                 if(IsSocketConnected(c.Client.Client) == false)
                 {
-                    _disconnectedDataClients.Add(c);
+                    for(var j = 0; j < _delegates.Count; j++)
+                    {
+                        _delegates[j].OnClientDisconnected((c.Id));
+                    }
                 }
             }
 
-            if(_disconnectedDataClients.Count > 0)
-            {
-                var disconnectedClients = _disconnectedDataClients.ToArray();
-                _disconnectedDataClients.Clear();
-                for(int i = 0; i < disconnectedClients.Length; i++)
-                {
-                    var client = disconnectedClients[i];
-                    for(var j = 0; j < _delegates.Count; j++)
-                    {
-                        _delegates[j].OnClientDisconnected((client.Id));
-                    }
-                    _connectedDataClients.Remove(client);
-                }
-            }
         }
 
         bool IsSocketConnected(Socket s)
@@ -238,8 +226,7 @@ namespace SocialPoint.Network
             _receiver = null;
             _connectedDataClients.Clear();
             _connectedDataClients = null;
-            _disconnectedDataClients.Clear();
-            _disconnectedDataClients = null;
+           
         }
     }
 }
