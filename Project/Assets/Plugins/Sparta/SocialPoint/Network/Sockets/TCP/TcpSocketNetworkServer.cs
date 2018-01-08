@@ -68,7 +68,10 @@ namespace SocialPoint.Network
 
         public void Fail(Error err)
         {
-            throw new NotImplementedException();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnNetworkError(err);
+            }
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
