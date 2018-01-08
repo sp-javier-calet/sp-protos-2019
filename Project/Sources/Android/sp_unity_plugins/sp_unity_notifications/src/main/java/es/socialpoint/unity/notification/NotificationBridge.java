@@ -19,6 +19,11 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.unity3d.player.UnityPlayer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import es.socialpoint.unity.configuration.Metadata;
 
 public class NotificationBridge {
@@ -168,16 +173,11 @@ public class NotificationBridge {
         return mPushNotificationTokenError;
     }
 
-    public static synchronized void setupChannels()
-    {
-        createChannel(DEFAULT_CHANNEL_ID, "Default", null);
-    }
-
-    private static void createChannel(String channelId, String name, String description)
+    private static NotificationChannel createChannelConfiguration(String channelId, String name, String description)
     {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
         {
-            return;
+            return null;
         }
 
         NotificationChannel channel = new NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_HIGH);
@@ -185,9 +185,52 @@ public class NotificationBridge {
         {
             channel.setDescription(description);
         }
+        return channel;
+    }
 
-        NotificationManager notificationManager =
-                (NotificationManager) UnityPlayer.currentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.createNotificationChannel(channel);
+    private static void addChannelConfiguration(List<NotificationChannel> channels, Set<String> channelIds,
+                                                String channelId, String name, String description)
+    {
+        channels.add(createChannelConfiguration(channelId, name, description));
+        channelIds.add(channelId);
+    }
+
+    private static void addConfiguredChannels(List<NotificationChannel> channels, Set<String> channelIds,
+                                              String[] ids, String[] names, String[] descriptions)
+    {
+        addChannelConfiguration(channels, channelIds, DEFAULT_CHANNEL_ID, "Default", null);
+
+        for (int i = 0; i < ids.length; i++)
+        {
+            addChannelConfiguration(channels, channelIds, ids[i], names[i], descriptions[i]);
+        }
+    }
+
+    public static synchronized void setupChannels(String[] ids, String[] names, String[] descriptions)
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+        {
+            return;
+        }
+
+        List<NotificationChannel> channels = new ArrayList<>();
+        Set<String> channelIds = new HashSet<>();
+        addConfiguredChannels(channels, channelIds, ids, names, descriptions);
+
+        Activity currentActivity = UnityPlayer.currentActivity;
+        NotificationManager notificationManager = (NotificationManager) currentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Remove the obsolete channels
+        for (NotificationChannel channel : notificationManager.getNotificationChannels())
+        {
+            String channelId = channel.getId();
+            if (!channelIds.contains(channelId))
+            {
+                notificationManager.deleteNotificationChannel(channelId);
+            }
+        }
+
+        // Create and update the configured channels
+        notificationManager.createNotificationChannels(channels);
     }
 }

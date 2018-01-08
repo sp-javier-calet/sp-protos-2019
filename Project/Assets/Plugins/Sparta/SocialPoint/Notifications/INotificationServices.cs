@@ -2,6 +2,14 @@ using System;
 
 namespace SocialPoint.Notifications
 {
+    [Serializable]
+    public struct NotificationChannel
+    {
+        public string Identifier;
+        public string Name;
+        public string Description;
+    }
+
     public interface INotificationServices
     {
         /// <summary>
@@ -37,5 +45,11 @@ namespace SocialPoint.Notifications
         /// </summary>
         /// <value><c>true</c> if user allows nofitication; otherwise, <c>false</c>.</value>
         bool UserAllowsNofitication { get; }
+
+        /// <summary>
+        /// Initializes the notification channels with the given configuration.
+        /// </summary>
+        /// <param name="channels">An array with configuration of the notification channels.</param>
+        void SetupChannels(NotificationChannel[] channels);
     }
 }
