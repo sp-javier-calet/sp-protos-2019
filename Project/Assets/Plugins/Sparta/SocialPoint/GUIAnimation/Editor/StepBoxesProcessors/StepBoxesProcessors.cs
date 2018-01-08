@@ -216,7 +216,7 @@ namespace SocialPoint.GUIAnimation
             {
                 bool someIsSelected = false;
 
-                if(Event.current.type == EventType.mouseUp)
+                if(Event.current.type == EventType.MouseUp)
                 {
                     foreach(var pair in Host.BoxContainer.CacheWindows)
                     {
@@ -249,7 +249,7 @@ namespace SocialPoint.GUIAnimation
                         // Disable Selected boxes if none is selected
                         var boxesWindow = new Rect(Host.BoxContainer.BoxesOffsetPosition.x, Host.BoxContainer.BoxesOffsetPosition.y, Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, 0).x, Host.BoxContainer.GridMaxHeight);
                         if(
-                            Event.current.type == EventType.mouseUp
+                            Event.current.type == EventType.MouseUp
                             && boxesWindow.Contains(Event.current.mousePosition))
                         {
                             Host.BoxContainer.OnAnimationItemSelected(null);
@@ -464,7 +464,7 @@ namespace SocialPoint.GUIAnimation
             }
 
             // Reset all on mouseup
-            if(Event.current.type == EventType.mouseUp)
+            if(Event.current.type == EventType.MouseUp)
             {
                 if(EnabledProcessor != null)
                 {

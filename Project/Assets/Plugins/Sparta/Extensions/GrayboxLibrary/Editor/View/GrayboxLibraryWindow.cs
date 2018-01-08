@@ -591,11 +591,11 @@ namespace SocialPoint.GrayboxLibrary
 
             switch(evt.type)
             {
-            case EventType.mouseDown:
+            case EventType.MouseDown:
                 if(Event.current.clickCount == 1 && AssetDragged == null && _currentDraggedAsset.Length > 0)
                     AssetDragged = Tool.GetAsset(_currentDraggedAsset);
                 break;
-            case EventType.mouseUp:
+            case EventType.MouseUp:
                 _dragging = false;
                 AssetDragged = null;
                 break;

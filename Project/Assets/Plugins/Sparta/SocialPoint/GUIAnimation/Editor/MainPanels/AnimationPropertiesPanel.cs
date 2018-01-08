@@ -328,7 +328,7 @@ namespace SocialPoint.GUIAnimation
             {
                 bool hasChanged = false;
 
-                if(Event.current.type == EventType.mouseDown)
+                if(Event.current.type == EventType.MouseDown)
                 {
                     _isEnabled = true;
                 }
@@ -337,7 +337,7 @@ namespace SocialPoint.GUIAnimation
                     hasChanged = GUI.changed;
                 }
 
-                _isEnabled &= Event.current.type != EventType.mouseUp;
+                _isEnabled &= Event.current.type != EventType.MouseUp;
 
                 return hasChanged;
             }

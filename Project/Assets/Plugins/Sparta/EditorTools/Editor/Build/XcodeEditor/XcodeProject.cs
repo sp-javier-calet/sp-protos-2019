@@ -1076,7 +1076,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         return null;
                     }
-                    ModData referenceData = _mods.First();  
+                    ModData referenceData = _mods[0];
                     foreach(var data in _mods)
                     {
                         //All the ModsData should be equal
@@ -1098,7 +1098,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     }
 
                     //Only reading First() because the Validate() mehtod assures that all the items in this list are equal
-                    var modData = _mods.First();
+                    var modData = _mods[0];
 
                     var path = Path.Combine(editor.Project.ProjectRootPath, modData.EntitlementsFile);
                     var plist = new PlistDocument();
@@ -1158,7 +1158,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         return null;
                     }
-                    var referenceEntitlementFile = _mods.First().EntitlementsFile;  
+                    var referenceEntitlementFile = _mods[0].EntitlementsFile;  
                     foreach(var data in _mods)
                     {
                         //All the ModsData should be equal

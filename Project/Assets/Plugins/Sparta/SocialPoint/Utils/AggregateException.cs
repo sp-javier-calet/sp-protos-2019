@@ -6,50 +6,105 @@ namespace SocialPoint.Utils
 {
     public sealed class AggregateException : Exception
     {
-        static string CreateMessage(IEnumerable<Exception> exceptions)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Multiple Exceptions thrown:");
-            var count = 1;
-            var itr = exceptions.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var ex = itr.Current;
-                sb.Append(count++).Append(". ");
-                AddException(sb, ex);
-            }
-            itr.Dispose();
-            return sb.ToString();
-        }
+        const string _desc = "Multiple Exceptions thrown:";
+        const string _indent = "    ";
+        const string _countPrefix = ". ";
+        const string _descPrefix = ": ";
 
-        static void AddException(StringBuilder sb, Exception ex, int lvl=0)
+        StringBuilder _msg;
+        StringBuilder _prefix;
+
+        void AddException(Exception ex, int lvl=0)
         {
-            var prefix = new StringBuilder();
+            if(_prefix == null)
+            {
+                _prefix = new StringBuilder();
+            }
+            else
+            {
+                _prefix.Length = 0;
+            }
             for(var i = 0; i < lvl; i++)
             {
-                prefix.Append("    ");
+                _prefix.Append(_indent);
             }
-            sb.Append(prefix)
+            _msg.Append(_prefix)
                 .Append(ex.GetType().Name)
-                .Append(": ")
+                .Append(_descPrefix)
                 .AppendLine(ex.Message);
             var stack = ex.StackTrace;
             if(!string.IsNullOrEmpty(stack))
             {
-                stack = stack.Replace(Environment.NewLine, Environment.NewLine+prefix.ToString());
-                sb.Append(prefix).AppendLine(stack);
+                stack = stack.Replace(Environment.NewLine, Environment.NewLine+_prefix.ToString());
+                _msg.Append(_prefix).AppendLine(stack);
             }
             if(ex.InnerException != null)
             {
-                AddException(sb, ex.InnerException, lvl+1);
+                AddException(ex.InnerException, lvl+1);
             }
         }
 
-        public List<Exception> Exceptions { get; private set; }
+        public Exception[] Exceptions { get; private set; }
 
-        public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
+        public override string Message
         {
-            Exceptions = new List<Exception>(exceptions);
+            get
+            {
+                if(_msg == null)
+                {
+                    _msg = new StringBuilder();
+                }
+                else
+                {
+                    _msg.Length = 0;
+                }
+                _msg.AppendLine(_desc);
+                var count = 1;
+                for(var i=0; i<Exceptions.Length; i++)
+                {
+                    var ex = Exceptions[i];
+                    _msg.Append(count++).Append(_countPrefix);
+                    AddException(ex);
+                }
+                return _msg.ToString();
+            }
+        }
+
+        AggregateException(Exception[] exceptions)
+        {
+            Exceptions = exceptions;
+        }
+
+        public static string GetString(Exception[] exceptions)
+        {
+            return new AggregateException(exceptions).ToString();
+        }
+
+        public static bool ForceTriggerLog = false;
+
+        public static void Trigger(List<Exception> exceptions)
+        {
+            Trigger(exceptions.ToArray());
+        }
+
+        public static void Trigger(Exception[] exceptions)
+        {
+            if(exceptions == null || exceptions.Length == 0)
+            {
+                return;
+            }
+
+            #if UNITY_5_3_OR_NEWER
+            if(ForceTriggerLog || UnityEngine.Application.isPlaying)
+            {
+                for(var i = 0; i < exceptions.Length; i++)
+                {
+                    UnityEngine.Debug.LogException(exceptions[i]);
+                }
+                return;
+            }
+            #endif
+            throw new AggregateException(exceptions);
         }
     }
 }

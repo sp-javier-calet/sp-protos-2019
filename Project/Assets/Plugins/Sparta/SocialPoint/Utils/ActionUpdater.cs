@@ -1,41 +1,44 @@
 ﻿using System;
 
-public struct ActionUpdater
+namespace SocialPoint.Utils
 {
-    const float _defaultDelay = 1f;
-    
-    float _freq;
-    float _accTime;
-
-    Action<float> _action;
-
-    static Random _random;
-
-    public ActionUpdater(Action<float> action, float freq, float startDelay = _defaultDelay)
+    public struct ActionUpdater
     {
-        _action = action;
-        _freq = freq;
+        const float _defaultDelay = 1f;
+        
+        float _freq;
+        float _accTime;
 
-        if(_random == null)
+        Action<float> _action;
+
+        static Random _random;
+
+        public ActionUpdater(Action<float> action, float freq, float startDelay = _defaultDelay)
         {
-            _random = new Random();
+            _action = action;
+            _freq = freq;
+
+            if(_random == null)
+            {
+                _random = new Random();
+            }
+
+            _accTime = freq - ((float)_random.NextDouble()) * startDelay;
         }
 
-        _accTime = freq - ((float)_random.NextDouble()) * startDelay;
-    }
-
-    public void Update(float dt)
-    {
-        _accTime += dt;
-        Consume();
-    }
-
-    void Consume()
-    {
-        if(_accTime > _freq)
+        public void Update(float dt)
         {
-            _accTime -= _freq;
-            _action(_freq);
+            _accTime += dt;
+            Consume();
+        }
+
+        void Consume()
+        {
+            if(_accTime > _freq)
+            {
+                _accTime -= _freq;
+                _action(_freq);
+            }
         }
     }
 }
