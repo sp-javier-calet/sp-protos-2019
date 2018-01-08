@@ -26,8 +26,6 @@ namespace SocialPoint.Utils
             }
 
             return string.Format(formatStr, finalAmount);
-
         }
     }
-
 }

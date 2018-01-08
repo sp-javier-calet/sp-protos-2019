@@ -79,7 +79,7 @@ namespace SocialPoint.GUIAnimation
             KeyController.UpdateState();
             MouseController.UpdateState();
             
-            bool doRepaintGUI = Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseUp || Event.current.type == EventType.mouseDrag;
+            bool doRepaintGUI = Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag;
             if(doRepaintGUI)
             {
                 ForceRepaint();
@@ -116,7 +116,7 @@ namespace SocialPoint.GUIAnimation
 
         static void TryResetPanelOnFocus()
         {
-            if(Event.current.type == EventType.mouseDown)
+            if(Event.current.type == EventType.MouseDown)
             {
                 Blackboard.Remove(AnimationBlackboardKey.FocusPanelKey);
             }

@@ -21,6 +21,8 @@ namespace SocialPoint.Hardware
             public string AppShortVersion;
             public string AppLanguage;
             public string AppCountry;
+
+            public StorageAnalyzerConfig StorageAnalyzer;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -32,6 +34,7 @@ namespace SocialPoint.Hardware
             Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
             Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
             Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+            Container.Rebind<IStorageAnalyzer>().ToMethod<StorageAnalyzer>(CreateStorageAnalyzer);
 
             #if UNITY_ANDROID && !UNITY_EDITOR
             Container.Rebind<INativeUtils>().ToMethod<AndroidNativeUtils>(CreateAndroidNativeUtils);
@@ -42,7 +45,6 @@ namespace SocialPoint.Hardware
             #else
             Container.Rebind<INativeUtils>().ToMethod<EmptyNativeUtils>(CreateEmptyNativeUtils);
             #endif
-
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
@@ -73,6 +75,15 @@ namespace SocialPoint.Hardware
         EmptyNativeUtils CreateEmptyNativeUtils()
         {
             return new EmptyNativeUtils();
+        }
+
+        StorageAnalyzer CreateStorageAnalyzer()
+        {
+            return new StorageAnalyzer(
+                Container.Resolve<IStorageInfo>(),
+                Container.Resolve<IUpdateScheduler>(),
+                Settings.StorageAnalyzer
+            );
         }
 
         SocialPointDeviceInfo CreateDeviceInfo()
@@ -124,7 +135,8 @@ namespace SocialPoint.Hardware
         AdminPanelHardware CreateAdminPanel()
         {
             return new AdminPanelHardware(
-                Container.Resolve<IDeviceInfo>());
+                Container.Resolve<IDeviceInfo>(),
+                Container.Resolve<IStorageAnalyzer>());
         }
         #endif
     }

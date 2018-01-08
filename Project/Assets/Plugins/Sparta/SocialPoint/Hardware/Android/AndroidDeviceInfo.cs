@@ -284,6 +284,20 @@ namespace SocialPoint.Hardware
             }
         }
 
+        Rect _safeAreaRectSize = Rect.zero;
+
+        public Rect SafeAreaRectSize
+        {
+            get
+            {
+                if(_safeAreaRectSize == Rect.zero)
+                {
+                    _safeAreaRectSize = new Rect(0f, 0f, ScreenSize.x, ScreenSize.y);
+                }
+                return _safeAreaRectSize;
+            }
+        }
+
         public float ScreenDpi
         {
             get

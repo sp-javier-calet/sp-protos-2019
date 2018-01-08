@@ -12,7 +12,7 @@ namespace SocialPoint.GUIAnimation
         {
             ResetState();
 
-            if(Event.current.type == EventType.keyDown)
+            if(Event.current.type == EventType.KeyDown)
             {
                 SetKeyValue(Event.current.keyCode, true);
             }
@@ -63,7 +63,7 @@ namespace SocialPoint.GUIAnimation
             }
 
             // Enter
-            if(Event.current.type == EventType.keyDown)
+            if(Event.current.type == EventType.KeyDown)
             {
                 if(Event.current.character == '\n')
                 {
