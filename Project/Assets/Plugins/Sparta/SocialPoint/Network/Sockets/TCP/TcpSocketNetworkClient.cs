@@ -39,6 +39,8 @@ namespace SocialPoint.Network
 
         public void Disconnect()
         {
+            _client.Client.Shutdown(SocketShutdown.Both);
+            _client.Client.Close();
             _client.Close();
             OnDisconnected();
         }
