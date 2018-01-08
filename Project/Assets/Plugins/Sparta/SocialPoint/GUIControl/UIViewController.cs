@@ -704,6 +704,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnAppeared()
         {
+            DebugLog("OnAppeared");
             _viewState = ViewState.Shown;
             DestroyOnHide = false;
             NotifyViewEvent();
