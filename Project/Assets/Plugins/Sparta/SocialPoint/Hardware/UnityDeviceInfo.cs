@@ -154,6 +154,37 @@ namespace SocialPoint.Hardware
             }
         }
 
+        Rect _safeAreaRectSize = Rect.zero;
+
+        public Rect SafeAreaRectSize
+        {
+            get
+            {
+                if(_safeAreaRectSize == Rect.zero)
+                {
+#if UNITY_IOS
+                    if(ScreenSize.x == 2436f && ScreenSize.y == 1125f)
+                    {
+                        // IphoneX resolution in landscape mode
+                        _safeAreaRectSize = new Rect(132f, 63f, 2172f, 1062f);
+                    }
+                    else if(ScreenSize.x == 1125f && ScreenSize.y == 2436f)
+                    {
+                        // IphoneX resolution in portrait mode
+                        _safeAreaRectSize = new Rect(0f, 102f, 1125f, 2202f);
+                    }
+                    else
+                    {
+                        _safeAreaRectSize = new Rect(0f, 0f, ScreenSize.x, ScreenSize.y);
+                    }
+#else
+                    _safeAreaRectSize = new Rect(0f, 0f, ScreenSize.x, ScreenSize.y);
+#endif
+                }
+                return _safeAreaRectSize;
+            }
+        }
+
         public float ScreenDpi
         {
             get

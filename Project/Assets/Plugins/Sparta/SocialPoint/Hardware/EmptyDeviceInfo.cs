@@ -104,6 +104,12 @@ namespace SocialPoint.Hardware
             set;
         }
 
+        public Rect SafeAreaRectSize
+        {
+            get;
+            set;
+        }
+
         public float ScreenDpi
         {
             get;

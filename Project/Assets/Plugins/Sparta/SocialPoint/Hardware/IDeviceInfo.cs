@@ -82,6 +82,11 @@ namespace SocialPoint.Hardware
         Vector2 ScreenSize { get; }
 
         /**
+         *  Returns the safe area rect in pixels x, y, width and height
+         */
+        Rect SafeAreaRectSize { get; }
+
+        /**
          *  Returns the current DPI of the screen / device
          */
         float ScreenDpi { get; }
