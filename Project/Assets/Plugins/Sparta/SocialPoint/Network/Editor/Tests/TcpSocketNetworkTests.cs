@@ -9,14 +9,14 @@ namespace SocialPoint.Network
     [Category("SocialPoint.Network")]
     class TcpSocketNetworkTests : BaseNetworkTests
     {
+        Random _random = new Random();
         UpdateScheduler _scheduler;
 
         [SetUp]
         public void SetUp()
         {
             var ip = "127.0.0.1";
-            var random = new Random();
-            var port = random.Next(3000, 5000);
+            var port = _random.Next(3000, 5000);
             _scheduler = new UpdateScheduler();
             _server = new TcpSocketNetworkServer(_scheduler, ip, port);
             _client = new TcpSocketNetworkClient(_scheduler, ip, port);
