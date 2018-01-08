@@ -12,10 +12,10 @@ namespace SocialPoint.Social
     {
         public enum ActionType
         {
-            OnDonationRequestReceived,
-            OnDonationContributeReceived,
-            OnDonationRequestRemoved,
-            OnDonationRequestUserRemoved
+            RequestReceived,
+            ContributeReceived,
+            RequestRemoved,
+            RequestUserRemoved
         }
 
         #region String Keys
@@ -420,7 +420,7 @@ namespace SocialPoint.Social
 
             if(DonationsSignal != null)
             {
-                DonationsSignal(ActionType.OnDonationRequestReceived, dictNotificationInfo);
+                DonationsSignal(ActionType.RequestReceived, dictNotificationInfo);
             }
         }
 
@@ -439,7 +439,7 @@ namespace SocialPoint.Social
 
             if(DonationsSignal != null)
             {
-                DonationsSignal(ActionType.OnDonationContributeReceived, dictNotificationInfo);
+                DonationsSignal(ActionType.ContributeReceived, dictNotificationInfo);
             }
 
             // Other params included in dictNotificationInfo:
@@ -456,7 +456,7 @@ namespace SocialPoint.Social
 
             if(DonationsSignal != null)
             {
-                DonationsSignal(ActionType.OnDonationRequestRemoved, dictNotificationInfo);
+                DonationsSignal(ActionType.RequestRemoved, dictNotificationInfo);
             }
         }
 
@@ -478,7 +478,7 @@ namespace SocialPoint.Social
 
             if(DonationsSignal != null)
             {
-                DonationsSignal(ActionType.OnDonationRequestUserRemoved, dictNotificationInfo);
+                DonationsSignal(ActionType.RequestUserRemoved, dictNotificationInfo);
             }
         }
 

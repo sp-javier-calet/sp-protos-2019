@@ -378,10 +378,10 @@ namespace SocialPoint.Social
 
             const string uuid = "ABCD";
             AddItemRequest(kLocalUserId, uuid, 0, 0, "", new AttrDic());
-            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestReceived, Arg.Any<AttrDic>());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.RequestReceived, Arg.Any<AttrDic>());
 
             AddItemContribution(963, uuid, 0);
-            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationContributeReceived, Arg.Any<AttrDic>());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.ContributeReceived, Arg.Any<AttrDic>());
 
             {
                 var notificationDic = new AttrDic();
@@ -389,7 +389,7 @@ namespace SocialPoint.Social
                 notificationDic.SetValue(DonationsManager.kRequestUuid, uuid);
                 _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationRemove, string.Empty, notificationDic);
             }
-            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestRemoved, Arg.Any<AttrDic>());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.RequestRemoved, Arg.Any<AttrDic>());
         }
 
         [Test]
@@ -414,7 +414,7 @@ namespace SocialPoint.Social
                 notificationDic.SetValue(DonationsManager.kDonationType, donationType1);
                 _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationUserRemove, string.Empty, notificationDic);
             }
-            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestUserRemoved, Arg.Any<AttrDic>());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.RequestUserRemoved, Arg.Any<AttrDic>());
 
             Assert.AreEqual(1, _manager.NumRequests);
             Assert.AreEqual(donationType2, _manager.ItemsRequests.First().DonationType);
@@ -443,7 +443,7 @@ namespace SocialPoint.Social
                 notificationDic.SetValue(DonationsManager.kDonationType, donationType1);
                 _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationUserRemove, string.Empty, notificationDic);
             }
-            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestUserRemoved, Arg.Any<AttrDic>());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.RequestUserRemoved, Arg.Any<AttrDic>());
 
             Assert.AreEqual(2, _manager.NumRequests);
             foreach(var request in _manager.ItemsRequests)
