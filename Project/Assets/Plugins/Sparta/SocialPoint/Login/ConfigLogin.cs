@@ -64,6 +64,7 @@ namespace SocialPoint.Login
         }
 
         public event LoginErrorDelegate ErrorEvent = null;
+        public event LoginErrorDelegate LinkErrorEvent = null;
 
         public event RestartDelegate RestartEvent
         {
