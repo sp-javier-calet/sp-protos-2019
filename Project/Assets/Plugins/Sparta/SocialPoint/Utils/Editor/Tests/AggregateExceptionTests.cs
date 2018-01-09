@@ -58,6 +58,8 @@ second line
         [Test]
         public void TriggerLog()
         {
+            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+
             var old = AggregateException.ForceTriggerLog;
             AggregateException.ForceTriggerLog = true;
 
