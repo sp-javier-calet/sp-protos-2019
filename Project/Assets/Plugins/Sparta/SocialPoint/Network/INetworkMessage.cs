@@ -68,7 +68,7 @@ namespace SocialPoint.Network
         public override string ToString()
         {
             var sb = new StringBuilder(128);
-            sb.Append(string.Format("[NetworkMessageData MessageType={0} Unreliable={1}"));
+            sb.Append(string.Format("[NetworkMessageData MessageType={0} Unreliable={1}",MessageType,Unreliable));
             if(ClientIds != null)
             {
                 for(int i = 0; i < ClientIds.Count; ++i)
