@@ -18,6 +18,7 @@ namespace SocialPoint.Social
             public bool UseEmpty;
             public bool LoginLink = true;
             public LinkMode LoginLinkMode = LinkMode.Auto;
+            public bool LoadAchievements;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -57,7 +58,7 @@ namespace SocialPoint.Social
         UnityGameCenter CreateUnity()
         {
             return new UnityGameCenter(
-                Container.Resolve<NativeCallsHandler>());
+                Container.Resolve<NativeCallsHandler>(), true, Settings.LoadAchievements);
         }
 
         #if ADMIN_PANEL

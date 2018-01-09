@@ -37,8 +37,8 @@ namespace SocialPoint.Social
         List<GameCenterUser> _friends;
         HashSet<string> _achievementsUpdating;
 
-
         SocialPointGameCenterVerification _verification;
+        bool _loadAchievements;
 
         public List<GameCenterUser> Friends
         {
@@ -187,12 +187,13 @@ namespace SocialPoint.Social
             }));
         }
 
-        public UnityGameCenter(NativeCallsHandler handler, bool showAchievements = true)
+        public UnityGameCenter(NativeCallsHandler handler, bool showAchievements = true, bool loadAchievements = false)
         {
             _friends = new List<GameCenterUser>();
             _achievementsUpdating = new HashSet<string>();
             _user = new GameCenterUser();
             _platform = new GameCenterPlatform();
+            _loadAchievements = loadAchievements;
             GameCenterPlatform.ShowDefaultAchievementCompletionBanner(showAchievements);
             _verification = new SocialPointGameCenterVerification(handler);
         }
@@ -263,7 +264,14 @@ namespace SocialPoint.Social
                                 }
                                 else
                                 {
-                                    DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
+                                    if(_loadAchievements)
+                                    {
+                                        DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
+                                    }
+                                    else
+                                    {
+                                        OnLoginEnd(null, cbk);
+                                    }
                                 }
                             });
                         }
@@ -302,6 +310,12 @@ namespace SocialPoint.Social
 
         public void ResetAchievements(ErrorDelegate cbk = null)
         {
+            if(!_loadAchievements)
+            {
+                Log.w("[ResetAchievements] Achievements can't reset because they are not loaded");
+                return;
+            }
+            
             if(!IsConnected)
             {
                 if(cbk != null)
