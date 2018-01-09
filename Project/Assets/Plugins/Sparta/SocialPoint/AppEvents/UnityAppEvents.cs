@@ -1,10 +1,15 @@
 using System.Collections.Generic;
+using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
     public sealed class UnityAppEvents : BaseAppEvents
     {
         bool _openedFromSource;
+
+        const string PlayerPrefSourceApplicationKey = "SourceApplicationKey";
+
 
         void Awake()
         {
@@ -15,6 +20,14 @@ namespace SocialPoint.AppEvents
 
         void Start()
         {
+            var url = PlayerPrefs.GetString(PlayerPrefSourceApplicationKey);
+            if(!string.IsNullOrEmpty(url))
+            {
+                LoadImpersonate(url);
+                _openedFromSource = true;
+                return;
+            }
+
             if(!_openedFromSource)
             {
                 OnOpenedFromSource(Source);
@@ -45,6 +58,12 @@ namespace SocialPoint.AppEvents
             {
                 OnWillGoBackground();
             }
+        }
+
+        public void LoadImpersonate(string url)
+        {
+            Source = new AppSource(url);
+            OnOpenedFromSource(Source);
         }
     }
 }

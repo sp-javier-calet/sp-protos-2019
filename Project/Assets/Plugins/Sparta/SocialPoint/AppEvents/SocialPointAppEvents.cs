@@ -31,13 +31,13 @@ namespace SocialPoint.AppEvents
             }
             DestroyAppEvents();
 
-            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
             _appEvents = go.AddComponent<IosAppEvents>();
-            #elif UNITY_ANDROID && !UNITY_EDITOR
+#elif UNITY_ANDROID && !UNITY_EDITOR
             _appEvents = go.AddComponent<AndroidAppEvents>();
-            #else
+#else
             _appEvents = go.AddComponent<UnityAppEvents>();
-            #endif
+#endif
 
             _defaultCoroutine = new PriorityCoroutineAction(_appEvents);
         }
@@ -240,6 +240,13 @@ namespace SocialPoint.AppEvents
         }
 
         #endregion
+
+#if UNITY_EDITOR
+        public BaseAppEvents GetAppEvents()
+        {
+            return _appEvents;
+        }
+#endif
     }
 }
 

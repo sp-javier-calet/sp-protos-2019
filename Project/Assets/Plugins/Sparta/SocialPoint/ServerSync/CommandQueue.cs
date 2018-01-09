@@ -80,6 +80,8 @@ namespace SocialPoint.ServerSync
             }
         }
 
+        public static bool PlayerImpersonated = false;
+
         IAppEvents _appEvents;
 
         public IAppEvents AppEvents
@@ -124,7 +126,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWasLoaded()
         {
-            if(!_running)
+            if(!_running && !PlayerImpersonated)
             {
                 Start();
             }
@@ -135,7 +137,10 @@ namespace SocialPoint.ServerSync
             if(_running)
             {
                 Stop();
-                Send();
+                if(!PlayerImpersonated)
+                {
+                    Send();
+                }
             }
             Reset();
         }
@@ -748,7 +753,18 @@ namespace SocialPoint.ServerSync
                     NotifyError(CommandQueueErrorType.ClockChange, resp.Error, resp.StatusCode);
                     break;
                 default:
-                    NotifyError(CommandQueueErrorType.HttpResponse, resp.Error, resp.StatusCode);
+                {
+                    string commandsSent = "";
+                    for(int i = 0; i < _sentPackets.Count; ++i)
+                    {
+                        var currentPacket = _sentPackets[i].GetEnumerator();
+                        while(currentPacket.MoveNext())
+                        {
+                            commandsSent += currentPacket.Current.Command.Name+", ";
+                        }
+                    }
+                    NotifyError(CommandQueueErrorType.HttpResponse, new Error(commandsSent), resp.StatusCode);
+                }
                     break;
                 }
                 return null;
