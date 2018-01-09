@@ -19,8 +19,6 @@ namespace SocialPoint.Helpshift
         public bool SearchOnNewConversationEnabled { get; set; }
 
         public bool ConversationResolutionQuestionEnabled { get; set; }
-
-        public Dictionary<string, object>[] Flows;
     }
 
     public class HelpshiftCustomer
@@ -57,6 +55,6 @@ namespace SocialPoint.Helpshift
 
         int PendingNotificationsCount { get; }
 
-        void AddFlows(AttrDic flows);
+        void AddFlows(Dictionary<string, object>[] flows);
     }
 }
