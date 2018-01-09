@@ -1,6 +1,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.ServerSync;
 using System;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -62,11 +63,10 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class ServerSyncBridge :
-        IEventsBridge, 
         IScriptEventsBridge
     {
         
-        IEventDispatcher _dispatcher;
+        IEventProcessor _processor;
         ICommandQueue _queue;
 
         public ServerSyncBridge(ICommandQueue queue)
@@ -75,34 +75,30 @@ namespace SocialPoint.ScriptEvents
             _queue.CommandResponse += OnCommandResponse;
         }
 
-        public void Load(IEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher, IEventProcessor processor)
         {
-            _dispatcher = dispatcher;
-            _dispatcher.AddListener<ServerCommandAction>(OnCommandAction);
-        }
-
-        public void Load(IScriptEventDispatcher dispatcher)
-        {
-            dispatcher.AddParser(new ServerCommandActionParser());
-            dispatcher.AddSerializer(new ServerCommandResponseEventSerializer());
+            _processor = processor;
+            _processor.RegisterHandler<ServerCommandAction>(OnCommandAction);
+            dispatcher.RegisterParser(new ServerCommandActionParser());
+            dispatcher.RegisterSerializer(new ServerCommandResponseEventSerializer());
         }
 
         public void Dispose()
         {
-            if(_dispatcher != null)
+            if(_processor != null)
             {
-                _dispatcher.RemoveListener<ServerCommandAction>(OnCommandAction);
+                _processor.UnregisterHandler<ServerCommandAction>(OnCommandAction);
             }
             _queue.CommandResponse -= OnCommandResponse;
         }
 
         void OnCommandResponse(Command cmd, Attr resp)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new ServerCommandResponseEvent {
+            _processor.Process(new ServerCommandResponseEvent {
                 Command = cmd,
                 Response = resp
             });

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Utils
 {    
-
     public class PriorityAction<T> : PriorityQueue<T, Action>
     {
         Action<T> _defaultAction;

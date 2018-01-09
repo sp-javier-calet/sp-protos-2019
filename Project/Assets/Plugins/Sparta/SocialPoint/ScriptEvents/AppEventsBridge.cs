@@ -1,6 +1,7 @@
 using System.Collections;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -175,10 +176,9 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class AppEventsBridge :
-        IEventsBridge,
         IScriptEventsBridge
     {
-        IEventDispatcher _dispatcher;
+        IEventProcessor _processor;
         IAppEvents _appEvents;
 
         public AppEventsBridge(IAppEvents appEvents)
@@ -195,22 +195,18 @@ namespace SocialPoint.ScriptEvents
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
         {
-            dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
-            dispatcher.AddSerializer(new AppGameWasLoadedEventSerializer());
-            dispatcher.AddSerializer(new AppGameWillRestartEventSerializer());
-            dispatcher.AddSerializer(new AppLevelWasLoadedEventSerializer());
-            dispatcher.AddSerializer(new AppOpenedFromSourceEventSerializer());
-            dispatcher.AddSerializer(new AppWasOnBackgroundEventSerializer());
-            dispatcher.AddSerializer(new AppWasCoveredEventSerializer());
-            dispatcher.AddSerializer(new AppReceivedMemoryWarningEventSerializer());
-            dispatcher.AddSerializer(new AppQuitEventSerializer());
-        }
-
-        public void Load(IEventDispatcher dispatcher)
-        {
-            _dispatcher = dispatcher;
+            _processor = processor;
+            scriptProcessor.RegisterSerializer(new AppWillGoBackgroundEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppGameWasLoadedEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppGameWillRestartEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppLevelWasLoadedEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppOpenedFromSourceEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppWasOnBackgroundEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppWasCoveredEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppReceivedMemoryWarningEventSerializer());
+            scriptProcessor.RegisterSerializer(new AppQuitEventSerializer());
         }
 
         public void Dispose()
@@ -228,33 +224,33 @@ namespace SocialPoint.ScriptEvents
 
         void OnWillGoBackground(int priority)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppWillGoBackgroundEvent {
+            _processor.Process(new AppWillGoBackgroundEvent {
                 Priority = priority
             });
         }
 
         void OnGameWasLoaded(int priority)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppGameWasLoadedEvent {
+            _processor.Process(new AppGameWasLoadedEvent {
                 Priority = priority
             });
         }
 
         IEnumerator AfterGameWasLoaded(int priority)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 yield break;
             }
-            _dispatcher.Raise(new AppAfterGameWasLoadedEvent {
+            _processor.Process(new AppAfterGameWasLoadedEvent {
                 Priority = priority
             });
             yield break;
@@ -262,60 +258,60 @@ namespace SocialPoint.ScriptEvents
 
         void OnGameWillRestart(int priority)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppGameWillRestartEvent {
+            _processor.Process(new AppGameWillRestartEvent {
                 Priority = priority
             });
         }
 
         void OnWasOnBackground()
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppWasOnBackgroundEvent());
+            _processor.Process(new AppWasOnBackgroundEvent());
         }
 
         void OnWasCovered()
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppWasCoveredEvent());
+            _processor.Process(new AppWasCoveredEvent());
         }
 
         void OnReceivedMemoryWarning()
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppReceivedMemoryWarningEvent());
+            _processor.Process(new AppReceivedMemoryWarningEvent());
         }
 
         void OnOpenedFromSource(AppSource source)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppOpenedFromSourceEvent {
+            _processor.Process(new AppOpenedFromSourceEvent {
                 Source = source
             });
         }
 
         void OnApplicationQuit()
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppQuitEvent());
+            _processor.Process(new AppQuitEvent());
         }
     }
 

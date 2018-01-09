@@ -7,11 +7,11 @@ variables:
   UNITY_PROJ_REL_PATH: Project
   PYTHON_CI_REPO_PATH: C:\sp-tools-Python-CI-Scripts
 
-Check_MergeConflict_Files:
+Check_Merge_Conflict_Markers:
   only:
   - triggers
   script:
-  - python %CI_PROJECT_DIR%\scripts\check-merge-conflicts.py --path %CI_PROJECT_DIR%
+  - call C:\conf.bat & set PYTHONPATH=%PYTHON_CI_REPO_PATH% & python -m MergeConflictChecker.CheckMergeConflicts
   stage: check
 Copy_New_Branch_Cache:
   only:
@@ -20,6 +20,11 @@ Copy_New_Branch_Cache:
   - python %PYTHON_CI_REPO_PATH%\GenericJobs\CopyCache.py -s master
   stage: compile
 Create_UnityCache_Android:
+  artifacts:
+    paths:
+    - '%CI_PROJECT_DIR%/UnityLog/'
+    when: on_failure
+    expire_in: 4 weeks
   cache:
     key: '%CI_COMMIT_REF_NAME%/AndroidLib/'
     paths:
@@ -31,6 +36,11 @@ Create_UnityCache_Android:
     android
   stage: compile
 Create_UnityCache_iOS:
+  artifacts:
+    paths:
+    - '%CI_PROJECT_DIR%/UnityLog/'
+    when: on_failure
+    expire_in: 4 weeks
   cache:
     key: '%CI_COMMIT_REF_NAME%/iOSLib/'
     paths:

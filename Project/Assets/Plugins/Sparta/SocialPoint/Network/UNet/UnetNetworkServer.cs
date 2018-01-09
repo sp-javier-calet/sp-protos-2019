@@ -179,15 +179,16 @@ namespace SocialPoint.Network
             NetworkConnection[] conns;
             if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
-                var conn = _server.FindConnection(data.ClientIds[0]);
-                if(conn == null)
+                var connsList = new List<NetworkConnection>();
+                for(var i = 0; i < data.ClientIds.Count; i++)
                 {
-                    conns = new NetworkConnection[]{ };
+                    var conn = _server.FindConnection(data.ClientIds[i]);
+                    if(conn != null)
+                    {
+                        connsList.Add(conn);
+                    }
                 }
-                else
-                {
-                    conns = new NetworkConnection[]{ conn };
-                }
+                conns = connsList.ToArray();
             }
             else
             {

@@ -264,7 +264,7 @@ namespace SocialPoint.Multiplayer
             _actions.RegisterAction<T>(msgType, callback);
         }
 
-        public void RegisterAction<T>(byte msgType, IStateActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
+        public void RegisterAction<T>(byte msgType, IStateEventHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
         {
             _actions.RegisterAction<T>(msgType, handler);
         }

@@ -459,7 +459,7 @@ namespace SocialPoint.GUIAnimation
             bool isMouseInBox = DoRenderGrid();
             isMouseInGridOutOfBox = isMouseInGridOutOfBox && !isMouseInBox;
             if(isMouseInGridOutOfBox
-               && (Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseDrag))
+               && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
             {
                 // Disable Selected Item
                 if(SelectedStep != null)

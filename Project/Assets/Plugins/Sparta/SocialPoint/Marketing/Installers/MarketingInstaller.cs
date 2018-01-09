@@ -3,9 +3,12 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Dependency;
 using System;
+using SocialPoint.Utils;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+using SocialPoint.Alert;
+using SocialPoint.Hardware;
 #endif
 
 namespace SocialPoint.Marketing
@@ -58,7 +61,14 @@ namespace SocialPoint.Marketing
         #if ADMIN_PANEL
         public AdminPanelMarketing CreateAdminPanelMarketing()
         {
-            var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
+            var adminPanel = new AdminPanelMarketing(
+                                 Container.Resolve<IMarketingAttributionManager>(), 
+                                 Container.Resolve<IAttrStorage>("persistent"),
+                                 Container.Resolve<IDeviceInfo>(),
+                                 Container.Resolve<INativeUtils>(),
+                                 Container.Resolve<IAppEvents>(),
+                                 Container.Resolve<IAlertView>()
+                             );
             return adminPanel;
         }
         #endif

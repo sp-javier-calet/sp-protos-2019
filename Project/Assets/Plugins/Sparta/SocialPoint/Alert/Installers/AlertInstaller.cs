@@ -57,7 +57,6 @@ namespace SocialPoint.Alert
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
 
             Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
-            Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
             Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
 
             #if ADMIN_PANEL

@@ -287,3 +287,18 @@ EXPORT_API void SPUnityNativeUtilsDisplayReviewDialog()
     }
 #endif
 }
+
+void clearUserDefaults()
+{
+    NSString* appDomain = [[NSBundle mainBundle] bundleIdentifier];
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+EXPORT_API void SPUnityNativeUtilsClearDataAndKillApp()
+{
+#if !UNITY_TVOS
+    clearUserDefaults();
+    exit(0);
+#endif
+}

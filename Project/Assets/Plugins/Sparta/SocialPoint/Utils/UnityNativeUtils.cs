@@ -62,5 +62,11 @@ namespace SocialPoint.Utils
 
         public virtual ShortcutItem[] ShortcutItems{ get; set; }
 
+        #if ADMIN_PANEL
+        public virtual void ClearDataAndKillApp()
+        {
+            throw new NotImplementedException();
+        }
+        #endif
     }
 }

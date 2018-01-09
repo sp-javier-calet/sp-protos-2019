@@ -5,12 +5,14 @@
 //
 //
 
+#import <SPUnityPlugins/SPUnitySubController.h>
+
 #import "UnityAppController.h"
 #import "AppsFlyerTracker.h"
 #import "AppsFlyerDelegate.h"
 #import "AppDelegateListener.h"
 
-@interface AppsFlyerAppController : UnityAppController <AppDelegateListener>
+@interface AppsFlyerAppController : SPUnitySubController <AppDelegateListener>
 {
     BOOL didEnteredBackGround;
 }
@@ -59,7 +61,9 @@
 
 - (void)didReceiveRemoteNotification:(NSNotification*)notification {
     NSLog(@"got didReceiveRemoteNotification = %@", notification.userInfo);
-    [[AppsFlyerTracker sharedTracker] handlePushNotification:notification.userInfo];
+    
+    //We don't want to enable Tracking App Launches from push notifications
+    //[[AppsFlyerTracker sharedTracker] handlePushNotification:notification.userInfo];
 }
 
 // LifeCycleListener protocol
@@ -76,7 +80,10 @@
     NSLog(@"got didBecomeActive(out) = %@", notification.userInfo);
     if (didEnteredBackGround == YES) {
         NSLog(@"got didBecomeActive = %@", notification.userInfo);
-        [[AppsFlyerTracker sharedTracker] trackAppLaunch];
+        
+        //We don't want to Track App Launches every time we come from background, nor risk this being called before login
+        //[[AppsFlyerTracker sharedTracker] trackAppLaunch];
+        
         didEnteredBackGround = NO;
         
     }

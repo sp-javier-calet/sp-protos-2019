@@ -10,7 +10,7 @@ public class PlayerParser : IAttrObjParser<PlayerModel>, IAttrObjSerializer<Play
     PlayerModel _playerModel;
     GoalsModelParser _goalsParser;
 
-    public PlayerParser(PlayerModel playerModel, ConfigModel config, IScriptEventDispatcher scriptEventDispatcher)
+    public PlayerParser(PlayerModel playerModel, ConfigModel config, IScriptEventProcessor scriptEventDispatcher)
     {
         _playerModel = playerModel;
         _goalsParser = new GoalsModelParser(_playerModel.Goals, config, scriptEventDispatcher, _playerModel);

@@ -377,11 +377,7 @@ namespace SocialPoint.Utils
             UpdateHandlers();
 
             // Check new exceptions
-            var exceptionsCount = _exceptions.Count;
-            if(exceptionsCount > 0)
-            {
-                throw new AggregateException(_exceptions);
-            }
+            SocialPoint.Utils.AggregateException.Trigger(_exceptions);
 
             // Sync for internal changes during update
             Synchronize();
@@ -430,6 +426,7 @@ namespace SocialPoint.Utils
         interface IDeltaTimeSource<T>
         {
             void Update(float scaledDelta, float unscaledDelta);
+
             T Value { get; }
         }
 
@@ -498,7 +495,7 @@ namespace SocialPoint.Utils
                 var ts = TimeUtils.GetTimestampMilliseconds(DateTime.Now);
                 if(_timestamp <= 0)
                 {
-                    _timestamp =  ts;
+                    _timestamp = ts;
                 }
                 Value = (int)(ts - _timestamp);
                 _timestamp = ts;

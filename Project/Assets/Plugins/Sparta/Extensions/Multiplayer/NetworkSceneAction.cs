@@ -3,7 +3,7 @@ using SocialPoint.Lifecycle;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkSceneActionHandler<T> : IStateActionHandler<NetworkScene, T>
+    public interface INetworkSceneActionHandler<T> : IStateEventHandler<NetworkScene, T>
     {
     }
 
@@ -40,7 +40,23 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneActionProcessor : StateActionProcessor<NetworkSceneMemento>
+    public interface IStateAppliable<S>
+    {
+        void Apply(S state);
+    }
+
+    public class AppliableStateActionHandler<S> : IStateEventHandler<S, IStateAppliable<S>>
+    {
+        public void Handle(S state, IStateAppliable<S> action)
+        {
+            if(action != null)
+            {
+                action.Apply(state);
+            }
+        }
+    }
+
+    public class NetworkSceneActionProcessor : StateEventProcessor<NetworkSceneMemento>
     {
         public NetworkSceneActionProcessor()
         {

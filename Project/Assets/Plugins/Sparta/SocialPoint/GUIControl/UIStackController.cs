@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Base;
 using SocialPoint.AppEvents;
-using UnityEngine;
+using SocialPoint.Base;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
@@ -43,6 +43,18 @@ namespace SocialPoint.GUIControl
 
         IList<StackNode> _views = new List<StackNode>();
         IAppEvents _appEvents;
+        bool _enabled;
+        public bool IsEnabled
+        {
+            get
+            {
+                return _enabled || !Application.isPlaying;
+            }
+            private set
+            {
+                _enabled = value;
+            }
+        }
 
         public IAppEvents AppEvents
         {
@@ -91,6 +103,7 @@ namespace SocialPoint.GUIControl
         }
 
         readonly List<StackNode> _stack = new List<StackNode>();
+
         public IList<StackNode> Stack
         {
             get
@@ -319,30 +332,14 @@ namespace SocialPoint.GUIControl
             {
                 from.Controller.SetParent(BackContainer.transform);
             }
-                
-            if(IsValidStackNode(from))
-            {
-                if(!IsImmediateAction(act))
-                {
-                    from.Controller.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
-                }
             }
 
-            if(IsValidStackNode(to))
-            {
-                if(!IsImmediateAction(act))
+        void NotifyActionEvent(UIViewController ctrl, ActionType action)
                 {
-                    to.Controller.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
-                }
-            }
-        }
-              
-        void NotifyActionEvent(StackNode stackNode, ActionType action)
-        {
             if(ActionEvent != null)
             {
-                DebugLog(string.Format("UIStackController::NotifyActionEvent {0} over view {1}. Current stack Count = {2}", action, IsValidStackNode(stackNode) ? stackNode.Controller : null, _stack.Count));
-                ActionEvent(IsValidStackNode(stackNode) ? stackNode.Controller : null, action, _stack.Count);
+                DebugLog(string.Format("UIStackController::NotifyActionEvent {0} over view {1}. Current stack Count = {2}", action, ctrl, _stack.Count));
+                ActionEvent(ctrl, action, _stack.Count);
             }
         }
             
@@ -500,36 +497,29 @@ namespace SocialPoint.GUIControl
             base.OnDisappeared();
         }
 
-        override public void OnPopupStackedInView()
-        {
-            _action = ActionType.None;
-
-            var top = Top;
-            if(top != null)
-            {
-                top.Controller.ShowImmediate();
-            }
-        }
-
-        public void OnPopupStackedInHide()
-        {
-            _action = ActionType.None;
-
-            var top = Top;
-            if(top != null)
-            {
-                top.Controller.HideImmediate();
-            }
-        }
-
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
+        {
+            if(state == ViewState.Destroyed)
+            {
+                UpdateStackVisibility(_action);
+            }
+            else
         {
             var top = Top;
             if(IsValidStackNode(top))
             {
                 if(_action == ActionType.None && state == ViewState.Disappearing && top.Controller == ctrl)
                 {
-                    Pop();
+                        // This is only for using Hide or HideImmedate methods. 
+                        // In this case we only want to Destroy the UIViewController if is the top and we are not 
+                        // disabling the whole UIStackController directly
+
+                        // We have added a isPlaying check to do this properly UnityTests
+                        if(IsEnabled)
+                        {
+                            ctrl.DestroyOnHide = true;
+                        }
+
                 }
                 else if(state == ViewState.Destroying)
                 {
@@ -539,10 +529,9 @@ namespace SocialPoint.GUIControl
                         if(index >= 0)
                         {
                             _stack.RemoveAt(index);
-                            NotifyActionEvent(top, _action);
+                                NotifyActionEvent(ctrl, _action);
+                            }
                         }
-
-                        UpdateStackVisibility(_action);
                     }
                 }
             }
@@ -590,10 +579,10 @@ namespace SocialPoint.GUIControl
             var stackNode = NewStackNode(ctrl, hideControllersBelow);
 
             var top = Top;
-            AddChild(stackNode.GameObject);
+            AddChild(stackNode.Controller);
             _stack.Add(stackNode);
 
-            NotifyActionEvent(stackNode, act);
+            NotifyActionEvent(stackNode.Controller, act);
 
             var enm = DoTransition(top, stackNode, act);
             while(enm.MoveNext())
@@ -628,10 +617,10 @@ namespace SocialPoint.GUIControl
             DebugLog(string.Format("PushImmediate {0}", IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));
 
             var top = Top;
-            AddChild(stackNode.GameObject);
+            AddChild(stackNode.Controller);
             _stack.Add(stackNode);
 
-            NotifyActionEvent(stackNode, ActionType.Push);
+            NotifyActionEvent(stackNode.Controller, ActionType.Push);
 
             var act = ActionType.PushImmediate;
             SetupTransition(top, stackNode, act);
@@ -738,7 +727,7 @@ namespace SocialPoint.GUIControl
 
             var act = ActionType.ReplaceImmediate;
 
-            AddChild(stackNode.GameObject);
+            AddChild(stackNode.Controller);
             _stack.Add(stackNode);
             SetupTransition(top, stackNode, act);
 
@@ -838,7 +827,7 @@ namespace SocialPoint.GUIControl
             if(IsValidStackNode(top))
             {
                 top.Controller.HideImmediate(true);
-                NotifyActionEvent(top, ActionType.Pop);
+                NotifyActionEvent(top.Controller, ActionType.Pop);
             }
 
             var stackNode = Top;
@@ -939,8 +928,7 @@ namespace SocialPoint.GUIControl
         {
             if(Count > i)
             {           
-                return DoPopUntilCondition(ctrl => 
-                { 
+                return DoPopUntilCondition(ctrl => { 
                     if(i >= 0)
                     {
                         var elm = _stack.ElementAt(i);
@@ -1027,5 +1015,31 @@ namespace SocialPoint.GUIControl
                 Blocker.SetActive(false);
             }
         }
+
+        #region Unity method calls
+
+        void OnEnable()
+        {
+            _enabled = true;
+
+            var top = Top;
+            if(IsValidStackNode(top))
+            {
+                top.Controller.ShowImmediate();
+            }
+        }
+
+        void OnDisable()
+        {
+            _enabled = false;
+
+            var top = Top;
+            if(IsValidStackNode(top))
+            {
+                top.Controller.HideImmediate();
+            }
+        }
+
+        #endregion
     }
 }

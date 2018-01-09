@@ -7,11 +7,11 @@ namespace SocialPoint.Utils
         {
             return false;
         }
-        
+
         public void OpenApp(string appId)
         {
         }
-        
+
         public void OpenStore(string appId)
         {
         }
@@ -43,8 +43,13 @@ namespace SocialPoint.Utils
                 return false;
             }
         }
-            
+
         public ShortcutItem[] ShortcutItems{ get; set; }
 
+        #if ADMIN_PANEL
+        public void ClearDataAndKillApp()
+        {
+        }
+        #endif
     }
 }

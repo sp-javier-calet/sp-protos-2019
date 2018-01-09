@@ -30,6 +30,7 @@ namespace SocialPoint.GUIControl
             {
                 ctrl = Factory.Create(c, prefab);
             }
+
             ctrl.LayersController = LayersController;
             if(ctrl != null)
             {
@@ -45,16 +46,21 @@ namespace SocialPoint.GUIControl
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
+
             AddChild(ctrl);
         }
 
         public void AddChild(UIViewController ctrl)
         {
             Load();
+
             if(ctrl == null)
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
+                
+            ctrl.SetupAppearAnimation(AppearAnimationFactory, AppearAnimation);
+            ctrl.SetupDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
 
             if(ctrl.ParentController != this)
             {
@@ -62,21 +68,7 @@ namespace SocialPoint.GUIControl
                 ctrl.ViewEvent += OnChildViewStateChanged;
             }
         }
-
-        protected void RemoveChild(UIViewController ctrl)
-        {
-            if(ctrl == null)
-            {
-                throw new ArgumentException("Controller cannot be null.");
-            }
-            if(ctrl.ParentController != this)
-            {
-                throw new ArgumentException("Controller is not my child.");
-            }
-            ctrl.ParentController = null;
-            ctrl.ViewEvent -= OnChildViewStateChanged;
-        }
-
+            
         virtual protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             
