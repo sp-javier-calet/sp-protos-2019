@@ -24,7 +24,7 @@ namespace SocialPoint.EventSystems
             }
         }
 
-        public override UnityEngine.Camera eventCamera
+        public override Camera eventCamera
         {
             get
             {
