@@ -25,7 +25,11 @@ namespace SocialPoint.Network
 
         override protected void WaitForEvents()
         {
-            _scheduler.Update(100, 100);
+            var i = 0;
+            while(i++ < 10)
+            {
+                _scheduler.Update(1.0f, 1.0f);
+            }
         }
     }
 }

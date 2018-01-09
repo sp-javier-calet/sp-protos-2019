@@ -198,7 +198,7 @@ namespace SocialPoint.Network
 
         void DisconnectClients()
         {
-            for(int i = 0; i < _connectedDataClients.Count; i++)
+            for(int i = _connectedDataClients.Count - 1; i >= 0; i--)
             {
                 var c = _connectedDataClients[i];
                 if(IsSocketConnected(c.TcpClient.Client) == false)
@@ -207,9 +207,9 @@ namespace SocialPoint.Network
                     {
                         _delegates[j].OnClientDisconnected((c.Id));
                     }
+                    _connectedDataClients.RemoveAt(i);
                 }
             }
-
         }
 
         bool IsSocketConnected(Socket s)
