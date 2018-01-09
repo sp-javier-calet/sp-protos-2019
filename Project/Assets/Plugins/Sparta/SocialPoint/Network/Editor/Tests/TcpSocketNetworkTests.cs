@@ -1,0 +1,35 @@
+using System;
+using NUnit.Framework;
+using SocialPoint.Utils;
+using SocialPoint.Network;
+
+namespace SocialPoint.Network
+{
+    [TestFixture]
+    [Category("SocialPoint.Network")]
+    class TcpSocketNetworkTests : BaseNetworkTests
+    {
+        Random _random = new Random();
+        UpdateScheduler _scheduler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            var ip = "127.0.0.1";
+            var port = _random.Next(3000, 5000);
+            _scheduler = new UpdateScheduler();
+            _server = new TcpSocketNetworkServer(_scheduler, ip, port);
+            _client = new TcpSocketNetworkClient(_scheduler, ip, port);
+            _client2 = new TcpSocketNetworkClient(_scheduler, ip, port);
+        }
+
+        override protected void WaitForEvents()
+        {
+            var i = 0;
+            while(i++ < 10)
+            {
+                _scheduler.Update(1.0f, 1.0f);
+            }
+        }
+    }
+}

@@ -25,14 +25,6 @@ namespace SocialPoint.Network
         {
         }
 
-        public byte ClientId
-        {
-            get
-            {
-                return _client.ClientId;
-            }
-        }
-
         public bool Connected
         {
             get
