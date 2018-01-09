@@ -39,8 +39,6 @@ namespace SocialPoint.Network
 
         public void Disconnect()
         {
-            _client.Client.Shutdown(SocketShutdown.Both);
-            _client.Client.Close();
             _client.Close();
             OnDisconnected();
         }
@@ -132,13 +130,13 @@ namespace SocialPoint.Network
 
         void DisconnectClient()
         {
-            if(Connected && IsClientDisconnected())
+            if(Connected && IsSocketDisconnected())
             {
                 OnDisconnected();
             }
         }
 
-        bool IsClientDisconnected()
+        bool IsSocketDisconnected()
         {
             if(_client.Client.Poll(0, SelectMode.SelectRead))
             {
@@ -153,7 +151,7 @@ namespace SocialPoint.Network
 
         void ReceiveServerMessages()
         {
-            while(_client.Available > 0 && _client.Connected)
+            while(_client.Connected && _client.Available > 0)
             {
                 _socketMessageReader.Receive();
             }

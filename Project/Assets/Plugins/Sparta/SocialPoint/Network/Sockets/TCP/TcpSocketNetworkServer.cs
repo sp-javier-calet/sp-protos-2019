@@ -13,7 +13,7 @@ namespace SocialPoint.Network
     {
         struct ClientData
         {
-            public TcpClient Client;
+            public TcpClient TcpClient;
             public byte Id;
             public TcpSocketMessageReader Reader;
         }
@@ -50,12 +50,13 @@ namespace SocialPoint.Network
         {
             for(int i = 0; i < _connectedDataClients.Count; i++)
             {
-                var client = _connectedDataClients[i];
+                var clientData = _connectedDataClients[i];
                 for(var j = 0; j < _delegates.Count; j++)
                 {
-                    _delegates[j].OnClientDisconnected(client.Id);
+                    _delegates[j].OnClientDisconnected(clientData.Id);
                 }
-                client.Client.Close();
+                clientData.TcpClient.Client.Close();
+                clientData.TcpClient.Close();
             }
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -156,7 +157,7 @@ namespace SocialPoint.Network
             for(var i = 0; i < _connectedDataClients.Count; i++)
             {
                 var c = _connectedDataClients[i];
-                while(c.Client.Available > 0 && c.Client.Connected)
+                while(c.TcpClient.Available > 0 && c.TcpClient.Connected)
                 {
                     c.Reader.Receive();
                 }
@@ -170,7 +171,7 @@ namespace SocialPoint.Network
                 ClientData clientData = new ClientData();
                 var newTcpClient = _listener.AcceptTcpClient();
                 var messageReader = new TcpSocketMessageReader(newTcpClient.GetStream(), _nextClientID);
-                clientData.Client = newTcpClient;
+                clientData.TcpClient = newTcpClient;
                 clientData.Id = _nextClientID;
                 clientData.Reader = messageReader;
                 _connectedDataClients.Add(clientData);
@@ -200,7 +201,7 @@ namespace SocialPoint.Network
             for(int i = 0; i < _connectedDataClients.Count; i++)
             {
                 var c = _connectedDataClients[i];
-                if(IsSocketConnected(c.Client.Client) == false)
+                if(IsSocketConnected(c.TcpClient.Client) == false)
                 {
                     for(var j = 0; j < _delegates.Count; j++)
                     {
