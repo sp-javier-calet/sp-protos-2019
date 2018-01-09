@@ -457,7 +457,6 @@ namespace SocialPoint.GUIControl
         {
             if(_loaded)
             {
-                HideImmediate();
                 OnDestroyed();
             }
         }
@@ -818,7 +817,7 @@ namespace SocialPoint.GUIControl
 
         #region public UI button methods
 
-        public void Close()
+        public virtual void Close()
         {
             Hide();
         }

@@ -511,6 +511,17 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        public void OnPopupStackedInHide()
+        {
+            _action = ActionType.None;
+
+            var top = Top;
+            if(top != null)
+            {
+                top.Controller.HideImmediate();
+            }
+        }
+
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             var top = Top;
