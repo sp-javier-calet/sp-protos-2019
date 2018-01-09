@@ -104,5 +104,3 @@
 }
 
 @end
-
-IMPL_APP_CONTROLLER_SUBCLASS(AppsFlyerAppController)
