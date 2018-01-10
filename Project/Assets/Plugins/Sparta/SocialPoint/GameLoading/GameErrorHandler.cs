@@ -34,8 +34,6 @@ namespace SocialPoint.GameLoading
         void ShowLogin(Error err, Action finished, bool showSupportButton);
 
         void ShowLink(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
-
-        void ShowInvalidDevice();
     }
 
     public static class GameErrorHandlerExtensions
@@ -143,9 +141,6 @@ namespace SocialPoint.GameLoading
         const string ConfirmLinkButtonKeepDef = "Keep";
         const string ConfirmLinkButtonChangeKey = "game_errors.confirm_link_button_change";
         const string ConfirmLinkButtonChangeDef = "Change";
-
-        const string InvalidDeviceTitleKey = "game_errors.invalid_device_title";
-        const string InvalidDeviceMessageKey = "game_errors.invalid_device_message";
 
         const string InvalidSecurityTokenTitleKey = "gameloading.invalid_security_token_title";
         const string InvalidSecurityTokenTitleDef = "Invalid Security token";
@@ -380,16 +375,6 @@ namespace SocialPoint.GameLoading
                     }
                 }
             });
-        }
-
-        public void ShowInvalidDevice()
-        {
-            var alert = (IAlertView)_alert.Clone();
-            alert.Title = _locale.Get(InvalidDeviceTitleKey, "Invalid Device");
-            alert.Message = _locale.Get(InvalidDeviceMessageKey, "Device needs at least 1GB of RAM");
-            string button = _locale.Get(MaintenanceModeButtonKey, MaintenanceModeButtonDef);
-            alert.Buttons = new[] { button };
-            alert.Show(null);
         }
 
         public virtual void ShowSync(Error err)
