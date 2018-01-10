@@ -14,7 +14,7 @@ SP_BRANCH = $GIT_BRANCH
 
 # One of Unity or Native
 SP_BUILDER = Unity
-SP_UNITY_VERSION = 2017.3.0p1
+SP_UNITY_VERSION = 2017.3.0f3
 SP_UNITY_EXEC = /Applications/Unity-$SP_UNITY_VERSION/Unity.app/Contents/MacOS/Unity
 SP_UNITY_AUTOBUILDER_PATH = Project/Assets/Plugins/Sparta/EditorTools/Editor/Build/AutoBuilder.cs
 
