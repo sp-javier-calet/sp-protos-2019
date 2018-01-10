@@ -28,8 +28,6 @@ namespace SocialPoint.ServerEvents
         const string EventNameGameRestart = "game.restart";
         const string EventNameResourceEarning = "economy.{0}_earning";
         const string EventNameResourceSpending = "economy.{0}_spending";
-        const string EventNameClientPerfHTTPRequest = "client_performance.http_request";
-        const string EventNameClientPerfStats = "client_performance.stats";
 
         const int SessionLostErrorStatusCode = 482;
         const int StartEventNum = 1;
@@ -40,8 +38,6 @@ namespace SocialPoint.ServerEvents
             EventNameGameLoading,
             EventNameGameLoaded,
             EventNameGameRestart,
-            EventNameClientPerfHTTPRequest,
-            EventNameClientPerfStats,
             "errors.*"
         };
 
@@ -420,8 +416,6 @@ namespace SocialPoint.ServerEvents
             mobile.SetValue("adid_enabled", DeviceInfo.AdvertisingIdEnabled);
             mobile.SetValue("rooted", DeviceInfo.Rooted);
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
-            mobile.SetValue("device_aid_opt_out", "");
-            mobile.SetValue("version", DeviceInfo.AppInfo.Version);
             #if ADMIN_PANEL
             mobile.SetValue("admin_panel", true);
             #endif
@@ -519,7 +513,7 @@ namespace SocialPoint.ServerEvents
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.CompressBody = true;
             _httpConn = HttpClient.Send(req, resp => {
-                OnHttpResponse(resp, sentEvents, LoginData.SessionId);
+                OnHttpResponse(resp, sentEvents);
                 if(finish != null)
                 {
                     finish();
@@ -554,7 +548,7 @@ namespace SocialPoint.ServerEvents
             return _synced;
         }
 
-        void OnHttpResponse(HttpResponse resp, List<Event> sentEvents, string sessiondId)
+        void OnHttpResponse(HttpResponse resp, List<Event> sentEvents)
         {
             bool synced = CheckSync(resp);
             ApplyBackoff(synced);
@@ -590,11 +584,7 @@ namespace SocialPoint.ServerEvents
             {
                 if(error.Code == SessionLostErrorStatusCode)
                 {
-                    // ignore the error if it comes from an old session
-                    if(sessiondId == LoginData.SessionId)
-                    {
-                        GeneralError(EventTrackerErrorType.SessionLost, error);
-                    }
+                    GeneralError(EventTrackerErrorType.SessionLost, error);
                 }
                 else
                 {
