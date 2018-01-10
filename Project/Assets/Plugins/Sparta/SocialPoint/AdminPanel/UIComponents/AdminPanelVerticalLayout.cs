@@ -14,7 +14,7 @@ namespace SocialPoint.AdminPanel
 
         public VerticalLayout CreateVerticalLayout()
         {
-            return CreateVerticalLayout(1, -1, true);
+            return CreateVerticalLayout(1);
         }
 
         public VerticalLayout CreateVerticalLayoutNotForceExpandHeight()

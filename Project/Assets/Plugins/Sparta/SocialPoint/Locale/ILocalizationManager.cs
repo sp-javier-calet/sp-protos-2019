@@ -20,7 +20,5 @@ namespace SocialPoint.Locale
 
         event Action<Dictionary<string, Localization>> Loaded;
         event Action LoadFailed;
-
-        void SetNewLanguage(string langId);
     }
 }
