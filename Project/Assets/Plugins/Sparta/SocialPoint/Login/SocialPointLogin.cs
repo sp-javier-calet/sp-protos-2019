@@ -8,7 +8,6 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.Restart;
-using SocialPoint.Dependency;
 using SocialPoint.ServerSync;
 
 namespace SocialPoint.Login
@@ -213,18 +212,13 @@ namespace SocialPoint.Login
             }
         }
 
+        public ICommandQueue CommandQueue{ get; set; }
+
         void OnAppOpenedFromSource(AppSource src)
         {
             #if ADMIN_PANEL
             if(SetAppSource(src))
             {
-                CommandQueue.PlayerImpersonated = true;
-                var commandQueue = Services.Instance.Resolve<ICommandQueue>();
-                if (commandQueue != null)
-                {
-                    commandQueue.Stop();
-                }
-
                 if(IsLogged)
                 {
                     Restarter.RestartGame();
@@ -272,6 +266,7 @@ namespace SocialPoint.Login
                     {
                         changed = true;
                         ImpersonatedUserId = userId;
+                        CommandQueue.AutoSyncEnabled = false;
                     }
                 }
             }

@@ -9,6 +9,7 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.Restart;
+using SocialPoint.ServerSync;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -117,7 +118,8 @@ namespace SocialPoint.Login
             login.AutoUpdateFriends = Settings.AutoupdateFriends;
             login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
             login.UserMappingsBlock = Settings.UserMappingsBlock;
-
+            login.CommandQueue = Container.Resolve<ICommandQueue>();
+                
             var links = Container.ResolveList<ILink>();
             for(var i = 0; i < links.Count; i++)
             {

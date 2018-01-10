@@ -32,7 +32,7 @@ namespace SocialPoint.Locale
         {
             public bool UseAlwaysDeviceLanguage = true;
             public LocalizationSettings Localization;
-            public LocalizationManager.TimeTextIdentifiers TimeTextIndetifiers;
+            public LocalizationManager.TimeTextIdentifiers TimeTextIdentifiers;
         }
 
         [Serializable]
@@ -85,7 +85,7 @@ namespace SocialPoint.Locale
             #else
                 LocalizationManager localizationManager = new LocalizationManager(storage);
             #endif
-            localizationManager.TimeTids = Settings.TimeTextIndetifiers;
+            localizationManager.TimeTids = Settings.TimeTextIdentifiers;
             localizationManager.UseAlwaysDeviceLanguage = Settings.UseAlwaysDeviceLanguage;
 
             return localizationManager;

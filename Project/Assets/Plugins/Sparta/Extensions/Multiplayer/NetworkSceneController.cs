@@ -12,8 +12,6 @@ namespace SocialPoint.Multiplayer
 
         NetworkGameObject InstantiateLocal(byte objType, Transform trans = null);
 
-        void ApplyActionRemote(object action);
-
         void ApplyAction(object evnt);
 
         void ApplyActionSync(object evnt);
