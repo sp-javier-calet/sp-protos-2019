@@ -54,11 +54,15 @@ namespace SocialPoint.Login
 			var appEvents = Substitute.For<IAppEvents>();
 			appEvents.Source.Returns(new AppSource("lala://load-external-user?privilegedToken=AA123&userId=1&envurl=http%3A%2F%2Flololo.com"));
 			SocialPointLogin.AppEvents = appEvents;
+            SocialPointLogin.CommandQueue = Substitute.For<SocialPoint.ServerSync.ICommandQueue>();
+            bool autosyncEnabled = true;
+            SocialPointLogin.CommandQueue.AutoSyncEnabled = Arg.Do<bool>(x => autosyncEnabled = x);
 			SocialPointLogin.Login();
 
 			Assert.That(SocialPointLogin.ImpersonatedUserId == 1);
 			Assert.That(SocialPointLogin.PrivilegeToken == "AA123");
 			Assert.That(SocialPointLogin.BaseUrl == "http://lololo.com/");
+            Assert.IsFalse(autosyncEnabled);
 		}
 
 	    /*
