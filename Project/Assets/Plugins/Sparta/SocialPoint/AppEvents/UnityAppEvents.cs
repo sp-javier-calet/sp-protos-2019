@@ -23,7 +23,7 @@ namespace SocialPoint.AppEvents
             var url = PlayerPrefs.GetString(PlayerPrefSourceApplicationKey);
             if(!string.IsNullOrEmpty(url))
             {
-                LoadImpersonate(url);
+                LoadAppSource(url);
                 _openedFromSource = true;
                 return;
             }
@@ -60,7 +60,7 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        public void LoadImpersonate(string url)
+        void LoadAppSource(string url)
         {
             Source = new AppSource(url);
             OnOpenedFromSource(Source);

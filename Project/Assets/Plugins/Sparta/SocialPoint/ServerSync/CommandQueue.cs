@@ -80,8 +80,6 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        public static bool PlayerImpersonated = false;
-
         IAppEvents _appEvents;
 
         public IAppEvents AppEvents
@@ -126,7 +124,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWasLoaded()
         {
-            if(!_running && !PlayerImpersonated)
+            if(!_running)
             {
                 Start();
             }
@@ -137,10 +135,7 @@ namespace SocialPoint.ServerSync
             if(_running)
             {
                 Stop();
-                if(!PlayerImpersonated)
-                {
-                    Send();
-                }
+                Send();
             }
             Reset();
         }
@@ -753,18 +748,18 @@ namespace SocialPoint.ServerSync
                     NotifyError(CommandQueueErrorType.ClockChange, resp.Error, resp.StatusCode);
                     break;
                 default:
-                {
-                    string commandsSent = "";
-                    for(int i = 0; i < _sentPackets.Count; ++i)
                     {
-                        var currentPacket = _sentPackets[i].GetEnumerator();
-                        while(currentPacket.MoveNext())
+                        var commandsSent = new System.Text.StringBuilder();
+                        for(int i = 0; i < _sentPackets.Count; ++i)
                         {
-                            commandsSent += currentPacket.Current.Command.Name+", ";
+                            var currentPacket = _sentPackets[i].GetEnumerator();
+                            while(currentPacket.MoveNext())
+                            {
+                                commandsSent.Append(currentPacket.Current.Command.Name + ", ");
+                            }
                         }
+                        NotifyError(CommandQueueErrorType.HttpResponse, new Error(commandsSent.ToString()), resp.StatusCode);
                     }
-                    NotifyError(CommandQueueErrorType.HttpResponse, new Error(commandsSent), resp.StatusCode);
-                }
                     break;
                 }
                 return null;
