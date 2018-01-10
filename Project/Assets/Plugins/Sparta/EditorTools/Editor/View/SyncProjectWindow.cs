@@ -284,6 +284,12 @@ namespace SpartaTools.Editor.View
                 GUILayout.Label("No project selected", EditorStyles.boldLabel);
                 return;
             }
+
+            if(_progressHandler == null && !Synchronized && _autoRefresh)
+            {
+                RefreshModules();
+            }
+
             if(_progressHandler != null)
             {
                 if(_progressHandler.Finished && _refreshFinished)
@@ -307,10 +313,7 @@ namespace SpartaTools.Editor.View
                     }
                 }
             }
-            else if(!Synchronized && _autoRefresh)
-            {
-                RefreshModules();
-            }
+
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
