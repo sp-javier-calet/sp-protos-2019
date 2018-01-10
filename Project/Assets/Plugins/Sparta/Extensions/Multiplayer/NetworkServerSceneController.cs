@@ -420,18 +420,6 @@ namespace SocialPoint.Multiplayer
             }, evnt);
         }
 
-        public void ApplyActionRemote(object evnt)
-        {
-            _pendingActions.Add(new ActionInfo {
-                Data = new NetworkServerSceneActionData {
-                    Synced = true,
-                    Unreliable = false
-                },
-                Action = evnt,
-                Time = GameTime.Time
-            });
-        }
-
         public void ApplyAction(object evnt)
         {
             ApplyAction(new NetworkServerSceneActionData {

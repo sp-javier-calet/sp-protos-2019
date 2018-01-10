@@ -380,11 +380,6 @@ namespace SocialPoint.Multiplayer
             _actions.ApplyActionAndSend(action);
         }
 
-        public void ApplyActionRemote(object action)
-        {
-            _actions.SendAction(action);
-        }
-
         void OnActionFromServer(int lastServerAction)
         {
             if(lastServerAction >= 0)
