@@ -60,7 +60,7 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        void LoadAppSource(string url)
+        public void LoadAppSource(string url)
         {
             Source = new AppSource(url);
             OnOpenedFromSource(Source);
