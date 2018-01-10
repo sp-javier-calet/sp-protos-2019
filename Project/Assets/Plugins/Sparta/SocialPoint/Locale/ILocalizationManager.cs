@@ -19,7 +19,7 @@ namespace SocialPoint.Locale
         CultureInfo SelectedCultureInfo { get; }
 
         event Action<Dictionary<string, Localization>> Loaded;
-        event Action LoadedFailed;
+        event Action LoadFailed;
 
         void SetNewLanguage(string langId);
     }

@@ -123,7 +123,7 @@ namespace SocialPoint.Locale
         public float Timeout = DefaultTimeout;
 
         public event Action<Dictionary<string, Localization>> Loaded;
-        public event Action LoadedFailed;
+        public event Action LoadFailed;
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -465,11 +465,11 @@ namespace SocialPoint.Locale
             }
         }
 
-        void OnLanguagesLoadedFailed()
+        void OnLanguagesLoadFailed()
         {
-            if(LoadedFailed != null)
+            if(LoadFailed != null)
             {
-                LoadedFailed();
+                LoadFailed();
             }
         }
 
@@ -503,7 +503,7 @@ namespace SocialPoint.Locale
                 return true;
             }
 
-            OnLanguagesLoadedFailed();
+            OnLanguagesLoadFailed();
             return false;
         }
 
