@@ -304,7 +304,6 @@ namespace SpartaTools.Editor.View
                     if(GUILayout.Button("Cancel"))
                     {
                         _progressHandler.Cancel();
-                        Close();
                     }
                 }
             }
