@@ -874,11 +874,5 @@ namespace SocialPoint.Locale
             TimeUtils.MinLocalized = locale.Get(TimeTids.MinIdentifier);
             TimeUtils.SecLocalized = locale.Get(TimeTids.SecIdentifier);
         }
-
-        public void SetNewLanguage(string langId)
-        {
-            CurrentLanguage = langId;
-            UpdateCurrentLanguage();
-        }
     }
 }
