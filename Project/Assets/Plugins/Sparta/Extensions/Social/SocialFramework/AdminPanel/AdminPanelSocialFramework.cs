@@ -20,6 +20,7 @@ namespace SocialPoint.Social
         ChatManager _chatManager;
         AlliancesManager _alliancesManager;
         MessagingSystemManager _messagesManager;
+        DonationsManager _donationsManager;
 
         internal ChatManager ChatManager
         {
@@ -60,6 +61,20 @@ namespace SocialPoint.Social
             }
         }
 
+        internal DonationsManager DonationsManager
+        {
+            get
+            {
+                return _donationsManager; 
+            }
+            set
+            {
+                var localUserId = _connection.LoginData.UserId;
+                _donationsManager = value;
+                _donationsPanel = _donationsManager != null ? new AdminPanelSocialFrameworkDonations(_console, DonationsManager, (long)localUserId) : null;
+            }
+        }
+
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
 
@@ -68,6 +83,7 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkAlliances _alliancesPanel;
         AdminPanelSocialFrameworkPlayers _playersPanel;
         AdminPanelSocialFrameworkMessagingSystem _messagesPanel;
+        AdminPanelSocialFrameworkDonations _donationsPanel;
 
         public AdminPanelSocialFramework(ConnectionManager connection, SocialManager socialManager, PlayersManager playersManager)
         {
@@ -156,6 +172,30 @@ namespace SocialPoint.Social
             layout.CreateOpenPanelButton("Chat", _chatPanel, ChatManager != null && connected);
             layout.CreateOpenPanelButton("Alliances", _alliancesPanel, AlliancesManager != null && connected);
             layout.CreateOpenPanelButton("Messages", _messagesPanel, MessagesManager != null && connected);
+
+            ShowDonationsSection(layout, connected);
+        }
+
+        void ShowDonationsSection(AdminPanelLayout layout, bool connected)
+        {
+            bool donationsLoggedIn = DonationsManager != null && DonationsManager.IsLoggedIn && connected;
+            bool donationLoginEnabled = DonationsManager != null && !DonationsManager.IsLoggedIn && connected;
+
+            layout.CreateOpenPanelButton("Donations", _donationsPanel, donationsLoggedIn);
+            Action<Error> completionHandler = err => {
+                if(!Error.IsNullOrEmpty(err))
+                {
+                    _console.Print(err.ToString());
+                }
+                layout.Refresh();
+            };
+            Action<bool> onPress = state => {
+                if(!state)
+                {
+                    DonationsManager.Login(completionHandler);
+                }
+            };
+            layout.CreateToggleButton("Donations LoggedIn", donationsLoggedIn, onPress, donationLoginEnabled);
         }
 
         void OnConnected()
