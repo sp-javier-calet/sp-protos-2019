@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {
-    public class ActionStandaloneInputModule : StandaloneInputModule, 
+    public class SPStandaloneInputModule : UnityStandaloneInputModule, 
     IBeginDragHandler,
     IDragHandler,
     IEndDragHandler, 
@@ -16,12 +16,9 @@ namespace SocialPoint.EventSystems
     IPointerUpHandler,
     IPointerClickHandler
     {
-        readonly Dictionary<int, PointerEventData> _actionEventDispatcherPointerData = new Dictionary<int, PointerEventData>();
         readonly Dictionary<EventTriggerType, Dictionary<GameObject, LayerMask>> _registeredEvents = new Dictionary<EventTriggerType, Dictionary<GameObject, LayerMask>>();
         readonly List<int> _pointerIds = new List<int>();
 
-        Dictionary<int, PointerEventData> _defaultPointerData;
-        ForcedGameObjectRaycaster _newActionRaycaster;
         GameObject _currentOverGo;
         bool _hasFocus = true;
 
@@ -30,28 +27,20 @@ namespace SocialPoint.EventSystems
             _hasFocus = focusStatus;
         }
 
-        public override void ActivateModule()
-        {
-            base.ActivateModule();
-            _defaultPointerData = m_PointerData;
-            _newActionRaycaster = gameObject.AddComponent<ForcedGameObjectRaycaster>();
-        }
-
         public override void Process()
         {
-            // First process the current tick with all received events
-            _newActionRaycaster.RaycastResultGameObject = null;
-            m_PointerData = _defaultPointerData;
+            DebugShowObjectIsHit();
+
+            // We will process the received events for the current tick. This call will force to send events to the current selected GameObject and
+            // another event to this class that will redirect the called event (if needed) to the desired registered class
             base.Process();
 
             // We need to save the current touched GameObject because we want to check later if it's layer need to be  ignored for the forced event
+            #if UNITY_2017_1_OR_NEWER
             _currentOverGo = GetCurrentFocusedGameObject();
-
-            // Second, with the previous events received we want to check if someone has been registered and in this case, for every registered GameObjects
-            // we will check if the events layer need to be ignored. If not, we will redirect the event calls to every of the desired registered GameObjects
-            _newActionRaycaster.RaycastResultGameObject = gameObject;
-            m_PointerData = _actionEventDispatcherPointerData;
-            base.Process();
+            #else
+            _currentOverGo = eventSystem.currentSelectedGameObject;
+            #endif
         }
             
         public void RegisterEventReceiver(EventTriggerType eventTriggerType, GameObject sender, LayerMask ignoreDispatcherMask)
@@ -124,73 +113,97 @@ namespace SocialPoint.EventSystems
         }
             
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        void DebugLog(string msg)
+        static void DebugShowObjectIsHit()
         {
-            Log.i(string.Format("ActionStandaloneInputModule event {0} executed", msg));
+            var pe = new PointerEventData(EventSystem.current);
+            pe.position = Input.mousePosition;
+
+            var hits = new List<RaycastResult>();
+            EventSystem.current.RaycastAll( pe, hits );
+
+            string msg = string.Empty;
+            foreach(RaycastResult rr in hits)
+            {
+
+                GameObject go = rr.gameObject;
+                if(go != null)
+                {
+                    msg += " - " + go;
+                }
+            }
+
+            DebugLog("ObjectsHit " + msg);
+        }
+
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
+        static void DebugLog(string msg)
+        {
+            Log.i(string.Format("ActionStandaloneInputModule msg - {0}", msg));
         }
 
         #region handlers
 
-        public void OnBeginDrag(PointerEventData eventData)
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
             _pointerIds.Add(eventData.pointerId);
 
-            DebugLog("OnBeginDrag");
+            DebugLog("Executed OnBeginDrag");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.BeginDrag, ExecuteEvents.beginDragHandler);
         }
 
-        public void OnDrag(PointerEventData eventData)
+        void IDragHandler.OnDrag(PointerEventData eventData)
         {
-            DebugLog("OnDrag");
+            DebugLog("Executed OnDrag");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.Drag, ExecuteEvents.dragHandler);
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
         {
             _pointerIds.Remove(eventData.pointerId);
 
-            DebugLog("OnEndDrag");
+            DebugLog("Executed OnEndDrag");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.EndDrag, ExecuteEvents.endDragHandler);
         }
 
-        public void OnScroll(PointerEventData eventData)
+        void IScrollHandler.OnScroll(PointerEventData eventData)
         {
             if(!_hasFocus)
             {
+                DebugLog("Executed OnScroll cancelled");
                 return;
             }
 
-            DebugLog("OnScroll");
+            DebugLog("Executed OnScroll");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.Scroll, ExecuteEvents.scrollHandler);
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
+        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {
-            DebugLog("OnPointerEnter");
+            DebugLog("Executed OnPointerEnter");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerEnter, ExecuteEvents.pointerEnterHandler);
         }
             
-        public void OnPointerExit(PointerEventData eventData)
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
-            DebugLog("OnPointerExit");
+            DebugLog("Executed OnPointerExit");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerExit, ExecuteEvents.pointerExitHandler);
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
         {
-            DebugLog("OnPointerDown");
+            DebugLog("Executed OnPointerDown");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerDown, ExecuteEvents.pointerDownHandler);
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
         {
-            DebugLog("OnPointerUp");
+            DebugLog("Executed OnPointerUp");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerUp, ExecuteEvents.pointerUpHandler);
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
         {
-            DebugLog("OnPointerClick");
+            DebugLog("Executed OnPointerClick");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerClick, ExecuteEvents.pointerClickHandler);
         }
 

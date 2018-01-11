@@ -26,7 +26,7 @@ namespace SocialPoint.GUIControl
         GameObject _currentTooltipGO;
         RectTransform _rectTransform;
         Rect _screenBounds;
-        ActionStandaloneInputModule _eventSystem;
+        SPStandaloneInputModule _eventSystem;
 
         public bool TooltipIsShown
         {
@@ -35,7 +35,7 @@ namespace SocialPoint.GUIControl
 
         #region IPointerDownHandler implementation
 
-        public void OnPointerDown(PointerEventData eventData)
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
         {
             HideTooltip(false);
         }
@@ -67,7 +67,7 @@ namespace SocialPoint.GUIControl
                 
             _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, IDeviceInfo.ScreenSize.x - ScreenBoundsDelta.x, IDeviceInfo.ScreenSize.y - ScreenBoundsDelta.y);
 
-            _eventSystem = Services.Instance.Resolve<ActionStandaloneInputModule>();
+            _eventSystem = Services.Instance.Resolve<SPStandaloneInputModule>();
             if(_eventSystem != null)
             {
                 _eventSystem.RegisterEventReceiver(EventTriggerType.PointerDown, gameObject, _ignoreDispatcherMask);
