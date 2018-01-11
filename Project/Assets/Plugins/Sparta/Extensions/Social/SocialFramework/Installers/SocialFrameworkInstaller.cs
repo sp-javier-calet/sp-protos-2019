@@ -18,12 +18,14 @@ namespace SocialPoint.Social
             public bool EnableAlliances;
             public bool EnableChat;
             public bool EnableMessageSystem;
+            public bool EnableDonations;
 
             public SettingsData()
             {
                 EnableAlliances = true;
                 EnableChat = true;
                 EnableMessageSystem = true;
+                EnableDonations = true;
             }
         }
 
@@ -57,6 +59,11 @@ namespace SocialPoint.Social
                 Container.Bind<MessagingSystemManager>().ToMethod<MessagingSystemManager>(CreateMessagingSystemManager, SetupMessagingSystemManager);
                 Container.Bind<IDisposable>().ToLookup<MessagingSystemManager>();
             }
+            if(Settings.EnableDonations)
+            {
+                Container.Bind<DonationsManager>().ToMethod<DonationsManager>(CreateDonationsManager, SetupDonationsManager);
+                Container.Bind<IDisposable>().ToLookup<DonationsManager>();
+            }
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework, SetupAdminPanelSocialFramework);
             #endif
@@ -78,6 +85,10 @@ namespace SocialPoint.Social
             if(Settings.EnableMessageSystem)
             {
                 Container.Resolve<MessagingSystemManager>();
+            }
+            if(Settings.EnableDonations)
+            {
+                Container.Resolve<DonationsManager>();
             }
         }
 
@@ -160,6 +171,16 @@ namespace SocialPoint.Social
             }
         }
 
+        DonationsManager CreateDonationsManager()
+        {
+            return new DonationsManager();
+        }
+
+        void SetupDonationsManager(DonationsManager manager)
+        {
+            manager.Setup(Container.Resolve<ConnectionManager>());
+        }
+
         #if ADMIN_PANEL
         AdminPanelSocialFramework CreateAdminPanelSocialFramework()
         {
@@ -183,6 +204,10 @@ namespace SocialPoint.Social
             if(Settings.EnableMessageSystem)
             {
                 adminPanel.MessagesManager = Container.Resolve<MessagingSystemManager>();
+            }
+            if(Settings.EnableDonations)
+            {
+                adminPanel.DonationsManager = Container.Resolve<DonationsManager>();
             }
         }
         #endif

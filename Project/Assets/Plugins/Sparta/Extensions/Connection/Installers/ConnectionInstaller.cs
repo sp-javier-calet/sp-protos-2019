@@ -48,8 +48,10 @@ namespace SocialPoint.Connection
                 Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
             }
 
-            Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
-            Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
+            Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);
+            Container.Bind<IConnectionManager>().ToLookup<ConnectionManager>();
+
+            Container.Bind<IDisposable>().ToLookup<IConnectionManager>();
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);

@@ -45,22 +45,19 @@ namespace SocialPoint.Connection
         public const int MatchmakingWaitingTimeNotification = 504;
         public const int MatchmakingCanceled = 505;
 
+        // Message System
         public const int MessagingSystemNewMessage = 600;
+
+        // Donations System
+        public const int BroadcastDonationRequest = 700;
+        public const int BroadcastDonationContribute = 701;
+        public const int BroadcastDonationRemove = 702;
+        public const int BroadcastDonationUserRemove = 703;
 
         public const int MaxValue = 1000;
     }
 
-    [Serializable]
-    public class ConnectionManagerConfig
-    {
-        public float PingInterval = 10.0f;
-        public float ReconnectInterval = 1.0f;
-
-        public int RPCRetries = 1;
-        public float RPCTimeout = 1.0f;
-    }
-
-    public class ConnectionManager : INetworkClientDelegate, IUpdateable, IDisposable
+    public class ConnectionManager : IConnectionManager, INetworkClientDelegate, IUpdateable, IDisposable
     {
         #region Attr keys
 
@@ -121,9 +118,7 @@ namespace SocialPoint.Connection
             public RequestType Type;
             public WAMPRequest Request;
         }
-
-        public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
-
+            
         public event Action OnConnectionStablished;
         public event Action OnConnected;
         public event Action OnClosed;
