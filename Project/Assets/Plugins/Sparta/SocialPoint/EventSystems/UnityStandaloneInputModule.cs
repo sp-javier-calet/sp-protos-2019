@@ -14,9 +14,7 @@ namespace SocialPoint.EventSystems
         private Vector2 m_LastMousePosition;
         private Vector2 m_MousePosition;
 
-        #if UNITY_2017_1_OR_NEWER
         private GameObject m_CurrentFocusedGameObject;
-        #endif
 
         protected UnityStandaloneInputModule()
         {
@@ -486,9 +484,10 @@ namespace SocialPoint.EventSystems
             var mouseData = GetMousePointerEventData(id);
             var leftButtonData = mouseData.GetButtonState(PointerEventData.InputButton.Left).eventData;
 
-            #if UNITY_2017_1_OR_NEWER
+
             m_CurrentFocusedGameObject = leftButtonData.buttonData.pointerCurrentRaycast.gameObject;
-            #else
+
+            #if !UNITY_2017_1_OR_NEWER
             if (ForceAutoSelect())
                 eventSystem.SetSelectedGameObject(leftButtonData.buttonData.pointerCurrentRaycast.gameObject, leftButtonData.buttonData);
             #endif
@@ -638,11 +637,7 @@ namespace SocialPoint.EventSystems
             
         protected GameObject GetCurrentFocusedGameObject()
         {
-            #if UNITY_2017_1_OR_NEWER
             return m_CurrentFocusedGameObject;
-            #else
-            return eventSystem.currentSelectedGameObject();
-            #endif
         }
     }
 }

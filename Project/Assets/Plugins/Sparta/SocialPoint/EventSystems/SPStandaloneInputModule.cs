@@ -36,13 +36,9 @@ namespace SocialPoint.EventSystems
             base.Process();
 
             // We need to save the current touched GameObject because we want to check later if it's layer need to be  ignored for the forced event
-            #if UNITY_2017_1_OR_NEWER
             _currentOverGo = GetCurrentFocusedGameObject();
-            #else
-            _currentOverGo = eventSystem.currentSelectedGameObject;
-            #endif
         }
-            
+
         public void RegisterEventReceiver(EventTriggerType eventTriggerType, GameObject sender, LayerMask ignoreDispatcherMask)
         {
             if(_registeredEvents.ContainsKey(eventTriggerType))
@@ -51,7 +47,10 @@ namespace SocialPoint.EventSystems
             }
             else
             {
-                _registeredEvents.Add(eventTriggerType, new Dictionary<GameObject, LayerMask> {{sender, ignoreDispatcherMask}});
+                _registeredEvents.Add(eventTriggerType, new Dictionary<GameObject, LayerMask> { {
+                        sender,
+                        ignoreDispatcherMask
+                    } });
             }
         }
 
@@ -68,7 +67,7 @@ namespace SocialPoint.EventSystems
             Dictionary<GameObject, LayerMask> objects;
             return _registeredEvents.TryGetValue(eventTriggerType, out objects) ? objects : null;
         }
-            
+
         static bool ValidateLastEventMask(GameObject sender, LayerMask ignoreDispatcherMask)
         {
             while(sender != null)
@@ -111,7 +110,7 @@ namespace SocialPoint.EventSystems
                 iter.Dispose();
             }
         }
-            
+
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         static void DebugShowObjectIsHit()
         {
@@ -119,7 +118,7 @@ namespace SocialPoint.EventSystems
             pe.position = Input.mousePosition;
 
             var hits = new List<RaycastResult>();
-            EventSystem.current.RaycastAll( pe, hits );
+            EventSystem.current.RaycastAll(pe, hits);
 
             string msg = string.Empty;
             foreach(RaycastResult rr in hits)
@@ -182,7 +181,7 @@ namespace SocialPoint.EventSystems
             DebugLog("Executed OnPointerEnter");
             ExecuteForcedPointerEvents(eventData, EventTriggerType.PointerEnter, ExecuteEvents.pointerEnterHandler);
         }
-            
+
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
             DebugLog("Executed OnPointerExit");
