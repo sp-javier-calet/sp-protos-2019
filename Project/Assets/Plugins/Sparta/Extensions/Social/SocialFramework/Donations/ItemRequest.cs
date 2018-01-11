@@ -180,5 +180,17 @@ namespace SocialPoint.Social
             _collectedMap.TryGetValue(collectorId, out amount);
             return amount;
         }
+
+        public override string ToString()
+        {
+            const string message = "RequesterId:{0}\nRequestUuid:{1}\nItemId:{2}\nAmount:{3} - Received:{4} - Collected:{5}";
+            return string.Format(message, RequesterId, RequestUuid, ItemId, Amount, TotalReceivedAmount, TotalCollectedAmount);
+        }
+
+        public string ToStringExtended()
+        {
+            const string message = "RequesterId:{0}\nRequestUuid:{1}\nItemId:{2}\nAmount:{3} - Received:{4} - Collected:{5}\nType: {6}\nTimestamp: {7}\nMetadata: {8}";
+            return string.Format(message, RequesterId, RequestUuid, ItemId, Amount, TotalReceivedAmount, TotalCollectedAmount, DonationType, Timestamp, Metadata);
+        }
     }
 }

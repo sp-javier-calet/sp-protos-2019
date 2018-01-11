@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
+  m_Name: SecondaryInstance-BuildSet
+  m_EditorClassIdentifier: 
+  App:
+    ProductName: Sparta BaseGame COPY
+    Version: 
+    BuildNumber: 0
+    OverrideBuild: 0
+    IconTexture: {fileID: 0}
+    OverrideIcon: 0
+  Common:
+    Flags: +SPARTA_PROFILER_ENABLED
+    RebuildNativePlugins: 0
+    IsDevelopmentBuild: 1
+    AppendBuild: 0
+    IncludeDebugScenes: 1
+    LogLevel: 3
+    EnableAdminPanel: 1
+    EnableDependencyInspection: 1
+  Ios:
+    BundleIdentifier: 
+    Flags: 
+    XcodeModSchemes: debug
+    UseEnvironmentProvisioningUuid: 1
+    RemovedResources: 
+  Android:
+    BundleIdentifier: 
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 0
+    Keystore:
+      Path: 
+      FilePassword: 
+      Alias: 
+      Password: 

@@ -205,6 +205,10 @@ namespace SocialPoint.Social
             {
                 adminPanel.MessagesManager = Container.Resolve<MessagingSystemManager>();
             }
+            if(Settings.EnableDonations)
+            {
+                adminPanel.DonationsManager = Container.Resolve<DonationsManager>();
+            }
         }
         #endif
 
