@@ -10,6 +10,7 @@ using UnityEngine.SocialPlatforms.GameCenter;
 
 namespace SocialPoint.Social
 {
+#if UNITY_IOS
     public sealed class IosGameCenter : IGameCenter
     {
         static readonly string PhotosCacheFolder = "GameCenter";
@@ -519,4 +520,9 @@ namespace SocialPoint.Social
             }
         }
     }
+#else
+    public sealed class IosGameCenter : EmptyGameCenter
+    {
+    }
+#endif
 }
