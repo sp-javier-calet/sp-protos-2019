@@ -189,7 +189,7 @@ namespace SocialPoint.Social
 
         public IosGameCenter(bool showAchievements = true)
         {
-            if (Application.platform == RuntimePlatform.IPhonePlayer)
+            if (Application.platform != RuntimePlatform.IPhonePlayer)
             {
                 throw new InvalidOperationException("This class works only on the iOS platform.");
             }
