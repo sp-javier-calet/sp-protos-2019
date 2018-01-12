@@ -51,7 +51,7 @@ namespace SocialPoint.Social
 
         EmptyGameCenter CreateEmpty()
         {
-            return new EmptyGameCenter("test");
+            return new EmptyGameCenter();
         }
 
         #if UNITY_IOS
