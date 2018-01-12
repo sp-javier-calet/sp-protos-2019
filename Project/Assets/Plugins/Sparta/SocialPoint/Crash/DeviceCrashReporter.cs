@@ -16,7 +16,7 @@ namespace SocialPoint.Crash
     {
         class DeviceReport : Report
         {
-            string CrashPath  { get; set; }
+            string CrashPath { get; set; }
 
             string LogPath { get; set; }
 
@@ -125,40 +125,35 @@ namespace SocialPoint.Crash
 
             public override string ToString()
             {
-                return "[Crash " + Uuid + " : " + Timestamp + " Paths [ " + CrashPath + " " + LogPath + " ]]";  
+                return "[Crash " + Uuid + " : " + Timestamp + " Paths [ " + CrashPath + " " + LogPath + " ]]";
             }
         }
 
-        #if UNITY_ANDROID
+#if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";
-        #else
+#else
         const string PluginModuleName = "__Internal";
-        #endif
+#endif
 
         /* Native plugin interface */
         [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterEnable(UIntPtr ctx);
+        static extern void SPUnityCrashReporter_Enable();
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterDisable(UIntPtr ctx);
+        static extern void SPUnityCrashReporter_Disable();
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterForceCrash();
+        static extern void SPUnityCrashReporter_ForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension);
-
-        [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
+        static extern void SPUnityCrashReporter_Create(string crashPath, string version, string separator, string crashExtension, string logExtension, Action<string> callback);
 
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
         public const string LogExtension = ".logcat";
         public const string FileSeparator = "-";
-        public NativeCallsHandler NativeHandler;
 
         string _crashesBasePath;
-        UIntPtr _nativeObject;
         string _appVersion;
 
         public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
@@ -177,7 +172,7 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create native object
-            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
+            SPUnityCrashReporter_Create(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, OnCrashDumped);
         }
 
         public static string GetLogPathFromCrashPath(string fullCrashPath)
@@ -193,31 +188,24 @@ namespace SocialPoint.Crash
             return report.StackTrace;
         }
 
-        ~DeviceCrashReporter ()
-        {
-            SPUnityCrashReporterDestroy(_nativeObject);
-        }
-
         protected override void OnEnable()
         {
-            DebugUtils.Assert(NativeHandler, "NativeCallsHandler is null");
-            NativeHandler.RegisterListener("OnCrashDumped", OnCrashDumped);
-            SPUnityCrashReporterEnable(_nativeObject);
+            SPUnityCrashReporter_Enable();
         }
 
         protected override void OnDisable()
         {
-            SPUnityCrashReporterDisable(_nativeObject);
+            SPUnityCrashReporter_Disable();
         }
 
         protected override void OnDestroy()
         {
-            SPUnityCrashReporterDisable(_nativeObject);
+            SPUnityCrashReporter_Disable();
         }
 
         public override void ForceCrash()
         {
-            SPUnityCrashReporterForceCrash();
+            SPUnityCrashReporter_ForceCrash();
         }
 
         public void OnCrashDumped(string path)
@@ -282,5 +270,4 @@ namespace SocialPoint.Crash
             return reports;
         }
     }
-
 }
