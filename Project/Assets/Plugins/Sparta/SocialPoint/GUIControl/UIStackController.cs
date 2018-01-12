@@ -125,11 +125,6 @@ namespace SocialPoint.GUIControl
 
         #region Helper StackNodes
 
-        public bool IsValidStackNode(StackNode stackNode)
-        {
-            return stackNode != null && stackNode.Controller != null && stackNode.GameObject != null;
-        }
-
         static StackNode NewStackNode(UIViewController ctrl, bool hideControllersBelow)
         {
             return ctrl != null ? new StackNode(ctrl, ctrl.gameObject, hideControllersBelow) : null;
@@ -509,7 +504,7 @@ namespace SocialPoint.GUIControl
             else
             {
                 var top = Top;
-                if(IsValidStackNode(top))
+                if(StackNode.IsValid(top))
                 {
                     if(_action == ActionType.None && state == ViewState.Disappearing && top.Controller == ctrl)
                     {
@@ -1026,7 +1021,7 @@ namespace SocialPoint.GUIControl
             _enabled = true;
 
             var top = Top;
-            if(IsValidStackNode(top))
+            if(StackNode.IsValid(top))
             {
                 top.Controller.ShowImmediate();
             }
@@ -1037,7 +1032,7 @@ namespace SocialPoint.GUIControl
             _enabled = false;
 
             var top = Top;
-            if(IsValidStackNode(top))
+            if(StackNode.IsValid(top))
             {
                 top.Controller.HideImmediate();
             }
