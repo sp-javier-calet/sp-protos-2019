@@ -52,7 +52,7 @@ namespace SocialPoint.Social
 
         void NotifyStateChanged()
         {
-            if (StateChangeEvent != null)
+            if(StateChangeEvent != null)
             {
                 StateChangeEvent();
             }
@@ -62,7 +62,7 @@ namespace SocialPoint.Social
         {
             _connecting = false;
 
-            if (!Error.IsNullOrEmpty(err))
+            if(!Error.IsNullOrEmpty(err))
             {
 #if !UNITY_EDITOR
                 Log.e("Game Center login ended in error: " + err);
@@ -74,7 +74,7 @@ namespace SocialPoint.Social
             }
 
             NotifyStateChanged();
-            if (cbk != null)
+            if(cbk != null)
             {
                 cbk(err);
             }
@@ -83,11 +83,11 @@ namespace SocialPoint.Social
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
         {
             var localUser = _platform.localUser;
-            if (!localUser.authenticated)
+            if(!localUser.authenticated)
             {
                 _friends.Clear();
                 _user = new GameCenterUser();
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(new Error("Could not login - LoginLoadPlayerData localUser.authenticated false"));
                 }
@@ -108,16 +108,17 @@ namespace SocialPoint.Social
         void LoginDownloadFriends(ErrorDelegate cbk, bool initial = true)
         {
             var localUser = _platform.localUser;
-            if ((localUser.friends == null || localUser.friends.Length == 0) && initial)
+            if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
-                localUser.LoadFriends(success => {
-                    if (success)
+                localUser.LoadFriends(success =>
+                {
+                    if(success)
                     {
                         LoginDownloadFriends(cbk, false);
                     }
                     else
                     {
-                        if (cbk != null)
+                        if(cbk != null)
                         {
                             cbk(new Error("Could not load friends."));
                         }
@@ -126,12 +127,12 @@ namespace SocialPoint.Social
                 return;
             }
             Friends.Clear();
-            if (localUser.friends != null)
+            if(localUser.friends != null)
             {
-                for (int k = 0; k < localUser.friends.Length; k++)
+                for(int k = 0; k < localUser.friends.Length; k++)
                 {
                     var friendData = localUser.friends[k];
-                    if (friendData != null)
+                    if(friendData != null)
                     {
                         Friends.Add(new GameCenterUser(friendData.id,
                             friendData.userName,
@@ -139,7 +140,7 @@ namespace SocialPoint.Social
                     }
                 }
             }
-            if (cbk != null)
+            if(cbk != null)
             {
                 cbk(null);
             }
@@ -147,26 +148,27 @@ namespace SocialPoint.Social
 
         void DownloadAchievements(ErrorDelegate cbk)
         {
-            if (Achievements != null)
+            if(Achievements != null)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(null);
                 }
                 return;
             }
-            _platform.LoadAchievementDescriptions(descs => _platform.LoadAchievements(achis => {
-                if (achis != null)
+            _platform.LoadAchievementDescriptions(descs => _platform.LoadAchievements(achis =>
+            {
+                if(achis != null)
                 {
                     _achievements = new List<GameCenterAchievement>();
-                    for (int i = 0, descsLength = descs.Length; i < descsLength; i++)
+                    for(int i = 0, descsLength = descs.Length; i < descsLength; i++)
                     {
                         var d = descs[i];
                         var percent = 0.0f;
-                        for (int j = 0, achisLength = achis.Length; j < achisLength; j++)
+                        for(int j = 0, achisLength = achis.Length; j < achisLength; j++)
                         {
                             var a = achis[j];
-                            if (a.id == d.id)
+                            if(a.id == d.id)
                             {
                                 percent = (float)a.percentCompleted;
                                 break;
@@ -175,10 +177,10 @@ namespace SocialPoint.Social
                         _achievements.Add(new GameCenterAchievement(d.id, percent, d.points, d.hidden, d.title, d.unachievedDescription, d.achievedDescription));
                     }
                 }
-                if (cbk != null)
+                if(cbk != null)
                 {
                     Error err = null;
-                    if (_achievements == null)
+                    if(_achievements == null)
                     {
                         err = new Error("Could not download achievements.");
                     }
@@ -189,7 +191,7 @@ namespace SocialPoint.Social
 
         public IosGameCenter(bool showAchievements = true)
         {
-            if (Application.platform != RuntimePlatform.IPhonePlayer)
+            if(Application.platform != RuntimePlatform.IPhonePlayer)
             {
                 throw new InvalidOperationException("This class works only on the iOS platform.");
             }
@@ -223,9 +225,9 @@ namespace SocialPoint.Social
 
         public void Login(ErrorDelegate cbk = null)
         {
-            if (IsConnected)
+            if(IsConnected)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(null);
                 }
@@ -233,18 +235,21 @@ namespace SocialPoint.Social
             }
             _connecting = true;
             _connected = false;
-            _platform.localUser.Authenticate((success, error) => {
-                if (success)
+            _platform.localUser.Authenticate((success, error) =>
+            {
+                if(success)
                 {
-                    LoginLoadPlayerData(err => {
-                        if (!Error.IsNullOrEmpty(err))
+                    LoginLoadPlayerData(err =>
+                    {
+                        if(!Error.IsNullOrEmpty(err))
                         {
                             OnLoginEnd(err, cbk);
                         }
                         else
                         {
-                            LoginDownloadFriends(err2 => {
-                                if (!Error.IsNullOrEmpty(err2))
+                            LoginDownloadFriends(err2 =>
+                            {
+                                if(!Error.IsNullOrEmpty(err2))
                                 {
                                     OnLoginEnd(err2, cbk);
                                 }
@@ -265,20 +270,21 @@ namespace SocialPoint.Social
 
         public void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null)
         {
-            if (!IsConnected)
+            if(!IsConnected)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(score, new Error("GameCenter is not logged in"));
                 }
                 return;
             }
 
-            _platform.ReportScore(score.Value, score.Category, success => {
-                if (cbk != null)
+            _platform.ReportScore(score.Value, score.Category, success =>
+            {
+                if(cbk != null)
                 {
                     Error err = null;
-                    if (!success)
+                    if(!success)
                     {
                         err = new Error(string.Format("Could not update score in '{0}'.", score.Category));
                     }
@@ -289,18 +295,19 @@ namespace SocialPoint.Social
 
         public void ResetAchievements(ErrorDelegate cbk = null)
         {
-            if (!IsConnected)
+            if(!IsConnected)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(new Error("GameCenter is not logged in"));
                 }
                 return;
             }
-            GameCenterPlatform.ResetAllAchievements(success => {
-                if (!success)
+            GameCenterPlatform.ResetAllAchievements(success =>
+            {
+                if(!success)
                 {
-                    if (cbk != null)
+                    if(cbk != null)
                     {
                         var err = new Error("Could not reset achievements.");
                         cbk(err);
@@ -308,13 +315,14 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    for (int i = 0, _achievementsCount = _achievements.Count; i < _achievementsCount; i++)
+                    for(int i = 0, _achievementsCount = _achievements.Count; i < _achievementsCount; i++)
                     {
                         var achi = _achievements[i];
                         achi.Percent = 0.0f;
                     }
-                    _platform.LoadAchievements(achis => {
-                        if (cbk != null)
+                    _platform.LoadAchievements(achis =>
+                    {
+                        if(cbk != null)
                         {
                             cbk(null);
                         }
@@ -325,17 +333,17 @@ namespace SocialPoint.Social
 
         public void UpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
         {
-            if (!IsConnected)
+            if(!IsConnected)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(achi, new Error("GameCenter is not logged in"));
                 }
                 return;
             }
-            if (Achievements == null)
+            if(Achievements == null)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(achi, new Error("Failed to download the list of existing achievements"));
                 }
@@ -345,18 +353,18 @@ namespace SocialPoint.Social
             GameCenterAchievement achievement = GetAchievementFromId(achi.Id);
             Error err = null;
 
-            if (achievement == null)
+            if(achievement == null)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(achi, new Error("Achievement not found"));
                 }
                 return;
             }
 
-            if (achievement.IsUnlocked)
+            if(achievement.IsUnlocked)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(achievement, err);
                 }
@@ -366,9 +374,9 @@ namespace SocialPoint.Social
             var achiId = achi.Id;
             var achiPercent = achi.Percent;
 
-            if (_achievementsUpdating.Contains(achiId))
+            if(_achievementsUpdating.Contains(achiId))
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(achievement, err);
                 }
@@ -377,10 +385,11 @@ namespace SocialPoint.Social
 
             _achievementsUpdating.Add(achiId);
 
-            _platform.ReportProgress(achiId, achiPercent, success => {
-                if (cbk != null)
+            _platform.ReportProgress(achiId, achiPercent, success =>
+            {
+                if(cbk != null)
                 {
-                    if (!success)
+                    if(!success)
                     {
                         err = new Error(string.Format("Error updating achievement '{0}'.", achiId));
                     }
@@ -396,9 +405,9 @@ namespace SocialPoint.Social
 
         GameCenterAchievement GetAchievementFromId(string achiId)
         {
-            for (int i = 0, achievementsCount = _achievements.Count; i < achievementsCount; i++)
+            for(int i = 0, achievementsCount = _achievements.Count; i < achievementsCount; i++)
             {
-                if (_achievements[i].Id == achiId)
+                if(_achievements[i].Id == achiId)
                 {
                     return _achievements[i];
                 }
@@ -408,9 +417,9 @@ namespace SocialPoint.Social
 
         public void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk)
         {
-            if (!IsConnected)
+            if(!IsConnected)
             {
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(null, new Error("GameCenter is not logged in"));
                 }
@@ -418,16 +427,17 @@ namespace SocialPoint.Social
             }
 
             string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize + ".png";
-            _platform.LoadUsers(new[] { userId }, users => {
+            _platform.LoadUsers(new[] { userId }, users =>
+            {
                 Error err;
-                if (users == null || users.Length == 0)
+                if(users == null || users.Length == 0)
                 {
                     err = new Error(string.Format("User with id {0} not found.", userId));
                 }
                 else
                 {
                     var u = users[0];
-                    if (u.image != null)
+                    if(u.image != null)
                     {
                         var newTexture = Texture2D.Instantiate(u.image);
                         newTexture.Resize((int)photoSize, (int)photoSize);
@@ -440,7 +450,7 @@ namespace SocialPoint.Social
                     }
                 }
 
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(tmpFilePath, err);
                 }
@@ -461,15 +471,18 @@ namespace SocialPoint.Social
 
         void GenerateUserVerification(ErrorDelegate cbk)
         {
-            if(_verificationCallback != null) {
-                if(cbk != null) {
+            if(_verificationCallback != null)
+            {
+                if(cbk != null)
+                {
                     cbk(new Error("User verification generation is already in process."));
                 }
                 return;
             }
-            _verificationCallback = (uv, err) => {
+            _verificationCallback = (uv, err) =>
+            {
                 Verification = uv;
-                if (cbk != null)
+                if(cbk != null)
                 {
                     cbk(err);
                 }
@@ -488,7 +501,7 @@ namespace SocialPoint.Social
         {
             var error = Error.FromString(errorString);
             GameCenterUserVerification uv = null;
-            if (!string.IsNullOrEmpty(verification))
+            if(!string.IsNullOrEmpty(verification))
             {
                 var parser = new JsonAttrParser();
                 var data = parser.ParseString(verification).AsDic;
@@ -498,7 +511,7 @@ namespace SocialPoint.Social
                 var time = (ulong)data.GetValue("timestamp").ToLong();
                 uv = new GameCenterUserVerification(url, signature, salt, time);
             }
-            if (_verificationCallback != null)
+            if(_verificationCallback != null)
             {
                 var cbk = _verificationCallback;
                 _verificationCallback = null;
