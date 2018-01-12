@@ -6,7 +6,7 @@
 typedef void (*SPUnityCrashReporterCallback)(const char* path);
 
 extern "C" {
-    
+
     EXPORT_API void SPUnityCrashReporter_Create(const char* path, const char* version, const char* fileSeparator, const char* crashExtension,
                                                      const char* logExtension, SPUnityCrashReporterCallback callback);
     EXPORT_API void SPUnityCrashReporter_Enable();

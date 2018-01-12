@@ -1,3 +1,4 @@
+using AOT;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -155,10 +156,16 @@ namespace SocialPoint.Crash
 
         string _crashesBasePath;
         string _appVersion;
+        static DeviceCrashReporter _instance;
 
         public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(updateScheduler, client, deviceInfo, breadcrumbManager, alertView)
         {
+            if(_instance != null)
+            {
+                throw new InvalidOperationException("There can only be one DeviceCrashReporter instance.");
+            }
+            _instance = this;
             _appVersion = deviceInfo.AppInfo.Version;
             PathsManager.CallOnLoaded(OnPathsLoaded);
         }
@@ -172,7 +179,7 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create native object
-            SPUnityCrashReporter_Create(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, OnCrashDumped);
+            SPUnityCrashReporter_Create(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, CrashDumpledCallback);
         }
 
         public static string GetLogPathFromCrashPath(string fullCrashPath)
@@ -208,7 +215,16 @@ namespace SocialPoint.Crash
             SPUnityCrashReporter_ForceCrash();
         }
 
-        public void OnCrashDumped(string path)
+        [MonoPInvokeCallback(typeof(Action<string, string>))]
+        static void CrashDumpledCallback(string path)
+        {
+            if(_instance != null)
+            {
+                _instance.OnCrashDumped(path);
+            }
+        }
+
+        void OnCrashDumped(string path)
         {
             Log.w("OnCrashDumped '" + path + "'");
             //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
