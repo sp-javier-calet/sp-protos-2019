@@ -1,3 +1,4 @@
+#if UNITY_IOS
 using System;
 using System.Collections.Generic;
 using AOT;
@@ -7,6 +8,7 @@ using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.GameCenter;
+#endif
 
 namespace SocialPoint.Social
 {
