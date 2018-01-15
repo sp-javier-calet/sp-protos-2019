@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 4ac1cfed162684a61ac1936d99baec64
-timeCreated: 1515753026
+timeCreated: 1516018513
 licenseType: Pro
 PluginImporter:
   serializedVersion: 1
@@ -37,11 +37,11 @@ PluginImporter:
     Linux:
       enabled: 0
       settings:
-        CPU: None
+        CPU: x86
     Linux64:
       enabled: 0
       settings:
-        CPU: None
+        CPU: x86_64
     LinuxUniversal:
       enabled: 0
       settings:
@@ -49,11 +49,11 @@ PluginImporter:
     OSXIntel:
       enabled: 0
       settings:
-        CPU: None
+        CPU: AnyCPU
     OSXIntel64:
       enabled: 0
       settings:
-        CPU: None
+        CPU: AnyCPU
     OSXUniversal:
       enabled: 0
       settings:
@@ -61,11 +61,11 @@ PluginImporter:
     Win:
       enabled: 0
       settings:
-        CPU: None
+        CPU: AnyCPU
     Win64:
       enabled: 0
       settings:
-        CPU: None
+        CPU: AnyCPU
     iOS:
       enabled: 0
       settings:

@@ -131,7 +131,7 @@ namespace SocialPoint.Crash
         }
 
 #if UNITY_ANDROID
-        const string PluginModuleName = "sp_unity_crash_reporter";
+        const string PluginModuleName = "sp_unity_crash";
 #else
         const string PluginModuleName = "__Internal";
 #endif
