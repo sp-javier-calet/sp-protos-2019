@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public sealed class EmptyGameCenter : IGameCenter
+    public class EmptyGameCenter : IGameCenter
     {
         bool _isConnected;
         GameCenterUser _user;
@@ -22,7 +22,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public EmptyGameCenter(string userName)
+        public EmptyGameCenter(string userName = "test")
         {
             _user = new GameCenterUser(userName);
         }

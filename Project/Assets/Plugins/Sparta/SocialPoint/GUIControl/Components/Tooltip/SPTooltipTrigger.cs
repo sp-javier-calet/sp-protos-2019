@@ -66,6 +66,8 @@ namespace SocialPoint.GUIControl
 
         #endregion
            
+        #region Event Handler implementation
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if(PressType == TriggerType.Hover && !_hovering)
@@ -101,6 +103,8 @@ namespace SocialPoint.GUIControl
         {
             _holding = false;
         }
+
+        #endregion
             
         void ShowTooltip()
         {
