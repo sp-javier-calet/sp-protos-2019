@@ -8,7 +8,9 @@ using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
+#if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+#endif
 using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 
@@ -47,12 +49,12 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _stackController.AppEvents = _appEvents;
         }
             
-        #if ADMIN_PANEL
+#if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-        #endif
+#endif
     }
 
-    #endregion
+#endregion
 
     public override void InstallBindings()
     {
@@ -97,7 +99,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
         
-    #if ADMIN_PANEL
+#if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
         var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
@@ -105,7 +107,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         return new AdminPanelUI(iDeviceInfo, storage);
     }
-    #endif
+#endif
 
     void ShowCloseAppAlertView()
     {

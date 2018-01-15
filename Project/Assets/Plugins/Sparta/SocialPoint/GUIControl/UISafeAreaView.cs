@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public class UISafeAreaView : MonoBehaviour 
+    public class UISafeAreaView : MonoBehaviour
     {
         const string kPersistentTag = "persistent";
         const string kCustomX = "CustomSafeAreaX";
@@ -20,12 +20,17 @@ namespace SocialPoint.GUIControl
         Texture _texture;
 
         IDeviceInfo _deviceInfo;
+
+#if ADMIN_PANEL
         IAttrStorage _storage;
+#endif
 
         void Start()
         {
             _deviceInfo = Services.Instance.Resolve<IDeviceInfo>();
+#if ADMIN_PANEL
             _storage = Services.Instance.Resolve<IAttrStorage>(kPersistentTag);
+#endif
 
             _screenRect = _deviceInfo == null ? new Rect(0f, 0f, Screen.width, Screen.height) : new Rect(0f, 0f, _deviceInfo.ScreenSize.x, _deviceInfo.ScreenSize.y);
             ApplyGizmoSafeArea(_screenRect);
@@ -61,14 +66,14 @@ namespace SocialPoint.GUIControl
 
         Rect GetSafeAreaRect()
         {
-            float x = 0f;
-            float y = 0f;
-            float w = _screenRect.width;
-            float h = _screenRect.height;
-
 #if ADMIN_PANEL
             if(_storage != null)
             {
+                float x = 0f;
+                float y = 0f;
+                float w = _screenRect.width;
+                float h = _screenRect.height;
+
                 var xAttr = _storage.Load(kCustomX);
                 if(xAttr != null)
                 {
@@ -92,16 +97,15 @@ namespace SocialPoint.GUIControl
                 {
                     h = heightAttr.AsValue.ToFloat(); 
                 }
+                return new Rect(x, y, w, h);
             }
             else
             {
                 return _deviceInfo.SafeAreaRectSize; 
             }
 #else
-            return DeviceInfo.SafeAreaRectSize;
+            return _deviceInfo.SafeAreaRectSize;
 #endif
-        
-            return new Rect(x, y, w, h);
         }
             
         static Texture CreateSafeAreaTexture()
