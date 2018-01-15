@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace SocialPoint.Dependency
             }
         }
 
-        InstallerData[] _installers;
+        List<InstallerData> _installers = new List<InstallerData>();
 
         string _filter = string.Empty;
         string _filterString = string.Empty;
@@ -44,17 +45,25 @@ namespace SocialPoint.Dependency
             }
         }
 
+        public void Refresh()
+        {
+            ReloadInstallersData();
+            Repaint();
+        }
+
         void ReloadInstallersData()
         {
             var configurer = (GlobalDependencyConfigurer)target;
             var installers = configurer.Installers;
 
-            _installers = new InstallerData[installers.Length];
+            _installers.Clear();
 
-            for(var i = 0; i < _installers.Length; ++i)
+            foreach(var installer in installers)
             {
-                var data = new InstallerData(installers[i]);
-                _installers[i] = data;
+                if(installer != null)
+                {
+                    _installers.Add(new InstallerData(installer));
+                }
             }
         }
 
@@ -75,7 +84,6 @@ namespace SocialPoint.Dependency
             if(InstallerAssetsManager.Duplicate(installer))
             {
                 InstallerAssetsManager.Reload();
-                Repaint();
             }
             else
             {
@@ -88,7 +96,6 @@ namespace SocialPoint.Dependency
             if(InstallerAssetsManager.Delete(installer))
             {
                 InstallerAssetsManager.Reload();
-                Repaint();
             }
             else
             {
@@ -103,7 +110,6 @@ namespace SocialPoint.Dependency
             if(GUILayout.Button("Reload installers"))
             {
                 InstallerAssetsManager.Reload();
-                Repaint();
             }
             EditorGUILayout.Space();
         }
@@ -154,11 +160,9 @@ namespace SocialPoint.Dependency
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
             GUI.enabled = false;
             base.OnInspectorGUI();
             GUI.enabled = true;
-            serializedObject.ApplyModifiedProperties();
 
             GUIToolbar();
 
