@@ -80,7 +80,7 @@ namespace SocialPoint.Utils
             return new CompoundException(exceptions).ToString();
         }
 
-        public static bool ForceTriggerLog = false;
+        public static event Action<Exception> Triggered;
 
         public static void Trigger(List<Exception> exceptions)
         {
@@ -94,8 +94,17 @@ namespace SocialPoint.Utils
                 return;
             }
 
+            if(Triggered != null)
+            {
+                for(var i = 0; i < exceptions.Length; i++)
+                {
+                    Triggered(exceptions[i]);
+                }
+                return;
+            }
+
             #if UNITY_5_3_OR_NEWER
-            if(ForceTriggerLog || UnityEngine.Application.isPlaying)
+            if(UnityEngine.Application.isPlaying)
             {
                 for(var i = 0; i < exceptions.Length; i++)
                 {

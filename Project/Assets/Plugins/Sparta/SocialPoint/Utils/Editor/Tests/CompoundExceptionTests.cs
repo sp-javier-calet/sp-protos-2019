@@ -58,23 +58,23 @@ second line
         [Test]
         public void TriggerLog()
         {
-            var old = CompoundException.ForceTriggerLog;
-            CompoundException.ForceTriggerLog = true;
-
             var logCount = 0;
-            Application.LogCallback onReceived = (condition, stackTrace, type) => {
+            Action<Exception> onTriggered = (ex) => {
                 logCount++;
-                Assert.AreEqual(LogType.Exception, type);
             };
-            Application.logMessageReceived += onReceived;
+            CompoundException.Triggered += onTriggered;
 
             Assert.DoesNotThrow(() => {
                 CompoundException.Trigger(GetExceptions());
             });
-            Assert.AreEqual(2, logCount);
-            CompoundException.ForceTriggerLog = old;
-
-            Application.logMessageReceived -= onReceived;
+            try
+            {
+                Assert.AreEqual(2, logCount);
+            }
+            finally
+            {
+                CompoundException.Triggered -= onTriggered;
+            }
         }
 
         [Test]
