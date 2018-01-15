@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SocialPoint.Utils
 {
-    public sealed class AggregateException : Exception
+    public sealed class CompoundException : Exception
     {
         const string _desc = "Multiple Exceptions thrown:";
         const string _indent = "    ";
@@ -70,14 +70,14 @@ namespace SocialPoint.Utils
             }
         }
 
-        AggregateException(Exception[] exceptions)
+        CompoundException(Exception[] exceptions)
         {
             Exceptions = exceptions;
         }
 
         public static string GetString(Exception[] exceptions)
         {
-            return new AggregateException(exceptions).ToString();
+            return new CompoundException(exceptions).ToString();
         }
 
         public static bool ForceTriggerLog = false;
@@ -104,7 +104,7 @@ namespace SocialPoint.Utils
                 return;
             }
             #endif
-            throw new AggregateException(exceptions);
+            throw new CompoundException(exceptions);
         }
     }
 }

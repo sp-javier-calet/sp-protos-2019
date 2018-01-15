@@ -368,7 +368,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateable0);
             _scheduler.Add(updateable1);
 
-            Assert.Throws<AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
+            Assert.Throws<CompoundException>(() => _scheduler.Update(0.05f, 0.05f));
 
             updateable0.Received(1).Update();
             updateable1.Received(1).Update();
@@ -377,8 +377,8 @@ namespace SocialPoint.Utils
         [Test]
         public void ExceptionDuringUpdateCallback()
         {
-            var oldThrow = AggregateException.ForceTriggerLog;
-            AggregateException.ForceTriggerLog = true;
+            var oldThrow = CompoundException.ForceTriggerLog;
+            CompoundException.ForceTriggerLog = true;
 
             var exception = new Exception();
             var updateable = Substitute.For<IUpdateable>();
@@ -404,7 +404,7 @@ namespace SocialPoint.Utils
 
             Assert.True(callbackCalled);
 
-            AggregateException.ForceTriggerLog = oldThrow;
+            CompoundException.ForceTriggerLog = oldThrow;
             Application.logMessageReceived -= onReceived;
         }
 
