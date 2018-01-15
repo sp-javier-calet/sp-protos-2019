@@ -96,9 +96,6 @@ namespace SocialPoint.Crash
             reporter.ExceptionLogActive = Settings.ExceptionLogActive;
             reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
             reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
-            #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-            reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
-            #endif
         }
 
     }

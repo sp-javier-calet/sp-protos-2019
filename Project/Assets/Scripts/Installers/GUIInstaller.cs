@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
@@ -12,6 +11,10 @@ using SocialPoint.Hardware;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
@@ -36,7 +39,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     GameObject _root;
     UIStackController _stackController;
     UITooltipController _uiTooltipController;
-    IDeviceInfo _iDeviceInfo;
+    IDeviceInfo _deviceInfo;
     IAppEvents _appEvents;
 
     #region IInitializable implementation
@@ -48,11 +51,10 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         {
             _stackController.AppEvents = _appEvents;
         }
-
-        _iDeviceInfo = Container.Resolve<IDeviceInfo>();
+        _deviceInfo = Container.Resolve<IDeviceInfo>();
         if(_uiTooltipController != null)
         {
-            _uiTooltipController.IDeviceInfo = _iDeviceInfo;
+            _uiTooltipController.DeviceInfo = _deviceInfo;
         }
               
         #if ADMIN_PANEL
@@ -60,7 +62,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         #endif
     }
 
-    #endregion
+#endregion
 
     public override void InstallBindings()
     {
@@ -105,14 +107,14 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
         
-    #if ADMIN_PANEL
+#if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
         var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
-        return new AdminPanelUI(_iDeviceInfo, storage);
+        return new AdminPanelUI(_deviceInfo, storage);
     }
-    #endif
+#endif
 
     void ShowCloseAppAlertView()
     {

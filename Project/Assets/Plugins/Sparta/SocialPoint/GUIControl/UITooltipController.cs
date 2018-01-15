@@ -21,7 +21,7 @@ namespace SocialPoint.GUIControl
         LayerMask _ignoreDispatcherMask;
 
         [HideInInspector]
-        public IDeviceInfo IDeviceInfo;
+        public IDeviceInfo DeviceInfo;
 
         GameObject _currentTooltipGO;
         RectTransform _rectTransform;
@@ -65,7 +65,7 @@ namespace SocialPoint.GUIControl
                 DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
             }
                 
-            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, IDeviceInfo.ScreenSize.x - ScreenBoundsDelta.x, IDeviceInfo.ScreenSize.y - ScreenBoundsDelta.y);
+            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, DeviceInfo.ScreenSize.x - ScreenBoundsDelta.x, DeviceInfo.ScreenSize.y - ScreenBoundsDelta.y);
 
             _eventSystem = Services.Instance.Resolve<SPStandaloneInputModule>();
             if(_eventSystem != null)
