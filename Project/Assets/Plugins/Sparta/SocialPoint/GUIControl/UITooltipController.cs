@@ -1,28 +1,32 @@
-﻿using UnityEngine;
-using SocialPoint.Pooling;
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.EventSystems;
+using SocialPoint.Hardware;
+using SocialPoint.Pooling;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
     public class UITooltipController : UIViewController, IPointerDownHandler
     {
-        public const float DefaultAnimationTime = 1.0f;
-        float AnimationTime = DefaultAnimationTime;
+        const float DefaultAnimationTime = 1.0f;
+        const string ToolTipAnimationTime = "tooltip_animation_time";
 
+        float AnimationTime = DefaultAnimationTime;
         public bool UsePooling = true;
         public Vector2 ScreenBoundsDelta = Vector2.zero;
 
         [SerializeField]
         LayerMask _ignoreDispatcherMask;
 
+        [HideInInspector]
+        public IDeviceInfo IDeviceInfo;
+
         GameObject _currentTooltipGO;
-        GameObject _tempTooltipGO;
         RectTransform _rectTransform;
         Rect _screenBounds;
-        ActionStandaloneInputModule _eventSystem;
+        SPStandaloneInputModule _eventSystem;
 
         public bool TooltipIsShown
         {
@@ -31,7 +35,7 @@ namespace SocialPoint.GUIControl
 
         #region IPointerDownHandler implementation
 
-        public void OnPointerDown(PointerEventData eventData)
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
         {
             HideTooltip(false);
         }
@@ -49,24 +53,32 @@ namespace SocialPoint.GUIControl
         {
             base.OnStart();
 
-            AnimationTime = Services.Instance.Resolve("tooltip_animation_time", DefaultAnimationTime);
-            AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
-            DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
+            AnimationTime = Services.Instance.Resolve(ToolTipAnimationTime, DefaultAnimationTime);
 
-            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, Screen.width - ScreenBoundsDelta.x, Screen.height - ScreenBoundsDelta.y);
+            if(AppearAnimationFactory == null)
+            {
+                AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
+            }
 
-            _eventSystem = Services.Instance.Resolve<ActionStandaloneInputModule>();
+            if(DisappearAnimationFactory == null)
+            {
+                DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
+            }
+                
+            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, IDeviceInfo.ScreenSize.x - ScreenBoundsDelta.x, IDeviceInfo.ScreenSize.y - ScreenBoundsDelta.y);
+
+            _eventSystem = Services.Instance.Resolve<SPStandaloneInputModule>();
             if(_eventSystem != null)
             {
-                _eventSystem.AddEventListener(gameObject, _ignoreDispatcherMask);
+                _eventSystem.RegisterEventReceiver(EventTriggerType.PointerDown, gameObject, _ignoreDispatcherMask);
             }
         }
-
+            
         protected override void OnDestroy()
         {
             if(_eventSystem != null)
             {
-                _eventSystem.RemoveEventListener(gameObject);
+                _eventSystem.UnRegisterEventReceiver(EventTriggerType.PointerDown, gameObject);
             }
 
             base.OnDestroy();
@@ -76,7 +88,7 @@ namespace SocialPoint.GUIControl
         {
             HideTooltip(true);
 
-            if(prefab != null)
+            if(prefab != null && _currentTooltipGO == null)
             {
                 _currentTooltipGO = CreateTooltip(prefab);
                 if(_currentTooltipGO != null)

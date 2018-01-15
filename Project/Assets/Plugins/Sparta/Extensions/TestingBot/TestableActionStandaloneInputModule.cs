@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.TestingBot
 {
-    public class TestableActionStandaloneInputModule : ActionStandaloneInputModule
+    public class TestableActionStandaloneInputModule : SPStandaloneInputModule
     {
         private readonly MouseState _mouseState = new MouseState();
 
