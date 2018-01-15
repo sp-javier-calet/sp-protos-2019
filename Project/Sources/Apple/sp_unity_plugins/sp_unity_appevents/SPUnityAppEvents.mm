@@ -20,13 +20,11 @@ static SPUnityAppEvents* _instance;
     if(self = [super init])
     {
         _instance = self;
-        [super alwaysCallSuper];
     }
     return self;
 }
 
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [AppSourceUtils clearSource];
     
@@ -51,37 +49,32 @@ static SPUnityAppEvents* _instance;
     }
 #endif
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    
-    return YES;
 }
 
-#if !UNITY_TVOS
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options;
 {
     [AppSourceUtils storeSource:url.absoluteString];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
 
-    return YES;
+    return TRUE;
 }
-#endif
 
 #if !UNITY_TVOS
--  (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
+-  (BOOL)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
     [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
+    return FALSE;
 }
 #endif
 
 #if !UNITY_TVOS
-- (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
+- (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
 {
     if(userAllowsNotifications())
     {
         onPermissionsGranted();
     }
-    
-    return YES;
 }
 #endif
 
@@ -97,16 +90,16 @@ static SPUnityAppEvents* _instance;
     onRegisterForRemote([pushToken UTF8String]);
 }
 
-- (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error// IOS 3.0
+- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error// IOS 3.0
 {
     onRegisterForRemoteFailed([error.localizedDescription UTF8String]);
-    return YES;
 }
 
-- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+- (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
     [AppSourceUtils storeSourceOptions:userInfo withScheme:@"push"];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
+    return FALSE;
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -149,12 +142,13 @@ static SPUnityAppEvents* _instance;
     [AppSourceUtils storeSourceOptions:dictionary withScheme:@"appshortcut"];
 }
 
-- (void)application:(UIApplication*)application
+- (BOOL)application:(UIApplication*)application
 performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
   completionHandler:(void (^)(BOOL))completionHandler
 {
     [self storeForceTouchShortcut:shortcutItem];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
+    return FALSE;
 }
 #endif
 

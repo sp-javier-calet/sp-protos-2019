@@ -1,249 +1,188 @@
 #import "UnityAppController.h"
-#import <AdSupport/AdSupport.h>
-#import <UIKit/UIKit.h>
 
 #if !UNITY_TVOS
-#import <SPUnityPlugins/UnityGameObject.h>
-#import <SPUnityPlugins/SPUnityApplication.h>
+#import <SPUnityPlugins/SPAppControllerDelegator.h>
 #else
-#import <SPUnityPlugins_tvOS/UnityGameObject.h>
-#import <SPUnityPlugins_tvOS/SPUnityApplication.h>
+#import <SPUnityPlugins_tvOS/SPAppControllerDelegator.h>
 #endif
 
-#include <string>
+#import <UserNotifications/UserNotifications.h>
 
-@interface SPUnityAppControllerSubClass : UnityAppController
-
+@interface SPUnityAppControllerSubClass : UnityAppController<UNUserNotificationCenterDelegate>
 + (void)load;
-
 @end
 
 @implementation SPUnityAppControllerSubClass
-
-#pragma region - Controller Initialization
-
-// AppReady flag defined in UnityAppController
-extern bool _unityAppReady;
+{
+    SPAppControllerDelegator* _delegator;
+}
 
 + (void)load
 {
     // Set this class as the main Application Controller
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
-
-    /**
-     * Initialize library components
-     */
-    UnityGameObject::setSendMessageDelegate([](const std::string& name, const std::string& method, const std::string& message)
-                                            {
-                                                UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
-                                            });
-    
-    [SPUnityApplication setupApplication:&_unityAppReady];
 }
 
-#pragma region - SubController Life Cycle Implementation
+- (id)init
+{
+    self = [super init];
+    if(self != nil)
+    {
+        _delegator = [[SPAppControllerDelegator alloc] init];
+        [_delegator addAllDelegates];
+    }
+    return self;
+}
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
+    UNUserNotificationCenter.currentNotificationCenter.delegate = self;
+    if(![super application:application didFinishLaunchingWithOptions:launchOptions])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didFinishLaunchingWithOptions:)])
-        {
-            return [super application:application didFinishLaunchingWithOptions:launchOptions];
-        }
+        return FALSE;
     }
-    
-    return YES;
+    [_delegator application:application didFinishLaunchingWithOptions:launchOptions];
+    return TRUE;
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-    BOOL callSuper = [SPUnityApplication applicationWillResignActive:application];
-    
+    [_delegator applicationWillResignActive:application];
+
     //aditional game loop to allow scripts response before being paused
     UnityBatchPlayerLoop();
-    
-    if(callSuper)
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationWillResignActive:)])
-        {
-            [super applicationWillResignActive:application];
-        }
-    }
+
+    [super applicationWillResignActive:application];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
-    if([SPUnityApplication applicationDidBecomeActive:application])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationDidBecomeActive:)])
-        {
-            [super applicationDidBecomeActive:application];
-        }
-    }
+    [_delegator applicationDidBecomeActive:application];
+    [super applicationDidBecomeActive:application];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
 {
-    if([SPUnityApplication applicationDidEnterBackground:application])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationDidEnterBackground:)])
-        {
-            [super applicationDidEnterBackground:application];
-        }
-    }
+    [_delegator applicationDidEnterBackground:application];
+    [super applicationDidEnterBackground:application];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication*)application
 {
-    if([SPUnityApplication applicationWillEnterForeground:application])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationWillEnterForeground:)])
-        {
-            [super applicationWillEnterForeground:application];
-        }
-    }
+    [_delegator applicationWillEnterForeground:application];
+    [super applicationWillEnterForeground:application];
 }
 
 - (void)applicationWillTerminate:(UIApplication*)application
 {
-    if([SPUnityApplication applicationWillTerminate:application])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationWillTerminate:)])
-        {
-            [super applicationWillTerminate:application];
-        }
-    }
+    [_delegator applicationWillTerminate:application];
+    [super applicationWillTerminate:application];
 }
 
-#if !UNITY_TVOS
-- (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
+- (BOOL)application:application openURL:(nonnull NSURL *)url options:(nonnull NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
-    if([SPUnityApplication application:application openURL:url sourceApplication:sourceApplication annotation:annotation])
+    if([_delegator application:application openURL:url options:options])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)])
-        {
-            [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-        }
+        return TRUE;
     }
-    
-    return YES;
+    return [super application:application openURL:url options:options];
 }
-#endif
+
 
 - (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
 {
-    if([SPUnityApplication application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
+    if([_delegator application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:continueUserActivity:restorationHandler:)])
-        {
-            [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
-        }
+        return TRUE;
     }
-    
-    return YES;
+    return [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
 }
-
-#pragma mark - Memory management
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
 {
-    if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(applicationDidReceiveMemoryWarning:)])
-        {
-            [super applicationDidReceiveMemoryWarning:application];
-        }
-    }
+    [_delegator applicationDidReceiveMemoryWarning:application];
+    [super applicationDidReceiveMemoryWarning:application];
 }
-
-#pragma mark - Notifications
-
-#if !UNITY_TVOS
-- (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
-{
-    if([SPUnityApplication application:application didRegisterUserNotificationSettings:notificationSettings])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterUserNotificationSettings:)])
-        {
-            [super application:application didRegisterUserNotificationSettings:notificationSettings];
-        }
-    }
-}
-#endif
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken// IOS 3.0
 {
-    if([SPUnityApplication application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)])
-        {
-            [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-        }
-    }
+    [_delegator application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error// IOS 3.0
 {
-    if([SPUnityApplication application:application didFailToRegisterForRemoteNotificationsWithError:error])
-    {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)])
-        {
-            [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
-        }
-    }
+    [_delegator application:application didFailToRegisterForRemoteNotificationsWithError:error];
+    [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo// IOS 3.0
 {
-    if([SPUnityApplication application:application didReceiveRemoteNotification:userInfo])
+    if([_delegator application:application didReceiveRemoteNotification:userInfo])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveRemoteNotification:)])
-        {
-            [super application:application didReceiveRemoteNotification:userInfo];
-        }
+        return;
+    }
+    [super application:application didReceiveRemoteNotification:userInfo];
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler// IOS 10.0
+{
+    if([_delegator userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler])
+    {
+        return;
     }
 }
 
 #if !UNITY_TVOS
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler
+{
+    if([_delegator application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler])
+    {
+        return;
+    }
+    [super application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+}
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)(void))completionHandler
+{
+    if([_delegator application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler])
+    {
+        return;
+    }
+    [super application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+}
+
+- (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
+{
+    [_delegator application:application didRegisterUserNotificationSettings:notificationSettings];
+    [super application:application didRegisterUserNotificationSettings:notificationSettings];
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler
+{
+    [_delegator userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+}
+
 - (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification// IOS 4.0
 {
-    if([SPUnityApplication application:application didReceiveLocalNotification:notification])
+    if([_delegator application:application didReceiveLocalNotification:notification])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveLocalNotification:)])
-        {
-            [super application:application didReceiveLocalNotification:notification];
-        }
+        return;
     }
+    [super application:application didReceiveLocalNotification:notification];
 }
-#endif
 
-#if !UNITY_TVOS
-- (void)application:(UIApplication*)application
-  performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
-             completionHandler:(void (^)(BOOL))completionHandler
+- (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
-    __block BOOL completionHandlerCalled = NO;
-    
-    auto callback = ^(BOOL result) {
-        if(!completionHandlerCalled)
-        {
-            completionHandlerCalled = YES;
-            completionHandler(result);
-        }
-    };
-    
-    if([SPUnityApplication application:application performActionForShortcutItem:shortcutItem completionHandler:callback])
+    if([_delegator application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler])
     {
-        if([UnityAppController instancesRespondToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
-        {
-            [super application:application performActionForShortcutItem:shortcutItem completionHandler:callback];
-        }
+        return;
     }
-    
-    callback(YES);
+    [super application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
 }
+
 #endif
 
 @end
