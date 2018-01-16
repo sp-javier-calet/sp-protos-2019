@@ -49,12 +49,12 @@ namespace SocialPoint.TimeLinePlayables
             trackBinding.localScale = blendedScale;
         }
 
-        static float GetTweenProgress(ScriptPlayable<ScaleTweenPlayableBehaviour> playableInput, ScaleTweenPlayableBehaviour playableBehaviour)
+        static float GetTweenProgress(ScriptPlayable<ScaleTweenPlayableBehaviour> playableInput, BaseTweenPlayableBehaviour playableBehaviour)
         {
             var time = playableInput.GetTime();
             var normalisedTime = (float)(time * playableBehaviour.InverseDuration);
 
-            if(playableBehaviour.AnimationType == ScaleTweenPlayableBehaviour.TweeningType.AnimationCurve && playableBehaviour.AnimationCurve != null)
+            if(playableBehaviour.AnimationType == BaseTweenPlayableBehaviour.TweeningType.AnimationCurve && playableBehaviour.AnimationCurve != null)
             {
                 return playableBehaviour.AnimationCurve.Evaluate(normalisedTime);
             }
