@@ -10,6 +10,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := sp_unity_curl
 LOCAL_MODULE_FILENAME := libsp_unity_curl
+LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 
 LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(CURL_SRC_PATH)/Certificate.cpp \
