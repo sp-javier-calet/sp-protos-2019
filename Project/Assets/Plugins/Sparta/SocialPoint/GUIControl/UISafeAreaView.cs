@@ -16,6 +16,19 @@ namespace SocialPoint.GUIControl
         public bool ShowGizmos;
 
         Rect _screenRect;
+        Rect ScreenRect
+        {
+            get
+            {
+                if(_screenRect == Rect.zero)
+                {
+                    _screenRect = _deviceInfo == null ? new Rect(0f, 0f, Screen.width, Screen.height) : new Rect(0f, 0f, _deviceInfo.ScreenSize.x, _deviceInfo.ScreenSize.y);
+                }
+
+                return _screenRect;
+            }
+        }
+
         Rect _gizmoRect;
         Texture _texture;
 
@@ -28,18 +41,12 @@ namespace SocialPoint.GUIControl
         void Start()
         {
             _deviceInfo = Services.Instance.Resolve<IDeviceInfo>();
+
 #if ADMIN_PANEL
             _storage = Services.Instance.Resolve<IAttrStorage>(kPersistentTag);
 #endif
 
-            _screenRect = _deviceInfo == null ? new Rect(0f, 0f, Screen.width, Screen.height) : new Rect(0f, 0f, _deviceInfo.ScreenSize.x, _deviceInfo.ScreenSize.y);
-            ApplyGizmoSafeArea(_screenRect);
-
-            ApplySafeArea();
-        }
-
-        void ApplySafeArea()
-        {
+            ApplyGizmoSafeArea(ScreenRect);
             ApplySafeArea(GetSafeAreaRect());
         }
  
@@ -48,14 +55,14 @@ namespace SocialPoint.GUIControl
             if(rect != Rect.zero)
             {
 #if NGUI
-                SocialPoint.Base.Log.w("We have not NGUI libraries in base game");
+                SocialPoint.Base.Log.w("We have not NGUI libraries in Sparta");
 #else
                 var anchorMin = rect.position;
                 var anchorMax = rect.position + rect.size;
-                anchorMin.x /= _screenRect.width;
-                anchorMin.y /= _screenRect.height;
-                anchorMax.x /= _screenRect.width;
-                anchorMax.y /= _screenRect.height;
+                anchorMin.x /= ScreenRect.width;
+                anchorMin.y /= ScreenRect.height;
+                anchorMax.x /= ScreenRect.width;
+                anchorMax.y /= ScreenRect.height;
 
                 var rectTransform = GetComponent<RectTransform>();
                 rectTransform.anchorMin = anchorMin;
@@ -66,14 +73,14 @@ namespace SocialPoint.GUIControl
 
         Rect GetSafeAreaRect()
         {
+            float x = 0f;
+            float y = 0f;
+            float w = ScreenRect.width;
+            float h = ScreenRect.height;
+
 #if ADMIN_PANEL
             if(_storage != null)
             {
-                float x = 0f;
-                float y = 0f;
-                float w = _screenRect.width;
-                float h = _screenRect.height;
-
                 var xAttr = _storage.Load(kCustomX);
                 if(xAttr != null)
                 {
@@ -97,15 +104,22 @@ namespace SocialPoint.GUIControl
                 {
                     h = heightAttr.AsValue.ToFloat(); 
                 }
-                return new Rect(x, y, w, h);
             }
             else
             {
-                return _deviceInfo.SafeAreaRectSize; 
+                if(_deviceInfo != null)
+                {
+                    return _deviceInfo.SafeAreaRectSize; 
+                }
             }
 #else
-            return _deviceInfo.SafeAreaRectSize;
+            if(_deviceInfo != null)
+            {
+                return _deviceInfo.SafeAreaRectSize;
+            }
 #endif
+
+            return new Rect(x, y, w, h);
         }
             
         static Texture CreateSafeAreaTexture()
