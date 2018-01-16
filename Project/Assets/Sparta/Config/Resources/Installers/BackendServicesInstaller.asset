@@ -22,7 +22,7 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
       PingEnabled: 1
     Login:
-      UseEmpty: 0
+      TypeLogin: 0
       Timeout: 120
       ActivityTimeout: 15
       AutoupdateFriends: 1
@@ -33,6 +33,7 @@ MonoBehaviour:
       UserMappingsBlock: 50
     Events:
       UseEmpty: 0
+      AutoStart: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
       Timeout: 30

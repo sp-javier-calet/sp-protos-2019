@@ -23,6 +23,7 @@ namespace SocialPoint.Network
 
         public LocalNetworkMessage(NetworkMessageData data, LocalNetworkClient[] clients)
         {
+            data.ClientIds = null;
             _clients = clients;
             Init(data);
         }
