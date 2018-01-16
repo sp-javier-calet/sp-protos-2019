@@ -58,7 +58,19 @@ namespace SocialPoint.Dependency
                 }
             }
 
-            GlobalDependencyConfigurer.Load().Installers = Installers;
+            // Update GlobalDependencyConfigurer asset and save it
+
+            var prefab = GlobalDependencyConfigurer.Load();
+            prefab.Installers = Installers;
+            EditorUtility.SetDirty(prefab);
+            AssetDatabase.SaveAssets();
+
+            // Refresh all opened GlobalDependencyConfigurer windows
+
+            foreach(var editor in Resources.FindObjectsOfTypeAll<GlobalDependencyConfigurerEditor>())
+            {
+                editor.Refresh();
+            }
         }
 
         public static bool CreateDefault(Type t)

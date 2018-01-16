@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -25,7 +25,7 @@ namespace SocialPoint.Utils
 
     [TestFixture]
     [Category("SocialPoint.Utils")]
-    public class AggregateExceptionTests
+    public class CompoundExceptionTests
     {
         const string _testStack = @"first line
 second line";
@@ -41,8 +41,8 @@ second line";
         [Test]
         public void ConvertToString()
         {
-            var str = AggregateException.GetString(GetExceptions());
-            Assert.AreEqual(@"SocialPoint.Utils.AggregateException: Multiple Exceptions thrown:
+            var str = CompoundException.GetString(GetExceptions());
+            Assert.AreEqual(@"SocialPoint.Utils.CompoundException: Multiple Exceptions thrown:
 1. Exception: outer1
     TestException: inner1
     first line
@@ -58,32 +58,30 @@ second line
         [Test]
         public void TriggerLog()
         {
-            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
-
-            var old = AggregateException.ForceTriggerLog;
-            AggregateException.ForceTriggerLog = true;
-
             var logCount = 0;
-            Application.LogCallback onReceived = (condition, stackTrace, type) => {
+            Action<Exception> onTriggered = (ex) => {
                 logCount++;
-                Assert.AreEqual(LogType.Exception, type);
             };
-            Application.logMessageReceived += onReceived;
+            CompoundException.Triggered += onTriggered;
 
             Assert.DoesNotThrow(() => {
-                AggregateException.Trigger(GetExceptions());
+                CompoundException.Trigger(GetExceptions());
             });
+            try
+            {
             Assert.AreEqual(2, logCount);
-            AggregateException.ForceTriggerLog = old;
-
-            Application.logMessageReceived -= onReceived;
+            }
+            finally
+            {
+                CompoundException.Triggered -= onTriggered;
+            }
         }
 
         [Test]
         public void TriggerThrow()
         {
-            Assert.Throws<AggregateException>(() => {
-                AggregateException.Trigger(GetExceptions());
+            Assert.Throws<CompoundException>(() => {
+                CompoundException.Trigger(GetExceptions());
             });
         }
     }

@@ -17,7 +17,7 @@ namespace SocialPoint.EventSystems
         public SettingsData Settings = new SettingsData();
 
         EventSystem _eventSystem;
-        ActionStandaloneInputModule _actionStandaloneInputModule;
+        SPStandaloneInputModule _actionStandaloneInputModule;
 
         public override void InstallBindings()
         {
@@ -50,10 +50,10 @@ namespace SocialPoint.EventSystems
                 DontDestroyOnLoad(_eventSystem);
             }
 
-            _actionStandaloneInputModule = _eventSystem.GetComponent<ActionStandaloneInputModule>();
+            _actionStandaloneInputModule = _eventSystem.GetComponent<SPStandaloneInputModule>();
             if(_actionStandaloneInputModule != null)
             {
-                Container.Rebind<ActionStandaloneInputModule>().ToInstance(_actionStandaloneInputModule);
+                Container.Rebind<SPStandaloneInputModule>().ToInstance(_actionStandaloneInputModule);
             }
 
             return _eventSystem;

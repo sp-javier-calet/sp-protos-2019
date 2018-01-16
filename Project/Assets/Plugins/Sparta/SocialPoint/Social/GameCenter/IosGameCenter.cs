@@ -1,15 +1,19 @@
+#if UNITY_IOS
 using System;
 using System.Collections.Generic;
+using AOT;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.GameCenter;
+#endif
 
 namespace SocialPoint.Social
 {
-    public delegate void GameCenterValidationDelegate(Error error, GameCenterUserVerification ver);
-    public sealed class UnityGameCenter : IGameCenter
+#if UNITY_IOS
+    public sealed class IosGameCenter : IGameCenter
     {
         static readonly string PhotosCacheFolder = "GameCenter";
         GameCenterUser _user;
@@ -30,6 +34,8 @@ namespace SocialPoint.Social
             }
         }
 
+        public GameCenterUserVerification Verification { get; private set; }
+
         List<GameCenterAchievement> _achievements;
         bool _connecting;
         bool _connected;
@@ -37,7 +43,6 @@ namespace SocialPoint.Social
         List<GameCenterUser> _friends;
         HashSet<string> _achievementsUpdating;
 
-        SocialPointGameCenterVerification _verification;
         bool _loadAchievements;
 
         public List<GameCenterUser> Friends
@@ -101,7 +106,7 @@ namespace SocialPoint.Social
                            );
                 _user = user;
 
-                RequestGameCenterVerification(cbk);
+                GenerateUserVerification(cbk);
             }
         }
 
@@ -110,7 +115,8 @@ namespace SocialPoint.Social
             var localUser = _platform.localUser;
             if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
-                localUser.LoadFriends(success => {
+                localUser.LoadFriends(success =>
+                {
                     if(success)
                     {
                         LoginDownloadFriends(cbk, false);
@@ -155,7 +161,8 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            _platform.LoadAchievementDescriptions(descs => _platform.LoadAchievements(achis => {
+            _platform.LoadAchievementDescriptions(descs => _platform.LoadAchievements(achis =>
+            {
                 if(achis != null)
                 {
                     _achievements = new List<GameCenterAchievement>();
@@ -187,32 +194,19 @@ namespace SocialPoint.Social
             }));
         }
 
-        public UnityGameCenter(NativeCallsHandler handler, bool showAchievements = true, bool loadAchievements = false)
+        public IosGameCenter(bool showAchievements = true, bool loadAchievements = false)
         {
+            if(Application.platform != RuntimePlatform.IPhonePlayer)
+        {
+                throw new InvalidOperationException("This class works only on the iOS platform.");
+            }
             _friends = new List<GameCenterUser>();
             _achievementsUpdating = new HashSet<string>();
             _user = new GameCenterUser();
             _platform = new GameCenterPlatform();
             _loadAchievements = loadAchievements;
             GameCenterPlatform.ShowDefaultAchievementCompletionBanner(showAchievements);
-            _verification = new SocialPointGameCenterVerification(handler);
         }
-
-        void RequestGameCenterVerification(ErrorDelegate cbk)
-        {
-            _verification.LoadData((error, ver) => {
-                if(Error.IsNullOrEmpty(error))
-                {
-                    _user.Verification = ver;
-                    cbk(error);
-                }
-                else
-                {
-                    cbk(error);
-                }
-            });
-        }
-
 
         public bool IsConnected
         {
@@ -247,17 +241,20 @@ namespace SocialPoint.Social
             }
             _connecting = true;
             _connected = false;
-            _platform.localUser.Authenticate((success, error) => {
+            _platform.localUser.Authenticate((success, error) =>
+            {
                 if(success)
                 {
-                    LoginLoadPlayerData(err => {
+                    LoginLoadPlayerData(err =>
+                    {
                         if(!Error.IsNullOrEmpty(err))
                         {
                             OnLoginEnd(err, cbk);
                         }
                         else
                         {
-                            LoginDownloadFriends(err2 => {
+                            LoginDownloadFriends(err2 =>
+                            {
                                 if(!Error.IsNullOrEmpty(err2))
                                 {
                                     OnLoginEnd(err2, cbk);
@@ -266,8 +263,8 @@ namespace SocialPoint.Social
                                 {
                                     if(_loadAchievements)
                                     {
-                                        DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
-                                    }
+                                    DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
+                                }
                                     else
                                     {
                                         OnLoginEnd(null, cbk);
@@ -295,7 +292,8 @@ namespace SocialPoint.Social
                 return;
             }
 
-            _platform.ReportScore(score.Value, score.Category, success => {
+            _platform.ReportScore(score.Value, score.Category, success =>
+            {
                 if(cbk != null)
                 {
                     Error err = null;
@@ -324,7 +322,8 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            GameCenterPlatform.ResetAllAchievements(success => {
+            GameCenterPlatform.ResetAllAchievements(success =>
+            {
                 if(!success)
                 {
                     if(cbk != null)
@@ -340,7 +339,8 @@ namespace SocialPoint.Social
                         var achi = _achievements[i];
                         achi.Percent = 0.0f;
                     }
-                    _platform.LoadAchievements(achis => {
+                    _platform.LoadAchievements(achis =>
+                    {
                         if(cbk != null)
                         {
                             cbk(null);
@@ -404,7 +404,8 @@ namespace SocialPoint.Social
 
             _achievementsUpdating.Add(achiId);
 
-            _platform.ReportProgress(achiId, achiPercent, success => {
+            _platform.ReportProgress(achiId, achiPercent, success =>
+            {
                 if(cbk != null)
                 {
                     if(!success)
@@ -445,7 +446,8 @@ namespace SocialPoint.Social
             }
 
             string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize + ".png";
-            _platform.LoadUsers(new []{ userId }, users => {
+            _platform.LoadUsers(new[] { userId }, users =>
+            {
                 Error err;
                 if(users == null || users.Length == 0)
                 {
@@ -485,5 +487,60 @@ namespace SocialPoint.Social
         {
             GameCenterPlatform.ShowLeaderboardUI(id, TimeScope.AllTime);
         }
+
+        void GenerateUserVerification(ErrorDelegate cbk)
+        {
+            if(_verificationCallback != null)
+            {
+                if(cbk != null)
+                {
+                    cbk(new Error("User verification generation is already in process."));
+                }
+                return;
     }
+            _verificationCallback = (uv, err) =>
+            {
+                Verification = uv;
+                if(cbk != null)
+                {
+                    cbk(err);
+                }
+            };
+            // native callbacks need to be static
+            SPUnityGameCenter_GenerateUserVerification(GenerateUserVerificationCallback);
+        }
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void SPUnityGameCenter_GenerateUserVerification(Action<string, string> callback);
+
+        static Action<GameCenterUserVerification, Error> _verificationCallback;
+
+        [MonoPInvokeCallback(typeof(Action<string, string>))]
+        static void GenerateUserVerificationCallback(string verification, string errorString)
+        {
+            var error = Error.FromString(errorString);
+            GameCenterUserVerification uv = null;
+            if(!string.IsNullOrEmpty(verification))
+            {
+                var parser = new JsonAttrParser();
+                var data = parser.ParseString(verification).AsDic;
+                var url = data.GetValue("url").ToString();
+                var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
+                var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
+                var time = (ulong)data.GetValue("timestamp").ToLong();
+                uv = new GameCenterUserVerification(url, signature, salt, time);
+            }
+            if(_verificationCallback != null)
+            {
+                var cbk = _verificationCallback;
+                _verificationCallback = null;
+                cbk(uv, error);
+            }
+        }
+    }
+#else
+    public sealed class IosGameCenter : EmptyGameCenter
+    {
+    }
+#endif
 }

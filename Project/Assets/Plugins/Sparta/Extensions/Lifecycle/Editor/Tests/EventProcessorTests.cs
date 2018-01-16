@@ -294,7 +294,7 @@ namespace SocialPoint.Lifecycle
             {
                 _processor.Process(_event);
             }
-            catch(AggregateException e)
+            catch(CompoundException e)
             {
                 exceptionCount = e.Exceptions.Length;
             }
@@ -305,7 +305,7 @@ namespace SocialPoint.Lifecycle
             {
                 _processor.Process(_event);
             }
-            catch(AggregateException)
+            catch(CompoundException)
             {
             }
             _successHandler2.Received(1).Handle(_event);
