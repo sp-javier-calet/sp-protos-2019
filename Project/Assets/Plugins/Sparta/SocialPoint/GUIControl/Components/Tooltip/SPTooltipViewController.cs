@@ -71,7 +71,10 @@ namespace SocialPoint.GUIControl
 
         void MoveTooltipToTriggerPosition()
         {
-            _baseTransform.position = _triggerTransform.position + _offset;
+            // Regarding where we setup the transform pivot, we will force the initial position for the spawned Tooltip always to be in the Transform center
+            var centerPoint = _triggerTransform.GetWorldCenterPoint();
+
+            _baseTransform.position = centerPoint + _offset;
             _baseTransform.localScale = Vector3.one;
         }
 
@@ -120,26 +123,26 @@ namespace SocialPoint.GUIControl
                 break;
 
             case SpikePosition.Left:
-                _baseTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
+                _baseTransform.SetPivotAndAnchors(RectTransformExtensions.PivotMiddleRight);
+                _contentTransform.SetPivotAndAnchors(RectTransformExtensions.PivotMiddleRight);
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 break;
 
             case SpikePosition.Top:
-                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
+                _baseTransform.SetPivotAndAnchors(RectTransformExtensions.PivotBottomCenter);
+                _contentTransform.SetPivotAndAnchors(RectTransformExtensions.PivotBottomCenter);
                 _spikeTransform.localRotation = Quaternion.Euler(Vector3.zero);
                 break;
 
             case SpikePosition.Right:
-                _baseTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
+                _baseTransform.SetPivotAndAnchors(RectTransformExtensions.PivotMiddleLeft);
+                _contentTransform.SetPivotAndAnchors(RectTransformExtensions.PivotMiddleLeft);
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 270f);
                 break;
 
             case SpikePosition.Bottom:
-                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
+                _baseTransform.SetPivotAndAnchors(RectTransformExtensions.PivotTopCenter);
+                _contentTransform.SetPivotAndAnchors(RectTransformExtensions.PivotTopCenter);
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 180f);
                 break;
             }
