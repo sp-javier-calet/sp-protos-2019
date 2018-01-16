@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Utils;
@@ -32,8 +32,8 @@ namespace SocialPoint.Social
             }
             else
             {
-                Container.Rebind<UnityGameCenter>().ToMethod<UnityGameCenter>(CreateUnity);
-                Container.Rebind<IGameCenter>().ToLookup<UnityGameCenter>();
+                Container.Rebind<IosGameCenter>().ToMethod<IosGameCenter>(CreateIos);
+                Container.Rebind<IGameCenter>().ToLookup<IosGameCenter>();
             }
 
             if(Settings.LoginLink)
@@ -52,14 +52,15 @@ namespace SocialPoint.Social
 
         EmptyGameCenter CreateEmpty()
         {
-            return new EmptyGameCenter("test");
+            return new EmptyGameCenter();
         }
 
-        UnityGameCenter CreateUnity()
+        #if UNITY_IOS
+        IosGameCenter CreateIos()
         {
-            return new UnityGameCenter(
-                Container.Resolve<NativeCallsHandler>(), true, Settings.LoadAchievements);
+            return new IosGameCenter(true, Settings.LoadAchievements);
         }
+        #endif
 
         #if ADMIN_PANEL
         AdminPanelGameCenter CreateAdminPanel()

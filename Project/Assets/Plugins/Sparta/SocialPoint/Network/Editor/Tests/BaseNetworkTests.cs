@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 using SocialPoint.IO;
@@ -7,6 +5,20 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
+    class TestMessageReceiver : INetworkMessageReceiver
+    {
+        public bool Received;
+        public NetworkMessageData Data;
+        public string Body;
+
+        public void OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            Received = true;
+            Data = data;
+            Body = reader.ReadString();
+        }
+    }
+
     public abstract class BaseNetworkTests
     {
         protected INetworkServer _server;
@@ -23,24 +35,20 @@ namespace SocialPoint.Network
             var sdlg = Substitute.For<INetworkServerDelegate>();
             _server.AddDelegate(sdlg);
             _server.Start();
-            _server.Start();
 
             WaitForEvents();
             sdlg.Received(1).OnServerStarted();
 
-            _client.Connect();
             _client.Connect();
 
             WaitForEvents();
             sdlg.Received(1).OnClientConnected(1);
 
             _client.Disconnect();
-            _client.Disconnect();
 
             WaitForEvents();
             sdlg.Received(1).OnClientDisconnected(1);
 
-            _server.Stop();
             _server.Stop();
 
             WaitForEvents();
@@ -54,15 +62,12 @@ namespace SocialPoint.Network
             _client.AddDelegate(cdlg);
 
             _server.Start();
-            _server.Start();           
 
-            _client.Connect();
             _client.Connect();
 
             WaitForEvents();
             cdlg.Received(1).OnClientConnected();
 
-            _client.Disconnect();
             _client.Disconnect();
 
             WaitForEvents();
@@ -72,68 +77,74 @@ namespace SocialPoint.Network
         [Test]
         public void SendMessageFromClientToServer()
         {
-            var receiver = Substitute.For<INetworkMessageReceiver>();
-            _server.RegisterReceiver(receiver);
+            var receiver = new TestMessageReceiver();
             _server.Start();
+            _server.RegisterReceiver(receiver);
             _client.Connect();
 
-            var msg = _client.CreateMessage(new NetworkMessageData {
+
+            NetworkMessageData data = new NetworkMessageData {
                 MessageType = 5,
-            });
+                ClientIds = new List<byte>(){ 1 }
+            };
 
-            msg.Writer.Write(42);
+            var msg = _client.CreateMessage(data);
             msg.Writer.Write("test");
-
             msg.Send();
 
             WaitForEvents();
-            receiver.Received(1).OnMessageReceived(
-                Arg.Is<NetworkMessageData>( data => 
-                    data.MessageType == 5),
-                Arg.Is<IReader>( reader => 
-                    reader.ReadInt32() == 42 &&
-                    reader.ReadString() == "test"
-            ));
+
+            Assert.AreEqual(data.MessageType, receiver.Data.MessageType);
+            Assert.AreEqual(1, receiver.Data.ClientIds[0]);
+            Assert.AreEqual(1, receiver.Data.ClientIds.Count);
+            Assert.AreEqual("test", receiver.Body);
         }
 
         [Test]
         public void SendMessageFromServerToClients()
         {
-            var receiver = Substitute.For<INetworkMessageReceiver>();
-            _client.RegisterReceiver(receiver);
-            _client2.RegisterReceiver(receiver);
+            var receiver1 = new TestMessageReceiver();
+            var receiver2 = new TestMessageReceiver();
+            _client.RegisterReceiver(receiver1);
+            _client2.RegisterReceiver(receiver2);
             _server.Start();
+
             _client.Connect();
             _client2.Connect();
+
+            WaitForEvents();
 
             var data = new NetworkMessageData {
                 MessageType = 5
             };
             var msg = _server.CreateMessage(data);
 
-            msg.Writer.Write(42);
             msg.Writer.Write("test");
 
             msg.Send();
 
             WaitForEvents();
-            receiver.Received(2).OnMessageReceived(data,
-                Arg.Is<IReader>( reader => 
-                    reader.ReadInt32() == 42 &&
-                    reader.ReadString() == "test"
-            ));
+
+            Assert.AreEqual(data.MessageType, receiver1.Data.MessageType);
+            Assert.AreEqual(data.MessageType, receiver2.Data.MessageType);
+            Assert.AreEqual(null, receiver1.Data.ClientIds);
+            Assert.AreEqual(null, receiver2.Data.ClientIds);
+            Assert.AreEqual("test", receiver1.Body);
+            Assert.AreEqual("test", receiver2.Body);
         }
 
         [Test]
         public void SendMessageFromServerToOneClient()
         {
-            var receiver1 = Substitute.For<INetworkMessageReceiver>();
-            var receiver2 = Substitute.For<INetworkMessageReceiver>();
+            var receiver1 = new TestMessageReceiver();
+            var receiver2 = new TestMessageReceiver();
             _client.RegisterReceiver(receiver1);
             _client2.RegisterReceiver(receiver2);
             _server.Start();
             _client.Connect();
             _client2.Connect();
+
+            WaitForEvents();
 
             var data = new NetworkMessageData {
                 MessageType = 5,
@@ -141,18 +152,19 @@ namespace SocialPoint.Network
             };
             var msg = _server.CreateMessage(data);
 
-            msg.Writer.Write(42);
             msg.Writer.Write("test");
 
             msg.Send();
 
             WaitForEvents();
-            receiver1.Received(1).OnMessageReceived(data,
-                Arg.Is<IReader>( reader => 
-                    reader.ReadInt32() == 42 &&
-                    reader.ReadString() == "test"
-            ));
-            receiver2.Received(0).OnMessageReceived(Arg.Any<NetworkMessageData>(), Arg.Any<IReader>());
+
+            Assert.AreEqual(data.MessageType, receiver1.Data.MessageType);
+            Assert.AreEqual(null, receiver1.Data.ClientIds);
+            Assert.IsTrue(receiver1.Received);
+            Assert.AreEqual("test", receiver1.Body);
+
+            Assert.IsFalse(receiver2.Received);
+            Assert.AreEqual(null, receiver2.Body);
         }
 
         [Test]
@@ -162,15 +174,12 @@ namespace SocialPoint.Network
             var sdlg = Substitute.For<INetworkServerDelegate>();
             _client.AddDelegate(cdlg);
             _server.AddDelegate(sdlg);
+
+            _server.Start();
             _client.Connect();
 
             WaitForEvents();
-            cdlg.Received(0).OnClientConnected();
-            sdlg.Received(0).OnClientConnected(Arg.Any<byte>());
 
-            _server.Start();
-
-            WaitForEvents();
             cdlg.Received(1).OnClientConnected();
             sdlg.Received(1).OnClientConnected(Arg.Any<byte>());
         }
@@ -185,6 +194,8 @@ namespace SocialPoint.Network
 
             _server.Start();
             _client.Connect();
+
+            WaitForEvents();
             _server.Stop();
 
             WaitForEvents();
@@ -192,16 +203,7 @@ namespace SocialPoint.Network
             sdlg.Received(1).OnClientDisconnected(Arg.Any<byte>());
         }
 
-        [Test]
-        public void OnServerStartedCalledIfDelegateAddedAfterStart()
-        {
-            _server.Start();
-            var sdlg = Substitute.For<INetworkServerDelegate>();
-            _server.AddDelegate(sdlg);
-
-            WaitForEvents();
-            sdlg.Received(1).OnServerStarted();
-        }
+      
 
         [Test]
         public void OnClientConnectedCalledIfDelegateAddedAfterConnect()
@@ -220,12 +222,21 @@ namespace SocialPoint.Network
         {
             _server.Start();
             var sdlg = Substitute.For<INetworkServerDelegate>();
-            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData { ClientIds = new List<byte>(){ 1 }, MessageType = 1} , Substitute.For<INetworkShareable>()));
+            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData {
+                ClientIds = new List<byte>(){ 1 },
+                MessageType = 1
+            }, Substitute.For<INetworkShareable>()));
             _server.AddDelegate(sdlg);
             var cdlg = Substitute.For<INetworkClientDelegate>();
             _client.AddDelegate(cdlg);
             _client.Connect();
-            cdlg.Received().OnMessageReceived(new NetworkMessageData {ClientIds = new List<byte>(){ 1 }, MessageType = 1});
+
+            WaitForEvents();
+
+            cdlg.Received().OnMessageReceived(new NetworkMessageData {
+                ClientIds = new List<byte>(){ 1 },
+                MessageType = 1
+            });
         }
     }
 }

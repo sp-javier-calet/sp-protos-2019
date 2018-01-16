@@ -822,8 +822,8 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\ActionUpdater.cs">
       <Link>Utils\ActionUpdater.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\AggregateException.cs">
-      <Link>Utils\AggregateException.cs</Link>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompoundException.cs">
+      <Link>Utils\CompoundException.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Utils\CompareUtils.cs</Link>
