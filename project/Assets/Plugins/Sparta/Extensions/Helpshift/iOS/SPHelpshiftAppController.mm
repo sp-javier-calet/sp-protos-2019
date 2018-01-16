@@ -71,6 +71,7 @@
 
     [configDictionary removeObjectsForKeys:@[@"__hs__apiKey", @"__hs__appId", @"__hs__domainName"]];
 
+    [HelpshiftCore initializeWithProvider:[HelpshiftAll sharedInstance]];
     [HelpshiftCore installForApiKey:apiKey domainName:domainName appID:appId withOptions:configDictionary];
 }
 
@@ -164,6 +165,5 @@
     }
     return FALSE;
 }
-
 
 @end

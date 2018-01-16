@@ -13,6 +13,7 @@
     self = [super init];
     if(self != nil)
     {
+        self.enabled = TRUE;
         _delegates = [[NSMutableArray alloc] init];
     }
     return self;

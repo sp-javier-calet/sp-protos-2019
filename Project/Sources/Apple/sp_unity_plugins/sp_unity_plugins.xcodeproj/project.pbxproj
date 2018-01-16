@@ -49,12 +49,12 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		06566235200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; };
-		06566236200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; };
+		06566235200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		06566236200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06566237200D1345006C44CA /* SPAppControllerDelegator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06566233200D1345006C44CA /* SPAppControllerDelegator.m */; };
 		06566238200D1345006C44CA /* SPAppControllerDelegator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06566233200D1345006C44CA /* SPAppControllerDelegator.m */; };
-		06566239200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; };
-		0656623A200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; };
+		06566239200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0656623A200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
 		067823F32008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */; };
 		067823F42008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */; };
