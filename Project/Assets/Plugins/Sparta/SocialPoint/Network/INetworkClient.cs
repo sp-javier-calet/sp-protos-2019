@@ -15,8 +15,6 @@ namespace SocialPoint.Network
 
     public interface INetworkClient : INetworkMessageSender
     {
-        byte ClientId{ get; }
-
         bool Connected{ get; }
 
         void Connect();

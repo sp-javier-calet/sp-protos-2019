@@ -52,8 +52,6 @@ namespace SocialPoint.GUIControl
 
         public void AddChild(UIViewController ctrl)
         {
-            Load();
-
             if(ctrl == null)
             {
                 throw new ArgumentException("Controller cannot be null.");
@@ -68,7 +66,7 @@ namespace SocialPoint.GUIControl
                 ctrl.ViewEvent += OnChildViewStateChanged;
             }
         }
-            
+
         virtual protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             
