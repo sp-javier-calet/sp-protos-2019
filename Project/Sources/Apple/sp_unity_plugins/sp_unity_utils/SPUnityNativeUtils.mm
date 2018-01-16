@@ -170,10 +170,13 @@ NSString* const kAppSourceKey = @"SourceApplicationKey";
 // AppReady flag defined in UnityAppController
 extern bool _unityAppReady;
 
-static std::string _gameObjectName = "";
+namespace {
 
-// Queue of events waiting to be notified
-std::queue<std::string> _pendingEvents;
+    static std::string _gameObjectName = "";
+
+    // Queue of events waiting to be notified
+    std::queue<std::string> _pendingEvents;
+}
 
 
 + (void)notifyStatus:(std::string)status

@@ -9,9 +9,11 @@
 #include "SPNativeCallsSender.h"
 #include "UnityGameObject.h"
 
-std::string _gameObjectName;
-std::string _listenerMethodName;
-std::string _separator;
+namespace {
+    std::string _gameObjectName;
+    std::string _listenerMethodName;
+    std::string _separator;
+}
 
 
 std::string SPNativeCallsSender::combineMethodMessage(const std::string& method, const std::string& msg)
