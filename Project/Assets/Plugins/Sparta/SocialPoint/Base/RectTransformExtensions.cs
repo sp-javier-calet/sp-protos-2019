@@ -4,6 +4,18 @@ namespace SocialPoint.Base
 {
     public static class RectTransformExtensions
     {
+        public static readonly Vector2 PivotTopLeft = new Vector2(0f, 1f);
+        public static readonly Vector2 PivotTopCenter = new Vector2(0.5f, 1f);
+        public static readonly Vector2 PivotTopRight = new Vector2(1f, 1f);
+
+        public static readonly Vector2 PivotMiddleLeft = new Vector2(0f, 0.5f);
+        public static readonly Vector2 PivotMiddleCenter = new Vector2(0.5f, 0.5f);
+        public static readonly Vector2 PivotMiddleRight = new Vector2(1f, 0.5f);
+
+        public static readonly Vector2 PivotBottomLeft = new Vector2(0f, 0f);
+        public static readonly Vector2 PivotBottomCenter = new Vector2(0.5f, 0f);
+        public static readonly Vector2 PivotBottomRight = new Vector2(1f, 0f);
+
         public static void SetDefaultScale(this RectTransform trans)
         {
             trans.localScale = new Vector3(1, 1, 1);
@@ -65,6 +77,22 @@ namespace SocialPoint.Base
             SetSize(trans, new Vector2(trans.rect.size.x, newSize));
         }
 
+        public static Vector3 GetWorldCenterPoint(this RectTransform trans) 
+        {
+            var objectCorners = new Vector3[4];
+            trans.GetWorldCorners(objectCorners);
+
+            var bottomLeft = objectCorners[0];
+            var topLeft = objectCorners[1];
+            var bottomRight = objectCorners[3];
+
+            var newCenterX = bottomLeft.x + (bottomRight.x - bottomLeft.x) * 0.5f;
+            var newCenterY = bottomLeft.y + (topLeft.y - bottomLeft.y) * 0.5f;
+            var newCenterZ = bottomLeft.z;
+
+            return new Vector3(newCenterX, newCenterY, newCenterZ);
+        }
+
         public static Rect GetWorldRect(this RectTransform trans, Vector2 scale) 
         {
             var objectCorners = new Vector3[4];
@@ -72,7 +100,7 @@ namespace SocialPoint.Base
 
             var bottomLeft = objectCorners[0];
 
-            // Rescale the size appropriately based on the current Canvas scale
+            // Rescale the size appropiately based on the current Canvas scale
             var scaledSize = new Vector2(scale.x * trans.rect.size.x, scale.y * trans.rect.size.y);
 
             return new Rect(bottomLeft, scaledSize);
