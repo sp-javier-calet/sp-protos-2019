@@ -14,6 +14,7 @@ MonoBehaviour:
   m_NextId: 0
   m_Tracks:
   - {fileID: 114030565096250778}
+  - {fileID: 114506506797930574}
   m_FixedDuration: 0
   m_EditorSettings:
     m_Framerate: 60
@@ -45,8 +46,8 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 114030565096250778}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -103,8 +104,8 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 114030565096250778}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -176,6 +177,115 @@ MonoBehaviour:
     InverseDuration: 0
     AnimateFrom: {x: 5, y: 5, z: 5}
     AnimateTo: {x: 1, y: 1, z: 1}
+--- !u!114 &114506506797930574
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 670ab0661c1da4509989c440b06036a2, type: 3}
+  m_Name: Position Tween Playable Track
+  m_EditorClassIdentifier: 
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_AnimClip: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Start: 0.8833333333333333
+    m_ClipIn: 0
+    m_Asset: {fileID: 114877416970394710}
+    m_UnderlyingAsset: {fileID: 114877416970394710}
+    m_Duration: 5
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 114506506797930574}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: PositionTweenPlayableClip
+    m_Version: 1
+--- !u!114 &114877416970394710
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8009f1d808b64e4c8a00425e9a823ef, type: 3}
+  m_Name: PositionTweenPlayableClip
+  m_EditorClassIdentifier: 
+  template:
+    AnimationType: 1
+    EaseType: 0
+    AnimationCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    Duration: 0
+    InverseDuration: 0
+    AnimPositionType: 1
+    AnimateFrom: {x: 0, y: 0, z: 0}
+    AnimateTo: {x: 0, y: 0, z: 0}
+    StartLocation: {fileID: 0}
+    EndLocation: {fileID: 0}
+  StartLocation:
+    exposedName: e13bd112c3a3b498087a4613ff32f0ef
+    defaultValue: {fileID: 0}
+  EndLocation:
+    exposedName: a933b0b690719407190c595c27991058
+    defaultValue: {fileID: 0}
 --- !u!114 &114933638982308044
 MonoBehaviour:
   m_ObjectHideFlags: 1

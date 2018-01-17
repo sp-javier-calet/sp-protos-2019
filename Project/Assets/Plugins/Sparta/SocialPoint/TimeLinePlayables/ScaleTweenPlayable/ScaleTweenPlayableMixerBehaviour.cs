@@ -1,5 +1,3 @@
-using System;
-using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -19,11 +17,7 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            if(!_firstFrameHasPassed)
-            {
-                _defaultScale = trackBinding.localScale;
-                _firstFrameHasPassed = true;
-            }
+            _defaultScale = trackBinding.localScale;
 
             // Get number of tracks for the clip
             var inputCount = playable.GetInputCount();
@@ -38,12 +32,17 @@ namespace SocialPoint.TimeLinePlayables
 
                 if(trackBinding.localScale == playableBehaviour.AnimateTo)
                 {
-                    Debug.Log("skipped input calc for index: " + i);
                     continue;
                 }
 
                 var inputWeight = playable.GetInputWeight(i);
                 DebugLog("** input weight for input: " + i + " - " + inputWeight.ToString());
+
+                if(!_firstFrameHappened)
+                {
+                    _defaultScale = trackBinding.localScale;
+                    _firstFrameHappened = true;
+                }
 
                 var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
 
@@ -53,8 +52,6 @@ namespace SocialPoint.TimeLinePlayables
                 
             blendedScale += _defaultScale * (1f - scaleTotalWeight);
             trackBinding.localScale = blendedScale;
-
-            Debug.Log("Blended final scale  not animating:  " + blendedScale);
         }
     }
 }

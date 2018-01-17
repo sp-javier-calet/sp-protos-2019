@@ -8,7 +8,7 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class BaseTweenPlayableMixerBehaviour : PlayableBehaviour
     {
-        protected bool _firstFrameHasPassed;
+        protected bool _firstFrameHappened;
 
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         protected virtual void DebugLog(string msg)

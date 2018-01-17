@@ -4,7 +4,7 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [TrackColor(0f, 0.0f, 1f)]
+    [TrackColor(0f, 0f, 1f)]
     [TrackClipType(typeof(ScaleTweenPlayableClip))]
     [TrackBindingType(typeof(Transform))]
     public class ScaleTweenPlayableTrack : TrackAsset
@@ -28,11 +28,14 @@ namespace SocialPoint.TimeLinePlayables
             while(iterator.NextVisible(true))
             {
                 if(iterator.hasVisibleChildren)
+                {
                     continue;
+                }
 
                 driver.AddFromName<Transform>(trackBinding.gameObject, iterator.propertyPath);
             }
             #endif
+
             base.GatherProperties(director, driver);
         }
     }
