@@ -10,8 +10,6 @@ namespace SpartaTools.Editor.Utils.Decorators
     {
         public override void OnInspectorGUI()
         {
-            GameObject.FindObjectOfType<CanvasGroup>();
-
             SerializedProperty scriptValue = serializedObject.FindProperty("m_Script");
             SerializedProperty prefabValue = serializedObject.FindProperty("Prefab");
             SerializedProperty pressTypeValue = serializedObject.FindProperty("PressType");

@@ -22,3 +22,4 @@ MonoBehaviour:
   - UIScene
   - CubeMainScene
   - UIScrollViewScene
+  - UITimelineScene

@@ -5,8 +5,10 @@ using UnityEngine.Playables;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    public class ScaleTweenPlayableMixerBehaviour : PlayableBehaviour
+    public class ScaleTweenPlayableMixerBehaviour : BaseTweenPlayableMixerBehaviour
     {
+        Vector3 _defaultScale = Vector3.zero;
+
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -17,51 +19,42 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            var defaultScale = trackBinding.localScale;
+            if(!_firstFrameHasPassed)
+            {
+                _defaultScale = trackBinding.localScale;
+                _firstFrameHasPassed = true;
+            }
+
+            // Get number of tracks for the clip
             var inputCount = playable.GetInputCount();
             var blendedScale = Vector3.zero;
             var scaleTotalWeight = 0f;
 
+            DebugLog("Input count: " + inputCount);
             for(int i = 0; i < inputCount; i++)
             {
-                var playableInput = (ScriptPlayable<ScaleTweenPlayableBehaviour>)playable.GetInput(i);
-                var playableBehaviour = playableInput.GetBehaviour();
+                var playableInput = (ScriptPlayable<BaseTweenPlayableBehaviour>)playable.GetInput(i);
+                var playableBehaviour = (ScaleTweenPlayableBehaviour)playableInput.GetBehaviour();
 
-                if(playableBehaviour.AnimateTo == playableBehaviour.AnimateFrom)
+                if(trackBinding.localScale == playableBehaviour.AnimateTo)
                 {
+                    Debug.Log("skipped input calc for index: " + i);
                     continue;
                 }
 
                 var inputWeight = playable.GetInputWeight(i);
+                DebugLog("** input weight for input: " + i + " - " + inputWeight.ToString());
+
                 var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
 
                 scaleTotalWeight += inputWeight;
                 blendedScale += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
-
-                Debug.Log("Blended Scale while animating:  " + blendedScale);
             }
-
-            // TODO Final blend that we will apply when we are out of the clip
-            // We need to keep the initial state and the final
-            blendedScale += defaultScale * (1f - scaleTotalWeight);
-            Debug.Log("Blended Scale when not animating:  " + blendedScale);
-
+                
+            blendedScale += _defaultScale * (1f - scaleTotalWeight);
             trackBinding.localScale = blendedScale;
-        }
 
-        static float GetTweenProgress(ScriptPlayable<ScaleTweenPlayableBehaviour> playableInput, BaseTweenPlayableBehaviour playableBehaviour)
-        {
-            var time = playableInput.GetTime();
-            var normalisedTime = (float)(time * playableBehaviour.InverseDuration);
-
-            if(playableBehaviour.AnimationType == BaseTweenPlayableBehaviour.TweeningType.AnimationCurve && playableBehaviour.AnimationCurve != null)
-            {
-                return playableBehaviour.AnimationCurve.Evaluate(normalisedTime);
-            }
-            else
-            {
-               return playableBehaviour.EaseType.ToFunction()(normalisedTime, 0f, 1f, 1f);
-            }
+            Debug.Log("Blended final scale  not animating:  " + blendedScale);
         }
     }
 }
