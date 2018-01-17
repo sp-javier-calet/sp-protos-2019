@@ -1,17 +1,19 @@
 ﻿using System;
-using System.Text;
-using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
-using SocialPoint.Attributes;
-using SocialPoint.Base;
 using SocialPoint.Dependency;
-using SocialPoint.EventSystems;
 using SocialPoint.GUIControl;
-using SocialPoint.Hardware;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+using System.Text;
+using SocialPoint.Base;
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+using SocialPoint.Attributes;
+using SocialPoint.Hardware;
+
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
@@ -55,9 +57,9 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _uiTooltipController.IDeviceInfo = _iDeviceInfo;
         }
               
-        #if ADMIN_PANEL
+#if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-        #endif
+#endif
     }
 
     #endregion
@@ -105,14 +107,14 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
         
-    #if ADMIN_PANEL
+#if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
         var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
         return new AdminPanelUI(_iDeviceInfo, storage);
     }
-    #endif
+#endif
 
     void ShowCloseAppAlertView()
     {

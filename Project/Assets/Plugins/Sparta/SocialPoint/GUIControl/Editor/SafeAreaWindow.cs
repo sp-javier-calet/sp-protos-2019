@@ -16,7 +16,6 @@ public class SafeAreaWindow : EditorWindow
     bool _firstTimeShowSafeArea = true;
     Rect _safeArea;
     string _safeAreaX, _safeAreaY, _safeAreaWidth, _safeAreaHeight;
-    Texture _texture;
 
     [MenuItem("Sparta/GUI/Safe Area Editor")]
     static void Init()
