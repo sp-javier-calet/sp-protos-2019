@@ -557,7 +557,7 @@ namespace SocialPoint.Lockstep
                 return;
             }
 
-            dt = (int)(ClientConfig.SpeedFactor * (float)dt);
+            dt = (int)Math.Round(ClientConfig.SpeedFactor * (float)dt, 0, MidpointRounding.AwayFromZero);
             _time += dt;
             if(!_simStartedCalled && _time >= 0)
             {
