@@ -104,7 +104,7 @@ namespace SpartaTools.Editor.View
             {
                 globalWarningAsError = true;
                 enabled = string.Empty;
-                disabled = "618";
+                disabled = "618,169,649";
                 symbols = string.Empty;
             }
             GUILayout.EndHorizontal();
