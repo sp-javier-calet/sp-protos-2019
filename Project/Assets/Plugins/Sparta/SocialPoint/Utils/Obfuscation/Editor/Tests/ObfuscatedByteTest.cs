@@ -7,21 +7,29 @@ namespace SocialPoint.Utils.Obfuscation
     [Category("SocialPoint.Utils.Obfuscation")]
     public class ObfuscatedByteTest
     {
+        static bool AreObfuscatedEqual(byte value1, byte value2)
+        {
+            return value2 == value1 &&
+            value2.Equals(value1) &&
+            value1 == value2 &&
+            value1.Equals(value2);
+        }
+
         [Test]
         public void ConversionImplicit([Values(68)] byte value)
         {
             var obfuscatedByte = new ObfuscatedByte(value);
             byte unobfuscatedByte = obfuscatedByte;
 
-            Assert.AreEqual(obfuscatedByte, obfuscatedByte);
-            Assert.AreEqual(value, unobfuscatedByte);
-            Assert.AreEqual(value, obfuscatedByte);
+            Assert.That(AreObfuscatedEqual(obfuscatedByte, obfuscatedByte));
+            Assert.That(AreObfuscatedEqual(value, unobfuscatedByte));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedByte));
 
             Assert.AreNotEqual(value, obfuscatedByte.ObfuscatedValue);
 
             byte newValue = (byte)(value + 1);
             obfuscatedByte = newValue;
-            Assert.AreEqual(newValue, obfuscatedByte);
+            Assert.That(AreObfuscatedEqual(newValue, obfuscatedByte));
         }
 
         [Test]
@@ -37,8 +45,7 @@ namespace SocialPoint.Utils.Obfuscation
         {
             var obfuscatedByte = new ObfuscatedByte(value);
 
-            Assert.AreEqual(obfuscatedByte, value);
-            Assert.AreEqual(value, obfuscatedByte);
+            Assert.That(AreObfuscatedEqual(value, obfuscatedByte));
         }
 
         [Test]
@@ -112,16 +119,16 @@ namespace SocialPoint.Utils.Obfuscation
             byte addition = (byte)(value1 + value2);
             byte obfuscatedAddition = new ObfuscatedByte(addition);
 
-            Assert.AreEqual(obfuscatedByte1 + obfuscatedByte2, addition);
-            Assert.AreEqual(obfuscatedByte1 + value2, addition);
-            Assert.AreEqual(value1 + obfuscatedByte2, addition);
-            Assert.AreEqual(obfuscatedByte1 + obfuscatedByte2, obfuscatedAddition);
-            Assert.AreEqual(obfuscatedByte1 + value2, obfuscatedAddition);
-            Assert.AreEqual(value1 + obfuscatedByte2, obfuscatedAddition);
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 + obfuscatedByte2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 + value2, addition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedByte2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 + obfuscatedByte2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 + value2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedByte2, obfuscatedAddition));
 
             ++value1;
             ++obfuscatedByte1;
-            Assert.AreEqual(value1, obfuscatedByte1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedByte1));
         }
 
         [Test]
@@ -133,16 +140,16 @@ namespace SocialPoint.Utils.Obfuscation
             byte subtraction = (byte)(value1 - value2);
             byte obfuscatedSubtraction = new ObfuscatedByte(subtraction);
 
-            Assert.AreEqual(obfuscatedByte1 - obfuscatedByte2, subtraction);
-            Assert.AreEqual(obfuscatedByte1 - value2, subtraction);
-            Assert.AreEqual(value1 - obfuscatedByte2, subtraction);
-            Assert.AreEqual(obfuscatedByte1 - obfuscatedByte2, obfuscatedSubtraction);
-            Assert.AreEqual(obfuscatedByte1 - value2, obfuscatedSubtraction);
-            Assert.AreEqual(value1 - obfuscatedByte2, obfuscatedSubtraction);
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 - obfuscatedByte2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 - value2, subtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedByte2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 - obfuscatedByte2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 - value2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedByte2, obfuscatedSubtraction));
 
             --value1;
             --obfuscatedByte1;
-            Assert.AreEqual(value1, obfuscatedByte1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedByte1));
         }
 
         [Test]
@@ -154,12 +161,12 @@ namespace SocialPoint.Utils.Obfuscation
             byte multiplication = (byte)(value1 * value2);
             byte obfuscatedMultiplication = new ObfuscatedByte(multiplication);
 
-            Assert.AreEqual(obfuscatedByte1 * obfuscatedByte2, multiplication);
-            Assert.AreEqual(obfuscatedByte1 * value2, multiplication);
-            Assert.AreEqual(value1 * obfuscatedByte2, multiplication);
-            Assert.AreEqual(obfuscatedByte1 * obfuscatedByte2, obfuscatedMultiplication);
-            Assert.AreEqual(obfuscatedByte1 * value2, obfuscatedMultiplication);
-            Assert.AreEqual(value1 * obfuscatedByte2, obfuscatedMultiplication);
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 * obfuscatedByte2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 * value2, multiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedByte2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 * obfuscatedByte2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 * value2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedByte2, obfuscatedMultiplication));
         }
 
         [Test]
@@ -171,12 +178,12 @@ namespace SocialPoint.Utils.Obfuscation
             byte division = (byte)(value1 / value2);
             byte obfuscatedDivision = new ObfuscatedByte(division);
 
-            Assert.AreEqual(obfuscatedByte1 / obfuscatedByte2, division);
-            Assert.AreEqual(obfuscatedByte1 / value2, division);
-            Assert.AreEqual(value1 / obfuscatedByte2, division);
-            Assert.AreEqual(obfuscatedByte1 / obfuscatedByte2, obfuscatedDivision);
-            Assert.AreEqual(obfuscatedByte1 / value2, obfuscatedDivision);
-            Assert.AreEqual(value1 / obfuscatedByte2, obfuscatedDivision);
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 / obfuscatedByte2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 / value2, division));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedByte2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 / obfuscatedByte2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(obfuscatedByte1 / value2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedByte2, obfuscatedDivision));
         }
     }
 }
