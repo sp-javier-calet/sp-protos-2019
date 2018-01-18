@@ -8,6 +8,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := sp_unity_websockets
 LOCAL_MODULE_FILENAME := libsp_unity_websockets
+LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 
 LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(WS_SRC_PATH)/SPUnityWebSockets.cpp \
