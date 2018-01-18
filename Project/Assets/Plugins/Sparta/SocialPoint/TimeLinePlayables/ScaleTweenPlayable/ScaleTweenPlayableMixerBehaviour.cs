@@ -50,8 +50,7 @@ namespace SocialPoint.TimeLinePlayables
                 blendedScale += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
             }
                 
-            blendedScale += _defaultScale * (1f - scaleTotalWeight);
-            trackBinding.localScale = blendedScale;
+            trackBinding.localScale = blendedScale + _defaultScale * (1f - scaleTotalWeight);
         }
     }
 }

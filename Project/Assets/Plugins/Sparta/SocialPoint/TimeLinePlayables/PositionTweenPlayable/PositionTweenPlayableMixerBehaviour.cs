@@ -39,7 +39,7 @@ namespace SocialPoint.TimeLinePlayables
                     playableBehaviour.AnimateTo = playableBehaviour.EndLocation.position;
                 }
 
-                float inputWeight = playable.GetInputWeight(i);
+                var inputWeight = playable.GetInputWeight(i);
 
                 if(!_firstFrameHappened && !playableBehaviour.StartLocation)
                 {
@@ -52,9 +52,8 @@ namespace SocialPoint.TimeLinePlayables
                 positionTotalWeight += inputWeight;
                 blendedPosition += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
             }
-
-            blendedPosition += _defaultPosition * (1f - positionTotalWeight);
-            trackBinding.position = blendedPosition;
+                
+            trackBinding.position = blendedPosition + _defaultPosition * (1f - positionTotalWeight);
         }
     }
 }
