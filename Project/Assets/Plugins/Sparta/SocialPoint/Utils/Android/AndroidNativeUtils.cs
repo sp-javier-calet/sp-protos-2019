@@ -73,6 +73,11 @@ namespace SocialPoint.Utils
             Application.OpenURL(string.Format("market://details?id={0}", appId));
         }
 
+        public override void OpenReview()
+        {
+            Application.OpenURL(string.Format("market://details?id={0}", _appInfo.Id));
+        }
+
         #if ADMIN_PANEL
         public override void ClearDataAndKillApp()
         {
