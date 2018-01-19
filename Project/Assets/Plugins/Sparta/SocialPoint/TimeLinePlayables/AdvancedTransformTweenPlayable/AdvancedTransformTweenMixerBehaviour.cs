@@ -26,6 +26,7 @@ namespace SocialPoint.TimeLinePlayables
 
         public Vector3 GetFinalCalculatedValue()
         {
+            Debug.Log("BlendValue: " + BlendValue + " - DefaultInitialValue: " + DefaultInitialValue + " - TotalInputWeight: " + TotalInputWeight + " - Final Value: " + (BlendValue + DefaultInitialValue * (1f - TotalInputWeight)));
             return BlendValue + DefaultInitialValue * (1f - TotalInputWeight);
         }
     }
@@ -64,7 +65,7 @@ namespace SocialPoint.TimeLinePlayables
             new ScaleAdvancedTransformTweenMixerBehaviour()
         };
             
-        bool _firstFrameHappened;
+//        bool _firstFrameHappened;
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -101,8 +102,9 @@ namespace SocialPoint.TimeLinePlayables
 
         void SetupInitialValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)
         {
-            if(!_firstFrameHappened)
-            {
+//            _firstFrameHappened = false;
+//            if(!_firstFrameHappened)
+//            {
                 for(int i = 0; i < animMixerBehaviours.Length; ++i)
                 {
                     var value = animMixerBehaviours[i];
@@ -112,8 +114,8 @@ namespace SocialPoint.TimeLinePlayables
                     }
                 }
 
-                _firstFrameHappened = true;
-            }
+//                _firstFrameHappened = true;
+//            }
         }
             
         void SetupFinalValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)

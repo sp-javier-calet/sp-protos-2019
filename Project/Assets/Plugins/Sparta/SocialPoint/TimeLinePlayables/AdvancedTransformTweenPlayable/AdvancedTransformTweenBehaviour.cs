@@ -46,15 +46,14 @@ namespace SocialPoint.TimeLinePlayables
         {
             if(AnimationType == AnimateType.AnimationCurve)
             {
-                if(AnimationCurve.keys.Length == 0)
+                if(AnimationCurve != null || AnimationCurve.keys.Length == 0)
                 {
                     AnimationCurve = defaultAnimationCurve;
                 }
             }
             else
             {
-                var curve = new AnimationCurve();
-                AnimationCurve = curve;
+                AnimationCurve = null;
             }
         }
             
