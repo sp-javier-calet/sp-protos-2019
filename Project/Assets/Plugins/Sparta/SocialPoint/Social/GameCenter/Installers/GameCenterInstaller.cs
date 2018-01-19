@@ -24,7 +24,7 @@ namespace SocialPoint.Social
 
         public override void InstallBindings()
         {
-            #if UNITY_IOS
+            #if UNITY_IOS && !UNITY_EDITOR
             if(Settings.UseEmpty)
             {
                 Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
