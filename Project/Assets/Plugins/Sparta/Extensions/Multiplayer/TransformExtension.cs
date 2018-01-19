@@ -15,6 +15,11 @@ namespace SocialPoint.Multiplayer
             return transform.Rotation.Right();
         }
 
+        public static JVector Up(this Transform transform)
+        {
+            return transform.Rotation.Up();
+        }
+
         public static void LookAt(this Transform transform, JVector targetPos)
         {
             var direction = targetPos - transform.Position;

@@ -1,4 +1,6 @@
-﻿Shader "socialPointCG/sCG_staticVC_Transition" 
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "socialPointCG/sCG_staticVC_Transition" 
 {
 	Properties {		
 		_MainTex ("DiffuseMap (ch1)", 2D) = "white" {}
@@ -106,7 +108,7 @@
 		vertexOutput vert(vertexInput v)
 		{
 			vertexOutput o;
-			o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+			o.pos = UnityObjectToClipPos(v.vertex);
 			o.uv0 = (v.uv0.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
 			o.uv1 = v.uv1.xy;
 			o.VC = v.color;

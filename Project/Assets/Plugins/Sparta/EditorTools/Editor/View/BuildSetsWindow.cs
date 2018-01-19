@@ -397,6 +397,8 @@ namespace SpartaTools.Editor.View
                     config.Android.Keystore.Password = InheritableTextField("Password", "Keystore alias password", config.Android.Keystore.Password, data.IsBase);
                 }
 
+                config.Android.UseAPKExpansionFile = EditorGUILayout.Toggle("Use APK Expansion Files", config.Android.UseAPKExpansionFile);
+
                 EditorGUILayout.Space();
 
                 GUILayout.BeginHorizontal();

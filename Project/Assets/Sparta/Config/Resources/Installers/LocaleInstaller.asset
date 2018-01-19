@@ -53,7 +53,7 @@ MonoBehaviour:
       - zh-Hans
       - zh-Hant
       Timeout: 20
-    TimeTextIndetifiers:
+    TimeTextIdentifiers:
       DayIdentifier: timeUtils.Day
       DaysIdentifier: timeUtils.Days
       HourIdentifier: timeUtils.Hour

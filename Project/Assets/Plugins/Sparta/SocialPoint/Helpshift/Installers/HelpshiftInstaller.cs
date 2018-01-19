@@ -83,7 +83,6 @@ namespace SocialPoint.Helpshift
                 Mode = Settings.Mode,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
                 ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled,
-                Flows = null,
             };
 
             var hs = new UnityHelpshift(hsconfig, Container.Resolve<IDeviceInfo>());

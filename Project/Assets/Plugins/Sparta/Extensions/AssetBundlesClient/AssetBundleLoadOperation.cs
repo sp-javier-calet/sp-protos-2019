@@ -78,11 +78,14 @@ namespace SocialPoint.AssetBundlesClient
         {
             _fullPath = fullPath;
 
+            // This CAN'T be called for Adroid because it freezes the main thread in Samsung Galaxy S8 device with Unity 5.5.4p4 or less. Further investigation needed
+            #if !UNITY_ANDROID
             if(!FileUtils.ExistsFile(_fullPath))
             {
                 Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
+            #endif
 
             _request = AssetBundle.LoadFromFileAsync(_fullPath);
         }
@@ -111,7 +114,7 @@ namespace SocialPoint.AssetBundlesClient
             return _fullPath;
         }
     }
-        
+
     public class AssetBundleDownloadFromUnityWebRequestOperation : AssetBundleDownloadOperation
     {
         readonly string _Url;

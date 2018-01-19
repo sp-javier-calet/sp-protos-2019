@@ -50,7 +50,7 @@ namespace SocialPoint.Multiplayer
 
         public bool Invalid { get; protected set; }
 
-        public bool BehavioursAdded { get; set; }
+        public bool BehavioursAdded { get; private set; }
 
         public byte Type{ get; protected set; }
 

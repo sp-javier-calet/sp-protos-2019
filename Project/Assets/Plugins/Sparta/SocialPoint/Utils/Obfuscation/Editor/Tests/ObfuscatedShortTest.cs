@@ -7,21 +7,29 @@ namespace SocialPoint.Utils.Obfuscation
     [Category("SocialPoint.Utils.Obfuscation")]
     public class ObfuscatedShortTest
     {
+        static bool AreObfuscatedEqual(short value1, short value2)
+        {
+            return value2 == value1 &&
+                value2.Equals(value1) &&
+                value1 == value2 &&
+                value1.Equals(value2);
+        }
+
         [Test]
         public void ConversionImplicit([Values(68)] short value)
         {
             var obfuscatedShort = new ObfuscatedShort(value);
             short unobfuscatedShort = obfuscatedShort;
 
-            Assert.AreEqual(obfuscatedShort, obfuscatedShort);
-            Assert.AreEqual(value, unobfuscatedShort);
-            Assert.AreEqual(value, obfuscatedShort);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort, obfuscatedShort));
+            Assert.That(AreObfuscatedEqual(value, unobfuscatedShort));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedShort));
 
             Assert.AreNotEqual((ulong)value, obfuscatedShort.ObfuscatedValue);
 
             short newValue = (short)(value + 1);
             obfuscatedShort = newValue;
-            Assert.AreEqual(newValue, obfuscatedShort);
+            Assert.That(AreObfuscatedEqual(newValue, obfuscatedShort));
         }
 
         [Test]
@@ -37,8 +45,8 @@ namespace SocialPoint.Utils.Obfuscation
         {
             var obfuscatedShort = new ObfuscatedShort(value);
 
-            Assert.AreEqual(obfuscatedShort, value);
-            Assert.AreEqual(value, obfuscatedShort);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort, value));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedShort));
         }
 
         [Test]
@@ -112,16 +120,16 @@ namespace SocialPoint.Utils.Obfuscation
             short addition = (short)(value1 + value2);
             short obfuscatedAddition = new ObfuscatedShort(addition);
 
-            Assert.AreEqual(obfuscatedShort1 + obfuscatedShort2, addition);
-            Assert.AreEqual(obfuscatedShort1 + value2, addition);
-            Assert.AreEqual(value1 + obfuscatedShort2, addition);
-            Assert.AreEqual(obfuscatedShort1 + obfuscatedShort2, obfuscatedAddition);
-            Assert.AreEqual(obfuscatedShort1 + value2, obfuscatedAddition);
-            Assert.AreEqual(value1 + obfuscatedShort2, obfuscatedAddition);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 + obfuscatedShort2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 + value2, addition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedShort2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 + obfuscatedShort2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 + value2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedShort2, obfuscatedAddition));
 
             ++value1;
             ++obfuscatedShort1;
-            Assert.AreEqual(value1, obfuscatedShort1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedShort1));
         }
 
         [Test]
@@ -133,16 +141,16 @@ namespace SocialPoint.Utils.Obfuscation
             short subtraction = (short)(value1 - value2);
             short obfuscatedSubtraction = new ObfuscatedShort(subtraction);
 
-            Assert.AreEqual(obfuscatedShort1 - obfuscatedShort2, subtraction);
-            Assert.AreEqual(obfuscatedShort1 - value2, subtraction);
-            Assert.AreEqual(value1 - obfuscatedShort2, subtraction);
-            Assert.AreEqual(obfuscatedShort1 - obfuscatedShort2, obfuscatedSubtraction);
-            Assert.AreEqual(obfuscatedShort1 - value2, obfuscatedSubtraction);
-            Assert.AreEqual(value1 - obfuscatedShort2, obfuscatedSubtraction);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 - obfuscatedShort2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 - value2, subtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedShort2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 - obfuscatedShort2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 - value2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedShort2, obfuscatedSubtraction));
 
             --value1;
             --obfuscatedShort1;
-            Assert.AreEqual(value1, obfuscatedShort1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedShort1));
         }
 
         [Test]
@@ -154,12 +162,12 @@ namespace SocialPoint.Utils.Obfuscation
             short multiplication = (short)(value1 * value2);
             short obfuscatedMultiplication = new ObfuscatedShort(multiplication);
 
-            Assert.AreEqual(obfuscatedShort1 * obfuscatedShort2, multiplication);
-            Assert.AreEqual(obfuscatedShort1 * value2, multiplication);
-            Assert.AreEqual(value1 * obfuscatedShort2, multiplication);
-            Assert.AreEqual(obfuscatedShort1 * obfuscatedShort2, obfuscatedMultiplication);
-            Assert.AreEqual(obfuscatedShort1 * value2, obfuscatedMultiplication);
-            Assert.AreEqual(value1 * obfuscatedShort2, obfuscatedMultiplication);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 * obfuscatedShort2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 * value2, multiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedShort2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 * obfuscatedShort2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 * value2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedShort2, obfuscatedMultiplication));
         }
 
         [Test]
@@ -171,12 +179,12 @@ namespace SocialPoint.Utils.Obfuscation
             short division = (short)(value1 / value2);
             short obfuscatedDivision = new ObfuscatedShort(division);
 
-            Assert.AreEqual(obfuscatedShort1 / obfuscatedShort2, division);
-            Assert.AreEqual(obfuscatedShort1 / value2, division);
-            Assert.AreEqual(value1 / obfuscatedShort2, division);
-            Assert.AreEqual(obfuscatedShort1 / obfuscatedShort2, obfuscatedDivision);
-            Assert.AreEqual(obfuscatedShort1 / value2, obfuscatedDivision);
-            Assert.AreEqual(value1 / obfuscatedShort2, obfuscatedDivision);
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 / obfuscatedShort2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 / value2, division));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedShort2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 / obfuscatedShort2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(obfuscatedShort1 / value2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedShort2, obfuscatedDivision));
         }
     }
 }
