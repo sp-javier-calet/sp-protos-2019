@@ -422,9 +422,11 @@ namespace SpartaTools.Editor.Build
                 texture,
                 texture,
                 texture,
+                texture,
                 texture
             });
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Standalone, new [] {
+                texture,
                 texture,
                 texture,
                 texture,
