@@ -1,6 +1,6 @@
 using SocialPoint.TimeLinePlayables;
 using UnityEditor;
-using UnityEngine;
+using UnityEngine; 
 
 namespace SpartaTools.Editor.Utils.Decorators
 {
@@ -9,40 +9,30 @@ namespace SpartaTools.Editor.Utils.Decorators
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var AnimationProp = property.FindPropertyRelative("Animations");
+            // TODO missing referenced transforms
 
-            var AnimatePositionProp = property.FindPropertyRelative("AnimatePosition");
-            var AnimateRotationProp = property.FindPropertyRelative("AnimateRotation");
-            var AnimateScaleProp = property.FindPropertyRelative("AnimateScale");
+            var AnimationsProp = property.FindPropertyRelative("Animations");
+            EditorGUILayout.PropertyField(AnimationsProp);
 
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            EditorGUILayout.PropertyField(AnimatePositionProp);
-            if(AnimatePositionProp.boolValue)
+            if(AnimationsProp != null)
             {
-                var AnimationPositionProp = AnimationProp.GetArrayElementAtIndex(AdvancedTransformTweenBehaviour.kAnimatePosition);
-                OnGUIAnimatedProperty(AnimationPositionProp);
+                for(int i = 0; i < AnimationsProp.arraySize; ++i)
+                {
+                    var anim = AnimationsProp.GetArrayElementAtIndex(i);
+                    if(anim != null)
+                    {
+                        var AnimateProp = anim.FindPropertyRelative("Animate");
+                        var AnimateLabelProp = anim.FindPropertyRelative("AnimateLabel");
+                        EditorGUILayout.PropertyField(AnimateProp, new GUIContent(AnimateLabelProp.stringValue));
+                        if(AnimateProp.boolValue)
+                        {
+                            OnGUIAnimatedProperty(anim);
+                        }
+                    }
+
+                    EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+                }
             }
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            EditorGUILayout.PropertyField(AnimateRotationProp);
-            if(AnimateRotationProp.boolValue)
-            {
-                var AnimationRotationProp = AnimationProp.GetArrayElementAtIndex(AdvancedTransformTweenBehaviour.kAnimateRotation);
-                OnGUIAnimatedProperty(AnimationRotationProp);
-            }
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-                
-            EditorGUILayout.PropertyField(AnimateScaleProp);
-            if(AnimateScaleProp.boolValue)
-            {
-                var AnimationScaleProp = AnimationProp.GetArrayElementAtIndex(AdvancedTransformTweenBehaviour.kAnimateScale);
-                OnGUIAnimatedProperty(AnimationScaleProp);
-            }
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         }
 
         static void OnGUIAnimatedProperty(SerializedProperty property)
@@ -63,7 +53,7 @@ namespace SpartaTools.Editor.Utils.Decorators
                 var AnimationCurveProp = property.FindPropertyRelative("AnimationCurve");
 
                 EditorGUILayout.PropertyField(HowToAnimateProp);
-                if(HowToAnimateProp.enumValueIndex == (int)AdvancedTweenBehaviour.HowToAnimateType.UseAbsoluteValues)
+                if(HowToAnimateProp.enumValueIndex == (int)BaseAdvancedTweenBehaviour.HowToAnimateType.UseAbsoluteValues)
                 {
                     EditorGUILayout.PropertyField(UseCurrentFromValueProp);
                     if(!UseCurrentFromValueProp.boolValue)
@@ -107,7 +97,7 @@ namespace SpartaTools.Editor.Utils.Decorators
                 }
 
                 EditorGUILayout.PropertyField(AnimationTypeProp);
-                if(AnimationTypeProp.enumValueIndex == (int)AdvancedTweenBehaviour.AnimateType.AnimationCurve)
+                if(AnimationTypeProp.enumValueIndex == (int)BaseAdvancedTweenBehaviour.AnimateType.AnimationCurve)
                 {
                     // TODO Show bigger curve
                     EditorGUILayout.PropertyField(AnimationCurveProp);

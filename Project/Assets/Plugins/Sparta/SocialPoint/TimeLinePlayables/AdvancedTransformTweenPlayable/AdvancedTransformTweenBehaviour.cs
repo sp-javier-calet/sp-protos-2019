@@ -2,11 +2,12 @@ using System;
 using UnityEngine;
 using UnityEngine.Playables;
 using SocialPoint.Utils;
+using System.Collections.Generic;
 
 namespace SocialPoint.TimeLinePlayables
 {
     [Serializable]
-    public class AdvancedTweenBehaviour
+    public class BaseAdvancedTweenBehaviour
     {
         public enum AnimateType
         {
@@ -20,6 +21,10 @@ namespace SocialPoint.TimeLinePlayables
             UseReferencedTransforms
         }
 
+        public bool Animate;
+        public string AnimateLabel;
+        public Transform ReferencedFrom;
+        public Transform ReferencedTo;
         public Transform OriginalTransform;
         public bool UseCurrentFromValue;
         public bool UseCurrentToValue;
@@ -32,68 +37,18 @@ namespace SocialPoint.TimeLinePlayables
         public EaseType EaseType;
         public AnimationCurve AnimationCurve;
 
-        public void Initialize(int index)
+        public virtual Vector3 SetupAnimation(Transform referenceTransform, Vector3 defaultValue) 
+        { 
+            return Vector3.zero; 
+        }
+            
+        public void SetupAnimationCurve(AnimationCurve defaultAnimationCurve)
         {
-//            if(UseCurrentFromValue)
-//            {
-//                switch(index)
-//                {
-//                case AdvancedTransformTweenBehaviour.kAnimatePosition:
-//                    AnimateFrom = AnimateFromReference.position;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateRotation:
-//                    AnimateFrom = AnimateFromReference.rotation.eulerAngles;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateScale:
-//                    AnimateFrom = AnimateFromReference.localScale;
-//                    break;
-//                }
-//            }
-//            else if(AnimateFromReference != null && HowToAnimate == HowToAnimateType.UseReferencedTransforms)
-//            {
-//                switch(index)
-//                {
-//                case AdvancedTransformTweenBehaviour.kAnimatePosition:
-//                    AnimateFrom = AnimateFromReference.position;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateRotation:
-//                    AnimateFrom = AnimateFromReference.rotation.eulerAngles;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateScale:
-//                    AnimateFrom = AnimateFromReference.localScale;
-//                    break;
-//                }
-//            }
-//
-//            if(UseCurrentToValue || (AnimateToReference != null && HowToAnimate == HowToAnimateType.UseReferencedTransforms))
-//            {
-//                switch(index)
-//                {
-//                case AdvancedTransformTweenBehaviour.kAnimatePosition:
-//                    AnimateTo = AnimateFromReference.position;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateRotation:
-//                    AnimateTo = AnimateFromReference.rotation.eulerAngles;
-//                    break;
-//
-//                case AdvancedTransformTweenBehaviour.kAnimateScale:
-//                    AnimateTo = AnimateFromReference.localScale;
-//                    break;
-//                }
-//            }
-
             if(AnimationType == AnimateType.AnimationCurve)
             {
                 if(AnimationCurve.keys.Length == 0)
                 {
-                    // Create a base linear curve to be the default curve to be used
-                    var curve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
-                    AnimationCurve = curve;
+                    AnimationCurve = defaultAnimationCurve;
                 }
             }
             else
@@ -102,31 +57,119 @@ namespace SocialPoint.TimeLinePlayables
                 AnimationCurve = curve;
             }
         }
+            
+//        public void InitializeValues(Transform baseTransform)
+        public void InitializeValues()
+        {
+//            AnimateFrom = SetupAnimation(baseTransform, AnimateFromReference);
+//            AnimateTo = SetupAnimation(baseTransform, AnimateToReference);
+
+            AnimateFrom = SetupAnimation(AnimateFromReference, AnimateFrom);
+            AnimateTo = SetupAnimation(AnimateToReference, AnimateTo);
+        }
+    }
+        
+    [Serializable]
+    public class PositionAdvancedTweenBehaviour : BaseAdvancedTweenBehaviour
+    {
+        public PositionAdvancedTweenBehaviour(string labelName)
+        {
+            AnimateLabel = labelName;
+        }
+
+//        protected override Vector3 SetupAnimation(Transform baseTransform, Transform referenceTransform)
+        public override Vector3 SetupAnimation(Transform referenceTransform, Vector3 defaultValue)
+        {
+            if(UseCurrentFromValue)
+            {
+//                return baseTransform.position;
+                return referenceTransform.position;
+            }
+            else if(HowToAnimate == HowToAnimateType.UseReferencedTransforms)
+            {
+                if(referenceTransform != null)
+                {
+                    return referenceTransform.position;
+                }
+            }
+
+            return defaultValue;
+        }
+    }
+        
+    [Serializable]
+    public class RotationAdvancedTweenBehaviour : BaseAdvancedTweenBehaviour
+    {
+        public RotationAdvancedTweenBehaviour(string labelName)
+        {
+            AnimateLabel = labelName;
+        }
+
+//        protected override Vector3 SetupAnimation(Transform baseTransform, Transform referenceTransform)
+        public override Vector3 SetupAnimation(Transform referenceTransform, Vector3 defaultValue)
+        {
+            if(UseCurrentFromValue)
+            {
+//                return baseTransform.rotation.eulerAngles;
+                return referenceTransform.eulerAngles;
+            }
+            else if(HowToAnimate == HowToAnimateType.UseReferencedTransforms && referenceTransform != null)
+            {
+                if(referenceTransform != null)
+                {
+                    return referenceTransform.eulerAngles;
+                }
+            }
+
+            return defaultValue;
+        }
+    }
+        
+    [Serializable]
+    public class ScaleAdvancedTweenBehaviour : BaseAdvancedTweenBehaviour
+    {
+        public ScaleAdvancedTweenBehaviour(string labelName)
+        {
+            AnimateLabel = labelName;
+        }
+
+//        protected override Vector3 SetupAnimation(Transform baseTransform, Transform referenceTransform)
+        public override Vector3 SetupAnimation(Transform referenceTransform, Vector3 defaultValue)
+        {
+            if(UseCurrentFromValue)
+            {
+//                return baseTransform.localScale;
+                return referenceTransform.localScale;
+            }
+            else if(HowToAnimate == HowToAnimateType.UseReferencedTransforms && referenceTransform != null)
+            {
+                if(referenceTransform != null)
+                {
+                    return referenceTransform.localScale;
+                }
+            }
+
+            return defaultValue;
+        }
     }
 
     [Serializable]
     public class AdvancedTransformTweenBehaviour : PlayableBehaviour
     {
-        const float kRightAngleInRads = Mathf.PI * 0.5f;
+//        const float kRightAngleInRads = Mathf.PI * 0.5f;
 
-        public bool AnimatePosition;
-        public bool AnimateRotation;
-        public bool AnimateScale;
         public float Duration;
         public float InverseDuration;
 
-        public const int kAnimatePosition = 0;
-        public const int kAnimateRotation = 1;
-        public const int kAnimateScale = 2;
-        public const int kAnimateTotal = 3;
-
-        public AdvancedTweenBehaviour[] Animations = 
+        public BaseAdvancedTweenBehaviour[] Animations = 
         {
-            new AdvancedTweenBehaviour(),
-            new AdvancedTweenBehaviour(),
-            new AdvancedTweenBehaviour()
+            new PositionAdvancedTweenBehaviour("Animate Position"),
+            new RotationAdvancedTweenBehaviour("Animate Rotation"),
+            new ScaleAdvancedTweenBehaviour("Animate Scale")
         };
-
+            
+        readonly AnimationCurve defaultCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+            
         public override void OnGraphStart(Playable playable)
         {
             Duration = (float)playable.GetDuration();
@@ -137,30 +180,13 @@ namespace SocialPoint.TimeLinePlayables
                 
             InverseDuration = 1f / Duration;
 
-            if(AnimatePosition)
+            for(int i = 0; i < Animations.Length; ++i)
             {
-                var anim = Animations[kAnimatePosition];
+                var anim = Animations[i];
                 if(anim != null)
                 {
-                    anim.Initialize(kAnimatePosition);
-                }
-            }
-
-            if(AnimateRotation)
-            {
-                var anim = Animations[kAnimateRotation];
-                if(anim != null)
-                {
-                    anim.Initialize(kAnimateRotation);
-                }
-            }
-
-            if(AnimateScale)
-            {
-                var anim = Animations[kAnimateScale];
-                if(anim != null)
-                {
-                    anim.Initialize(kAnimateScale);
+                    anim.InitializeValues();
+                    anim.SetupAnimationCurve(defaultCurve);
                 }
             }
         }

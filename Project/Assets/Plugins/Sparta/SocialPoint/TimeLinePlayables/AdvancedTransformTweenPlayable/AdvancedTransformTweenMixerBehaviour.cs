@@ -2,24 +2,69 @@
 using UnityEngine.Playables;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using System.Collections.Generic;
 
 namespace SocialPoint.TimeLinePlayables
 {
+    public abstract class BaseAdvancedTransformTweenMixerBehaviour
+    {
+        public Vector3 DefaultInitialValue;
+        public Vector3 DefaultFinalValue;
+        public float TotalInputWeight;
+        public Vector3 BlendValue;
+
+        public virtual void InitializeValues(Transform baseTransform)
+        {
+            TotalInputWeight = 0f;
+            BlendValue = Vector3.zero;
+
+            DefaultInitialValue = baseTransform.localScale;
+            DefaultFinalValue = baseTransform.localScale;
+        }
+
+        public abstract void SetFinalCalculatedValue(Transform baseTransform);
+
+        public Vector3 GetFinalCalculatedValue()
+        {
+            return BlendValue + DefaultInitialValue * (1f - TotalInputWeight);
+        }
+    }
+
+    public class PositionAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
+    {
+        public override void SetFinalCalculatedValue(Transform baseTransform)
+        {
+            baseTransform.position = GetFinalCalculatedValue(); 
+        }
+    }
+
+    public class RotationAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
+    {
+        public override void SetFinalCalculatedValue(Transform baseTransform)
+        {
+            baseTransform.eulerAngles = GetFinalCalculatedValue(); 
+        }
+    }
+
+    public class ScaleAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
+    {
+        public override void SetFinalCalculatedValue(Transform baseTransform)
+        {
+            baseTransform.localScale = GetFinalCalculatedValue(); 
+        }
+    }
+
     public class AdvancedTransformTweenMixerBehaviour : PlayableBehaviour
     {
+
+        readonly public BaseAdvancedTransformTweenMixerBehaviour[] _mixerAnimations = 
+        {
+            new PositionAdvancedTransformTweenMixerBehaviour(),
+            new RotationAdvancedTransformTweenMixerBehaviour(),
+            new ScaleAdvancedTransformTweenMixerBehaviour()
+        };
+            
         bool _firstFrameHappened;
-
-        Vector3[] _defaultInitialValues = new Vector3[AdvancedTransformTweenBehaviour.kAnimateTotal];
-
-        //            Vector3[] defaultFinalValues = 
-        //            {
-        //                trackBinding.position,
-        //                trackBinding.rotation.eulerAngles,
-        //                trackBinding.localScale
-        //            };
-
-        Vector3[] _blendValues = new Vector3[AdvancedTransformTweenBehaviour.kAnimateTotal];
-        float[] _totalInputWeights = new float[AdvancedTransformTweenBehaviour.kAnimateTotal];
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -28,103 +73,105 @@ namespace SocialPoint.TimeLinePlayables
             {
                 return;
             }
-
-            _defaultInitialValues[AdvancedTransformTweenBehaviour.kAnimatePosition] = trackBinding.position;
-            _defaultInitialValues[AdvancedTransformTweenBehaviour.kAnimateRotation] = trackBinding.rotation.eulerAngles;
-            _defaultInitialValues[AdvancedTransformTweenBehaviour.kAnimateScale] = trackBinding.localScale;
-
-            _blendValues[AdvancedTransformTweenBehaviour.kAnimatePosition] = Vector3.zero;
-            _blendValues[AdvancedTransformTweenBehaviour.kAnimateRotation] = Vector3.zero;
-            _blendValues[AdvancedTransformTweenBehaviour.kAnimateScale] = Vector3.zero;
-
-            _totalInputWeights[AdvancedTransformTweenBehaviour.kAnimatePosition] = 0f;
-            _totalInputWeights[AdvancedTransformTweenBehaviour.kAnimateRotation] = 0f;
-            _totalInputWeights[AdvancedTransformTweenBehaviour.kAnimateScale] = 0f;
+                
+            SetupInitialValues(_mixerAnimations, trackBinding);
 
             var inputCount = playable.GetInputCount();
-
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<AdvancedTransformTweenBehaviour>)playable.GetInput(i);
                 var playableBehaviour = playableInput.GetBehaviour();
-
                 var inputWeight = playable.GetInputWeight(i);
 
-                var animBehaviours = new AdvancedTweenBehaviour[AdvancedTransformTweenBehaviour.kAnimateTotal];
-                var animBehavioursCount = animBehaviours.Length;
-
-                if(playableBehaviour.AnimatePosition)
-                {
-                    animBehaviours[AdvancedTransformTweenBehaviour.kAnimatePosition] = playableBehaviour.Animations[AdvancedTransformTweenBehaviour.kAnimatePosition];
-                }
-
-                if(playableBehaviour.AnimateRotation)
-                {
-                    animBehaviours[AdvancedTransformTweenBehaviour.kAnimateRotation] = playableBehaviour.Animations[AdvancedTransformTweenBehaviour.kAnimateRotation];
-                }
-
-                if(playableBehaviour.AnimateScale)
-                {
-                    animBehaviours[AdvancedTransformTweenBehaviour.kAnimateScale] = playableBehaviour.Animations[AdvancedTransformTweenBehaviour.kAnimateScale];
-                }
-
-                // We need to refresh every time the AnimateTO value because we ban have referenced objects that are currently animated and can change it's position, scale,...
-                // TODO add a check if we want to refresh this every time or not
-                if(!_firstFrameHappened)// && !playableBehaviour.StartLocation)
-                {
-                    for(int j = 0; j < animBehavioursCount; ++j)
-                    {
-                        if(animBehaviours[j] != null)
-                        {
-                            animBehaviours[j].AnimateFrom = _defaultInitialValues[j];
-                        }
-                    }
-                        
-                    _firstFrameHappened = true;
-                }
-                    
-                for(int j = 0; j < animBehavioursCount; ++j)
-                {
-                    if(animBehaviours[j] != null)
-                    {
-                        if(animBehaviours[j].HowToAnimate == AdvancedTweenBehaviour.HowToAnimateType.UseReferencedTransforms)
-                        {
-                            if(animBehaviours[j].AnimateToReference == null)
-                            {
-                                continue;
-                            }
-
-                            //                        playableBehaviour.AnimateTo = playableBehaviour.EndLocation.position;
-                        }
-
-                        _totalInputWeights[j] += inputWeight;
-                        _blendValues[j] += AnimateValues(playableInput, playableBehaviour, inputWeight, animBehaviours[j]);
-                    }
-                }
+                CalculateBlendValues(_mixerAnimations, playableInput, playableBehaviour, inputWeight);
             }
+
+            SetupFinalValues(_mixerAnimations, trackBinding);
                
+
 //            Debug.Log("blendedPosition: " + blendedPosition);
-            trackBinding.position = GetFinalValue(AdvancedTransformTweenBehaviour.kAnimatePosition);
+//            trackBinding.position = GetFinalValue(AdvancedTransformTweenBehaviour.kAnimatePosition);
 
 //            Quaternion weightedDefaultRotation = ScaleQuaternion(defaultInitialRotation, 1f - rotationTotalInputWeight);
 //            blendedRotation = AddQuaternions(blendedRotation, weightedDefaultRotation);
 //            trackBinding.rotation = blendedRotation;
 
-            trackBinding.localScale = GetFinalValue(AdvancedTransformTweenBehaviour.kAnimateScale);
+//            trackBinding.localScale = GetFinalValue(AdvancedTransformTweenBehaviour.kAnimateScale);
         }
 
-        Vector3 GetFinalValue(int index)
+        void SetupInitialValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)
         {
-            return _blendValues[index] + _defaultInitialValues[index] * (1f - _totalInputWeights[index]); 
+            if(!_firstFrameHappened)
+            {
+                for(int i = 0; i < animMixerBehaviours.Length; ++i)
+                {
+                    var value = animMixerBehaviours[i];
+                    if(value != null)
+                    {
+                        value.InitializeValues(baseTransform);
+                    }
+                }
+
+                _firstFrameHappened = true;
+            }
+        }
+            
+        void SetupFinalValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)
+        {
+            for(int i = 0; i < animMixerBehaviours.Length; ++i)
+            {
+                var value = animMixerBehaviours[i];
+                if(value != null)
+                {
+                    value.SetFinalCalculatedValue(baseTransform);
+                }
+            }
         }
 
+        void CalculateBlendValues(  BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, 
+                                    ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput,
+                                    AdvancedTransformTweenBehaviour playableBehaviour, 
+                                    float inputWeight)
+        {
+            var animBehaviours = playableBehaviour.Animations;
+            if(animBehaviours != null)
+            {
+                for(int i = 0; i < animBehaviours.Length; ++i)
+                {
+                    var anim = animBehaviours[i];
+                    if(anim != null)
+                    {
+                        if(anim.Animate)
+                        {
+                            if(anim.HowToAnimate == BaseAdvancedTweenBehaviour.HowToAnimateType.UseReferencedTransforms)
+                            {
+                                if(anim.AnimateToReference == null)
+                                {
+                                    continue;
+                                }
+
+                                //                        playableBehaviour.AnimateTo = playableBehaviour.EndLocation.position;
+                            }
+                                
+                            var valueMixer = animMixerBehaviours[i];
+                            if(valueMixer != null)
+                            {
+                                valueMixer.TotalInputWeight += inputWeight;
+                                valueMixer.BlendValue += AnimateValues(playableInput, playableBehaviour, inputWeight, anim);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+            
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("AdvancedTransformTweenMixerBehaviour msg {0}", msg));
         }
 
-        static Vector3 AnimateValues(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight, AdvancedTweenBehaviour anim)
+        static Vector3 AnimateValues(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight, BaseAdvancedTweenBehaviour anim)
         {
             var tweenProgress = GetTweenProgress(playableInput, playableBehaviour, anim);
             return Vector3.Lerp(anim.AnimateFrom, anim.AnimateTo, tweenProgress) * inputWeight;
@@ -165,12 +212,12 @@ namespace SocialPoint.TimeLinePlayables
 //            return Vector3.zero;
 //        }
 
-        static float GetTweenProgress(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, AdvancedTweenBehaviour anim)
+        static float GetTweenProgress(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, BaseAdvancedTweenBehaviour anim)
         {
             var time = playableInput.GetTime();
             var normalisedTime = (float)(time * playableBehaviour.InverseDuration);
 
-            if(anim.AnimationType == AdvancedTweenBehaviour.AnimateType.AnimationCurve && anim.AnimationCurve != null)
+            if(anim.AnimationType == BaseAdvancedTweenBehaviour.AnimateType.AnimationCurve && anim.AnimationCurve != null)
             {
                 return anim.AnimationCurve.Evaluate(normalisedTime);
             }

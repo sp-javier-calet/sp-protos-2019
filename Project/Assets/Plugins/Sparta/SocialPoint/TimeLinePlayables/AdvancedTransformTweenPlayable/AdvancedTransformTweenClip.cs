@@ -9,8 +9,14 @@ namespace SocialPoint.TimeLinePlayables
     public class AdvancedTransformTweenClip : PlayableAsset, ITimelineClipAsset
     {
         public AdvancedTransformTweenBehaviour template = new AdvancedTransformTweenBehaviour();
-//        public ExposedReference<Transform> StartLocation;
-//        public ExposedReference<Transform> EndLocation;
+        public ExposedReference<Transform> PositionReferencedFrom;
+        public ExposedReference<Transform> PositionReferencedTo;
+
+        public ExposedReference<Transform> RotationReferencedFrom;
+        public ExposedReference<Transform> RotationReferencedTo;
+
+        public ExposedReference<Transform> ScaleReferencedFrom;
+        public ExposedReference<Transform> ScaleReferencedTo;
 
         public ClipCaps clipCaps
         {
@@ -22,8 +28,14 @@ namespace SocialPoint.TimeLinePlayables
             var playable = ScriptPlayable<AdvancedTransformTweenBehaviour>.Create(graph, template);
 
 //            var clone = playable.GetBehaviour();
-//            clone.StartLocation = StartLocation.Resolve(graph.GetResolver());
-//            clone.EndLocation = EndLocation.Resolve(graph.GetResolver());
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimatePosition].AnimateFromReference = PositionReferencedFrom.Resolve(graph.GetResolver());
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimatePosition].AnimateFromReference = PositionReferencedTo.Resolve(graph.GetResolver());
+//
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimateRotation].AnimateFromReference = RotationReferencedFrom.Resolve(graph.GetResolver());
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimateRotation].AnimateFromReference = RotationReferencedTo.Resolve(graph.GetResolver());
+//
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimateScale].AnimateFromReference = ScaleReferencedFrom.Resolve(graph.GetResolver());
+//            clone.Animations[AdvancedTransformTweenBehaviour.kAnimateScale].AnimateFromReference = ScaleReferencedTo.Resolve(graph.GetResolver());
 
             return playable;
         }
