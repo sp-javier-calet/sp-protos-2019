@@ -65,7 +65,7 @@ namespace SocialPoint.TimeLinePlayables
             new ScaleAdvancedTransformTweenMixerBehaviour()
         };
             
-//        bool _firstFrameHappened;
+        bool _firstFrameHappened;
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -84,6 +84,7 @@ namespace SocialPoint.TimeLinePlayables
                 var playableBehaviour = playableInput.GetBehaviour();
                 var inputWeight = playable.GetInputWeight(i);
 
+                SetupFirstFrameValues();
                 CalculateBlendValues(_mixerAnimations, playableInput, playableBehaviour, inputWeight);
             }
 
@@ -102,20 +103,24 @@ namespace SocialPoint.TimeLinePlayables
 
         void SetupInitialValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)
         {
-//            _firstFrameHappened = false;
-//            if(!_firstFrameHappened)
-//            {
-                for(int i = 0; i < animMixerBehaviours.Length; ++i)
+            for(int i = 0; i < animMixerBehaviours.Length; ++i)
+            {
+                var value = animMixerBehaviours[i];
+                if(value != null)
                 {
-                    var value = animMixerBehaviours[i];
-                    if(value != null)
-                    {
-                        value.InitializeValues(baseTransform);
-                    }
+                    value.InitializeValues(baseTransform);
                 }
+            }
+        }
 
-//                _firstFrameHappened = true;
-//            }
+        void SetupFirstFrameValues()
+        {
+            _firstFrameHappened = false;
+            if(!_firstFrameHappened)
+            {
+                // TODO IF needed
+                _firstFrameHappened = true;
+            }
         }
             
         void SetupFinalValues(BaseAdvancedTransformTweenMixerBehaviour[] animMixerBehaviours, Transform baseTransform)
@@ -176,7 +181,9 @@ namespace SocialPoint.TimeLinePlayables
         static Vector3 AnimateValues(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight, BaseAdvancedTweenBehaviour anim)
         {
             var tweenProgress = GetTweenProgress(playableInput, playableBehaviour, anim);
-            return Vector3.Lerp(anim.AnimateFrom, anim.AnimateTo, tweenProgress) * inputWeight;
+            var lerpValue = Vector3.Lerp(anim.AnimateFrom, anim.AnimateTo, tweenProgress) * inputWeight;
+            Debug.Log("**** lerpValue: " + lerpValue);
+            return lerpValue;
         }
 
 //        static Quaternion AnimateRotation(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight)
