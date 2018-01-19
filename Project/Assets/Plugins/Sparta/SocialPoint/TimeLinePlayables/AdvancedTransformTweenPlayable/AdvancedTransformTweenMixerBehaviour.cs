@@ -17,9 +17,6 @@ namespace SocialPoint.TimeLinePlayables
         {
             TotalInputWeight = 0f;
             BlendValue = Vector3.zero;
-
-            DefaultInitialValue = baseTransform.localScale;
-            DefaultFinalValue = baseTransform.localScale;
         }
 
         public abstract void SetFinalCalculatedValue(Transform baseTransform);
@@ -33,6 +30,14 @@ namespace SocialPoint.TimeLinePlayables
 
     public class PositionAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
     {
+        public override void InitializeValues(Transform baseTransform)
+        {
+            base.InitializeValues(baseTransform);
+
+            DefaultInitialValue = baseTransform.localPosition;
+            DefaultFinalValue = baseTransform.localPosition;
+        }
+
         public override void SetFinalCalculatedValue(Transform baseTransform)
         {
             baseTransform.position = GetFinalCalculatedValue(); 
@@ -41,6 +46,14 @@ namespace SocialPoint.TimeLinePlayables
 
     public class RotationAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
     {
+        public override void InitializeValues(Transform baseTransform)
+        {
+            base.InitializeValues(baseTransform);
+
+            DefaultInitialValue = baseTransform.eulerAngles;
+            DefaultFinalValue = baseTransform.eulerAngles;
+        }
+
         public override void SetFinalCalculatedValue(Transform baseTransform)
         {
             baseTransform.eulerAngles = GetFinalCalculatedValue(); 
@@ -49,6 +62,14 @@ namespace SocialPoint.TimeLinePlayables
 
     public class ScaleAdvancedTransformTweenMixerBehaviour : BaseAdvancedTransformTweenMixerBehaviour
     {
+        public override void InitializeValues(Transform baseTransform)
+        {
+            base.InitializeValues(baseTransform);
+
+            DefaultInitialValue = baseTransform.position;
+            DefaultFinalValue = baseTransform.position;
+        }
+
         public override void SetFinalCalculatedValue(Transform baseTransform)
         {
             baseTransform.localScale = GetFinalCalculatedValue(); 
@@ -181,9 +202,7 @@ namespace SocialPoint.TimeLinePlayables
         static Vector3 AnimateValues(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight, BaseAdvancedTweenBehaviour anim)
         {
             var tweenProgress = GetTweenProgress(playableInput, playableBehaviour, anim);
-            var lerpValue = Vector3.Lerp(anim.AnimateFrom, anim.AnimateTo, tweenProgress) * inputWeight;
-            Debug.Log("**** lerpValue: " + lerpValue);
-            return lerpValue;
+            return Vector3.Lerp(anim.AnimateFrom, anim.AnimateTo, tweenProgress) * inputWeight;
         }
 
 //        static Quaternion AnimateRotation(ScriptPlayable<AdvancedTransformTweenBehaviour> playableInput, AdvancedTransformTweenBehaviour playableBehaviour, float inputWeight)
