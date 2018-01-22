@@ -71,6 +71,8 @@ namespace SocialPoint.Login
 
         event LoginErrorDelegate ErrorEvent;
 
+        event LoginErrorDelegate LinkErrorEvent;
+
         event RestartDelegate RestartEvent;
 
         event HttpRequestDelegate HttpRequestEvent;

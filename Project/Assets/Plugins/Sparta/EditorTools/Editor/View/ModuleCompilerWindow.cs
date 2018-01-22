@@ -101,7 +101,7 @@ namespace SpartaTools.Editor.View
 
                 if(compileStandalone)
                 {
-#if UNITY_2017_1_OR_NEWER
+#if UNITY_2017_3_OR_NEWER
                     Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSX, false));
                     Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSX, true));
 #else

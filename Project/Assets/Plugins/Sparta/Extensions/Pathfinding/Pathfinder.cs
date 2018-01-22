@@ -92,6 +92,17 @@ namespace SocialPoint.Pathfinding
             return false;
         }
 
+        public bool IsPointInNavMesh(Vector3 testPoint, float findRange)
+        {
+            NavPoint startNavPoint;
+            if(!_query.FindNearestPoly(ref testPoint, ref _extents, _filter, out startNavPoint))
+            {
+                return false;
+            }
+            var findRangeSQ = findRange * findRange;
+            return (startNavPoint.Position - testPoint).LengthSquared() < findRangeSQ;
+        }
+
         /// <summary>
         /// Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
         /// </summary>

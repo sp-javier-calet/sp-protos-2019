@@ -167,7 +167,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i = 0; i < canvases.Count; i++)
+                for(var i=0; i<canvases.Count; i++)
                 {
                     var itr = canvases[i].transform.GetEnumerator();
                     while(itr.MoveNext())
@@ -239,7 +239,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i = 0; i < canvases.Count; i++)
+                for(var i=0; i<canvases.Count; i++)
                 {
                     var canvas = canvases[i];
                     var scale = UILayersController.GetCanvasScale(canvas);
@@ -408,7 +408,7 @@ namespace SocialPoint.GUIControl
         public void SetupDisappearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
             DisappearAnimation = GetAnimation(DisappearAnimationFactory, defaultAnimationFactory, defaultAnimation);
-        }
+            }
 
         UIViewAnimation GetAnimation(UIViewAnimationFactory viewAnimationFactory, UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
@@ -448,7 +448,7 @@ namespace SocialPoint.GUIControl
 
             OnAwake();
         }
-
+            
         [Obsolete("Use Reset instead")]
         public void ResetState()
         {
@@ -464,7 +464,6 @@ namespace SocialPoint.GUIControl
         {
             if(_loaded)
             {
-                HideImmediate();
             }
             else
             {
@@ -498,7 +497,7 @@ namespace SocialPoint.GUIControl
 
             Setup();
         }
-            
+
         void Setup()
         {
             if(ParentController == null)
@@ -743,7 +742,7 @@ namespace SocialPoint.GUIControl
                 NotifyViewEvent();
             }
         }
-
+            
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -814,7 +813,7 @@ namespace SocialPoint.GUIControl
             }
             return go;
         }
-            
+
         virtual public bool OnBeforeClose()
         {
             return IsStable; 
@@ -822,7 +821,7 @@ namespace SocialPoint.GUIControl
 
         #region public UI button methods
 
-        public void Close()
+        public virtual void Close()
         {
             Hide();
         }

@@ -114,6 +114,7 @@ namespace SpartaTools.Editor.Build
             public string RemovedResources;
             public bool UseKeystore;
             public AndroidKeystoreConfiguration Keystore;
+            public bool UseAPKExpansionFile;
         }
 
         public AndroidConfiguration Android;
@@ -421,9 +422,11 @@ namespace SpartaTools.Editor.Build
                 texture,
                 texture,
                 texture,
+                texture,
                 texture
             });
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Standalone, new [] {
+                texture,
                 texture,
                 texture,
                 texture,
@@ -643,6 +646,7 @@ namespace SpartaTools.Editor.Build
             public override void OnApply(BuildSet buildSet)
             {
                 SetBundleIdentifier(buildSet.Android.BundleIdentifier);
+                SetAPKExpansionfile(buildSet.Android.UseAPKExpansionFile);
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
@@ -654,6 +658,11 @@ namespace SpartaTools.Editor.Build
                     NativeBuild.CompileAndroid();
                     NativeBuild.CompileAndroidNative();
                 }
+            }
+
+            protected void SetAPKExpansionfile(bool useAPKExpansion)
+            {
+                PlayerSettings.Android.useAPKExpansionFiles = useAPKExpansion;
             }
         }
 

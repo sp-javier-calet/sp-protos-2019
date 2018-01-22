@@ -7,21 +7,29 @@ namespace SocialPoint.Utils.Obfuscation
     [Category("SocialPoint.Utils.Obfuscation")]
     public class ObfuscatedUIntTest
     {
+        static bool AreObfuscatedEqual(uint value1, uint value2)
+        {
+            return value2 == value1 &&
+                value2.Equals(value1) &&
+                value1 == value2 &&
+                value1.Equals(value2);
+        }
+
         [Test]
         public void ConversionImplicit([Values((uint)68)] uint value)
         {
             var obfuscatedUInt = new ObfuscatedUInt(value);
             uint unobfuscatedUInt = obfuscatedUInt;
 
-            Assert.AreEqual(obfuscatedUInt, obfuscatedUInt);
-            Assert.AreEqual(value, unobfuscatedUInt);
-            Assert.AreEqual(value, obfuscatedUInt);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt, obfuscatedUInt));
+            Assert.That(AreObfuscatedEqual(value, unobfuscatedUInt));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedUInt));
 
             Assert.AreNotEqual(value, obfuscatedUInt.ObfuscatedValue);
 
             uint newValue = value + 1;
             obfuscatedUInt = newValue;
-            Assert.AreEqual(newValue, obfuscatedUInt);
+            Assert.That(AreObfuscatedEqual(newValue, obfuscatedUInt));
         }
 
         [Test]
@@ -37,8 +45,8 @@ namespace SocialPoint.Utils.Obfuscation
         {
             var obfuscatedUInt = new ObfuscatedUInt(value);
 
-            Assert.AreEqual(obfuscatedUInt, value);
-            Assert.AreEqual(value, obfuscatedUInt);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt, value));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedUInt));
         }
 
         [Test]
@@ -112,16 +120,16 @@ namespace SocialPoint.Utils.Obfuscation
             uint addition = value1 + value2;
             uint obfuscatedAddition = new ObfuscatedUInt(addition);
 
-            Assert.AreEqual(obfuscatedUInt1 + obfuscatedUInt2, addition);
-            Assert.AreEqual(obfuscatedUInt1 + value2, addition);
-            Assert.AreEqual(value1 + obfuscatedUInt2, addition);
-            Assert.AreEqual(obfuscatedUInt1 + obfuscatedUInt2, obfuscatedAddition);
-            Assert.AreEqual(obfuscatedUInt1 + value2, obfuscatedAddition);
-            Assert.AreEqual(value1 + obfuscatedUInt2, obfuscatedAddition);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 + obfuscatedUInt2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 + value2, addition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedUInt2, addition));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 + obfuscatedUInt2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 + value2, obfuscatedAddition));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedUInt2, obfuscatedAddition));
 
             ++value1;
             ++obfuscatedUInt1;
-            Assert.AreEqual(value1, obfuscatedUInt1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedUInt1));
         }
 
         [Test]
@@ -133,16 +141,16 @@ namespace SocialPoint.Utils.Obfuscation
             uint subtraction = value1 - value2;
             uint obfuscatedSubtraction = new ObfuscatedUInt(subtraction);
 
-            Assert.AreEqual(obfuscatedUInt1 - obfuscatedUInt2, subtraction);
-            Assert.AreEqual(obfuscatedUInt1 - value2, subtraction);
-            Assert.AreEqual(value1 - obfuscatedUInt2, subtraction);
-            Assert.AreEqual(obfuscatedUInt1 - obfuscatedUInt2, obfuscatedSubtraction);
-            Assert.AreEqual(obfuscatedUInt1 - value2, obfuscatedSubtraction);
-            Assert.AreEqual(value1 - obfuscatedUInt2, obfuscatedSubtraction);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 - obfuscatedUInt2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 - value2, subtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedUInt2, subtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 - obfuscatedUInt2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 - value2, obfuscatedSubtraction));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedUInt2, obfuscatedSubtraction));
 
             --value1;
             --obfuscatedUInt1;
-            Assert.AreEqual(value1, obfuscatedUInt1);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedUInt1));
         }
 
         [Test]
@@ -154,12 +162,12 @@ namespace SocialPoint.Utils.Obfuscation
             uint multiplication = value1 * value2;
             uint obfuscatedMultiplication = new ObfuscatedUInt(multiplication);
 
-            Assert.AreEqual(obfuscatedUInt1 * obfuscatedUInt2, multiplication);
-            Assert.AreEqual(obfuscatedUInt1 * value2, multiplication);
-            Assert.AreEqual(value1 * obfuscatedUInt2, multiplication);
-            Assert.AreEqual(obfuscatedUInt1 * obfuscatedUInt2, obfuscatedMultiplication);
-            Assert.AreEqual(obfuscatedUInt1 * value2, obfuscatedMultiplication);
-            Assert.AreEqual(value1 * obfuscatedUInt2, obfuscatedMultiplication);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 * obfuscatedUInt2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 * value2, multiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedUInt2, multiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 * obfuscatedUInt2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 * value2, obfuscatedMultiplication));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedUInt2, obfuscatedMultiplication));
         }
 
         [Test]
@@ -171,12 +179,12 @@ namespace SocialPoint.Utils.Obfuscation
             uint division = value1 / value2;
             uint obfuscatedDivision = new ObfuscatedUInt(division);
 
-            Assert.AreEqual(obfuscatedUInt1 / obfuscatedUInt2, division);
-            Assert.AreEqual(obfuscatedUInt1 / value2, division);
-            Assert.AreEqual(value1 / obfuscatedUInt2, division);
-            Assert.AreEqual(obfuscatedUInt1 / obfuscatedUInt2, obfuscatedDivision);
-            Assert.AreEqual(obfuscatedUInt1 / value2, obfuscatedDivision);
-            Assert.AreEqual(value1 / obfuscatedUInt2, obfuscatedDivision);
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 / obfuscatedUInt2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 / value2, division));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedUInt2, division));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 / obfuscatedUInt2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(obfuscatedUInt1 / value2, obfuscatedDivision));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedUInt2, obfuscatedDivision));
         }
     }
 }
