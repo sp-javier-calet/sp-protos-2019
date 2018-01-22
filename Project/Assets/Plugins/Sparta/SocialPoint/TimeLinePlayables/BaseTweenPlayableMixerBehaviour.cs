@@ -21,7 +21,7 @@ namespace SocialPoint.TimeLinePlayables
             var time = playableInput.GetTime();
             var normalisedTime = (float)(time * playableBehaviour.InverseDuration);
 
-            if(playableBehaviour.AnimationType == BaseTweenPlayableBehaviour.TweeningType.AnimationCurve && playableBehaviour.AnimationCurve != null)
+            if(playableBehaviour.AnimationType == BaseTweenPlayableBehaviour.AnimateType.AnimationCurve && playableBehaviour.AnimationCurve != null)
             {
                 return playableBehaviour.AnimationCurve.Evaluate(normalisedTime);
             }

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace SpartaTools.Editor.Utils.Decorators
 {
-    [CustomPropertyDrawer(typeof(PositionTweenPlayableBehaviour))]
-    public class PositionTweenPlayableDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(RotationTweenPlayableBehaviour))]
+    public class RotationTweenPlayableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {

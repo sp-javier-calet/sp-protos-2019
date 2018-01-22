@@ -9,15 +9,23 @@ namespace SocialPoint.TimeLinePlayables
     public class ScaleTweenPlayableClip : PlayableAsset, ITimelineClipAsset
     {
         public ScaleTweenPlayableBehaviour template = new ScaleTweenPlayableBehaviour();
+        public ExposedReference<Transform> TransformFrom;
+        public ExposedReference<Transform> TransformTo;
 
         public ClipCaps clipCaps
         {
-            get { return ClipCaps.None; }
+            get { return ClipCaps.Blending; }
         }
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
-            return ScriptPlayable<ScaleTweenPlayableBehaviour>.Create(graph, template);
+            var playable = ScriptPlayable<ScaleTweenPlayableBehaviour>.Create(graph, template);
+
+            var clone = playable.GetBehaviour();
+            clone.TransformFrom = TransformFrom.Resolve(graph.GetResolver());
+            clone.TransformTo = TransformTo.Resolve(graph.GetResolver());
+
+            return playable;
         }
     }
 }

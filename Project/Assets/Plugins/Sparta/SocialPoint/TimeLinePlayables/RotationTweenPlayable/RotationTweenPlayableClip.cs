@@ -6,9 +6,9 @@ using UnityEngine.Timeline;
 namespace SocialPoint.TimeLinePlayables
 {
     [Serializable]
-    public class PositionTweenPlayableClip : PlayableAsset, ITimelineClipAsset
+    public class RotationTweenPlayableClip : PlayableAsset, ITimelineClipAsset
     {
-        public PositionTweenPlayableBehaviour template = new PositionTweenPlayableBehaviour();
+        public RotationTweenPlayableBehaviour template = new RotationTweenPlayableBehaviour();
         public ExposedReference<Transform> TransformFrom;
         public ExposedReference<Transform> TransformTo;
 
@@ -19,7 +19,7 @@ namespace SocialPoint.TimeLinePlayables
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
-            var playable = ScriptPlayable<PositionTweenPlayableBehaviour>.Create(graph, template);
+            var playable = ScriptPlayable<RotationTweenPlayableBehaviour>.Create(graph, template);
 
             var clone = playable.GetBehaviour();
             clone.TransformFrom = TransformFrom.Resolve(graph.GetResolver());

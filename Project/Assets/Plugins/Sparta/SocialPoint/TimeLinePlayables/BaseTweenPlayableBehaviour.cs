@@ -8,17 +8,28 @@ namespace SocialPoint.TimeLinePlayables
     [Serializable]
     public class BaseTweenPlayableBehaviour : PlayableBehaviour
     {
-        public enum TweeningType
+        readonly static AnimationCurve defaultAnimationCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+
+        public enum HowToAnimateType
+        {
+            UseAbsoluteValues,
+            UseReferencedTransforms
+        }
+
+        public enum AnimateType
         {
             AnimationCurve,
             Tween
         }
             
-        public TweeningType AnimationType;
-        public EaseType EaseType;
-        public AnimationCurve AnimationCurve;
+        public HowToAnimateType AnimPositionType = HowToAnimateType.UseAbsoluteValues;
+        public AnimateType AnimationType = AnimateType.AnimationCurve;
+        public EaseType EaseType = EaseType.Linear;
+        public AnimationCurve AnimationCurve = defaultAnimationCurve;
         public float Duration;
         public float InverseDuration;
+        public Transform TransformFrom;
+        public Transform TransformTo;
 
         public override void OnGraphStart(Playable playable)
         {
@@ -30,18 +41,6 @@ namespace SocialPoint.TimeLinePlayables
 
             Duration = (float)duration;
             InverseDuration = 1f / (float)duration;
-
-            if(AnimationType == TweeningType.AnimationCurve)
-            {
-                if(AnimationCurve == null)
-                {
-                    AnimationCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-                }
-            }
-            else
-            {
-                AnimationCurve = null;
-            }
         }
     }
 }

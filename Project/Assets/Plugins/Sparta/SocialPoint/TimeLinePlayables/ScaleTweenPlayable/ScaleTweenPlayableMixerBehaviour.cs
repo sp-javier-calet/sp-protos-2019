@@ -5,8 +5,6 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class ScaleTweenPlayableMixerBehaviour : BaseTweenPlayableMixerBehaviour
     {
-        Vector3 _defaultScale = Vector3.zero;
-
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -17,8 +15,8 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            _defaultScale = trackBinding.localScale;
-
+            var defaultScale = trackBinding.localScale;
+                
             // Get number of tracks for the clip
             var inputCount = playable.GetInputCount();
             var blendedScale = Vector3.zero;
@@ -35,14 +33,14 @@ namespace SocialPoint.TimeLinePlayables
                     continue;
                 }
 
-                var inputWeight = playable.GetInputWeight(i);
-                DebugLog("** input weight for input: " + i + " - " + inputWeight.ToString());
-
-                if(!_firstFrameHappened)
+                if(!_firstFrameHappened && playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferencedTransforms && playableBehaviour.TransformFrom == null)
                 {
-                    _defaultScale = trackBinding.localScale;
+                    playableBehaviour.AnimateFrom = defaultScale;
                     _firstFrameHappened = true;
                 }
+
+                var inputWeight = playable.GetInputWeight(i);
+                DebugLog("** input weight for input: " + i + " - " + inputWeight.ToString());
 
                 var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
 
@@ -50,7 +48,7 @@ namespace SocialPoint.TimeLinePlayables
                 blendedScale += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
             }
                 
-            trackBinding.localScale = blendedScale + _defaultScale * (1f - scaleTotalWeight);
+            trackBinding.localScale = blendedScale + defaultScale * (1f - scaleTotalWeight);
         }
     }
 }

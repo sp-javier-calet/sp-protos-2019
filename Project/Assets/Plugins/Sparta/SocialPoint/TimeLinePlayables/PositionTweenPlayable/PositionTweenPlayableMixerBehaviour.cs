@@ -5,8 +5,6 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class PositionTweenPlayableMixerBehaviour : BaseTweenPlayableMixerBehaviour
     {
-        Vector3 _defaultPosition = Vector3.zero;
-
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -17,7 +15,7 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            _defaultPosition = trackBinding.position;
+            var defaultPosition = trackBinding.position;
 
             // Get number of tracks for the clip
             var inputCount = playable.GetInputCount();
@@ -29,21 +27,26 @@ namespace SocialPoint.TimeLinePlayables
                 var playableInput = (ScriptPlayable<BaseTweenPlayableBehaviour>)playable.GetInput(i);
                 var playableBehaviour = (PositionTweenPlayableBehaviour)playableInput.GetBehaviour();
 
-                if(playableBehaviour.AnimPositionType == PositionTweenPlayableBehaviour.AnimatePositionType.UseReferencedTransforms)
-                {
-                    if(playableBehaviour.EndLocation == null)
-                    {
-                        continue;
-                    }
+//                if(playableBehaviour.AnimPositionType == PositionTweenPlayableBehaviour.HowToAnimateType.UseReferencedTransforms)
+//                {
+//                    if(playableBehaviour.TransformTo == null)
+//                    {
+//                        continue;
+//                    }
+//
+//                    playableBehaviour.AnimateTo = playableBehaviour.TransformTo.position;
+//                }
 
-                    playableBehaviour.AnimateTo = playableBehaviour.EndLocation.position;
+                if(trackBinding.position == playableBehaviour.AnimateTo)
+                {
+                    continue;
                 }
 
                 var inputWeight = playable.GetInputWeight(i);
 
-                if(!_firstFrameHappened && !playableBehaviour.StartLocation)
+                if(!_firstFrameHappened && playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferencedTransforms && playableBehaviour.TransformFrom == null)
                 {
-                    playableBehaviour.AnimateFrom = _defaultPosition;
+                    playableBehaviour.AnimateFrom = defaultPosition;
                     _firstFrameHappened = true;
                 }
 
@@ -53,7 +56,7 @@ namespace SocialPoint.TimeLinePlayables
                 blendedPosition += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
             }
                 
-            trackBinding.position = blendedPosition + _defaultPosition * (1f - positionTotalWeight);
+            trackBinding.position = blendedPosition + defaultPosition * (1f - positionTotalWeight);
         }
     }
 }

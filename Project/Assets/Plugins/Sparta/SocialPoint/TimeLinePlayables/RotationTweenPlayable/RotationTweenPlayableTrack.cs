@@ -5,13 +5,13 @@ using UnityEngine.Timeline;
 namespace SocialPoint.TimeLinePlayables
 {
     [TrackColor(0f, 0f, 1f)]
-    [TrackClipType(typeof(PositionTweenPlayableClip))]
+    [TrackClipType(typeof(RotationTweenPlayableClip))]
     [TrackBindingType(typeof(Transform))]
-    public class PositionTweenPlayableTrack : TrackAsset
+    public class RotationTweenPlayableTrack : TrackAsset
     {
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
-            return ScriptPlayable<PositionTweenPlayableMixerBehaviour>.Create(graph, inputCount);
+            return ScriptPlayable<RotationTweenPlayableMixerBehaviour>.Create(graph, inputCount);
         }
 
         public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)

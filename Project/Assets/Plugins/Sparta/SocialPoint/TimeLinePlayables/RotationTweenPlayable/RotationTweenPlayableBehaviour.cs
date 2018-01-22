@@ -5,8 +5,11 @@ using UnityEngine.Playables;
 namespace SocialPoint.TimeLinePlayables
 {
     [Serializable]
-    public class PositionTweenPlayableBehaviour : BaseTweenPlayableBehaviour
+    public class RotationTweenPlayableBehaviour : BaseTweenPlayableBehaviour
     {
+//        public Quaternion AnimateFrom;
+//        public Quaternion AnimateTo;
+
         public Vector3 AnimateFrom;
         public Vector3 AnimateTo;
 
@@ -18,12 +21,12 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(TransformFrom != null)
                 {
-                    AnimateFrom = TransformFrom.position;
+                    AnimateFrom = TransformFrom.rotation.eulerAngles;
                 }
 
                 if(TransformTo != null)
                 {
-                    AnimateTo = TransformTo.position;
+                    AnimateTo = TransformTo.rotation.eulerAngles;
                 }
             }
         }
