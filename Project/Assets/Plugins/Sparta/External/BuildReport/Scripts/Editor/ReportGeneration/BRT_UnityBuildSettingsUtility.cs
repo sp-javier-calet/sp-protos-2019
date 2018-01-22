@@ -204,7 +204,34 @@ public static class UnityBuildSettingsUtility
 		return b.ToString();
 	}
 
+	
+	public static string GetReadableWebGLOptimizationLevel(string optimizationLevelCode)
+	{
+		switch(optimizationLevelCode)
+		{
+			case "1":
+				return "1: Slow (fast builds)";
+			case "2":
+				return "2: Fast";
+			case "3":
+				return "3: Fastest (very slow builds)";
+		}
 
+		return optimizationLevelCode;
+	}
+	
+	public static string GetReadableStackTraceType(string stackTraceType)
+	{
+		switch (stackTraceType)
+		{
+			case "ScriptOnly":
+				return "Show stack trace of scripts only (no native code)";
+			case "Full":
+				return "Show stack trace of native code + scripts";
+			default:
+				return stackTraceType;
+		}
+	}
 
 	// ================================================================================================
 
@@ -255,6 +282,15 @@ public static class UnityBuildSettingsUtility
 		// so we have no choice but to restrict this to 5.3
 		settings.ForceOptimizeScriptCompilation = EditorUserBuildSettings.forceOptimizeScriptCompilation;
 #endif
+		
+#if UNITY_5_4_OR_NEWER
+		settings.StackTraceForError = PlayerSettings.GetStackTraceLogType(LogType.Error).ToString();
+		settings.StackTraceForAssert = PlayerSettings.GetStackTraceLogType(LogType.Assert).ToString();
+		settings.StackTraceForWarning = PlayerSettings.GetStackTraceLogType(LogType.Warning).ToString();
+		settings.StackTraceForLog = PlayerSettings.GetStackTraceLogType(LogType.Log).ToString();
+		settings.StackTraceForException = PlayerSettings.GetStackTraceLogType(LogType.Exception).ToString();
+#endif
+
 
 
 		// build settings
@@ -326,6 +362,13 @@ public static class UnityBuildSettingsUtility
 		settings.UseGPUSkinning = PlayerSettings.gpuSkinning;
 		settings.VisibleInBackground = PlayerSettings.visibleInBackground;
 		
+#if UNITY_5_4_OR_NEWER
+		settings.UseGraphicsJobs = PlayerSettings.graphicsJobs;
+#endif
+#if UNITY_5_5_OR_NEWER
+		settings.GraphicsJobsType = PlayerSettings.graphicsJobMode.ToString();
+#endif
+
 #if (UNITY_EDITOR_WIN || UNITY_EDITOR_OSX)
 #if UNITY_5_5_OR_NEWER
 		settings.RenderingPathUsed = UnityEditor.Rendering.EditorGraphicsSettings.GetTierSettings(EditorUserBuildSettings.selectedBuildTargetGroup, Graphics.activeTier).renderingPath.ToString();
@@ -400,28 +443,26 @@ public static class UnityBuildSettingsUtility
 #else
 		settings.WebPlayerFirstStreamedLevelWithResources = 0;
 #endif
+		
+		// Web GL settings
+		// ---------------------------------------------------------------
 
 #if UNITY_5_3_AND_LESSER
 		settings.WebGLOptimizationLevel = EditorUserBuildSettings.webGLOptimizationLevel.ToString();
 #endif
+#if UNITY_5_4_OR_NEWER
+		settings.WebGLUsePreBuiltUnityEngine = EditorUserBuildSettings.webGLUsePreBuiltUnityEngine;
+#endif
+#if UNITY_5_5_OR_NEWER
+		settings.WebGLCompressionFormat = PlayerSettings.WebGL.compressionFormat.ToString();
+		settings.WebGLAutoCacheAssetsData = PlayerSettings.WebGL.dataCaching;
+		settings.WebGLCreateDebugSymbolsFile = PlayerSettings.WebGL.debugSymbols;
+		settings.WebGLExceptionSupportType = PlayerSettings.WebGL.exceptionSupport.ToString();
+		settings.WebGLMemorySize = PlayerSettings.WebGL.memorySize;
+		settings.WebGLTemplatePath = PlayerSettings.WebGL.template;
+#endif
 	}
-
-	public static string GetReadableWebGLOptimizationLevel(string optimizationLevelCode)
-	{
-		switch(optimizationLevelCode)
-		{
-			case "1":
-				return "1: Slow (fast builds)";
-			case "2":
-				return "2: Fast";
-			case "3":
-				return "3: Fastest (very slow builds)";
-		}
-
-		return optimizationLevelCode;
-	}
-
-
+	
 	public static void PopulateStandaloneSettings(UnityBuildSettings settings)
 	{
 		// standalone (windows/mac/linux) build settings
@@ -448,7 +489,11 @@ public static class UnityBuildSettingsUtility
 #if UNITY_5_1_AND_LESSER
 		settings.WinUseDirect3D11IfAvailable = PlayerSettings.useDirect3D11;
 #endif
+
+#if !UNITY_2017_3_OR_NEWER
 		settings.WinDirect3D9FullscreenModeUsed = PlayerSettings.d3d9FullscreenMode.ToString();
+#endif
+
 #if !UNITY_4
 		settings.WinDirect3D11FullscreenModeUsed = PlayerSettings.d3d11FullscreenMode.ToString();
 #endif
@@ -626,13 +671,17 @@ public static class UnityBuildSettingsUtility
 
 	public static void PopulateTvDeviceSettings(UnityBuildSettings settings)
 	{
-#if !UNITY_2017_1_OR_NEWER
+		// no more Samsung TV in Unity 2017.3 or greater
+
+#if UNITY_4 || UNITY_5 || (UNITY_2017 && !UNITY_2017_3_OR_NEWER)
 		settings.SamsungTVDeviceAddress = PlayerSettings.SamsungTV.deviceAddress;
+#if !UNITY_4
 		settings.SamsungTVAuthor = PlayerSettings.SamsungTV.productAuthor;
 		settings.SamsungTVAuthorEmail = PlayerSettings.SamsungTV.productAuthorEmail;
 		settings.SamsungTVAuthorWebsiteUrl = PlayerSettings.SamsungTV.productLink;
 		settings.SamsungTVCategory = PlayerSettings.SamsungTV.productCategory.ToString();
 		settings.SamsungTVDescription = PlayerSettings.SamsungTV.productDescription;
+#endif
 #endif
 	}
 
@@ -886,6 +935,6 @@ public static class UnityBuildSettingsUtility
 		settings.PS4ShareFilePath = PlayerSettings.PS4.ShareFilePath;
 #endif
 	}
-}
+	}
 
 }

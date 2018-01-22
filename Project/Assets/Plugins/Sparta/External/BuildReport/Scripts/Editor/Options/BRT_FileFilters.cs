@@ -282,9 +282,11 @@ public class FileFilterGroup
 		GUILayout.BeginHorizontal();
 			GUILayout.Space(3);
 			GUILayout.Label("Filter: ", BuildReportTool.Window.Settings.TOP_BAR_LABEL_STYLE_NAME);
-
-			_selectedFilterIdx = EditorGUILayout.Popup(_selectedFilterIdx, assetList.Labels,
-				BuildReportTool.Window.Settings.FILE_FILTER_POPUP_STYLE_NAME);
+			if (assetList != null && assetList.Labels != null && assetList.Labels.Length > 0)
+			{
+				_selectedFilterIdx = EditorGUILayout.Popup(_selectedFilterIdx, assetList.Labels,
+					BuildReportTool.Window.Settings.FILE_FILTER_POPUP_STYLE_NAME);
+			}
 		GUILayout.EndHorizontal();
 	}
 

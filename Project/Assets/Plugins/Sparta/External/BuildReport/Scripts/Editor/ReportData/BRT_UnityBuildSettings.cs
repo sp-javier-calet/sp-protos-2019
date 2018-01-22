@@ -30,7 +30,13 @@ public class UnityBuildSettings
 	public string ActionOnDotNetUnhandledException; // Unity 5: PlayerSettings.actionOnDotNetUnhandledException
 
 	public bool ForceOptimizeScriptCompilation; // Unity 5.2.2: EditorUserBuildSettings.forceOptimizeScriptCompilation
-	
+
+	public string StackTraceForError; // PlayerSettings.GetStackTraceLogType(LogType.Error)
+	public string StackTraceForAssert; // PlayerSettings.GetStackTraceLogType(LogType.Assert)
+	public string StackTraceForWarning; // PlayerSettings.GetStackTraceLogType(LogType.Warning)
+	public string StackTraceForLog; // PlayerSettings.GetStackTraceLogType(LogType.Log)
+	public string StackTraceForException; // PlayerSettings.GetStackTraceLogType(LogType.Exception)
+
 
 
 	// build settings
@@ -62,8 +68,6 @@ public class UnityBuildSettings
 
 
 
-
-
 	// rendering settings
 	// ---------------------------------------------------------------
 
@@ -74,6 +78,10 @@ public class UnityBuildSettings
 	// in Unity 3: only xbox 360 has this with PlayerSettings.xboxSkinOnGPU
 	// in Unity 4, this is PlayerSettings.gpuSkinning
 	public bool UseGPUSkinning;
+
+	public bool UseGraphicsJobs; // PlayerSettings.graphicsJobs
+
+	public string GraphicsJobsType; // PlayerSettings.graphicsJobMode
 
 	public string RenderingPathUsed; // Unity 4: PlayerSettings.renderingPath
 
@@ -103,6 +111,20 @@ public class UnityBuildSettings
 	// WebGL settings
 	// ---------------------------------------------------------------
 	public string WebGLOptimizationLevel; // EditorUserBuildSettings.webGLOptimizationLevel
+
+	public bool WebGLUsePreBuiltUnityEngine; // EditorUserBuildSettings.webGLUsePreBuiltUnityEngine
+
+	public string WebGLCompressionFormat; // PlayerSettings.WebGL.compressionFormat
+
+	public bool WebGLAutoCacheAssetsData; // PlayerSettings.WebGL.dataCaching
+
+	public bool WebGLCreateDebugSymbolsFile; // PlayerSettings.WebGL.debugSymbols
+
+	public string WebGLExceptionSupportType; // PlayerSettings.WebGL.exceptionSupport
+
+	public int WebGLMemorySize; // PlayerSettings.WebGL.memorySize
+
+	public string WebGLTemplatePath; // PlayerSettings.WebGL.template
 
 
 

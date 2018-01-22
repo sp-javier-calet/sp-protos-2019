@@ -79,7 +79,7 @@ public class AssetList : BaseScreen
 
 		GUILayout.Space(20);
 
-		string selectedInfoLabel = string.Format("{0}{1}. {2}{3} ({4}%)				Click on an asset's checkbox to include it in size calculation. Click on the filename to highlight it on your Project window.", Labels.SELECTED_QTY_LABEL, listToDisplay.GetSelectedCount().ToString("N0"), Labels.SELECTED_SIZE_LABEL, listToDisplay.GetReadableSizeOfSumSelection(), listToDisplay.GetPercentageOfSumSelection().ToString("N"));
+		string selectedInfoLabel = string.Format("{0}{1}. {2}{3} ({4}%)				Click on an asset's name to include it in size calculations or batch deletions. Shift-click to select many. Ctrl-click to toggle selection.", Labels.SELECTED_QTY_LABEL, listToDisplay.GetSelectedCount().ToString("N0"), Labels.SELECTED_SIZE_LABEL, listToDisplay.GetReadableSizeOfSumSelection(), listToDisplay.GetPercentageOfSumSelection().ToString("N"));
 
 		GUI.Label(new Rect(0, position.height - 20, position.width, 20), selectedInfoLabel, BuildReportTool.Window.Settings.STATUS_BAR_LABEL_STYLE_NAME);
 	}
@@ -268,9 +268,18 @@ public class AssetList : BaseScreen
 			// Recalculate Imported sizes
 			// (makes sense only for unused assets)
 
-			if (_currentListDisplayed != ListToDisplay.UsedAssets && GUILayout.Button(Labels.RECALC_IMPORTED_SIZES, BuildReportTool.Window.Settings.TOP_BAR_BTN_STYLE_NAME))
+			if ((_currentListDisplayed != ListToDisplay.UsedAssets) &&
+				GUILayout.Button(Labels.RECALC_IMPORTED_SIZES, BuildReportTool.Window.Settings.TOP_BAR_BTN_STYLE_NAME))
 			{
 				assetListUsed.PopulateImportedSizes();
+			}
+			
+			if (!BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus &&
+				BuildReportTool.Options.GetSizeBeforeBuildForUsedAssets &&
+				(_currentListDisplayed == ListToDisplay.UsedAssets) &&
+				GUILayout.Button(Labels.RECALC_SIZE_BEFORE_BUILD, BuildReportTool.Window.Settings.TOP_BAR_BTN_STYLE_NAME))
+			{
+				assetListUsed.PopulateSizeInAssetsFolder();
 			}
 
 			// ------------------------------------------------------------------------------------------------------
@@ -555,30 +564,45 @@ public class AssetList : BaseScreen
 						GUILayout.EndScrollView();
 						
 					GUILayout.EndVertical();
+					
 
 
+
+					bool pressedRawSizeSortBtn = false;
+					bool pressedImpSizeSortBtn = false;
+					
+					bool pressedSizeBeforeBuildSortBtn = false;
 
 					// --------------------------------------------------------------------------------------------------------
 					// column: raw file size
 
-					bool pressedRawSizeSortBtn = false;
 					
+					if (IsShowingUsedAssets && (assetListToUse[0].SizeInAssetsFolderBytes != -1))
+					{
+						pressedSizeBeforeBuildSortBtn = DrawColumn(viewOffset, len, BuildReportTool.AssetList.SortType.SizeBeforeBuild, "Size Before Build   ", !hasSearchResults, false,
+							list, assetListToUse, (b) => b.SizeInAssetsFolder, ref _assetListScrollPos);
+					}
+
 					if (IsShowingUsedAssets && BuildReportTool.Options.ShowImportedSizeForUsedAssets)
 					{
-						pressedRawSizeSortBtn = DrawColumn(viewOffset, len, BuildReportTool.AssetList.SortType.ImportedSizeOrRawSize, "Size", !hasSearchResults, false,
+						pressedRawSizeSortBtn = DrawColumn(viewOffset, len, BuildReportTool.AssetList.SortType.ImportedSizeOrRawSize, "Size In Build", !hasSearchResults, false,
 							list, assetListToUse, (b) =>
 							{
+								// assets in the "StreamingAssets" folder do not have an imported size
+								// in those cases, the raw size is the same as the imported size
+								// so just use the raw size
 								if (b.ImportedSize == "N/A")
 								{
 									return b.RawSize;
 								}
+
 								return b.ImportedSize;
 							}, ref _assetListScrollPos);
 					}
-
-					if ((IsShowingUsedAssets && !BuildReportTool.Options.ShowImportedSizeForUsedAssets) || IsShowingUnusedAssets)
+					
+					if (IsShowingUnusedAssets || (IsShowingUsedAssets && !BuildReportTool.Options.ShowImportedSizeForUsedAssets))
 					{
-						pressedRawSizeSortBtn = DrawColumn(viewOffset, len, BuildReportTool.AssetList.SortType.RawSize, (IsShowingUnusedAssets ? "Raw Size" : "Size"), !hasSearchResults, false,
+						pressedRawSizeSortBtn = DrawColumn(viewOffset, len, BuildReportTool.AssetList.SortType.RawSize, (IsShowingUnusedAssets ? "Raw Size" : "Size In Build"), !hasSearchResults, false,
 							list, assetListToUse, (b) => b.RawSize, ref _assetListScrollPos);
 					}
 
@@ -589,7 +613,6 @@ public class AssetList : BaseScreen
 					// --------------------------------------------------------------------------------------------------------
 					// column: imported file size
 
-					bool pressedImpSizeSortBtn = false;
 
 					if (IsShowingUnusedAssets)
 					{
@@ -630,6 +653,10 @@ public class AssetList : BaseScreen
 								sortType = BuildReportTool.AssetList.SortType.ImportedSizeOrRawSize;
 							}
 							list.ToggleSort(sortType);
+						}
+						else if (pressedSizeBeforeBuildSortBtn)
+						{
+							list.ToggleSort(BuildReportTool.AssetList.SortType.SizeBeforeBuild);
 						}
 						else if (pressedImpSizeSortBtn)
 						{

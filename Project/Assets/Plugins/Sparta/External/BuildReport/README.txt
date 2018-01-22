@@ -14,6 +14,11 @@ Then try opening the Build Report Window again.
 
 
 
+=== Batchmode Builds ===
+
+You can call BuildReportTool.ReportGenerator.CreateReport() to manually create a build report. Use this in your build scripts to properly create build reports. It should be called after BuildPipeline.BuildPlayer().
+
+
 
 
 === Important Notes ===
