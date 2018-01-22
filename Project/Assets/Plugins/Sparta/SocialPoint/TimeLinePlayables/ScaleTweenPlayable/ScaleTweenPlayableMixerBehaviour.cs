@@ -9,16 +9,19 @@ namespace SocialPoint.TimeLinePlayables
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             var trackBinding = playerData as Transform;
-
             if(trackBinding == null)
             {
                 return;
             }
 
-            var defaultScale = trackBinding.localScale;
-                
-            // Get number of tracks for the clip
+            // Get number of clips for the current track
             var inputCount = playable.GetInputCount();
+            if(inputCount == 0)
+            {
+                return;
+            }
+
+            var currentScale = trackBinding.localScale;
             var blendedScale = Vector3.zero;
             var scaleTotalWeight = 0f;
 
@@ -33,22 +36,33 @@ namespace SocialPoint.TimeLinePlayables
                     continue;
                 }
 
-                if(!_firstFrameHappened && playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferencedTransforms && playableBehaviour.TransformFrom == null)
+                if(!_firstFrameHappened)
                 {
-                    playableBehaviour.AnimateFrom = defaultScale;
+                    // We need to setup this in the first processed frame for each of the clips, because from the BaseTweenPlayableBehaviour 
+                    // we have no access to the current selected Transform to animate...
+                    if(playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
+                    {
+                        if(playableBehaviour.UseCurrentFromValue)
+                        {
+                            playableBehaviour.AnimateFrom = currentScale;
+                        }
+
+                        if(playableBehaviour.UseCurrentToValue)
+                        {
+                            playableBehaviour.AnimateTo = currentScale;
+                        }
+                    }
                     _firstFrameHappened = true;
                 }
-
+ 
                 var inputWeight = playable.GetInputWeight(i);
-                DebugLog("** input weight for input: " + i + " - " + inputWeight.ToString());
-
                 var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
 
                 scaleTotalWeight += inputWeight;
                 blendedScale += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
             }
                 
-            trackBinding.localScale = blendedScale + defaultScale * (1f - scaleTotalWeight);
+            trackBinding.localScale = blendedScale + currentScale * (1f - scaleTotalWeight);
         }
     }
 }

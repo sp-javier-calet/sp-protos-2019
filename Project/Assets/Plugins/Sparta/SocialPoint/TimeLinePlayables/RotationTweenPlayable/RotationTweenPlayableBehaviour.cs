@@ -7,8 +7,8 @@ namespace SocialPoint.TimeLinePlayables
     [Serializable]
     public class RotationTweenPlayableBehaviour : BaseTweenPlayableBehaviour
     {
-//        public Quaternion AnimateFrom;
-//        public Quaternion AnimateTo;
+        public bool UseCurrentFromValue = true;
+        public bool UseCurrentToValue;
 
         public Vector3 AnimateFrom;
         public Vector3 AnimateTo;
@@ -21,12 +21,20 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(TransformFrom != null)
                 {
-                    AnimateFrom = TransformFrom.rotation.eulerAngles;
+                    AnimateFrom = TransformFrom.eulerAngles;
+                }
+                else
+                {
+                    throw new UnityException("If you use referenced transforms, you need to specify a 'From Transfom'");
                 }
 
                 if(TransformTo != null)
                 {
-                    AnimateTo = TransformTo.rotation.eulerAngles;
+                    AnimateTo = TransformTo.eulerAngles;
+                }
+                else
+                {
+                    throw new UnityException("If you use referenced transforms, you need to specify a 'To Transfom'");
                 }
             }
         }

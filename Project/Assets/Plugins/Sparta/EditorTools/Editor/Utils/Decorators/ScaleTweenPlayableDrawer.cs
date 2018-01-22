@@ -9,6 +9,8 @@ namespace SpartaTools.Editor.Utils.Decorators
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            var UseCurrentFromValueProp = property.FindPropertyRelative("UseCurrentFromValue");
+            var UseCurrentToValueProp = property.FindPropertyRelative("UseCurrentToValue");
             var AnimateFromProp = property.FindPropertyRelative("AnimateFrom");
             var AnimateToProp = property.FindPropertyRelative("AnimateTo");
             var EaseTypeProp = property.FindPropertyRelative("EaseType");
@@ -26,8 +28,21 @@ namespace SpartaTools.Editor.Utils.Decorators
             }
             else
             {
-                EditorGUILayout.PropertyField(AnimateFromProp);
-                EditorGUILayout.PropertyField(AnimateToProp);
+                EditorGUILayout.PropertyField(UseCurrentFromValueProp);
+                if(!UseCurrentFromValueProp.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(AnimateFromProp);
+                    EditorGUI.indentLevel--;
+                }
+
+                EditorGUILayout.PropertyField(UseCurrentToValueProp);
+                if(!UseCurrentToValueProp.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(AnimateToProp);
+                    EditorGUI.indentLevel--;
+                }
             }
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);

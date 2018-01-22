@@ -31,7 +31,7 @@ namespace SocialPoint.TimeLinePlayables
         public Transform TransformFrom;
         public Transform TransformTo;
 
-        public override void OnGraphStart(Playable playable)
+        public override void PrepareFrame(Playable playable, FrameData info)
         {
             var duration = playable.GetDuration();
             if(Mathf.Approximately((float)duration, 0f))

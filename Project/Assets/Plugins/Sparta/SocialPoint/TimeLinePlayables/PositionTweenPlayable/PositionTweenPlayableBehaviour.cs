@@ -7,12 +7,15 @@ namespace SocialPoint.TimeLinePlayables
     [Serializable]
     public class PositionTweenPlayableBehaviour : BaseTweenPlayableBehaviour
     {
+        public bool UseCurrentFromValue = true;
+        public bool UseCurrentToValue;
+
         public Vector3 AnimateFrom;
         public Vector3 AnimateTo;
 
-        public override void OnGraphStart(Playable playable)
+        public override void PrepareFrame(Playable playable, FrameData info)
         {
-            base.OnGraphStart(playable);
+            base.PrepareFrame(playable, info);
 
             if(AnimPositionType == HowToAnimateType.UseReferencedTransforms)
             {
@@ -20,10 +23,18 @@ namespace SocialPoint.TimeLinePlayables
                 {
                     AnimateFrom = TransformFrom.position;
                 }
+                else
+                {
+                    throw new UnityException("If you use referenced transforms, you need to specify a 'From Transfom'");
+                }
 
                 if(TransformTo != null)
                 {
                     AnimateTo = TransformTo.position;
+                }
+                else
+                {
+                    throw new UnityException("If you use referenced transforms, you need to specify a 'To Transfom'");
                 }
             }
         }
