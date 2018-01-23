@@ -161,6 +161,9 @@ namespace SocialPoint.Crash
         public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(updateScheduler, client, deviceInfo, breadcrumbManager, alertView)
         {
+#if !ADMIN_PANEL && !UNITY_EDITOR && !ENABLE_IL2CPP
+            throw new InvalidOperationException("Crash reporter will only work reliably with the IL2CPP scripting backend.");
+#endif
             if(_instance != null)
             {
                 throw new InvalidOperationException("There can only be one DeviceCrashReporter instance.");
@@ -227,29 +230,7 @@ namespace SocialPoint.Crash
         void OnCrashDumped(string path)
         {
             Log.w("OnCrashDumped '" + path + "'");
-            //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
-            //We leave a breadcrumb to know that one of them was detected.
-            _breadcrumbManager.Log("Non-Killing Crash Detected");
-
-            if(FileUtils.ExistsFile(path))
-            {
-                /*
-                 * NOTE: 
-                 * The following log lines were created to simplify looking for possible reasons of a non-killing crash with help of the stack trace,
-                 * but they are now commented because that trace could be really big in terms of memory, and a lot of succesive non-killing error
-                 * (like NullReferenceExceptions) could potentially trigger memory warnings/crashes on their own.
-                 * */
-                //_breadcrumbManager.Log("Non-Killing Crash StackTrace - Start");
-                //_breadcrumbManager.Log(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
-                //_breadcrumbManager.Log("Non-Killing Crash StackTrace - End");
-
-                Log.w("Removing non-killing crash file '" + path + "'...");
-                FileUtils.DeleteFile(path);
-            }
-
-            string logPath = DeviceCrashReporter.GetLogPathFromCrashPath(path);
-            FileUtils.DeleteFile(logPath);
-
+            _breadcrumbManager.Log("OnCrashDumped");
             _breadcrumbManager.DumpToFile();
         }
 
