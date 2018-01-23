@@ -25,7 +25,7 @@ namespace SpartaTools.Editor.Utils
         // [InitializeOnLoad] above makes sure this gets executed.
         static SceneAutoLoader()
         {
-            EditorApplication.playmodeStateChanged += OnPlayModeChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
         // Menu items to select the "master" scene and control whether or not to load it.
@@ -65,7 +65,7 @@ namespace SpartaTools.Editor.Utils
         }
 
         // Play mode change callback handles the scene load/reload.
-        static void OnPlayModeChanged()
+        static void OnPlayModeChanged(PlayModeStateChange change)
         {
             if(!LoadMasterOnPlay)
             {

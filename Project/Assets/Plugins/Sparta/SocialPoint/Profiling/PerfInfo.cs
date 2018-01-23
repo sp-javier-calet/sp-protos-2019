@@ -328,11 +328,11 @@ namespace SocialPoint.Profiling
         {
             var stats = new GarbageInfo();
         #if UNITY_5_6_OR_NEWER
-            stats.AllocatedHeap = (uint)Profiler.GetMonoHeapSize();
+            stats.AllocatedHeap = (uint)Profiler.GetMonoHeapSizeLong();
         #else
             stats.AllocatedHeap = Profiler.GetMonoHeapSize();
         #endif
-            stats.UsedHeap = Profiler.usedHeapSize;
+            stats.UsedHeap = (uint)Profiler.usedHeapSizeLong;
             return stats;
         }
         #endif

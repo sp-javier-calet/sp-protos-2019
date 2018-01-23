@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
-    public class PriorityCoroutineAction<T> : PriorityQueue<T, Func<IEnumerator>>
+    public class PriorityCoroutineAction<T> : PriorityQueue<T, IEnumerator>
     {
         ICoroutineRunner _runner;
-        Func<T, IEnumerator> _defaultPriorityAction;
+        List<Func<T, IEnumerator>> _defaultActions = new List<Func<T, IEnumerator>>();
+        List<IEnumerator> _itrs = new List<IEnumerator>();
+        Dictionary<Func<IEnumerator>, IEnumerator> _funcs = new Dictionary<Func<IEnumerator>, IEnumerator>();
 
-        public PriorityCoroutineAction(ICoroutineRunner runner)
+        public PriorityCoroutineAction(ICoroutineRunner runner = null) : base()
         {
             _runner = runner;
         }
 
         public PriorityCoroutineAction(PriorityCoroutineAction<T> other) : base(other)
         {
+            _runner = other._runner;
         }
 
         public override object Clone()
@@ -23,87 +27,83 @@ namespace SocialPoint.Utils
             return new PriorityCoroutineAction<T>(this);
         }
 
+        public void Add(T prio, Func<IEnumerator> action)
+        {
+            var itr = action();
+            _funcs[action] = itr;
+            Add(prio, itr);
+        }
+
+        public bool Remove(Func<IEnumerator> action)
+        {
+            IEnumerator itr;
+            if(_funcs.TryGetValue(action, out itr))
+            {
+                _funcs.Remove(action);
+                return Remove(itr);
+            }
+            return false;
+        }
+
         public void Add(Func<T, IEnumerator> action)
         {
-            _defaultPriorityAction += action;
+            if(!_defaultActions.Contains(action))
+            {
+                _defaultActions.Add(action);
+            }
         }
 
         public void Remove(Func<T, IEnumerator> action)
         {
-            _defaultPriorityAction -= action;
+            _defaultActions.Remove(action);
         }
 
         public void Run()
         {
-            _runner.StartCoroutine(RunCoroutines());
+            if(_runner == null)
+            {
+                throw new InvalidOperationException("Please specify a coroutine runner in the constructor");
+            }
+            _runner.StartCoroutine(RunCoroutine());
         }
 
-        IEnumerator RunCoroutines()
+        public IEnumerator RunCoroutine()
         {
             var queues = CopyQueues();
-            var runData = new CoroutineRunData();
             var itr = queues.GetEnumerator();
             while(itr.MoveNext())
             {
                 var kvp = itr.Current;
-                var itr2 = kvp.Value.GetEnumerator();
-                while(itr2.MoveNext())
+                _itrs.Clear();
+                for(var i = 0; i < _defaultActions.Count; i++)
                 {
-                    var action = itr2.Current;
-                    if(_defaultPriorityAction != null)
+                    var defAction = _defaultActions[i];
+                    if(defAction != null)
                     {
-                        _defaultPriorityAction(kvp.Key);
-                    }
-                    if(action != null)
-                    {
-                        _runner.StartCoroutine(RunCoroutine(action, runData));
+                        _itrs.Add(defAction(kvp.Key));
                     }
                 }
-                itr2.Dispose();
-                while(!runData.Ended)
+                _itrs.AddRange(kvp.Value);
+                while(_itrs.Count > 0)
+                {
+                    for(var i = _itrs.Count - 1; i >= 0; i--)
+                    {
+                        var itr3 = _itrs[i];
+                        if(!itr3.MoveNext())
+                        {
+                            _itrs.RemoveAt(i);
+                        }
+                    }
                     yield return null;
+                }
             }
             itr.Dispose();
-        }
-
-        static IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
-        {
-            data.AddCoroutine();
-            yield return corroutine();
-            data.RemoveCoroutine();
-        }
-    }
-
-    class CoroutineRunData
-    {
-        int _runningCoroutines;
-        bool _started;
-
-        public void AddCoroutine()
-        {
-            _runningCoroutines++;
-            if(!_started)
-                _started = true;
-        }
-
-        public void RemoveCoroutine()
-        {
-            DebugUtils.Assert(_runningCoroutines > 0, "trying to remove more coroutines than added");
-            _runningCoroutines--;
-        }
-
-        public bool Ended
-        {
-            get
-            {
-                return (_started && _runningCoroutines == 0);
-            }
         }
     }
 
     public sealed class PriorityCoroutineAction : PriorityCoroutineAction<int>
     {
-        public PriorityCoroutineAction(ICoroutineRunner runner) : base(runner)
+        public PriorityCoroutineAction(ICoroutineRunner runner = null) : base(runner)
         {
         }
 
