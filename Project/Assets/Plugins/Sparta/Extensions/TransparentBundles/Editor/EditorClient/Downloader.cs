@@ -153,7 +153,7 @@ namespace SocialPoint.TransparentBundles
                 if(bundle.Url[platform].Length > 0)
                 {
                     var request = UnityWebRequest.GetAssetBundle(bundle.Url[platform]);
-                    request.Send();
+                    request.SendWebRequest();
                     _requests.Add(request);
                 }
                 else

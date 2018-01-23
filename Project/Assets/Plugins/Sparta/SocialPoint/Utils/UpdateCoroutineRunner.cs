@@ -27,10 +27,13 @@ namespace SocialPoint.Utils
 
         readonly LinkedList<CoroutineNode> _listCoroutines;
 
-        public UpdateCoroutineRunner(IUpdateScheduler scheduler)
+        public UpdateCoroutineRunner(IUpdateScheduler scheduler = null)
         {
             _listCoroutines = new LinkedList<CoroutineNode>();
-            scheduler.Add(this);
+            if(scheduler != null)
+            {
+                scheduler.Add(this);
+            }
         }
 
         public IEnumerator StartCoroutine(IEnumerator enumerator)
