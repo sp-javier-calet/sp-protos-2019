@@ -22,7 +22,7 @@ namespace SocialPoint.TimeLinePlayables
             Tween
         }
             
-        public HowToAnimateType AnimPositionType = HowToAnimateType.UseAbsoluteValues;
+        public HowToAnimateType HowToAnimate = HowToAnimateType.UseAbsoluteValues;
         public AnimateType AnimationType = AnimateType.AnimationCurve;
         public EaseType EaseType = EaseType.Linear;
         public AnimationCurve AnimationCurve = defaultAnimationCurve;

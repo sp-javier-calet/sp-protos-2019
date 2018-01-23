@@ -4,7 +4,7 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [TrackColor(0f, 0f, 1f)]
+    [TrackColor(0f, 0.5f, 1f)]
     [TrackClipType(typeof(ScaleTweenPlayableClip))]
     [TrackBindingType(typeof(Transform))]
     public class ScaleTweenPlayableTrack : TrackAsset

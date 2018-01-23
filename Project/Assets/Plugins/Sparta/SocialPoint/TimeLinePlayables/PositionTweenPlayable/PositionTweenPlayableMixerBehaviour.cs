@@ -5,6 +5,13 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class PositionTweenPlayableMixerBehaviour : BaseTweenPlayableMixerBehaviour
     {
+        //float _defaultTimeScale = 1f;
+
+        //public override void OnGraphStart(Playable playable)
+        //{
+        //    _defaultTimeScale = Time.timeScale;
+        //}
+
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -30,17 +37,17 @@ namespace SocialPoint.TimeLinePlayables
             {
                 var playableInput = (ScriptPlayable<BaseTweenPlayableBehaviour>)playable.GetInput(i);
                 var playableBehaviour = (PositionTweenPlayableBehaviour)playableInput.GetBehaviour();
-
-                if(trackBinding.position == playableBehaviour.AnimateTo)
-                {
-                    continue;
-                }
+                 
+                //if(trackBinding.position == playableBehaviour.AnimateTo)
+                //{
+                //    continue;
+                //}
 
                 if(!_firstFrameHappened)
                 {
                     // We need to setup this in the first processed frame for each of the clips, because from the BaseTweenPlayableBehaviour 
                     // we have no access to the current selected Transform to animate...
-                    if(playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
+                    if(playableBehaviour.HowToAnimate == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
                     {
                         if(playableBehaviour.UseCurrentFromValue)
                         {

@@ -40,7 +40,7 @@ namespace SocialPoint.TimeLinePlayables
                 {
                     // We need to setup this in the first processed frame for each of the clips, because from the BaseTweenPlayableBehaviour 
                     // we have no access to the current selected Transform to animate...
-                    if(playableBehaviour.AnimPositionType == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
+                    if(playableBehaviour.HowToAnimate == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
                     {
                         if(playableBehaviour.UseCurrentFromValue)
                         {

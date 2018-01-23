@@ -17,7 +17,7 @@ namespace SocialPoint.TimeLinePlayables
         {
             base.OnGraphStart(playable);
 
-            if(AnimPositionType == HowToAnimateType.UseReferencedTransforms)
+            if(HowToAnimate == HowToAnimateType.UseReferencedTransforms)
             {
                 if(TransformFrom != null)
                 {
