@@ -7,8 +7,7 @@ using SocialPoint.Network;
 using SocialPoint.Utils;
 using UnityEngine;
 using System;
-using SocialPoint.Base;
-
+using UnityEngine.TestTools;
 
 namespace SocialPoint.Crash
 {
@@ -21,7 +20,7 @@ namespace SocialPoint.Crash
     /// </summary>
     class CrashReporterBaseTests
     {
-        
+
         BaseCrashReporter CrashReporterBase;
         IHttpClient HttpClient;
         GameObject GO;
@@ -58,7 +57,10 @@ namespace SocialPoint.Crash
         {
             CrashReporterBase.Enable();
             CrashReporterBase.TrackEvent = Substitute.For<BaseCrashReporter.TrackEventDelegate>();
+
+            LogAssert.ignoreFailingMessages = true;
             Debug.LogException(new System.Exception("test exception"));
+    
             CrashReporterBase.TrackEvent.ReceivedWithAnyArgs(1);
         }
 
@@ -80,7 +82,8 @@ namespace SocialPoint.Crash
             var exception = new Exception();
 
             bool trackEventReceived = false;
-            CrashReporterBase.TrackEvent = (name, data, handler) => {
+            CrashReporterBase.TrackEvent = (name, data, handler) =>
+            {
                 trackEventReceived = true;
                 var exceptionData = data.Get("error").AsDic.Get("unity_exception").AsDic;
                 Assert.AreEqual(1, exceptionData.GetValue("type").ToInt());
@@ -94,6 +97,5 @@ namespace SocialPoint.Crash
         {
             UnityEngine.Object.DestroyImmediate(GO);
         }
-
     }
 }

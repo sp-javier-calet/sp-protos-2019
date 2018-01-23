@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
             var networkMonoBehaviour = _view.GetComponent<NetworkMonoBehaviour>();
             if(networkMonoBehaviour == null)
             {
-                Log.w("NetworkMonoBehaviour is not added to '" + prefabName + "' prefab");
+                Log.w("NetworkMonoBehaviour component is not added to <color=magenta>'" + prefabName + "'</color> prefab");
                 networkMonoBehaviour = _view.AddComponent<NetworkMonoBehaviour>();
             }
             networkMonoBehaviour.Init(GameObject);

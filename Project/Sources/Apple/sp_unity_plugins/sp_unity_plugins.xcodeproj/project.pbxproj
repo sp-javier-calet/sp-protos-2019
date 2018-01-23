@@ -1747,11 +1747,11 @@
 		FE448F311C1EEAD800A10FEA /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				06D359B32008A08E00C8C223 /* SPUnityDefines.h */,
 				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
 				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 				FE5A76AA1DC7789700EB3DC6 /* sp_unity_websockets */,
+				06D359B32008A08E00C8C223 /* SPUnityDefines.h */,
 			);
 			name = Common;
 			path = ../../Common;
@@ -1969,7 +1969,6 @@
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
-				06D359B12008A07F00C8C223 /* SPUnityGameCenterFacade.h in Headers */,
 				46F7490D1C60AE77000DB6B1 /* PLCrashNamespace.h in Headers */,
 				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
 				46F7490F1C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h in Headers */,
@@ -1991,6 +1990,7 @@
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
 				FE49342B1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */,
 				7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */,
+				06D359B12008A07F00C8C223 /* SPUnityGameCenterFacade.h in Headers */,
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
 				7B1524351E5F3EA200B42780 /* SPUnitySubController.h in Headers */,
@@ -2350,7 +2350,6 @@
 			files = (
 				FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */,
 				FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */,
-				06D359B22008A07F00C8C223 /* SPUnityGameCenterFacade.mm in Sources */,
 				FE60722C1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
 				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
@@ -2365,6 +2364,7 @@
 				FE6072321DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
+				06D359B22008A07F00C8C223 /* SPUnityGameCenterFacade.mm in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
 				468F9DA01D9BE6B900EF4AE7 /* SPUnityNativeUtils.mm in Sources */,

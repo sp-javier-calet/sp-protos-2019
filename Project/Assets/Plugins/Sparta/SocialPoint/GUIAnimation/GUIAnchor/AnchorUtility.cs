@@ -28,6 +28,15 @@ namespace SocialPoint.GUIAnimation
             RemoveAnchors(trans, isRecursive);
         }
 
+        public static void UpdateAndSetAnchorsToUpdateOnEnable(Transform trans, bool isRecursive)
+        {
+            #if NGUI
+            UpdateNGUI(trans, isRecursive);
+            SetAnchorsToUpdateOnEnableNGUI(trans, isRecursive);
+            #else
+            #endif
+        }
+
         public static void SetToAnchoredPosition(Transform trans, Vector2 anchoredPosition)
         {
             #if NGUI
@@ -564,6 +573,34 @@ namespace SocialPoint.GUIAnimation
         {
             UIRect rect = trans.GetComponent<UIRect>();
             return rect.leftAnchor.target != null && rect.rightAnchor.target != null && rect.topAnchor.target != null && rect.bottomAnchor != null;
+        }
+
+        static void SetAnchorsToUpdateOnEnableNGUI(Transform trans, bool isRecursive)
+        {
+            if(isRecursive)
+            {
+                var rects = new List<UIRect>(trans.GetComponentsInChildren<UIRect>(true));
+                for(int i = 0; i < rects.Count; ++i)
+                {
+                    if(!rects[i].Anchored)
+                    {
+                        DoSetAnchorsToUpdateOnEnableNGUI(rects[i]);
+                    }
+                }
+            }
+            else
+            {
+                UIRect graphic = trans.GetComponent<UIRect>();
+                if(graphic != null)
+                {
+                    DoSetAnchorsToUpdateOnEnableNGUI(graphic);
+                }
+            }
+        }
+
+        static void DoSetAnchorsToUpdateOnEnableNGUI(UIRect graphic)
+        {
+            graphic.updateAnchors = UIRect.AnchorUpdate.OnEnable;
         }
 
         static void RemoveAnchorsNGUI(Transform trans, bool isRecursive)

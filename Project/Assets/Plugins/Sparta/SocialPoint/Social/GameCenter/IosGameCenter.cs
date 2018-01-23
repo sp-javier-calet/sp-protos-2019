@@ -43,6 +43,8 @@ namespace SocialPoint.Social
         List<GameCenterUser> _friends;
         HashSet<string> _achievementsUpdating;
 
+        bool _loadAchievements;
+
         public List<GameCenterUser> Friends
         {
             get
@@ -54,7 +56,7 @@ namespace SocialPoint.Social
         public event Action StateChangeEvent;
 
         void NotifyStateChanged()
-        {
+        { 
             if(StateChangeEvent != null)
             {
                 StateChangeEvent();
@@ -64,12 +66,12 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
             _connecting = false;
-
+            
             if(!Error.IsNullOrEmpty(err))
             {
-#if !UNITY_EDITOR
+                #if !UNITY_EDITOR
                 Log.e("Game Center login ended in error: " + err);
-#endif
+                #endif
             }
             else
             {
@@ -192,16 +194,17 @@ namespace SocialPoint.Social
             }));
         }
 
-        public IosGameCenter(bool showAchievements = true)
+        public IosGameCenter(bool showAchievements = true, bool loadAchievements = false)
         {
             if(Application.platform != RuntimePlatform.IPhonePlayer)
-            {
+        {
                 throw new InvalidOperationException("This class works only on the iOS platform.");
             }
             _friends = new List<GameCenterUser>();
             _achievementsUpdating = new HashSet<string>();
             _user = new GameCenterUser();
             _platform = new GameCenterPlatform();
+            _loadAchievements = loadAchievements;
             GameCenterPlatform.ShowDefaultAchievementCompletionBanner(showAchievements);
         }
 
@@ -258,7 +261,14 @@ namespace SocialPoint.Social
                                 }
                                 else
                                 {
+                                    if(_loadAchievements)
+                                    {
                                     DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
+                                }
+                                    else
+                                    {
+                                        OnLoginEnd(null, cbk);
+                                    }
                                 }
                             });
                         }
@@ -298,6 +308,12 @@ namespace SocialPoint.Social
 
         public void ResetAchievements(ErrorDelegate cbk = null)
         {
+            if(!_loadAchievements)
+            {
+                Log.w("[ResetAchievements] Achievements can't reset because they are not loaded");
+                return;
+            }
+            
             if(!IsConnected)
             {
                 if(cbk != null)
@@ -452,12 +468,12 @@ namespace SocialPoint.Social
                         err = new Error(string.Format("User with id {0} does not have an image.", userId));
                     }
                 }
-
+                
                 if(cbk != null)
                 {
                     cbk(tmpFilePath, err);
                 }
-
+                
             });
         }
 
@@ -481,7 +497,7 @@ namespace SocialPoint.Social
                     cbk(new Error("User verification generation is already in process."));
                 }
                 return;
-            }
+    }
             _verificationCallback = (uv, err) =>
             {
                 Verification = uv;

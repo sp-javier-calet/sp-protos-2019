@@ -91,16 +91,17 @@ namespace SocialPoint.Lockstep
         public const int DefaultLocalSimulationDelay = 1000;
         public const int DefaultMaxSimulationStepsPerFrame = 0;
         public const float DefaultSpeedFactor = 1.0f;
-        public const bool DefaultRecoverGracefully = true;
-        public const float DefaultGracefulTurnReceptionDurationFactor = 1.1f;
         public const int DefaultTurnReceptionDurationAverageSize = 10;
+        public const bool DefaultUseRealTime = true;
 
         public int LocalSimulationDelay = DefaultLocalSimulationDelay;
         public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
         public float SpeedFactor = DefaultSpeedFactor;
-        public bool RecoverGracefully = DefaultRecoverGracefully;
-        public float GracefulTurnReceptionDurationFactor = DefaultGracefulTurnReceptionDurationFactor;
         public int TurnReceptionDurationAverageSize = DefaultTurnReceptionDurationAverageSize;
+
+        // should be true for networked clients
+        // if not they could get behind if updates are not being called
+        public bool RealTimeUpdate = DefaultUseRealTime;
 
         public override string ToString()
         {
@@ -108,19 +109,15 @@ namespace SocialPoint.Lockstep
             "LocalSimulationDelay:{0}\n" +
             "MaxSimulationStepsPerFrame:{1}\n" +
             "SpeedFactor:{2}\n" +
-            "RecoverGracefully:{3}\n" +
-            "GracefulTurnReceptionDurationFactor:{4}\n" +
-            "TurnReceptionDurationAverageSize:{5}]",
+            "TurnReceptionDurationAverageSize:{3}]",
                 LocalSimulationDelay,
                 MaxSimulationStepsPerFrame,
                 SpeedFactor,
-                RecoverGracefully,
-                GracefulTurnReceptionDurationFactor,
                 TurnReceptionDurationAverageSize);
         }
     }
 
-    public class LockstepClient : IUpdateable, IDisposable
+    public class LockstepClient : IDeltaUpdateable<int>, IDisposable
     {
         enum State
         {
@@ -143,14 +140,12 @@ namespace SocialPoint.Lockstep
 
         IUpdateScheduler _updateScheduler;
 
-        long _timestamp;
         int _time;
         int _lastSimTime;
         int _lastCmdTime;
         int _lastConfirmedTurnNumber;
         int _lastConfirmedTurnTime;
         bool _simStartedCalled;
-        bool _simRecoveredCalled;
         State _state;
         XRandom _rootRandom;
 
@@ -175,11 +170,10 @@ namespace SocialPoint.Lockstep
         public event Action<ClientCommandData> CommandAdded;
         public event Action<ClientTurnData, int> TurnApplied;
         public event Action SimulationStarted;
-        public event Action SimulationRecovered;
-        public event Action ConnectionChanged;
+        public event Action StateChanged;
         public event Action<int> Simulate;
         public event Action<Error, ClientCommandData> CommandFailed;
-        public event Action<bool> LockstepClientStarts;
+        public event Action<bool> StartScheduled;
 
         public bool Connected
         {
@@ -243,7 +237,7 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _time / Config.SimulationStepDuration;
+                return _lastSimTime / Config.SimulationStepDuration;
             }
         }
 
@@ -264,7 +258,7 @@ namespace SocialPoint.Lockstep
                     }
                     else if(Running)
                     {
-                        _updateScheduler.Add(this);
+                        AddToUpdateScheduler();
                     }
                 }
             }
@@ -292,26 +286,6 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public bool WillRecoverGracefully
-        {
-            get
-            {
-                var cmdt = _lastConfirmedTurnNumber * Config.CommandStepDuration;
-                if(cmdt < _time)
-                {
-                    // not enough turns to arrive to current time
-                    return false;
-                }
-                var f = 1.0f * TurnReceptionDuration / Config.CommandStepDuration;
-                if(f > ClientConfig.GracefulTurnReceptionDurationFactor)
-                {
-                    // turn reception duration is not similar enough to the optimum
-                    return false;
-                }
-                return true;
-            }
-        }
-
         public LockstepClient(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -322,27 +296,31 @@ namespace SocialPoint.Lockstep
             Stop();
         }
 
-        [Obsolete("Use the Config setter")]
-        public void Init(LockstepConfig config)
-        {
-            Config = config;
-        }
-
         public void Start(int startTime = 0)
         {
             Running = true;
             _time = startTime;
-            _simRecoveredCalled = false;
             _state = _time > 0 ? State.Recovering : State.Normal;
-            if(LockstepClientStarts != null)
-            { 
-                LockstepClientStarts(_state == State.Recovering);
+
+            if(StateChanged != null)
+            {
+                StateChanged();
             }
-            _timestamp = TimeUtils.TimestampMilliseconds;
+
+            if(StartScheduled != null)
+            { 
+                StartScheduled(_state == State.Recovering);
+            }
             if(!_externalUpdate && _updateScheduler != null)
             {
-                _updateScheduler.Add(this);
+                AddToUpdateScheduler();
             }
+        }
+
+        void AddToUpdateScheduler()
+        {
+            var mode = ClientConfig.RealTimeUpdate ? UpdateableTimeIntMode.RealTime : UpdateableTimeIntMode.GameTimeUnscaled;
+            _updateScheduler.Add(this, mode);
         }
 
         public void Stop()
@@ -355,7 +333,6 @@ namespace SocialPoint.Lockstep
             _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
-            _commandLogics.Clear();
             _lastConfirmedTurnNumber = 0;
             _lastConfirmedTurnTime = 0;
             _turnReceptionDurations.Clear();
@@ -363,6 +340,13 @@ namespace SocialPoint.Lockstep
             {
                 _updateScheduler.Remove(this);
             }
+        }
+
+        public void Finish()
+        {
+            _state = State.Recovering;
+            Update(0);
+            Stop();
         }
 
         public void RegisterCommandLogic<T>(Action apply) where T:  ILockstepCommand
@@ -543,13 +527,6 @@ namespace SocialPoint.Lockstep
             return !hadIssuesProcessingTurnData;
         }
 
-        public void Update()
-        {
-            var timestamp = TimeUtils.TimestampMilliseconds;
-            Update((int)(timestamp - _timestamp));
-            _timestamp = timestamp;
-        }
-
         public void Update(int dt)
         {
             if(!Running || dt < 0)
@@ -567,20 +544,12 @@ namespace SocialPoint.Lockstep
                     SimulationStarted();
                 }
             }
-            if(ClientConfig.RecoverGracefully && !Connected && !WillRecoverGracefully)
+            if(Config.SimulationStepDuration == 0 || Config.CommandStepDuration == 0)
             {
-                return;
+                throw new InvalidOperationException("Step duration cannot be 0.");
             }
-            var wasConnected = Connected;
+            var oldState = _state;
             _state = State.Normal;
-            if(!_simRecoveredCalled && _time >= 0 && _state == State.Normal)
-            {
-                _simRecoveredCalled = true;
-                if(SimulationRecovered != null)
-                {
-                    SimulationRecovered();
-                }
-            }
             var simSteps = 0;
             while(Running)
             {
@@ -598,6 +567,10 @@ namespace SocialPoint.Lockstep
                     if(ClientConfig.MaxSimulationStepsPerFrame > 0 && simSteps > ClientConfig.MaxSimulationStepsPerFrame)
                     {
                         _state = State.Recovering;
+                        if(StateChanged != null)
+                        {
+                            StateChanged();
+                        }
                         break;
                     }
                 }
@@ -651,17 +624,11 @@ namespace SocialPoint.Lockstep
             if(_state == State.Waiting)
             {
                 DisconnectTime += dt;
+                Disconnects++;
             }
-            if(wasConnected != Connected)
+            if(oldState != _state && StateChanged != null)
             {
-                if(_state == State.Waiting)
-                {
-                    Disconnects++;
-                }
-                if(ConnectionChanged != null)
-                {
-                    ConnectionChanged();
-                }
+                StateChanged();
             }
         }
 

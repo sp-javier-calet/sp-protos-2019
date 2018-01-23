@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
@@ -13,6 +13,13 @@ namespace SocialPoint.Utils
             HOUR,
             MIN,
             SEC
+        }
+
+        public enum RoundingMode
+        {
+            CEIL,
+            ROUND,
+            FLOOR
         }
 
         public static string DayLocalized = string.Empty;
@@ -171,75 +178,69 @@ namespace SocialPoint.Utils
         //This system allows to configure the output time so it can return "1 d 1 h", "1 day 20 min", "2 hours 10 min 3 sec"...
         //The tids needs have to be set in advance
 
-        public static string GetLocalizedTimeWithTypes(long timeFromServer, List<List<TimeType>> typeTimeFormatList)
+        public static string GetLocalizedTimeWithTypes(TimeSpan ts, TimeType[] typesTimeFormat, int maxTypesToShow = 0, RoundingMode roundingMode = RoundingMode.FLOOR)
         {
-            var ts = TimeSpan.FromSeconds(timeFromServer);
-
-            for(int i = 0; i < typeTimeFormatList.Count; i++)
+            if(maxTypesToShow <= 0)
             {
-                if(ValidateLocalizeTime(ts, typeTimeFormatList[i][0]))
-                {
-                    return GetLocalizeTime(ts, typeTimeFormatList[i]);
-                }
+                maxTypesToShow = Int32.MaxValue;
             }
 
-            List<TimeType> secondsType = new List<TimeType>();
-            secondsType.Add(TimeType.SEC);
-            return GetLocalizeTime(ts, secondsType);
-        }
+            var numTypesShown = 0;
 
-        static bool ValidateLocalizeTime(TimeSpan ts, TimeType typeTimeFormat)
-        {
-            bool validated = true;
-            switch(typeTimeFormat)
-            {
-            case TimeType.DAY:
-                validated = ts.Days > 0;
-                break;
-            case TimeType.HOUR:
-                validated = ts.Hours > 0;
-                break;
-            case TimeType.MIN:
-                validated = ts.Minutes > 0;
-            break;
-            default:
-            break;
-            }
-            return validated;
-        }
-
-        static string GetLocalizeTime(TimeSpan ts, List<TimeType> typeTimeFormat)
-        {
             var sb = StringUtils.StartBuilder();
-
-            for(int i = 0; i < typeTimeFormat.Count; i++)
+            for(int i = 0; i < typesTimeFormat.Length; i++)
             {
-                switch(typeTimeFormat[i])
+                var roundedTime = ts;
+                bool isLastType = i == typesTimeFormat.Length - 1;
+                if(isLastType)
+                {
+                    roundedTime = GetRoundingCorrection(ts, typesTimeFormat[i], roundingMode);
+                }
+
+                switch(typesTimeFormat[i])
                 {
                 case TimeType.DAY:
-                    sb.Append((ts.Days).ToString());
-                    sb.Append(" ");
-                    sb.Append((ts.Days > 1) ? DaysLocalized : DayLocalized);
+                    if(roundedTime.Days == 0 && numTypesShown == 0 && !isLastType)
+                    {
+                        continue;
+                    }
+                    sb.Append(roundedTime.Days + " ");
+                    sb.Append((roundedTime.Days == 1) ? DayLocalized : DaysLocalized);
+                    numTypesShown++;
                     break;
                 case TimeType.HOUR:
-                    sb.Append((ts.Hours).ToString());
-                    sb.Append(" ");
-                    sb.Append(HourLocalized);
+                    if(roundedTime.Hours == 0 && numTypesShown == 0 && !isLastType)
+                    {
+                        continue;
+                    }
+                    sb.Append(roundedTime.Hours + " " + HourLocalized);
+                    numTypesShown++;
                     break;
                 case TimeType.MIN:
-                    sb.Append((ts.Minutes).ToString());
-                    sb.Append(" ");
-                    sb.Append(MinLocalized);
+                    if(roundedTime.Minutes == 0 && numTypesShown == 0 && !isLastType)
+                    {
+                        continue;
+                    }
+                    sb.Append(roundedTime.Minutes + " " + MinLocalized);
+                    numTypesShown++;
                     break;
                 default:
-                    sb.Append(ts.Seconds.ToString());
-                    sb.Append(" ");
-                    sb.Append(SecLocalized);
+                    if(roundedTime.Seconds == 0 && numTypesShown == 0 && !isLastType)
+                    {
+                        continue;
+                    }
+                    sb.Append(roundedTime.Seconds + " " + SecLocalized);
+                    numTypesShown++;
+                    break;
+                }
+
+                if(numTypesShown >= maxTypesToShow)
+                {
                     break;
                 }
 
                 //We will add a space between unit times if there are more in the type list
-                if(typeTimeFormat.Count - 1 > i)
+                if(!isLastType)
                 {
                     sb.Append(" ");
                 }
@@ -247,6 +248,37 @@ namespace SocialPoint.Utils
 
             return sb.ToString();
         }
+
+        static TimeSpan GetRoundingCorrection(TimeSpan ts, TimeType timeType, RoundingMode roundingMode)
+        {
+            switch(timeType)
+            {
+            case TimeType.DAY:
+                return TimeSpan.FromDays(Round(ts.TotalDays, roundingMode));
+            case TimeType.HOUR:
+                return TimeSpan.FromHours(Round(ts.TotalHours, roundingMode));
+            case TimeType.MIN:
+                return TimeSpan.FromMinutes(Round(ts.TotalMinutes, roundingMode));
+            case TimeType.SEC:
+                return TimeSpan.FromSeconds(Round(ts.TotalSeconds, roundingMode));
+            }
+            return TimeSpan.Zero;
+        }
+
+        static double Round(double value, RoundingMode mode)
+        {
+            switch(mode)
+            {
+            case RoundingMode.FLOOR:
+                return Math.Floor(value);
+            case RoundingMode.ROUND:
+                return Math.Round(value);
+            case RoundingMode.CEIL:
+                return Math.Ceiling(value);
+            }
+            return value;
+        }
+
 
         #endregion
 

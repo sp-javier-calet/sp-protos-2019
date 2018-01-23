@@ -268,7 +268,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveMethodTest()
-        {       
+        {
             var container = new DependencyContainer();
             const int value = 10;
             container.Bind<TestStruct>().ToMethod<TestStruct>(
@@ -296,7 +296,9 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveLookupTest()
-        {       
+        {
+            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+
             var container = new DependencyContainer();
             const int value = 10;
             var instance = new TestStruct();

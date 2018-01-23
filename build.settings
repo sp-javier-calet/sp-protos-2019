@@ -14,7 +14,7 @@ SP_BRANCH = $GIT_BRANCH
 
 # One of Unity or Native
 SP_BUILDER = Unity
-SP_UNITY_VERSION = 5.5.3p2
+SP_UNITY_VERSION = 2017.2.1p2
 SP_UNITY_EXEC = /Applications/Unity-$SP_UNITY_VERSION/Unity.app/Contents/MacOS/Unity
 SP_UNITY_AUTOBUILDER_PATH = Project/Assets/Plugins/Sparta/EditorTools/Editor/Build/AutoBuilder.cs
 
@@ -69,7 +69,7 @@ SP_DEFAULT_ENVIRONMENT =
 
 # One of the different versions of the Android NDK.
 # NOTE: It is only appended to the value contained in the exported SP_ANDROID_NDK_HOME var. in order finding a valid Android NDK installation dir.
-SP_ANDROID_NDK_VERSION = r10e
+SP_ANDROID_NDK_VERSION = r13b
 
 SP_PROCESS_SYMBOLS = True
 
