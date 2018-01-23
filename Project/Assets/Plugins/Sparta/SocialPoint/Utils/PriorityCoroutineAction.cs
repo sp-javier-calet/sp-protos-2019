@@ -5,12 +5,11 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
-    public class PriorityCoroutineAction<T> : PriorityQueue<T, IEnumerator>
+    public class PriorityCoroutineAction<T> : PriorityQueue<T, Func<IEnumerator>>
     {
         ICoroutineRunner _runner;
         List<Func<T, IEnumerator>> _defaultActions = new List<Func<T, IEnumerator>>();
         List<IEnumerator> _itrs = new List<IEnumerator>();
-        Dictionary<Func<IEnumerator>, IEnumerator> _funcs = new Dictionary<Func<IEnumerator>, IEnumerator>();
 
         public PriorityCoroutineAction(ICoroutineRunner runner = null) : base()
         {
@@ -25,24 +24,6 @@ namespace SocialPoint.Utils
         public override object Clone()
         {
             return new PriorityCoroutineAction<T>(this);
-        }
-
-        public void Add(T prio, Func<IEnumerator> action)
-        {
-            var itr = action();
-            _funcs[action] = itr;
-            Add(prio, itr);
-        }
-
-        public bool Remove(Func<IEnumerator> action)
-        {
-            IEnumerator itr;
-            if(_funcs.TryGetValue(action, out itr))
-            {
-                _funcs.Remove(action);
-                return Remove(itr);
-            }
-            return false;
         }
 
         public void Add(Func<T, IEnumerator> action)
@@ -75,15 +56,23 @@ namespace SocialPoint.Utils
             {
                 var kvp = itr.Current;
                 _itrs.Clear();
-                for(var i = 0; i < _defaultActions.Count; i++)
+                var itr2 = kvp.Value.GetEnumerator();
+                while(itr2.MoveNext())
                 {
-                    var defAction = _defaultActions[i];
-                    if(defAction != null)
+                    var action = itr2.Current;
+                    if (action != null)
                     {
-                        _itrs.Add(defAction(kvp.Key));
+                        _itrs.Add(action());
                     }
                 }
-                _itrs.AddRange(kvp.Value);
+                for(var i = 0; i < _defaultActions.Count; i++)
+                {
+                    var action = _defaultActions[i];
+                    if(action != null)
+                    {
+                        _itrs.Add(action(kvp.Key));
+                    }
+                }
                 while(_itrs.Count > 0)
                 {
                     for(var i = _itrs.Count - 1; i >= 0; i--)
