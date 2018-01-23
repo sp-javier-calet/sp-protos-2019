@@ -54,7 +54,6 @@ namespace SocialPoint.Helpshift
             // Initialize Helpshift sdk
             _helpshift = HelpshiftSdk.getInstance();
 
-
 #if UNITY_ANDROID
             // Install is only called from c# in Android.
             // For iOS, the config is deployed directly in a json file in the bundle to be read from native code
@@ -62,9 +61,9 @@ namespace SocialPoint.Helpshift
 #endif
         }
 
-        public void AddFlows(AttrDic flows)
+        public void AddFlows(Dictionary<string, object>[] flows)
         {
-            Log.e("UnityHelpshift", "Not implemented!!");
+            _configMap.Add(HelpshiftSdk.HsCustomContactUsFlows, flows);
         }
 
         void CreateConfigMap()
@@ -148,10 +147,9 @@ namespace SocialPoint.Helpshift
                 return;
             }
 
-
-#if UNITY_ANDROID
+            #if UNITY_ANDROID
             _helpshift.registerDelegates();
-#endif
+            #endif
 
             if(validToken)
             {
@@ -159,8 +157,7 @@ namespace SocialPoint.Helpshift
             }
         }
 
-
-#region IHelpshift implementation
+        #region IHelpshift implementation
 
         public HelpshiftConfiguration Configuration
         {
@@ -224,6 +221,11 @@ namespace SocialPoint.Helpshift
             }
  
             UpdateLanguage();
+            
+            if(_userData != null)
+            {
+                _helpshift.setUserIdentifier(_userData.UserId);
+            }
 
             if(!string.IsNullOrEmpty(sectionId))
             {
@@ -240,6 +242,11 @@ namespace SocialPoint.Helpshift
             if(_helpshift == null)
             {
                 return;
+            }
+            
+            if(_userData != null)
+            {
+                _helpshift.setUserIdentifier(_userData.UserId);
             }
 
             UpdateLanguage();
@@ -270,11 +277,9 @@ namespace SocialPoint.Helpshift
             }
         }
 
-
-#endregion
+        #endregion
     }
 }
-
 
 #else
 

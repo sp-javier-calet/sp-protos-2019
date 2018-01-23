@@ -35,9 +35,10 @@ namespace SocialPoint.GUIControl
         public UIViewAnimation DisappearAnimation;
 
         bool _loaded;
-        ViewState _viewState = ViewState.Initial;
+        CanvasGroup _canvasGroup;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
+        ViewState _viewState = ViewState.Initial;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -108,11 +109,16 @@ namespace SocialPoint.GUIControl
         {
             set
             {
-                var group = gameObject.GetComponent<CanvasGroup>();
-                if(group != null)
+                if(_canvasGroup == null)
                 {
-                    group.alpha = value;
+                    _canvasGroup = gameObject.GetComponent<CanvasGroup>();
                 }
+
+                if(_canvasGroup != null)
+                {
+                    _canvasGroup.alpha = value;
+                }
+
                 for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
                     var mat = Materials3d[i];
@@ -122,11 +128,15 @@ namespace SocialPoint.GUIControl
 
             get
             {
-                var group = gameObject.GetComponent<CanvasGroup>();
-                var alpha = 0.0f;
-                if(group != null)
+                if(_canvasGroup == null)
                 {
-                    alpha = group.alpha;
+                    _canvasGroup = gameObject.GetComponent<CanvasGroup>();
+                }
+
+                var alpha = 0.0f;
+                if(_canvasGroup != null)
+                {
+                    alpha = _canvasGroup.alpha;
                 }
                 for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
@@ -157,7 +167,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i = 0; i < canvases.Count; i++)
+                for(var i=0; i<canvases.Count; i++)
                 {
                     var itr = canvases[i].transform.GetEnumerator();
                     while(itr.MoveNext())
@@ -229,7 +239,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i = 0; i < canvases.Count; i++)
+                for(var i=0; i<canvases.Count; i++)
                 {
                     var canvas = canvases[i];
                     var scale = UILayersController.GetCanvasScale(canvas);
@@ -355,7 +365,6 @@ namespace SocialPoint.GUIControl
                 _containers3d.Add(gameObject);
 
                 var container = gameObject.GetComponent<UI3DContainer>() ?? gameObject.AddComponent<UI3DContainer>();
-
                 container.OnDestroyed += On3dContainerDestroyed;
 
                 LayersController.Add3DContainer(this, gameObject);
@@ -399,7 +408,7 @@ namespace SocialPoint.GUIControl
         public void SetupDisappearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
             DisappearAnimation = GetAnimation(DisappearAnimationFactory, defaultAnimationFactory, defaultAnimation);
-        }
+            }
 
         UIViewAnimation GetAnimation(UIViewAnimationFactory viewAnimationFactory, UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
         {
@@ -439,7 +448,7 @@ namespace SocialPoint.GUIControl
 
             OnAwake();
         }
-
+            
         [Obsolete("Use Reset instead")]
         public void ResetState()
         {
@@ -455,7 +464,6 @@ namespace SocialPoint.GUIControl
         {
             if(_loaded)
             {
-                HideImmediate();
             }
             else
             {
@@ -489,7 +497,7 @@ namespace SocialPoint.GUIControl
 
             Setup();
         }
-            
+
         void Setup()
         {
             if(ParentController == null)
@@ -513,10 +521,10 @@ namespace SocialPoint.GUIControl
                 return null;
             }
 
-            GameObject parent = transform.parent.gameObject;
+            Transform parent = transform.parent;
             while(parent != null)
             {
-                var ctrl = parent.GetComponent(typeof(UIViewController)) as UIViewController;
+                var ctrl = parent.GetComponent<UIViewController>();
                 if(ctrl != null)
                 {
                     return ctrl;
@@ -525,7 +533,8 @@ namespace SocialPoint.GUIControl
                 {
                     break;
                 }
-                parent = parent.transform.parent.gameObject;
+
+                parent = parent.transform.parent;
             }
             return null;
         }
@@ -605,7 +614,6 @@ namespace SocialPoint.GUIControl
         public void HideImmediate(bool destroy = false)
         {
             DebugLog("HideImmediate");
-            Load();
             if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappearing();
@@ -621,7 +629,6 @@ namespace SocialPoint.GUIControl
         public bool Hide()
         {
             DebugLog("Hide");
-            Load();
             var enm = DoHideCoroutine();
             if(enm != null)
             {
@@ -634,7 +641,6 @@ namespace SocialPoint.GUIControl
         public IEnumerator HideCoroutine()
         {
             DebugLog("HideCoroutine");
-            Load();
             yield return StartHideCoroutine(DoHideCoroutine());
         }
 
@@ -736,7 +742,7 @@ namespace SocialPoint.GUIControl
                 NotifyViewEvent();
             }
         }
-
+            
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -807,7 +813,7 @@ namespace SocialPoint.GUIControl
             }
             return go;
         }
-            
+
         virtual public bool OnBeforeClose()
         {
             return IsStable; 
@@ -815,7 +821,7 @@ namespace SocialPoint.GUIControl
 
         #region public UI button methods
 
-        public void Close()
+        public virtual void Close()
         {
             Hide();
         }

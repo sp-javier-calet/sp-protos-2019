@@ -222,13 +222,20 @@ namespace SocialPoint.Network
             var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ConnectionProtocol.Tcp && !info.Unreliable;
             if(info.ClientIds != null && info.ClientIds.Count > 0)
             {
-                var player = GetPlayer(info.ClientIds[0]);
-                if(player == null)
+                int max = info.ClientIds.Count;
+                options.TargetActors = new int[max];
+                for(int i = 0; i < max; ++i)
                 {
-                    return;
+                    var player = GetPlayer(info.ClientIds[i]);
+                    if(player == null)
+                    {
+                        options.TargetActors[i] = 0;
+                        return;
+                    }
+
+                    options.TargetActors[i] = player.ID;
                 }
 
-                options.TargetActors = new int[]{ player.ID };
                 PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
             }
             else

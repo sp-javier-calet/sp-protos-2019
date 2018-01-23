@@ -1,4 +1,5 @@
-﻿namespace SocialPoint.Utils.Obfuscation
+﻿
+namespace SocialPoint.Utils.Obfuscation
 {
     public abstract class Obfuscated
     {
@@ -15,8 +16,7 @@
 
     public abstract class Obfuscated<T> : Obfuscated
     {
-        
-        private ulong _obfuscatedValue;
+        ulong _obfuscatedValue;
 
         public ulong ObfuscatedValue
         {
@@ -39,7 +39,7 @@
             return obfustated.Value;
         }
 
-        public Obfuscated(T value = default(T))
+        protected Obfuscated(T value = default(T))
         {
             Set(value);
         }

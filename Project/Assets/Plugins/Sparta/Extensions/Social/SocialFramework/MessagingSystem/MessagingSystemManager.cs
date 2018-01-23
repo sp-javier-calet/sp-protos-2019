@@ -126,6 +126,12 @@ namespace SocialPoint.Social
             return _listMessages.AsReadOnly();
         }
 
+        public Message GetMessageFromID(string id)
+        {
+            return _listMessages.Find(message => message.Id == id);
+
+        }
+
         public WAMPRequest SendMessage(string destinationType, AttrDic destinationData, IMessagePayload payload, FinishCallback callback)
         {
             var paramsDic = new AttrDic();

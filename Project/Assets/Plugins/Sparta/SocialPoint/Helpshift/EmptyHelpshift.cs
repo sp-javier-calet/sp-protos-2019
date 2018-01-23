@@ -55,7 +55,7 @@ namespace SocialPoint.Helpshift
             
         }
 
-        public void AddFlows(AttrDic flows)
+        public void AddFlows(Dictionary<string, object>[] flows)
         {
 
         }

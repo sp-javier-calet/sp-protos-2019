@@ -81,7 +81,7 @@ namespace SocialPoint.Locale
             IAttrStorage storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
             #if NGUI
-                LocalizationManager localizationManager = new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
+            LocalizationManager localizationManager = new LocalizationManager(storage, Settings.Localization.CsvMode, csvLoadedDelegate);
             #else
                 LocalizationManager localizationManager = new LocalizationManager(storage);
             #endif
@@ -121,7 +121,6 @@ namespace SocialPoint.Locale
             mng.BundleDir = Settings.Localization.BundleDir;
             mng.SupportedLanguages = Settings.Localization.SupportedLanguages;
             mng.Localization.ShowKeysOnDevMode = Settings.Localization.ShowKeysOnDevMode;
-            mng.UpdateDefaultLanguage();
         }
     }
 }

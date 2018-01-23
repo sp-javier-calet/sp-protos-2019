@@ -13,7 +13,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Tech: 0
+    Tech: 3
+    Local:
+      Client:
+        EmissionDelay:
+          Average: 0
+          Variance: 0
+        ReceptionDelay:
+          Average: 0
+          Variance: 0
+      Server:
+        EmissionDelay:
+          Average: 0
+          Variance: 0
+        ReceptionDelay:
+          Average: 0
+          Variance: 0
     Unet:
       Config:
         ServerAddress: localhost
@@ -38,10 +53,18 @@ MonoBehaviour:
           EmptyRoomTtl: 0
           CleanupCache: 1
           PublishUserId: 0
-          CustomProperties: []
           CustomLobbyProperties: []
           Plugins: []
+          ForcedPlugins: []
         ForceRegion: 4
         ForceAppId: 
         ForceServer: 
         Protocol: 0
+        TroubleshootingConfig:
+          MaxReconnectAttempts: 6
+          ReconnectInterval: 3
+          ReconnectMidGameEnabled: 1
+    TcpSocket:
+      Config:
+        ServerAddress: 127.0.0.1
+        ServerPort: 8888

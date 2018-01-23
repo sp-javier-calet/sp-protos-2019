@@ -8,9 +8,12 @@ using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
+#if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+#endif
 using SocialPoint.Attributes;
 using SocialPoint.Hardware;
+
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
@@ -34,6 +37,8 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
     GameObject _root;
     UIStackController _stackController;
+    UITooltipController _uiTooltipController;
+    IDeviceInfo _iDeviceInfo;
     IAppEvents _appEvents;
 
     #region IInitializable implementation
@@ -41,15 +46,20 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     public void Initialize()
     {
         _appEvents = Container.Resolve<IAppEvents>();
-
         if(_stackController != null)
         {
             _stackController.AppEvents = _appEvents;
         }
-            
-        #if ADMIN_PANEL
+
+        _iDeviceInfo = Container.Resolve<IDeviceInfo>();
+        if(_uiTooltipController != null)
+        {
+            _uiTooltipController.IDeviceInfo = _iDeviceInfo;
+        }
+              
+#if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-        #endif
+#endif
     }
 
     #endregion
@@ -74,11 +84,11 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
             
-        var uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
-        if(uiTooltipController != null)
+        _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
+        if(_uiTooltipController != null)
         {
-            uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
-            Container.Rebind<UITooltipController>().ToInstance(uiTooltipController);
+            _uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+            Container.Rebind<UITooltipController>().ToInstance(_uiTooltipController);
         }
 
         var layers = _root.GetComponentInChildren<UILayersController>();
@@ -97,15 +107,14 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
         
-    #if ADMIN_PANEL
+#if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
         var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
-        var iDeviceInfo = Container.Resolve<IDeviceInfo>();
 
-        return new AdminPanelUI(iDeviceInfo, storage);
+        return new AdminPanelUI(_iDeviceInfo, storage);
     }
-    #endif
+#endif
 
     void ShowCloseAppAlertView()
     {
@@ -138,7 +147,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         }
     }
 
-    GameObject CreateRoot()
+    static GameObject CreateRoot()
     {
         var root = Resources.Load<GameObject>(kGUIRootPrefab);
         if(root == null)
@@ -153,7 +162,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         return root;
     }
 
-    string GetControllerFactoryPrefabName(Type type)
+    static string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
         name = name.Replace(kUIViewUnitySuffix, string.Empty);

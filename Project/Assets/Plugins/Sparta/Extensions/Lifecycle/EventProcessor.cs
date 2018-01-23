@@ -95,7 +95,7 @@ namespace SocialPoint.Lifecycle
                     }
                 }
                 itr.Dispose();
-                SocialPoint.Utils.AggregateException.Trigger(exceptions);
+                CompoundException.Trigger(exceptions);
                 return success;
             }
         }
@@ -182,7 +182,7 @@ namespace SocialPoint.Lifecycle
                     }
                 }
                 itr.Dispose();
-                SocialPoint.Utils.AggregateException.Trigger(exceptions);
+                CompoundException.Trigger(exceptions);
                 return true;
             }
         }

@@ -10,7 +10,6 @@ using SocialPoint.Base;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Dependency;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Locale
@@ -49,7 +48,7 @@ namespace SocialPoint.Locale
 
             public string ProjectId = DefaultProjectId;
 
-            public List<SocialPoint.Locale.LocaleInstaller.EnvironmentData> EnvironmentsData = new List<SocialPoint.Locale.LocaleInstaller.EnvironmentData>();
+            public List<LocaleInstaller.EnvironmentData> EnvironmentsData = new List<LocaleInstaller.EnvironmentData>();
 
             public string Platform = DefaultPlatform;
 
@@ -124,6 +123,7 @@ namespace SocialPoint.Locale
         public float Timeout = DefaultTimeout;
 
         public event Action<Dictionary<string, Localization>> Loaded;
+        public event Action LoadFailed;
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -181,6 +181,8 @@ namespace SocialPoint.Locale
                     var lang = _supportedLanguages[i];
                     _supportedFixedLanguages.Add(FixLanguage(lang));
                 }
+
+                UpdateDefaultLanguage();
             }
         }
 
@@ -237,6 +239,7 @@ namespace SocialPoint.Locale
             {
                 var oldLang = _currentLanguage;
                 _currentLanguage = GetSupportedLanguage(value);
+
                 if(oldLang != _currentLanguage)
                 {
                     SaveSelectedLanguage(_currentLanguage);
@@ -299,9 +302,9 @@ namespace SocialPoint.Locale
         IAttrStorage _storage;
 
         [Obsolete("Only used by NGUI to setup CSV files")]
-        public LocalizationManager(CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
+        public LocalizationManager(IAttrStorage storage, CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
         {
-            Initialize(null, csvMode, csvLoaded);
+            Initialize(storage, csvMode, csvLoaded);
         }
 
         public LocalizationManager(IAttrStorage storage)
@@ -343,6 +346,7 @@ namespace SocialPoint.Locale
                 if(language != null)
                 {
                     languageStr = language.AsValue.ToString();
+                    _selectedLanguage = languageStr;
                 }
             }
 
@@ -358,9 +362,9 @@ namespace SocialPoint.Locale
             }
             _running = true;
 
-            // we only download a the language when game is loaded
+            // we only download the language when game is loaded
             // to not increase login time
-            DownloadCurrentLanguage();
+            UpdateCurrentLanguage();
         }
 
         virtual public void Dispose()
@@ -461,6 +465,14 @@ namespace SocialPoint.Locale
             }
         }
 
+        void OnLanguagesLoadFailed()
+        {
+            if(LoadFailed != null)
+            {
+                LoadFailed();
+            }
+        }
+
         void DownloadCurrentLanguage()
         {
             DownloadLocalization(CurrentLanguage, OnDownloadLocalization);
@@ -490,6 +502,8 @@ namespace SocialPoint.Locale
                 OnLanguagesLoaded();
                 return true;
             }
+
+            OnLanguagesLoadFailed();
             return false;
         }
 

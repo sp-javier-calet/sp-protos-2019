@@ -32,7 +32,7 @@ MonoBehaviour:
       Type: 3
     - Name: Champions Arena
       Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
-      Type: 3
+      Type: 4
   Defaults:
     IosProductionEnvironment: Production
     AndroidProductionEnvironment: Production

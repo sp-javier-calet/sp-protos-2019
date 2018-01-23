@@ -12,10 +12,17 @@ namespace SocialPoint.Hardware
         const string UidKeychainItemId = "SPDeviceID";
         const string UidKeychainAccessGroup = "es.socialpoint";
 
-        #if !UNITY_2017_2_OR_NEWER
+#if !UNITY_2017_2_OR_NEWER && UNITY_IOS
         [DllImport("__Internal")]
         private extern static void GetSafeAreaImpl(out float x, out float y, out float w, out float h);
-        #endif
+#else
+        private static void GetSafeAreaImpl(out float x, out float y, out float w, out float h)
+        {
+            x = y = 0;
+            w = Screen.width;
+            h = Screen.height;
+        }
+#endif
 
         static Dictionary<string, int> CpuFreqMap = new Dictionary<string, int> {
             { "iPhone1,1", 412 },  // iPhone

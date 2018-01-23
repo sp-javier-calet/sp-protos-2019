@@ -127,11 +127,15 @@ namespace SocialPoint.Multiplayer
 
         GameTime _gameTime;
 
+        public delegate bool ValidatePassword(string password);
+
         public Action<Metric> SendMetric { get; set; }
 
         public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
 
         public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
+        public ValidatePassword ValidateCheatPassword { get; set; }
+        public Action<Exception> ExceptionHandled { get; set; }
 
         public NetworkServerSceneController(INetworkServer server, NetworkSceneContext context, IGameTime gameTime = null)
             : base(context)
