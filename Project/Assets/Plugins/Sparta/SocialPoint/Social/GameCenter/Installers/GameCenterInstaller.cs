@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Utils;
@@ -18,6 +18,7 @@ namespace SocialPoint.Social
             public bool UseEmpty;
             public bool LoginLink = true;
             public LinkMode LoginLinkMode = LinkMode.Auto;
+            public bool LoadAchievements;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -57,7 +58,7 @@ namespace SocialPoint.Social
         #if UNITY_IOS
         IosGameCenter CreateIos()
         {
-            return new IosGameCenter();
+            return new IosGameCenter(true, Settings.LoadAchievements);
         }
         #endif
 

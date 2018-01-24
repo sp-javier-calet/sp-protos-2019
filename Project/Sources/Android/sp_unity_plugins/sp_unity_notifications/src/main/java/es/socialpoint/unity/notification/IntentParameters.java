@@ -6,6 +6,7 @@ public final class IntentParameters {
     public static final String EXTRA_ICON = "icon";
     public static final String EXTRA_TEXT = "text";
     public static final String EXTRA_TITLE = "title";
+    public static final String EXTRA_CHANNEL_ID = "channelId";
     
     
     // This needs to match the definition on hydra/app/AppSourceHandler for notifications / app open source to work properly

@@ -19,5 +19,6 @@ namespace SocialPoint.Locale
         CultureInfo SelectedCultureInfo { get; }
 
         event Action<Dictionary<string, Localization>> Loaded;
+        event Action LoadFailed;
     }
 }

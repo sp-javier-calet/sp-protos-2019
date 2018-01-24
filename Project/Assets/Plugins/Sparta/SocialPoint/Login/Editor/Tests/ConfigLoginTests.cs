@@ -60,6 +60,8 @@ namespace SocialPoint.Login
         [Test]
         public void Login_error_HttpClient_Send()
         {
+            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+
             HttpClient.When(x => x.Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>()))
                 .Do(x => {
                     HttpResponse resp = new HttpResponse();

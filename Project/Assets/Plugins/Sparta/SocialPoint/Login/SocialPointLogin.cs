@@ -8,6 +8,7 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.Restart;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.Login
 {
@@ -167,6 +168,8 @@ namespace SocialPoint.Login
 
         string _forcedErrorCode = null;
         string _forcedErrorType = null;
+        IHttpConnection _loginConnection;
+        ErrorDelegate _loginEndCallback;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -209,12 +212,22 @@ namespace SocialPoint.Login
             }
         }
 
+        public ICommandQueue CommandQueue{ get; set; }
+
         void OnAppOpenedFromSource(AppSource src)
         {
-            #if DEBUG
+            #if ADMIN_PANEL
             if(SetAppSource(src))
             {
-                _appEvents.RestartGame();
+                if(IsLogged)
+                {
+                    Restarter.RestartGame();
+                }
+                else if(_loginConnection != null)
+                {
+                    _loginConnection.Cancel();
+                    DoLogin(_loginEndCallback);
+                }
             }
             #endif
         }
@@ -253,6 +266,7 @@ namespace SocialPoint.Login
                     {
                         changed = true;
                         ImpersonatedUserId = userId;
+                        CommandQueue.AutoSyncEnabled = false;
                     }
                 }
             }
@@ -316,6 +330,10 @@ namespace SocialPoint.Login
 
             set
             {
+                if(ImpersonatedUserId != 0)
+                {
+                    return;
+                }
                 _userId = value;
                 UserHasRegistered = _userId != 0;
                 StoreUserId();
@@ -521,6 +539,10 @@ namespace SocialPoint.Login
             _links.Clear();
             Friends.Clear();
             _pendingLinkConfirms.Clear();
+            _httpClient.Dispose();
+
+            NewUserStreamEvent = null;
+            ConfirmLinkEvent = null;
         }
 
         void AddLinkInfo(LinkInfo info)
@@ -762,6 +784,7 @@ namespace SocialPoint.Login
             }
             else
             {
+                _loginEndCallback = cbk;
                 var req = new HttpRequest(GetUrl(LoginUri), HttpRequest.MethodType.POST);
                 SetupLoginHttpRequest(req);
                 if(HttpRequestEvent != null)
@@ -770,13 +793,14 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("DoLogin- login\n----\n" + req + "----\n");
-                _httpClient.Send(req, resp => OnLogin(resp, cbk));
+                _loginConnection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
             }
         }
 
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("OnLogin - login\n----\n" + resp + "----\n");
+            _loginConnection = null;
 
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
@@ -836,11 +860,14 @@ namespace SocialPoint.Login
             {
                 Data = new GenericData();
             }
+            
+            Data.Load(genericData);
+            
             if(NewGenericDataEvent != null)
             {
                 NewGenericDataEvent(genericData);
             }
-            Data.Load(genericData);
+            
             OnGenericDataLoaded();
         }
 
@@ -1245,7 +1272,7 @@ namespace SocialPoint.Login
                 case AttrKeyGenericData:
                     {
                         LoadGenericData(reader);
-                        if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
+                        if(Data != null && Data.Upgrade != null && Data.Upgrade.Type == UpgradeType.Forced)
                         {
                             // Check for upgrade
                             err = new Error(Data.Upgrade.Message);

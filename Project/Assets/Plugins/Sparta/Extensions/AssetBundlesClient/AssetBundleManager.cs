@@ -258,7 +258,7 @@ namespace SocialPoint.AssetBundlesClient
                 }
                 else
                 {
-                    Log.w("AssetBundleManager", string.Format("Skipped BundleData {0} because it is repeated", itemName));
+                    DebugLog(string.Format("Skipped BundleData {0} because it is repeated", itemName));
                 }
 
                 if(!_parsedBundlesNames.Contains(itemName))

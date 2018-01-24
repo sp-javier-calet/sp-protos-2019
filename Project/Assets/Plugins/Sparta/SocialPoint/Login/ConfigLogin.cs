@@ -14,7 +14,7 @@ namespace SocialPoint.Login
         public void AddLink(ILink link)
         {
         }
-            
+
         public void LoginLink(ILink link, ErrorDelegate cbk = null)
         {
         }
@@ -64,6 +64,12 @@ namespace SocialPoint.Login
         }
 
         public event LoginErrorDelegate ErrorEvent = null;
+
+        public event LoginErrorDelegate LinkErrorEvent
+        {
+            add { }
+            remove { }
+        }
 
         public event RestartDelegate RestartEvent
         {

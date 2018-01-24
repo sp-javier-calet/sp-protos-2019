@@ -43,3 +43,4 @@ MonoBehaviour:
       FilePassword: android
       Alias: android
       Password: android
+    UseAPKExpansionFile: 0

@@ -39,7 +39,7 @@ namespace SocialPoint.Notifications
         {
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("schedule", 0, notif.FireDelay, notif.Title, notif.Message);
+                _notifClass.CallStatic("schedule", 0, notif.FireDelay, notif.Title, notif.Message, notif.ChannelID);
             }
         }
 
@@ -102,6 +102,23 @@ namespace SocialPoint.Notifications
 
                 _checkPermissionStatusCoroutine = null;
             }
+        }
+
+        public override void SetupChannels(NotificationChannel[] channels)
+        {
+            string[] identifiers = new string[channels.Length];
+            string[] names = new string[channels.Length];
+            string[] descriptions = new string[channels.Length];
+
+            for(int i = 0; i < channels.Length; i++)
+            {
+                NotificationChannel channel = channels[i];
+                identifiers[i] = channel.Identifier;
+                names[i] = channel.Name;
+                descriptions[i] = channel.Description;
+            }
+
+            _notifClass.CallStatic("setupChannels", identifiers, names, descriptions);
         }
     }
         

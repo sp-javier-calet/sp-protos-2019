@@ -49,6 +49,7 @@ namespace SocialPoint.GUIControl
         IList<StackNode> _views = new List<StackNode>();
         IAppEvents _appEvents;
         bool _enabled;
+
         public bool IsEnabled
         {
             get

@@ -7,7 +7,7 @@ namespace SpartaTools.Editor.Build
 {
     public class CompilerSettingsFile
     {
-        readonly string[] CompilerSettingsFiles = { "mcs", "smcs" };
+        readonly string[] CompilerSettingsFiles = { "mcs" };
         const string CompilerSettingsFileExtension = ".rsp";
 
         public readonly WarningAsErrorsSettings WarningAsErrors;

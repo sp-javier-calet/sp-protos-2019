@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -69,7 +69,7 @@ second line
             });
             try
             {
-                Assert.AreEqual(2, logCount);
+            Assert.AreEqual(2, logCount);
             }
             finally
             {

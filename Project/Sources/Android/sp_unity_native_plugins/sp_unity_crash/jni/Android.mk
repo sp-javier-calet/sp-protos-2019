@@ -6,7 +6,7 @@ COMMON_SRC_PATH := $(BASE_PATH)/../../../Common
 CR_SRC_PATH := $(COMMON_SRC_PATH)/sp_unity_crash
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := sp_unity_crash_reporter
+LOCAL_MODULE := sp_unity_crash
 LOCAL_MODULE_FILENAME := libsp_unity_crash
 
 LOCAL_CFLAGS    := -Werror

@@ -284,12 +284,17 @@ namespace SpartaTools.Editor.View
                 GUILayout.Label("No project selected", EditorStyles.boldLabel);
                 return;
             }
+
+            if(_progressHandler == null && !Synchronized && _autoRefresh)
+            {
+                RefreshModules();
+            }
+
             if(_progressHandler != null)
             {
                 if(_progressHandler.Finished && _refreshFinished)
                 {
                     _progressHandler = null;
-                    EditorUtility.ClearProgressBar();
                 }
                 else if(_progressHandler.Cancelled && _refreshFinished)
                 {
@@ -297,20 +302,18 @@ namespace SpartaTools.Editor.View
                     _autoRefresh = Synchronized && _autoRefresh;
 
                     _progressHandler = null;
-                    EditorUtility.ClearProgressBar();
                 }
                 else
                 {
-                    if(EditorUtility.DisplayCancelableProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent))
+                    var rect = GUILayoutUtility.GetRect(position.width - 6, 20);
+                    EditorGUI.ProgressBar(rect, _progressHandler.Percent, _progressHandler.Message);
+                    if(GUILayout.Button("Cancel"))
                     {
                         _progressHandler.Cancel();
                     }
                 }
             }
-            else if(!Synchronized && _autoRefresh)
-            {
-                RefreshModules();
-            }
+
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 

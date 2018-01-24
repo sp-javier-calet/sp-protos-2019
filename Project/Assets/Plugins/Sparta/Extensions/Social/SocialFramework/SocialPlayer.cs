@@ -19,6 +19,16 @@ namespace SocialPoint.Social
             public int Level;
             public int Score;
 
+            public BasicData()
+            {
+            }
+
+            public BasicData(string name, int level)
+            {
+                Name = name;
+                Level = level;
+            }
+
             public override string ToString()
             {
                 var builder = StringUtils.StartBuilder();

@@ -71,6 +71,12 @@ namespace SocialPoint.Login
             remove { }
         }
 
+        public event LoginErrorDelegate LinkErrorEvent
+        {
+            add { }
+            remove { }
+        }
+
         public event RestartDelegate RestartEvent
         {
             add { }

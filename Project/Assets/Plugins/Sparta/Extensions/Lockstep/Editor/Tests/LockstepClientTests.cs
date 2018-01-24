@@ -138,7 +138,7 @@ namespace SocialPoint.Lockstep
         public void ConnectionChangesDetected()
         {
             bool connChanged = false;
-            _client.ConnectionChanged += () =>  connChanged = true;
+            _client.StateChanged += () =>  connChanged = true;
             // add delegate to simulate server that needs to confirm commands
             _client.CommandAdded += delegate {};
             _client.ClientConfig.LocalSimulationDelay = 1000;
@@ -170,7 +170,7 @@ namespace SocialPoint.Lockstep
         public void ConnectionChangesDetectedGracefully()
         {
             bool connChanged = false;
-            _client.ConnectionChanged += () =>  connChanged = true;
+            _client.StateChanged += () =>  connChanged = true;
             // add delegate to simulate server that needs to confirm commands
             _client.CommandAdded += delegate {};
             _client.ClientConfig.LocalSimulationDelay = 1000;

@@ -9,21 +9,27 @@ namespace SocialPoint.Utils.Obfuscation
     {
         const double Epsilon = 0.000001;
 
+        static bool AreObfuscatedEqual(double value1, double value2, double epsilon)
+        {
+            return Math.Abs(value2 - value1) < epsilon &&
+            Math.Abs(value1 - value2) < epsilon;
+        }
+
         [Test]
         public void ConversionImplicit([Values(68.0)] double value)
         {
             var obfuscatedDouble = new ObfuscatedDouble(value);
             double unobfuscatedDouble = obfuscatedDouble;
 
-            Assert.AreEqual(obfuscatedDouble, obfuscatedDouble, Epsilon);
-            Assert.AreEqual(value, unobfuscatedDouble, Epsilon);
-            Assert.AreEqual(value, obfuscatedDouble, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble, obfuscatedDouble, Epsilon));
+            Assert.That(AreObfuscatedEqual(value, unobfuscatedDouble, Epsilon));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedDouble, Epsilon));
 
             Assert.AreNotEqual(value, obfuscatedDouble.ObfuscatedValue);
 
             double newValue = value + 1.0;
             obfuscatedDouble = newValue;
-            Assert.AreEqual(newValue, obfuscatedDouble, Epsilon);
+            Assert.That(AreObfuscatedEqual(newValue, obfuscatedDouble, Epsilon));
         }
 
         [Test]
@@ -39,8 +45,8 @@ namespace SocialPoint.Utils.Obfuscation
         {
             var obfuscatedDouble = new ObfuscatedDouble(value);
 
-            Assert.AreEqual(obfuscatedDouble, value, Epsilon);
-            Assert.AreEqual(value, obfuscatedDouble, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble, value, Epsilon));
+            Assert.That(AreObfuscatedEqual(value, obfuscatedDouble, Epsilon));
         }
 
         [Test]
@@ -114,16 +120,16 @@ namespace SocialPoint.Utils.Obfuscation
             double addition = value1 + value2;
             double obfuscatedAddition = new ObfuscatedDouble(addition);
 
-            Assert.AreEqual(obfuscatedDouble1 + obfuscatedDouble2, addition, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 + value2, addition, Epsilon);
-            Assert.AreEqual(value1 + obfuscatedDouble2, addition, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 + obfuscatedDouble2, obfuscatedAddition, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 + value2, obfuscatedAddition, Epsilon);
-            Assert.AreEqual(value1 + obfuscatedDouble2, obfuscatedAddition, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 + obfuscatedDouble2, addition, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 + value2, addition, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedDouble2, addition, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 + obfuscatedDouble2, obfuscatedAddition, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 + value2, obfuscatedAddition, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 + obfuscatedDouble2, obfuscatedAddition, Epsilon));
 
             ++value1;
             ++obfuscatedDouble1;
-            Assert.AreEqual(value1, obfuscatedDouble1, Epsilon);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedDouble1, Epsilon));
         }
 
         [Test]
@@ -135,16 +141,16 @@ namespace SocialPoint.Utils.Obfuscation
             double subtraction = value1 - value2;
             double obfuscatedSubtraction = new ObfuscatedDouble(subtraction);
 
-            Assert.AreEqual(obfuscatedDouble1 - obfuscatedDouble2, subtraction, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 - value2, subtraction, Epsilon);
-            Assert.AreEqual(value1 - obfuscatedDouble2, subtraction, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 - obfuscatedDouble2, obfuscatedSubtraction, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 - value2, obfuscatedSubtraction, Epsilon);
-            Assert.AreEqual(value1 - obfuscatedDouble2, obfuscatedSubtraction, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 - obfuscatedDouble2, subtraction, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 - value2, subtraction, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedDouble2, subtraction, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 - obfuscatedDouble2, obfuscatedSubtraction, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 - value2, obfuscatedSubtraction, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 - obfuscatedDouble2, obfuscatedSubtraction, Epsilon));
 
             --value1;
             --obfuscatedDouble1;
-            Assert.AreEqual(value1, obfuscatedDouble1, Epsilon);
+            Assert.That(AreObfuscatedEqual(value1, obfuscatedDouble1, Epsilon));
         }
 
         [Test]
@@ -156,12 +162,12 @@ namespace SocialPoint.Utils.Obfuscation
             double multiplication = value1 * value2;
             double obfuscatedMultiplication = new ObfuscatedDouble(multiplication);
 
-            Assert.AreEqual(obfuscatedDouble1 * obfuscatedDouble2, multiplication, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 * value2, multiplication, Epsilon);
-            Assert.AreEqual(value1 * obfuscatedDouble2, multiplication, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 * obfuscatedDouble2, obfuscatedMultiplication, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 * value2, obfuscatedMultiplication, Epsilon);
-            Assert.AreEqual(value1 * obfuscatedDouble2, obfuscatedMultiplication, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 * obfuscatedDouble2, multiplication, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 * value2, multiplication, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedDouble2, multiplication, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 * obfuscatedDouble2, obfuscatedMultiplication, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 * value2, obfuscatedMultiplication, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 * obfuscatedDouble2, obfuscatedMultiplication, Epsilon));
         }
 
         [Test]
@@ -173,12 +179,12 @@ namespace SocialPoint.Utils.Obfuscation
             double division = value1 / value2;
             double obfuscatedDivision = new ObfuscatedDouble(division);
 
-            Assert.AreEqual(obfuscatedDouble1 / obfuscatedDouble2, division, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 / value2, division, Epsilon);
-            Assert.AreEqual(value1 / obfuscatedDouble2, division, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 / obfuscatedDouble2, obfuscatedDivision, Epsilon);
-            Assert.AreEqual(obfuscatedDouble1 / value2, obfuscatedDivision, Epsilon);
-            Assert.AreEqual(value1 / obfuscatedDouble2, obfuscatedDivision, Epsilon);
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 / obfuscatedDouble2, division, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 / value2, division, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedDouble2, division, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 / obfuscatedDouble2, obfuscatedDivision, Epsilon));
+            Assert.That(AreObfuscatedEqual(obfuscatedDouble1 / value2, obfuscatedDivision, Epsilon));
+            Assert.That(AreObfuscatedEqual(value1 / obfuscatedDouble2, obfuscatedDivision, Epsilon));
         }
     }
 }
