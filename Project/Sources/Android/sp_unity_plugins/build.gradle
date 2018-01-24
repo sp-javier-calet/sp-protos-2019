@@ -15,6 +15,11 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+
+        maven {
+            name "Google's maven repo"
+            url "https://maven.google.com"
+        }
     }
 }
 
@@ -75,13 +80,13 @@ subprojects{
 
     /* Configure plugins compilation */
     project.android {
-        compileSdkVersion 25
-        buildToolsVersion "25.0.2"
+        compileSdkVersion 27
+        buildToolsVersion "27.0.2"
 
 
         defaultConfig {
             minSdkVersion 15
-            targetSdkVersion 25
+            targetSdkVersion 27
         }
     }
 

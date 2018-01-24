@@ -77,7 +77,7 @@ namespace SocialPoint.Lockstep
             Network.RegisterReceiver(this);
             Network.AddDelegate(this);
             Lockstep.CommandAdded += OnCommandAdded;
-            Lockstep.LockstepClientStarts += OnLockstepStarts;
+            Lockstep.StartScheduled += OnLockstepStarts;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)

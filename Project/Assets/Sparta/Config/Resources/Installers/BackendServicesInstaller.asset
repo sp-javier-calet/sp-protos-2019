@@ -40,6 +40,16 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
     Notifications:
       AutoRegisterForRemote: 1
+      channels:
+      - Identifier: social
+        Name: Social
+        Description: Social interactions
+      - Identifier: offers
+        Name: Offers
+        Description: Shop offers
+      - Identifier: misc
+        Name: Miscellaneous
+        Description: 
     Crashes:
       UseEmpty: 0
       SendInterval: 20

@@ -174,6 +174,10 @@ namespace SocialPoint.Notifications
             const string tag = "SocialPoint.Notifications-DebugLog";
             Log.i(tag, msg);
         }
+
+        public override void SetupChannels(NotificationChannel[] channels)
+        {
+        }
     }
     
     #else
