@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet name="SocialPoint-Nando">
+  <TextStylePolicy scope="text/plain">
+    <FileWidth>80</FileWidth>
+    <TabsToSpaces>True</TabsToSpaces>
+  </TextStylePolicy>
+  <DotNetNamingPolicy>
+    <DirectoryNamespaceAssociation>PrefixedHierarchical</DirectoryNamespaceAssociation>
+  </DotNetNamingPolicy>
+  <CSSFormattingPolicy scope="text/x-css">
+    <AutomaticFormatting>True</AutomaticFormatting>
+    <BracePositions>SemiExpanded</BracePositions>
+    <FormatOnPaste>True</FormatOnPaste>
+    <HierarchicalIndentation>True</HierarchicalIndentation>
+  </CSSFormattingPolicy>
+  <TextStylePolicy scope="text/x-css">
+    <TabsToSpaces>True</TabsToSpaces>
+    <NoTabsAfterNonTabs>True</NoTabsAfterNonTabs>
+  </TextStylePolicy>
+  <HTMLFormattingPolicy scope="text/x-html">
+    <FormatOnPaste>True</FormatOnPaste>
+    <XHTMLCodingStyle>True</XHTMLCodingStyle>
+  </HTMLFormattingPolicy>
+  <TextStylePolicy scope="text/x-html">
+    <TabsToSpaces>True</TabsToSpaces>
+    <NoTabsAfterNonTabs>True</NoTabsAfterNonTabs>
+  </TextStylePolicy>
+  <JSONFormattingPolicy scope="text/x-json">
+    <AutoStructureCompletion>True</AutoStructureCompletion>
+    <BracePositions>SemiExpanded</BracePositions>
+    <FormatOnPaste>True</FormatOnPaste>
+  </JSONFormattingPolicy>
+  <TextStylePolicy scope="text/x-json">
+    <TabWidth>2</TabWidth>
+    <TabsToSpaces>True</TabsToSpaces>
+    <IndentWidth>2</IndentWidth>
+    <NoTabsAfterNonTabs>True</NoTabsAfterNonTabs>
+  </TextStylePolicy>
+  <TextStylePolicy scope="text/x-fsharp">
+    <TabsToSpaces>True</TabsToSpaces>
+    <NoTabsAfterNonTabs>True</NoTabsAfterNonTabs>
+  </TextStylePolicy>
+  <FSharpFormattingPolicy scope="text/x-fsharp">
+    <DefaultFormat __added="0">
+      <IndentOnTryWith>False</IndentOnTryWith>
+      <ReorderOpenDeclaration>False</ReorderOpenDeclaration>
+      <SpaceAfterComma>True</SpaceAfterComma>
+      <SpaceAfterSemicolon>True</SpaceAfterSemicolon>
+      <SpaceAroundDelimiter>True</SpaceAroundDelimiter>
+      <SpaceBeforeArgument>True</SpaceBeforeArgument>
+      <SpaceBeforeColon>True</SpaceBeforeColon>
+    </DefaultFormat>
+  </FSharpFormattingPolicy>
+  <CSharpFormattingPolicy scope="text/x-csharp">
+    <IndentSwitchSection>False</IndentSwitchSection>
+    <NewLinesForBracesInTypes>False</NewLinesForBracesInTypes>
+    <NewLinesForBracesInMethods>False</NewLinesForBracesInMethods>
+    <SpaceAfterControlFlowStatementKeyword>False</SpaceAfterControlFlowStatementKeyword>
+  </CSharpFormattingPolicy>
+  <TextStylePolicy scope="text/x-csharp">
+    <FileWidth>80</FileWidth>
+    <TabsToSpaces>True</TabsToSpaces>
+    <NoTabsAfterNonTabs>True</NoTabsAfterNonTabs>
+  </TextStylePolicy>
+</PolicySet>
