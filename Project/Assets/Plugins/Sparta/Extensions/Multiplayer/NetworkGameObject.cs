@@ -503,11 +503,11 @@ namespace SocialPoint.Multiplayer
         readonly NetworkGameObjectFactoryDelegate _factory;
         readonly NetworkBehaviourContainerParser<INetworkBehaviour> _behaviourParser;
 
-        public NetworkGameObjectParser(NetworkSceneContext context, NetworkGameObjectFactoryDelegate factory = null)
+        public NetworkGameObjectParser(NetworkSceneContext context, NetworkGameObjectFactoryDelegate factory = null, Action<Exception> reportHandledException = null)
         {
             Context = context;
             _factory = factory;
-            _behaviourParser = new NetworkBehaviourContainerParser<INetworkBehaviour>();
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkBehaviour>(reportHandledException);
         }
 
         public NetworkGameObject Parse(IReader reader)

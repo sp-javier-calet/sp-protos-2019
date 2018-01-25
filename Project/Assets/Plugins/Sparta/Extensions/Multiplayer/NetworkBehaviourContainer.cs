@@ -731,9 +731,11 @@ namespace SocialPoint.Multiplayer
     {
         TypedDiffReadParser<Behaviour> _behaviourParser;
         MemoryStream _memStream = new MemoryStream(64 * 1024);
+        Action<Exception> _reportHandledException;
 
-        public NetworkBehaviourContainerParser()
+        public NetworkBehaviourContainerParser(Action<Exception> reportHandledException = null)
         {
+            _reportHandledException = reportHandledException;
             _behaviourParser = new TypedDiffReadParser<Behaviour>();
         }
 
@@ -761,10 +763,19 @@ namespace SocialPoint.Multiplayer
                 _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
                 Behaviour behaviour;
-                if(_behaviourParser.TryParse(code, memReader, out behaviour))
+
+                try
                 {
-                    obj.Add(behaviour);
+                    if(_behaviourParser.TryParse(code, memReader, out behaviour))
+                    {
+                        obj.Add(behaviour);
+                    }
                 }
+                catch(EndOfStreamException e)
+                {
+                    ReportBehaviourParsingError(new EndOfStreamException("Failed to read past end of stream when parsing the behaviour with code: " + code, e));
+                }
+
                 _memStream.Seek(0, SeekOrigin.Begin);
             }
 
@@ -794,7 +805,14 @@ namespace SocialPoint.Multiplayer
                     int index = obj.SerializersCodes.IndexOf(code);
                     if(index != -1)
                     {
-                        _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
+                        try
+                        {
+                            _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
+                        }
+                        catch(EndOfStreamException e)
+                        {
+                            ReportBehaviourParsingError(new EndOfStreamException("Failed to read past end of stream when parsing the behaviour with code: " + code, e));
+                        }
                     }
                 }
                 else
@@ -819,6 +837,16 @@ namespace SocialPoint.Multiplayer
             }
 
             return obj;
+        }
+
+        void ReportBehaviourParsingError(Exception e)
+        {
+            Base.Log.e(e.Message);
+
+            if(_reportHandledException != null)
+            {
+                _reportHandledException(e);
+            }
         }
     }
 }

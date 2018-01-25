@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using SocialPoint.Network;
+using SocialPoint.Crash;
 
 namespace SocialPoint.Multiplayer
 {
@@ -14,7 +15,7 @@ namespace SocialPoint.Multiplayer
 
     public class UnityNetworkClientSceneController : NetworkClientSceneController
     {
-        public UnityNetworkClientSceneController(INetworkClient client, NetworkSceneContext context) : base(client, context)
+        public UnityNetworkClientSceneController(INetworkClient client, NetworkSceneContext context, ICrashReporter crashReporter) : base(client, context, crashReporter)
         {
         }
 
