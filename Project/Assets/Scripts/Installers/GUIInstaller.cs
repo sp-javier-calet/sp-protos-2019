@@ -38,7 +38,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     GameObject _root;
     UIStackController _stackController;
     UITooltipController _uiTooltipController;
-    IDeviceInfo _iDeviceInfo;
+    IDeviceInfo _deviceInfo;
     IAppEvents _appEvents;
 
     #region IInitializable implementation
@@ -50,11 +50,10 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         {
             _stackController.AppEvents = _appEvents;
         }
-
-        _iDeviceInfo = Container.Resolve<IDeviceInfo>();
+        _deviceInfo = Container.Resolve<IDeviceInfo>();
         if(_uiTooltipController != null)
         {
-            _uiTooltipController.IDeviceInfo = _iDeviceInfo;
+            _uiTooltipController.DeviceInfo = _deviceInfo;
         }
               
 #if ADMIN_PANEL
@@ -112,7 +111,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     {
         var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
-        return new AdminPanelUI(_iDeviceInfo, storage);
+        return new AdminPanelUI(_deviceInfo, storage);
     }
 #endif
 
