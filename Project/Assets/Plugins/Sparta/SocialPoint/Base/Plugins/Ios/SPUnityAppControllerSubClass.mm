@@ -177,10 +177,7 @@
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
-    if([_delegator application:application didReceiveRemoteNotification:userInfo])
-    {
-        return;
-    }
+    [_delegator application:application didReceiveRemoteNotification:userInfo];
     if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveRemoteNotification:)])
     {
         [super application:application didReceiveRemoteNotification:userInfo];
@@ -193,6 +190,7 @@
     {
         return;
     }
+    completionHandler(UNNotificationPresentationOptionNone);
 }
 
 #if !UNITY_TVOS
@@ -206,7 +204,9 @@
     if([UnityAppController instancesRespondToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)])
     {
         [super application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+        return;
     }
+    completionHandler();
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)(void))completionHandler
@@ -218,7 +218,9 @@
     if([UnityAppController instancesRespondToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
     {
         [super application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+        return;
     }
+    completionHandler();
 }
 
 - (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
@@ -232,15 +234,16 @@
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler
 {
-    [_delegator userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    if([_delegator userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler])
+    {
+        return;
+    }
+    completionHandler();
 }
 
 - (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
 {
-    if([_delegator application:application didReceiveLocalNotification:notification])
-    {
-        return;
-    }
+    [_delegator application:application didReceiveLocalNotification:notification];
     if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveLocalNotification:)])
     {
         [super application:application didReceiveLocalNotification:notification];
@@ -256,7 +259,9 @@
     if([UnityAppController instancesRespondToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
     {
         [super application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
+        return;
     }
+    completionHandler(YES);
 }
 
 #endif

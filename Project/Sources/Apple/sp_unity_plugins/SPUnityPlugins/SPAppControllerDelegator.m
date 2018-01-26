@@ -150,7 +150,6 @@
 
 - (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
 {
-    BOOL handled = FALSE;
     if(self.enabled)
     {
         for(id<SPAppControllerDelegate> delegate in _delegates)
@@ -159,12 +158,12 @@
             {
                 if([delegate application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
                 {
-                    handled = TRUE;
+                    return TRUE;
                 }
             }
         }
     }
-    return handled;
+    return FALSE;
 }
 
 
@@ -267,7 +266,7 @@
     }
 }
 
-- (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
     if(self.enabled)
     {
@@ -275,14 +274,10 @@
         {
             if([delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
             {
-                if([delegate application:application didReceiveRemoteNotification:userInfo])
-                {
-                    return TRUE;
-                }
+                [delegate application:application didReceiveRemoteNotification:userInfo];
             }
         }
     }
-    return FALSE;
 }
 
 - (BOOL)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
@@ -359,7 +354,7 @@
     return FALSE;
 }
 
-- (BOOL)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
+- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
 {
     if(self.enabled)
     {
@@ -367,14 +362,10 @@
         {
             if([delegate respondsToSelector:@selector(application:didReceiveLocalNotification:)])
             {
-                if([delegate application:application didReceiveLocalNotification:notification])
-                {
-                    return TRUE;
-                }
+                [delegate application:application didReceiveLocalNotification:notification];
             }
         }
     }
-    return FALSE;
 }
 #endif
 
