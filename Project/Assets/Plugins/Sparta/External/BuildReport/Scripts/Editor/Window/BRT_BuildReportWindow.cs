@@ -5,7 +5,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using System.Threading;
-
+using BuildReportTool;
 using BuildReportTool.Window;
 
 public class BRT_BuildReportWindow : EditorWindow
@@ -19,14 +19,17 @@ public class BRT_BuildReportWindow : EditorWindow
 
 	void OnFocus()
 	{
-		_usedAssetsScreen.RefreshData(_buildInfo);
-		_unusedAssetsScreen.RefreshData(_buildInfo);
-
-		// check if configured file filters changed and only then do we need to recategorize
-
-		if (BuildReportTool.Options.ShouldUseConfiguredFileFilters())
+		if (BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus)
 		{
-			RecategorizeDisplayedBuildInfo();
+			_usedAssetsScreen.RefreshData(_buildInfo);
+			_unusedAssetsScreen.RefreshData(_buildInfo);
+
+			// check if configured file filters changed and only then do we need to recategorize
+
+			if (BuildReportTool.Options.ShouldUseConfiguredFileFilters())
+			{
+				RecategorizeDisplayedBuildInfo();
+			}
 		}
 	}
 
@@ -134,8 +137,10 @@ public class BRT_BuildReportWindow : EditorWindow
 
 	public static string GetValueMessage { set; get; }
 
-	public static bool LoadingValuesFromThread { get{ return !string.IsNullOrEmpty(GetValueMessage); } }
+	static bool _loadingValuesFromThread;
+	public static bool LoadingValuesFromThread { get{ return _loadingValuesFromThread; } }
 
+	static bool _noGuiSkinFound;
 
 	[SerializeField]
 	static BuildReportTool.BuildInfo _buildInfo;
@@ -278,6 +283,7 @@ public class BRT_BuildReportWindow : EditorWindow
 
 	void Refresh()
 	{
+		GoToOverviewScreen();
 		BuildReportTool.ReportGenerator.RefreshData(ref _buildInfo);
 	}
 
@@ -548,7 +554,28 @@ public class BRT_BuildReportWindow : EditorWindow
 		GUI.Label(new Rect(x, y, w, h), msg);
 	}
 
+	
+	void DrawWarningMessage(string msg)
+	{
+		float w = 400;
+		float h = 100;
+		float x = (position.width - w) * 0.5f;
+		float y = ((position.height - h) * 0.25f) + 100 + 40;
 
+		var msgRect = new Rect(x, y, w, h);
+		GUI.Label(msgRect, msg);
+
+		var warning = GUI.skin.GetStyle("Icon-Warning");
+		if (warning != null)
+		{
+			var warningIcon = warning.normal.background;
+			
+			var iconWidth = warning.fixedWidth;
+			var iconHeight = warning.fixedHeight;
+
+			GUI.DrawTexture(new Rect(msgRect.x - iconWidth, msgRect.y, iconWidth, iconHeight), warningIcon);
+		}
+	}
 
 
 
@@ -606,11 +633,19 @@ public class BRT_BuildReportWindow : EditorWindow
 		}
 	}
 
+	bool _buildInfoHasNoContentsToDisplay = false;
 
 	void OnGUI()
 	{
+		if (Event.current.type == EventType.Layout)
+		{
+			_noGuiSkinFound = _usedSkin == null;
+			_loadingValuesFromThread = !string.IsNullOrEmpty(GetValueMessage);
+			_buildInfoHasNoContentsToDisplay = !BuildReportTool.Util.BuildInfoHasContents(_buildInfo);
+		}
+
 		//GUI.Label(new Rect(5, 100, 800, 20), "BuildReportTool.Util.ShouldReload: " + BuildReportTool.Util.ShouldReload + " EditorApplication.isCompiling: " + EditorApplication.isCompiling);
-		if (_usedSkin == null)
+		if (_noGuiSkinFound)
 		{
 			GUI.Label(new Rect(20, 20, 500, 100), BuildReportTool.Options.BUILD_REPORT_PACKAGE_MISSING_MSG);
 			return;
@@ -630,8 +665,9 @@ public class BRT_BuildReportWindow : EditorWindow
 			DrawCentralMessage(GetValueMessage);
 			return;
 		}
+
 		// content to show when there is no build report on display
-		else if (!BuildReportTool.Util.BuildInfoHasContents(_buildInfo))
+		if (_buildInfoHasNoContentsToDisplay)
 		{
 			if (IsInOptionsCategory)
 			{
@@ -650,6 +686,11 @@ public class BRT_BuildReportWindow : EditorWindow
 			else
 			{
 				DrawCentralMessage(Labels.NO_BUILD_INFO_FOUND_MSG);
+
+				if (ReportGenerator.CheckIfUnityHasNoLogArgument())
+				{
+					DrawWarningMessage(Labels.FOUND_NO_LOG_ARGUMENT_MSG);
+				}
 			}
 
 			return;
