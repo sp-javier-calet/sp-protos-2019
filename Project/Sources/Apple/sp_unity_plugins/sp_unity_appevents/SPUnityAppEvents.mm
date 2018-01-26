@@ -60,11 +60,10 @@ static SPUnityAppEvents* _instance;
 }
 
 #if !UNITY_TVOS
--  (BOOL)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
+-  (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
     [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    return FALSE;
 }
 #endif
 
@@ -95,11 +94,10 @@ static SPUnityAppEvents* _instance;
     onRegisterForRemoteFailed([error.localizedDescription UTF8String]);
 }
 
-- (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
     [AppSourceUtils storeSourceOptions:userInfo withScheme:@"push"];
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    return FALSE;
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
