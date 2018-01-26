@@ -125,22 +125,22 @@
     }
 }
 
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+- (void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Helpshift::register device token with Helpshift for Push Notification. Please make sure you've initialized Helpshift
     // in Obj-C
     [HelpshiftCore registerDeviceToken:deviceToken];
 }
 
-- (BOOL)application:application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
+- (BOOL) application:application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
     return [HelpshiftCore handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
 }
 
-- (BOOL) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    return [HelpshiftCore handleRemoteNotification:userInfo withController:application.keyWindow.rootViewController];
+- (void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [HelpshiftCore handleRemoteNotification:userInfo withController:application.keyWindow.rootViewController];
 }
 
-- (BOOL) application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    return [HelpshiftCore handleLocalNotification:notification withController:application.keyWindow.rootViewController];
+- (void) application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    [HelpshiftCore handleLocalNotification:notification withController:application.keyWindow.rootViewController];
 }
 
 - (BOOL) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {

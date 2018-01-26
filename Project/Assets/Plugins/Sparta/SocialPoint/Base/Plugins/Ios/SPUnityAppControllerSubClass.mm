@@ -122,6 +122,19 @@
     return FALSE;
 }
 
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
+{
+    if([_delegator application:application openURL:url sourceApplication:sourceApplication annotation:annotation])
+    {
+        return TRUE;
+    }
+    if([UnityAppController instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+    {
+        return [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+    }
+    return FALSE;
+}
+
 
 - (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
 {

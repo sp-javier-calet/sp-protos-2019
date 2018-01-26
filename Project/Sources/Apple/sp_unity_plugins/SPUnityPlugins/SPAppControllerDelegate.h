@@ -27,6 +27,12 @@
 // in any case all delegates and app controller will be called, app controller should return TRUE if one or more of them return TRUE
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options; // IOS 9.0
 
+// this is maintained for compatibility reasons
+// if delegate does not implement this, we should try to call application:openURL:options:
+// return TRUE if delegate handled the URL
+// in any case all delegates and app controller will be called, app controller should return TRUE if one or more of them return TRUE
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation; // deprecated in IOS 9.0
+
 // return TRUE if delegate will handle URL session and always call completionHandler
 // do not call completionHandler if you return FALSE
 // when one delegate returns TRUE, other delegates and app controller should not be called, only one delegate can take care of the URL session

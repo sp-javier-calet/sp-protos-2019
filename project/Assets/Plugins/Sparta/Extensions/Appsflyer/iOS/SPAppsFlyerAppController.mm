@@ -29,12 +29,11 @@
     return FALSE;
 }
 
-- (BOOL)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"got didReceiveRemoteNotification = %@", userInfo);
 
     //We don't want to enable Tracking App Launches from push notifications
     //[[AppsFlyerTracker sharedTracker] handlePushNotification:userInfo];
-    return FALSE;
 }
 
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

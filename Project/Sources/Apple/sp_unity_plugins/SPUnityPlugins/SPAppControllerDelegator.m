@@ -186,6 +186,40 @@
     return handled;
 }
 
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    BOOL handled = FALSE;
+    if(self.enabled)
+    {
+        NSDictionary<UIApplicationOpenURLOptionsKey, id>* options = nil;
+        for(id<SPAppControllerDelegate> delegate in _delegates)
+        {
+            if([delegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+            {
+                if([delegate application:application openURL:url sourceApplication:sourceApplication annotation:(id)annotation])
+                {
+                    handled = TRUE;
+                }
+            }
+            else if([delegate respondsToSelector:@selector(application:openURL:options:)])
+            {
+                if(options == nil)
+                {
+                    options = [NSDictionary dictionaryWithObjectsAndKeys:
+                        sourceApplication, UIApplicationOpenURLOptionsSourceApplicationKey,
+                        annotation, UIApplicationOpenURLOptionsAnnotationKey,
+                        nil];
+                }
+                if([delegate application:application openURL:url options:options])
+                {
+                    handled = TRUE;
+                }
+            }
+        }
+    }
+    return handled;
+}
+
 - (BOOL)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
     if(self.enabled)
