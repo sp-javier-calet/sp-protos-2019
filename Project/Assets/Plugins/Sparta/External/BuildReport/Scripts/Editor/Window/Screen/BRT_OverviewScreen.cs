@@ -10,6 +10,9 @@ namespace BuildReportTool.Window.Screen
 public class Overview : BaseScreen
 {
 	Vector2 _scrollPos = Vector2.zero;
+	
+	bool _showTopUsed;
+	bool _showTopUnused;
 
 	public override string Name { get{ return Labels.OVERVIEW_CATEGORY_LABEL; } }
 
@@ -73,7 +76,7 @@ public class Overview : BaseScreen
 							emphasisColor = "white";
 						}
 
-						GUILayout.Label("<color=" + emphasisColor + "><size=20><b>" + buildReportToDisplay.BuildSizes[1].Name + "</b></size></color> are the largest,\ntaking up <color=" + emphasisColor + "><size=20><b>" + buildReportToDisplay.BuildSizes[1].Percentage + "%</b></size></color> of the build" + (buildReportToDisplay.HasStreamingAssets ? "\n<size=12>(not counting streaming assets)</size>" : ""), BuildReportTool.Window.Settings.INFO_TEXT_STYLE_NAME);
+						GUILayout.Label("<color=" + emphasisColor + "><size=20><b>" + buildReportToDisplay.BuildSizes[1].Name + "</b></size></color> are the largest,\ntaking up <color=" + emphasisColor + "><size=20><b>" + buildReportToDisplay.BuildSizes[1].Percentage + "%</b></size></color> of the build" + (!buildReportToDisplay.HasStreamingAssets ? "\n<size=12>(not counting streaming assets)</size>" : ""), BuildReportTool.Window.Settings.INFO_TEXT_STYLE_NAME);
 						GUILayout.Space(20);
 					GUILayout.EndVertical();
 
@@ -92,29 +95,43 @@ public class Overview : BaseScreen
 				
 					var numberOfTopUsed = buildReportToDisplay.HasUsedAssets ? buildReportToDisplay.UsedAssets.NumberOfTopLargest : 0;
 					var numberOfTopUnused = buildReportToDisplay.HasUnusedAssets ? buildReportToDisplay.UnusedAssets.NumberOfTopLargest : 0;
-
-					var canShowTopUsed = numberOfTopUsed > 0;
-					var canShowTopUnused = numberOfTopUnused > 0;
-
-					if (canShowTopUsed)
+					if (Event.current.type == EventType.Layout)
 					{
-						GUILayout.BeginVertical();
-							GUILayout.Label(string.Format("Top {0} largest in build:", numberOfTopUsed), BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
-							DrawAssetList(buildReportToDisplay.UsedAssets, true);
-						GUILayout.EndVertical();
-					}
-					if (canShowTopUsed && canShowTopUnused)
-					{
-						GUILayout.Space(50);
+						_showTopUsed = numberOfTopUsed > 0 && buildReportToDisplay.UsedAssets.TopLargest != null;
+						_showTopUnused = numberOfTopUnused > 0 && buildReportToDisplay.UnusedAssets.TopLargest != null;
 					}
 
-					if (canShowTopUnused)
+					GUILayout.BeginVertical();
+					if (_showTopUsed)
 					{
-						GUILayout.BeginVertical();
-							GUILayout.Label(string.Format("Top {0} largest not in build:", numberOfTopUnused), BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
-							DrawAssetList(buildReportToDisplay.UnusedAssets, false);
-						GUILayout.EndVertical();
+						GUILayout.Label(string.Format("Top {0} largest in build:", numberOfTopUsed), BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+
+						if (!BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus && GUILayout.Button("Refresh", GUILayout.Height(20), GUILayout.MaxWidth(520)))
+						{
+							buildReportToDisplay.RecategorizeUsedAssets();
+							buildReportToDisplay.FlagOkToRefresh();
+						}
+
+						DrawAssetList(buildReportToDisplay.UsedAssets, true);
 					}
+					GUILayout.EndVertical();
+					
+					GUILayout.Space(50);
+					
+					GUILayout.BeginVertical();
+					if (_showTopUnused)
+					{
+						GUILayout.Label(string.Format("Top {0} largest not in build:", numberOfTopUnused), BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+							
+						if (!BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus && GUILayout.Button("Refresh", GUILayout.Height(20), GUILayout.MaxWidth(520)))
+						{
+							buildReportToDisplay.RecategorizeUnusedAssets();
+							buildReportToDisplay.FlagOkToRefresh();
+						}
+
+						DrawAssetList(buildReportToDisplay.UnusedAssets, false);
+					}
+					GUILayout.EndVertical();
 				GUILayout.EndHorizontal();
 
 			GUILayout.EndVertical();
@@ -132,9 +149,15 @@ public class Overview : BaseScreen
 
 		GUILayout.EndScrollView();
 	}
-
+	
 	void DrawAssetList(BuildReportTool.AssetList assetList, bool usedAssets)
 	{
+		if (assetList == null || assetList.TopLargest == null)
+		{
+			//Debug.LogError("no top ten largest");
+			return;
+		}
+
 		BuildReportTool.SizePart[] assetsToShow = assetList.TopLargest;
 		
 		if (assetsToShow == null)

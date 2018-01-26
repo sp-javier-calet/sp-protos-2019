@@ -9,6 +9,10 @@ public static class BigFileReader
 {
 	public static bool FileHasText(string path, params string[] seekText)
 	{
+		if (!File.Exists(path))
+		{
+			return false;
+		}
 		FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		BufferedStream bs = new BufferedStream(fs);
 		StreamReader sr = new StreamReader(bs);

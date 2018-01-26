@@ -75,6 +75,8 @@ public class AssetList
 			topLargestList.Add(_all[n]);
 		}
 		_topLargest = topLargestList.ToArray();
+
+		Resort();
 	}
 
 	public void ResortDefault(int numberOfTop)
@@ -97,7 +99,8 @@ public class AssetList
 		/// Try imported size. If imported size is unavailable (N/A) use raw size.
 		/// </summary>
 		ImportedSizeOrRawSize,
-
+		
+		SizeBeforeBuild,
 		PercentSize
 	}
 
@@ -143,9 +146,23 @@ public class AssetList
 
 		SetSort(_currentSortType, _currentSortOrder);
 	}
+	
+	SortType _lastSortType = SortType.None;
+	SortOrder _lastSortOrder = SortOrder.None;
+
+	public void Resort()
+	{
+		if (_lastSortType != SortType.None && _lastSortOrder != SortOrder.None)
+		{
+			SetSort(_lastSortType, _lastSortOrder);
+		}
+	}
 
 	public void SetSort(SortType sortType, SortOrder sortOrder)
 	{
+		_lastSortType = sortType;
+		_lastSortOrder = sortOrder;
+
 		if (sortType == SortType.RawSize)
 		{
 			SortRawSize(_all, sortOrder);
@@ -168,6 +185,14 @@ public class AssetList
 			for (int n = 0, len = _perCategory.Length; n < len; ++n)
 			{
 				SortImportedSizeOrRawSize(_perCategory[n], sortOrder);
+			}
+		}
+		else if (sortType == SortType.SizeBeforeBuild)
+		{
+			SortSizeBeforeBuild(_all, sortOrder);
+			for (int n = 0, len = _perCategory.Length; n < len; ++n)
+			{
+				SortSizeBeforeBuild(_perCategory[n], sortOrder);
 			}
 		}
 		else if (sortType == SortType.PercentSize)
@@ -196,6 +221,23 @@ public class AssetList
 		}
 	}
 
+	static int SortByAssetNameDescending(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2)
+	{
+		int result = string.Compare(entry1.Name, entry2.Name, true);
+
+		return result;
+	}
+
+	static int SortByAssetNameAscending(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2)
+	{
+		int result = string.Compare(entry1.Name, entry2.Name, true);
+
+		// invert the result
+		if (result == 1) return -1;
+		if (result == -1) return 1;
+
+		return 0;
+	}
 
 	static void SortRawSize(BuildReportTool.SizePart[] assetList, SortOrder sortOrder)
 	{
@@ -204,7 +246,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.UsableSize > entry2.UsableSize) return -1;
 				if (entry1.UsableSize < entry2.UsableSize) return 1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameDescending(entry1, entry2);
 			});
 		}
 		else
@@ -212,7 +257,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.UsableSize > entry2.UsableSize) return 1;
 				if (entry1.UsableSize < entry2.UsableSize) return -1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameAscending(entry1, entry2);
 			});
 		}
 	}
@@ -226,7 +274,10 @@ public class AssetList
 				
 				if (entry1.ImportedSizeOrRawSize > entry2.ImportedSizeOrRawSize) return -1;
 				if (entry1.ImportedSizeOrRawSize < entry2.ImportedSizeOrRawSize) return 1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameDescending(entry1, entry2);
 			});
 		}
 		else
@@ -234,7 +285,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.ImportedSizeOrRawSize > entry2.ImportedSizeOrRawSize) return 1;
 				if (entry1.ImportedSizeOrRawSize < entry2.ImportedSizeOrRawSize) return -1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameAscending(entry1, entry2);
 			});
 		}
 	}
@@ -247,7 +301,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.ImportedSizeBytes > entry2.ImportedSizeBytes) return -1;
 				if (entry1.ImportedSizeBytes < entry2.ImportedSizeBytes) return 1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameDescending(entry1, entry2);
 			});
 		}
 		else
@@ -255,11 +312,39 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.ImportedSizeBytes > entry2.ImportedSizeBytes) return 1;
 				if (entry1.ImportedSizeBytes < entry2.ImportedSizeBytes) return -1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameAscending(entry1, entry2);
 			});
 		}
 	}
-
+	
+	static void SortSizeBeforeBuild(BuildReportTool.SizePart[] assetList, SortOrder sortOrder)
+	{
+		if (sortOrder == SortOrder.Descending)
+		{
+			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
+				if (entry1.SizeInAssetsFolderBytes > entry2.SizeInAssetsFolderBytes) return -1;
+				if (entry1.SizeInAssetsFolderBytes < entry2.SizeInAssetsFolderBytes) return 1;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameDescending(entry1, entry2);
+			});
+		}
+		else
+		{
+			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
+				if (entry1.SizeInAssetsFolderBytes > entry2.SizeInAssetsFolderBytes) return 1;
+				if (entry1.SizeInAssetsFolderBytes < entry2.SizeInAssetsFolderBytes) return -1;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameAscending(entry1, entry2);
+			});
+		}
+	}
 
 	static void SortPercentSize(BuildReportTool.SizePart[] assetList, SortOrder sortOrder)
 	{
@@ -268,7 +353,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.Percentage > entry2.Percentage) return -1;
 				if (entry1.Percentage < entry2.Percentage) return 1;
-				return 0;
+				
+				// same percent
+				// sort by asset name for assets with same percent
+				return SortByAssetNameDescending(entry1, entry2);
 			});
 		}
 		else
@@ -276,7 +364,10 @@ public class AssetList
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				if (entry1.Percentage > entry2.Percentage) return 1;
 				if (entry1.Percentage < entry2.Percentage) return -1;
-				return 0;
+				
+				// same size
+				// sort by asset name for assets with same sizes
+				return SortByAssetNameAscending(entry1, entry2);
 			});
 		}
 	}
@@ -288,7 +379,7 @@ public class AssetList
 		{
 			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
 				int result = string.Compare(entry1.Name, entry2.Name, true);
-
+				
 				return result;
 			});
 		}
@@ -310,28 +401,11 @@ public class AssetList
 	{
 		if (sortOrder == SortOrder.Descending)
 		{
-			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
-				string entry1Name = BuildReportTool.Util.GetAssetFilename(entry1.Name);
-				string entry2Name = BuildReportTool.Util.GetAssetFilename(entry2.Name);
-				
-				int result = string.Compare(entry1Name, entry2Name, true);
-
-				return result;
-			});
+			Array.Sort(assetList, SortByAssetNameDescending);
 		}
 		else
 		{
-			Array.Sort(assetList, delegate(BuildReportTool.SizePart entry1, BuildReportTool.SizePart entry2) {
-				string entry1Name = BuildReportTool.Util.GetAssetFilename(entry1.Name);
-				string entry2Name = BuildReportTool.Util.GetAssetFilename(entry2.Name);
-				
-				int result = string.Compare(entry1Name, entry2Name, true);
-
-				// invert the result
-				if (result == 1) return -1;
-				if (result == -1) return 1;
-				return 0;
-			});
+			Array.Sort(assetList, SortByAssetNameAscending);
 		}
 	}
 
@@ -443,16 +517,47 @@ public class AssetList
 		long importedSize = -1;
 		for (int n = 0, len = _all.Length; n < len; ++n)
 		{
-			importedSize = BRT_LibCacheUtil.GetImportedFileSize(_all[n].Name);
+			/*if (BuildReportTool.Util.IsFileAUnityAsset(_all[n].Name))
+			{
+				// Scene files/terrain files/scriptable object files/etc. always seem to be only 4kb in the library,
+				// no matter how large the actual file in the assets folder really is.
+				// The 4kb is probably just metadata/reference to the actual file itself.
+				// Makes sense since these file types are "native" to unity, so no importing is necessary.
+				//
+				// In this case, the raw size (size of the file in the assets folder) counts as the imported size
+				// so just use the raw size.
 
-			_all[n].ImportedSizeBytes = importedSize;
-			_all[n].ImportedSize = BuildReportTool.Util.GetBytesReadable(importedSize);
+				_all[n].ImportedSizeBytes = _all[n].RawSizeBytes;
+				_all[n].ImportedSize = _all[n].RawSize;
+			}
+			else*/
+			{
+				importedSize = BRT_LibCacheUtil.GetImportedFileSize(_all[n].Name);
+
+				_all[n].ImportedSizeBytes = importedSize;
+				_all[n].ImportedSize = BuildReportTool.Util.GetBytesReadable(importedSize);
+			}
+		}
+	}
+	
+	public void PopulateSizeInAssetsFolder()
+	{
+		long size = -1;
+		var projectPath = BuildReportTool.Util.GetProjectPath(Application.dataPath);
+		for (int n = 0, len = _all.Length; n < len; ++n)
+		{
+			string assetImportedPath = projectPath + _all[n].Name;
+
+			size = BuildReportTool.Util.GetFileSizeInBytes(assetImportedPath);
+			_all[n].SizeInAssetsFolderBytes = size;
+			_all[n].SizeInAssetsFolder = BuildReportTool.Util.GetBytesReadable(size);
 		}
 	}
 
-
 	public void RecalculatePercentages(double totalSize)
 	{
+		//Debug.Log("Recalculate Percentage Start");
+
 		if (_all != null)
 		{
 			// if the all list is available,
@@ -462,7 +567,7 @@ public class AssetList
 			
 			for (int n = 0, len = _all.Length; n < len; ++n)
 			{
-				totalSize += _all[n].DerivedSize;
+				totalSize += _all[n].UsableSize;
 			}
 		}
 
@@ -471,6 +576,7 @@ public class AssetList
 			for (int n = 0, len = _all.Length; n < len; ++n)
 			{
 				_all[n].Percentage = Math.Round((_all[n].UsableSize/totalSize) * 100, 2, MidpointRounding.AwayFromZero);
+				//Debug.Log("Percentage for: " + n + " " + _all[n].Name + " = " + _all[n].Percentage + " = " + _all[n].UsableSize + " / " + totalSize);
 			}
 		}
 
@@ -484,6 +590,7 @@ public class AssetList
 				}
 			}
 		}
+		//Debug.Log("Recalculate Percentage End");
 	}
 
 

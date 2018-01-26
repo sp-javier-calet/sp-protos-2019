@@ -42,15 +42,17 @@ public class SavedOptions
 	public bool IncludeUnusedAssetsInReportCreation = true;
 	public bool IncludeUnusedPrefabsInReportCreation = true;
 	public bool IncludeBuildSizeInReportCreation = true;
-
-	public bool GetImportedSizesForUsedAssets = false;
-	public bool ShowImportedSizeForUsedAssets = true;
+	
+	public bool GetSizeBeforeBuildForUsedAssets = true;
 	public bool GetImportedSizesForUnusedAssets = true;
+	public bool ShowImportedSizeForUsedAssets = true;
+
 	public bool GetProjectSettings = true;
 
 	public bool AutoShowWindowAfterNormalBuild = true;
-	public bool AutoShowWindowAfterBatchModeBuild;
-
+	public bool AutoResortAssetsWhenUnityEditorRegainsFocus = false;
+	
+	public bool UseThreadedReportGeneration = true;
 	public bool UseThreadedFileLoading = false;
 
 	public void OnBeforeSave()
@@ -110,7 +112,7 @@ public static class Options
 
 	public const string BUILD_REPORT_PACKAGE_MISSING_MSG = "Unable to find BuildReport package folder! Cannot find suitable GUI Skin.\nTry editing the source code and change the value\nof `BUILD_REPORT_TOOL_DEFAULT_PATH` to what path the Build Report Tool is in.\nMake sure the folder is named \"BuildReport\".";
 
-    public const string BUILD_REPORT_TOOL_DEFAULT_PATH = "Assets/Plugins/Sparta/External/BuildReport";
+	public const string BUILD_REPORT_TOOL_DEFAULT_PATH = "Assets/Plugins/Sparta/External/BuildReport";
     public const string BUILD_REPORT_TOOL_DEFAULT_FOLDER_NAME = "Plugins/Sparta/External/BuildReport";
 
 	public const string BUILD_REPORTS_DEFAULT_FOLDER_NAME = "UnityBuildReports";
@@ -665,25 +667,6 @@ public static class Options
 			}
 		}
 	}
-
-
-	public static bool GetImportedSizesForUsedAssets
-	{
-		get
-		{
-			InitializeOptionsIfNeeded();
-			return _savedOptions.GetImportedSizesForUsedAssets;
-		}
-		set
-		{
-			InitializeOptionsIfNeeded();
-			if (_savedOptions.GetImportedSizesForUsedAssets != value)
-			{
-				_savedOptions.GetImportedSizesForUsedAssets = value;
-				SaveOptions();
-			}
-		}
-	}
 	
 	public static bool ShowImportedSizeForUsedAssets
 	{
@@ -698,6 +681,24 @@ public static class Options
 			if (_savedOptions.ShowImportedSizeForUsedAssets != value)
 			{
 				_savedOptions.ShowImportedSizeForUsedAssets = value;
+				SaveOptions();
+			}
+		}
+	}
+	
+	public static bool GetSizeBeforeBuildForUsedAssets
+	{
+		get
+		{
+			InitializeOptionsIfNeeded();
+			return _savedOptions.GetSizeBeforeBuildForUsedAssets;
+		}
+		set
+		{
+			InitializeOptionsIfNeeded();
+			if (_savedOptions.GetSizeBeforeBuildForUsedAssets != value)
+			{
+				_savedOptions.GetSizeBeforeBuildForUsedAssets = value;
 				SaveOptions();
 			}
 		}
@@ -847,19 +848,39 @@ public static class Options
 			}
 		}
 	}
-	public static bool AutoShowWindowAfterBatchModeBuild
+	
+	public static bool AutoResortAssetsWhenUnityEditorRegainsFocus
 	{
 		get
 		{
 			InitializeOptionsIfNeeded();
-			return _savedOptions.AutoShowWindowAfterBatchModeBuild;
+			return _savedOptions.AutoResortAssetsWhenUnityEditorRegainsFocus;
 		}
 		set
 		{
 			InitializeOptionsIfNeeded();
-			if (_savedOptions.AutoShowWindowAfterBatchModeBuild != value)
+			if (_savedOptions.AutoResortAssetsWhenUnityEditorRegainsFocus != value)
 			{
-				_savedOptions.AutoShowWindowAfterBatchModeBuild = value;
+				_savedOptions.AutoResortAssetsWhenUnityEditorRegainsFocus = value;
+				SaveOptions();
+			}
+		}
+	}
+	
+	
+	public static bool UseThreadedReportGeneration
+	{
+		get
+		{
+			InitializeOptionsIfNeeded();
+			return _savedOptions.UseThreadedReportGeneration;
+		}
+		set
+		{
+			InitializeOptionsIfNeeded();
+			if (_savedOptions.UseThreadedReportGeneration != value)
+			{
+				_savedOptions.UseThreadedReportGeneration = value;
 				SaveOptions();
 			}
 		}
@@ -883,56 +904,7 @@ public static class Options
 		}
 	}
 
-
-	public static void SetAutoShowWindowTypeToNever()
-	{
-		AutoShowWindowAfterNormalBuild = false;
-		AutoShowWindowAfterBatchModeBuild = false;
-	}
-
-	public static void SetAutoShowWindowTypeToAlways()
-	{
-		AutoShowWindowAfterNormalBuild = true;
-		AutoShowWindowAfterBatchModeBuild = true;
-	}
-
-	public static void SetAutoShowWindowTypeToNotInBatchMode()
-	{
-		AutoShowWindowAfterNormalBuild = true;
-		AutoShowWindowAfterBatchModeBuild = false;
-	}
-
-
-
-	public static bool IsAutoShowWindowTypeSetToNever
-	{
-		get
-		{
-			return
-				!AutoShowWindowAfterNormalBuild &&
-				!AutoShowWindowAfterBatchModeBuild;
-		}
-	}
-
-	public static bool IsAutoShowWindowTypeSetToAlways
-	{
-		get
-		{
-			return
-				AutoShowWindowAfterNormalBuild &&
-				AutoShowWindowAfterBatchModeBuild;
-		}
-	}
-
-	public static bool IsAutoShowWindowTypeSetToNotInBatchMode
-	{
-		get
-		{
-			return
-				AutoShowWindowAfterNormalBuild &&
-				!AutoShowWindowAfterBatchModeBuild;
-		}
-	}
+	
 
 
 
@@ -940,9 +912,7 @@ public static class Options
 	{
 		get
 		{
-			return
-				(IsInBatchMode && AutoShowWindowAfterBatchModeBuild) ||
-				(!IsInBatchMode && AutoShowWindowAfterNormalBuild);
+			return (!IsInBatchMode && AutoShowWindowAfterNormalBuild);
 		}
 	}
 

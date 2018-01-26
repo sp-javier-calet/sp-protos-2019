@@ -12,13 +12,7 @@ public class Options : BaseScreen
 	public override string Name { get{ return Labels.OPTIONS_CATEGORY_LABEL; } }
 
 	string[] _saveTypeLabels = null;
-
-	string[] _autoShowWindowLabels = new string[] {
-		"Never",
-		"Always",
-		"Yes, but not during batchmode"};
-
-	int _selectedAutoShowWindowIdx = 2;
+	
 
 
 
@@ -136,8 +130,7 @@ public class Options : BaseScreen
 	public override void RefreshData(BuildInfo buildReport)
 	{
 		_saveTypeLabels = new string[] {SAVE_PATH_TYPE_PERSONAL_OS_SPECIFIC_LABEL, Labels.SAVE_PATH_TYPE_PROJECT_LABEL};
-
-		_selectedAutoShowWindowIdx = GetAutoShowWindowTypeGuiIdxFromOptions();
+		
 		_selectedCalculationLevelIdx = GetCalculationLevelGuiIdxFromOptions();
 	}
 
@@ -173,27 +166,72 @@ public class Options : BaseScreen
 
 				GUILayout.Label("Main Options", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
-				BuildReportTool.Options.CollectBuildInfo = GUILayout.Toggle(BuildReportTool.Options.CollectBuildInfo, Labels.COLLECT_BUILD_INFO_LABEL);
+				
+				BuildReportTool.Options.CollectBuildInfo = GUILayout.Toggle(BuildReportTool.Options.CollectBuildInfo,
+					"Automatically generate and save a Build Report file after building (does not include batchmode builds)");
+				GUILayout.BeginHorizontal();
+				GUILayout.Space(20);
+				GUILayout.Label("Note: For batchmode builds, to create build reports, call BuildReportTool.ReportGenerator.CreateReport() after BuildPipeline.BuildPlayer() in your build scripts. The Build Report is automatically saved as an XML file.", BuildReportTool.Window.Settings.BOXED_LABEL_STYLE_NAME, GUILayout.MaxWidth(525));
+				GUILayout.EndHorizontal();
+				GUILayout.Space(10);
 
-				BuildReportTool.Options.AllowDeletingOfUsedAssets = GUILayout.Toggle(BuildReportTool.Options.AllowDeletingOfUsedAssets, "Allow deleting of Used Assets (practice caution!)");
+				BuildReportTool.Options.AutoShowWindowAfterNormalBuild = GUILayout.Toggle(BuildReportTool.Options.AutoShowWindowAfterNormalBuild,
+					"Automatically show Build Report Window after building (if it is not open yet)");
+				
+				BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus = GUILayout.Toggle(BuildReportTool.Options.AutoResortAssetsWhenUnityEditorRegainsFocus,
+					"Re-sort assets whenever the Unity Editor regains focus");
+				
+				BuildReportTool.Options.AllowDeletingOfUsedAssets = GUILayout.Toggle(BuildReportTool.Options.AllowDeletingOfUsedAssets,
+					"Allow deleting of Used Assets (practice caution!)");
+				
+				GUILayout.Space(20);
+				
+				BuildReportTool.Options.UseThreadedReportGeneration = GUILayout.Toggle(BuildReportTool.Options.UseThreadedReportGeneration,
+					"When generating Build Reports, use a separate thread");
+				GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
+				GUILayout.Space(20);
+				GUILayout.Label("Note: For batchmode builds, report generation with BuildReportTool.ReportGenerator.CreateReport() is always non-threaded.", BuildReportTool.Window.Settings.BOXED_LABEL_STYLE_NAME, GUILayout.MaxWidth(525));
+				GUILayout.EndHorizontal();
+				GUILayout.Space(10);
 
 				BuildReportTool.Options.UseThreadedFileLoading = GUILayout.Toggle(BuildReportTool.Options.UseThreadedFileLoading,
-					"Use threaded file loading");
+					"When loading Build Report files, use a separate thread");
+
+				//GUILayout.Space(20);
+				
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
+
+				// === Data to include in the Build Report ===
+
+				GUILayout.Label("Data to include in the Build Report", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+
+				BuildReportTool.Options.IncludeBuildSizeInReportCreation = GUILayout.Toggle(BuildReportTool.Options.IncludeBuildSizeInReportCreation,
+					"Get build's file size upon creation of a build report");
 
 				GUILayout.Space(10);
 
-
-				BuildReportTool.Options.IncludeBuildSizeInReportCreation = GUILayout.Toggle(BuildReportTool.Options.IncludeBuildSizeInReportCreation, "Get build's file size upon creation of a build report");
-
-				BuildReportTool.Options.GetImportedSizesForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUsedAssets, "Get imported sizes of Used Assets upon creation of a build report");
+				//BuildReportTool.Options.GetImportedSizesForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUsedAssets,
+				//	"Get imported sizes of Used Assets upon creation of a build report");
 				
-				BuildReportTool.Options.GetImportedSizesForUnusedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUnusedAssets, "Get imported sizes of Unused Assets upon creation of a build report");
+				BuildReportTool.Options.GetImportedSizesForUnusedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUnusedAssets,
+					"Get imported sizes of Unused Assets upon creation of a build report");
+				
+				BuildReportTool.Options.GetSizeBeforeBuildForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.GetSizeBeforeBuildForUsedAssets,
+					"Get size-before-build of Used Assets upon creation of a build report");
+				
 
-				BuildReportTool.Options.GetProjectSettings = GUILayout.Toggle(BuildReportTool.Options.GetProjectSettings, "Get Unity project settings upon creation of a build report");
+				BuildReportTool.Options.IncludeSvnInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeSvnInUnused, Labels.INCLUDE_SVN_LABEL);
+				BuildReportTool.Options.IncludeGitInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeGitInUnused, Labels.INCLUDE_GIT_LABEL);
+
+				GUILayout.Space(10);
+
+				BuildReportTool.Options.GetProjectSettings = GUILayout.Toggle(BuildReportTool.Options.GetProjectSettings,
+					"Get Unity project settings upon creation of a build report");
 				
 				GUILayout.Space(10);
 
-				BuildReportTool.Options.ShowImportedSizeForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.ShowImportedSizeForUsedAssets, "Show calculated sizes of Used Assets instead of reported sizes");
+				BuildReportTool.Options.ShowImportedSizeForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.ShowImportedSizeForUsedAssets,
+					"Show calculated sizes of Used Assets instead of reported sizes");
 
 				if (_linkStyle == null)
 				{
@@ -221,30 +259,8 @@ public class Options : BaseScreen
 				}
 				GUILayout.EndHorizontal();
 				GUILayout.Label("This bug has already been fixed in Unity 2017.1, 5.5.3p1 and 5.6.0p1. Only enable this if you are affected by the bug.");
-			
 
 				GUILayout.Space(15);
-
-				GUILayout.BeginHorizontal();
-					GUILayout.Label("Automatically show Build Report Window after building: ");
-
-					GUILayout.BeginVertical();
-						int newSelectedAutoShowWindowIdx = EditorGUILayout.Popup(_selectedAutoShowWindowIdx, _autoShowWindowLabels, "Popup", GUILayout.Width(300));
-					GUILayout.EndVertical();
-
-					GUILayout.FlexibleSpace();
-				GUILayout.EndHorizontal();
-
-
-				if (newSelectedAutoShowWindowIdx != _selectedAutoShowWindowIdx)
-				{
-					_selectedAutoShowWindowIdx = newSelectedAutoShowWindowIdx;
-					SetAutoShowWindowTypeFromGuiIdx(newSelectedAutoShowWindowIdx);
-				}
-
-
-
-				GUILayout.Space(10);
 
 				GUILayout.BeginHorizontal();
 					GUILayout.Label("Calculation Level: ");
@@ -284,7 +300,14 @@ public class Options : BaseScreen
 				GUILayout.EndHorizontal();
 				if (!BuildReportTool.Util.UsedEditorLogExists)
 				{
-					GUILayout.Label(Labels.EDITOR_LOG_INVALID_MSG);
+					if (BuildReportTool.Util.IsDefaultEditorLogPathOverridden)
+					{
+						GUILayout.Label(Labels.OVERRIDE_LOG_NOT_FOUND_MSG);
+					}
+					else
+					{
+						GUILayout.Label(Labels.DEFAULT_EDITOR_LOG_NOT_FOUND_MSG);
+					}
 				}
 
 				// override which log is opened
@@ -316,11 +339,6 @@ public class Options : BaseScreen
 				// === Asset Lists ===
 
 				GUILayout.Label("Asset Lists", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
-
-				BuildReportTool.Options.IncludeSvnInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeSvnInUnused, Labels.INCLUDE_SVN_LABEL);
-				BuildReportTool.Options.IncludeGitInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeGitInUnused, Labels.INCLUDE_GIT_LABEL);
-				
-				GUILayout.Space(10);
 
 				
 				// top largest used
@@ -453,41 +471,6 @@ public class Options : BaseScreen
 			// changed to project folder
 			//BuildReportTool.ReportGenerator.ChangeSavePathToProjectFolder();
 		//}
-	}
-
-
-
-	int GetAutoShowWindowTypeGuiIdxFromOptions()
-	{
-		if (BuildReportTool.Options.IsAutoShowWindowTypeSetToNever)
-		{
-			return 0;
-		}
-		if (BuildReportTool.Options.IsAutoShowWindowTypeSetToAlways)
-		{
-			return 1;
-		}
-		if (BuildReportTool.Options.IsAutoShowWindowTypeSetToNotInBatchMode)
-		{
-			return 2;
-		}
-		return 2;
-	}
-
-	void SetAutoShowWindowTypeFromGuiIdx(int selectedIdx)
-	{
-		switch (selectedIdx)
-		{
-			case 0: // never
-				BuildReportTool.Options.SetAutoShowWindowTypeToNever();
-				break;
-			case 1: // always
-				BuildReportTool.Options.SetAutoShowWindowTypeToAlways();
-				break;
-			case 2: // yes, but not during batchmode
-				BuildReportTool.Options.SetAutoShowWindowTypeToNotInBatchMode();
-				break;
-		}
 	}
 }
 

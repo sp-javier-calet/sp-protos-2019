@@ -1,9 +1,43 @@
+Version 3.4.2
+- FIX: Fixed compatibility with Unity 2017.3
+- FIX: Fixed problem with being unable to load saved Build Report files
+  when the build data did not find any script DLL files.
+- FIX: Fixed layout error in Overview screen.
+- CHANGE: Updated build settings gathered in report.
+
+
+Version 3.4.1
+- NEW: Added option to disable Build Report Window's auto re-sorting whenever
+  the Unity Editor regains focus (when you alt+tab). If this is turned off,
+  the GUI will then have buttons for manually refreshing the sizes displayed.
+- FIX: Fixed asset list sort getting inconsistent results when filenames are
+  the same.
+- CHANGE: Cleaned up the options screen. Removed some options that became
+  redundant and useless, and added some new ones.
+
+
+Version 3.4
+- NEW: Batchmode builds can now use an API for creating a Build Report, using
+  BuildReportTool.ReportGenerator.CreateReport(). Call it after
+  BuildPipeline.BuildPlayer() in your build scripts.
+- NEW: Used Assets list now show the asset's size before it was packed into
+  the build (its file size in the Assets folder). This is to help the user
+  determine what is happening to the asset's size upon build.
+- FIX: Assets list will no longer change sort order whenever alt+tabbing back
+  to Unity.
+- FIX: Fixed percentage values sometimes going over 100%.
+- CHANGE: Added a simpler, more straightforward license.txt
+
+
 Version 3.3
-- NEW: Added option to change the number of items in the Top Largest Assets in the Overview screen. You can set it to 0 to disable it.
-- CHANGE: The checkbox for selection of assets in the Used/Unused Assets List screens are replaced with a ping button.
-  Now, clicking on the asset will select it. You can use ctrl+click to toggle selection,
-  and shift+click to select from previously selected up to the current one.
-- FIX: Fixed bug with Top Largest Assets not showing the same file size as in the Used/Unused Assets List screens.
+- NEW: Added option to change the number of items in the Top Largest Assets
+  in the Overview screen. You can set it to 0 to disable it.
+- CHANGE: The checkbox for selection of assets in the Used/Unused Assets List
+  screens are replaced with a ping button. Now, clicking on the asset will
+  select it. You can use ctrl+click to toggle selection, and shift+click to
+  select from previously selected up to the current one.
+- FIX: Fixed bug with Top Largest Assets not showing the same file size as
+  in the Used/Unused Assets List screens.
 
 
 Version 3.2.4
@@ -16,13 +50,17 @@ Version 3.2.3
 
 
 Version 3.2.2
-- NEW: Added option to show calculated size of used assets instead of the reported size from the build log,
-  as workaround for the Unity bug: https://issuetracker.unity3d.com/issues/unity-reports-incorrect-textures-size-in-the-editor-dot-log-after-building-on-standalone
-  Note: The bug has been fixed in Unity 2017.1, 5.5.3p1 and 5.6.0p1. This option is included for users who can't update to using those new versions.
+- NEW: Added option to show calculated size of used assets instead of the
+  reported size from the build log, as workaround for the Unity bug:
+  https://issuetracker.unity3d.com/issues/unity-reports-incorrect-textures-size-in-the-editor-dot-log-after-building-on-standalone
+  Note: The bug has been fixed in Unity 2017.1, 5.5.3p1 and 5.6.0p1.
+  This option is included for users who can't update to using those new
+  versions.
 - FIX: Fixed compatibility with Unity 2017.1 beta 2.
 - FIX: Fixed report generation when percentage is missing in the build log.
 - FIX: Percentage for all used assets is now calculated properly.
-- FIX: Resources assets that are inside an Editor subfolder are now no longer mistakenly marked as used assets.
+- FIX: Resources assets that are inside an Editor subfolder are now no
+  longer mistakenly marked as used assets.
 - CHANGE: Streaming Assets is now included in the table for sizes.
 
 
@@ -31,7 +69,15 @@ Version 3.2.1
 
 
 Version 3.2
-- NEW: Options are now saved to an XML file named "BuildReportToolOptions.xml". By default this file is saved inside the BuildReport folder, but can be moved to, and will be recognized at certain paths: at the topmost Assets folder, outside the topmost Assets folder, in the project's ProjectSettings folder, and in the user's My Documents (inside where Build Report XML files are saved). This is in prioritized order, so even if there is an options file in the My Documents folder, if there is also one in the project folder, it will use the one in the project folder instead.
+- NEW: Options are now saved to an XML file named
+  "BuildReportToolOptions.xml". By default this file is saved inside the
+  BuildReport folder, but can be moved to, and will be recognized at certain
+  paths: at the topmost Assets folder, outside the topmost Assets folder,
+  in the project's ProjectSettings folder, and in the user's My Documents
+  (inside where Build Report XML files are saved). This is in prioritized
+  order, so even if there is an options file in the My Documents folder,
+  if there is also one in the project folder, it will use the one in the
+  project folder instead.
 
 
 Version 3.1.2
@@ -49,7 +95,8 @@ Version 3.1
 
 
 Version 3.0.21
-- FIX: Disabled fix for "Resources" assets size for Unity 5.2.1 (and greater) since Unity fixed it now.
+- FIX: Disabled fix for "Resources" assets size for Unity 5.2.1 (and greater)
+  since Unity fixed it now.
 
 
 Version 3.0.20
@@ -63,7 +110,8 @@ Version 3.0.19
 
 
 Version 3.0.18
-- FIX: Fixed exception if the last known build path is an empty string (happens when build was created using BuildPipeline.BuildPlayer)
+- FIX: Fixed exception if the last known build path is an empty string
+  (happens when build was created using BuildPipeline.BuildPlayer)
 
 
 Version 3.0.17

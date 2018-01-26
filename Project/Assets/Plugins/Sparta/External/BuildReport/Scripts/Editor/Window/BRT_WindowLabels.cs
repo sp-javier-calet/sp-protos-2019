@@ -10,10 +10,12 @@ public static class Labels
 	public const string WAITING_FOR_BUILD_TO_COMPLETE_MSG = "Waiting for build to complete... Click this window if not in focus to refresh.";
 
 	public const string NO_BUILD_INFO_FOUND_MSG = "No Build Info.\n\nClick \"Get Log\" to retrieve the last build info from the Editor log.\n\nClick Open to manually open a previously saved build report file.";
-
+	
+	public const string FOUND_NO_LOG_ARGUMENT_MSG = "Warning: Unity was launched with the -nolog argument. Build Report Tool can't obtain build info if there are no logs. To generate build reports, relaunch Unity without the -nolog argument.";
 
 
 	public const string MONO_DLLS_LABEL = "System DLLs:";
+	public const string UNITY_ENGINE_DLLS_LABEL = "UnityEngine DLLs:";
 	public const string SCRIPT_DLLS_LABEL = "Script DLLs:";
 
 
@@ -26,6 +28,7 @@ public static class Labels
 	public const string USED_TOTAL_SIZE_LABEL = "Total Used\nAssets Size:";
 	public const string STREAMING_ASSETS_TOTAL_SIZE_LABEL = "Streaming\nAssets Size:";
 	public const string BUILD_TOTAL_SIZE_LABEL = "Total Build Size:";
+	public const string BUILD_XCODE_SIZE_LABEL = "Size of Xcode Project Folder";
 
 	public const string WEB_UNITY3D_FILE_SIZE_LABEL = "Size of .unity3d File:";
 
@@ -60,7 +63,7 @@ public static class Labels
 
 	public const string ASSET_SIZE_BREAKDOWN_MSG_PRE_BOLD = "Sorted by";
 	public const string ASSET_SIZE_BREAKDOWN_MSG_BOLD = "uncompressed";
-	public const string ASSET_SIZE_BREAKDOWN_MSG_POST_BOLD = "size. Click on name to select/ping it in the Project window. Click on checkbox to include it in size calculations or batch deletions.";
+	public const string ASSET_SIZE_BREAKDOWN_MSG_POST_BOLD = "size. Click on an asset's name to include it in size calculations or batch deletions. Shift-click to select many. Ctrl-click to toggle selection.";
 
 	public const string TOTAL_SIZE_BREAKDOWN_MSG_PRE_BOLD = "Based on";
 	public const string TOTAL_SIZE_BREAKDOWN_MSG_BOLD = "uncompressed";
@@ -89,6 +92,7 @@ public static class Labels
 
 	public const string RECALC_RAW_SIZES = "Recalculate Raw Sizes";
 	public const string RECALC_IMPORTED_SIZES = "Recalculate Imported Sizes";
+	public const string RECALC_SIZE_BEFORE_BUILD = "Recalculate Size Before Build";
 
 	public const string SELECT_ALL_LABEL = "Select All";
 	public const string SELECT_NONE_LABEL = "Select None";
@@ -100,10 +104,10 @@ public static class Labels
 	public const string BUILD_TYPE_SUFFIX_MSG = "";
 	public const string UNITY_VERSION_PREFIX_MSG = ", built in ";
 
-	public const string COLLECT_BUILD_INFO_LABEL = "Collect and save build info automatically after building (includes batchmode builds)";
+	public const string COLLECT_BUILD_INFO_LABEL = "Automatically collect and save build info after building (does not include batchmode builds)";
 	public const string SHOW_AFTER_BUILD_LABEL = "Show Build Report Window automatically after building";
-	public const string INCLUDE_SVN_LABEL = "Include SVN metadata in unused assets scan";
-	public const string INCLUDE_GIT_LABEL = "Include Git metadata in unused assets scan";
+	public const string INCLUDE_SVN_LABEL = "Include SVN metadata when creating Unused Assets list";
+	public const string INCLUDE_GIT_LABEL = "Include Git metadata when creating Unused Assets list";
 	public const string FILE_FILTER_DISPLAY_TYPE_LABEL = "Draw file filters as:";
 
 	public const string FILE_FILTER_DISPLAY_TYPE_DROP_DOWN_LABEL = "Dropdown box";
@@ -119,7 +123,8 @@ public static class Labels
 	public const string SAVE_PATH_TYPE_PROJECT_LABEL = "Beside project folder";
 
 	public const string EDITOR_LOG_LABEL = "Unity Editor.log path ";
-	public const string EDITOR_LOG_INVALID_MSG = "Invalid path. Please change the path by clicking \"Set Override Log\"";
+	public const string DEFAULT_EDITOR_LOG_NOT_FOUND_MSG = "Warning: Unity Editor Log file not found.";
+	public const string OVERRIDE_LOG_NOT_FOUND_MSG = "Specified log file not found. Please change the path by clicking \"Set Override Log\"";
 
 	public const string SET_OVERRIDE_LOG_LABEL = "Set Override Log";
 	public const string CLEAR_OVERRIDE_LOG_LABEL = "Clear Override Log";
