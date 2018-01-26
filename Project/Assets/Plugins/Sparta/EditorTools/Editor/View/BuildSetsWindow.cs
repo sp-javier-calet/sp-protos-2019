@@ -31,9 +31,9 @@ namespace SpartaTools.Editor.View
 
         static bool? _autoApply;
 
-        #pragma warning disable CS0414
+        #pragma warning disable 414
         static TargetChangedListener _targetChangedListener;
-        #pragma warning restore
+        #pragma warning restore 414
 
         public static bool AutoApply
         {
