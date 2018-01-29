@@ -701,7 +701,7 @@ namespace SocialPoint.Multiplayer
             Context = context;
             _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject, handleException);
             _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>(handleException);
-            _fakeGameObject = CreateObject(0, 0);
+            _fakeGameObject = CreateObject(1, 0);
         }
     
         public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
