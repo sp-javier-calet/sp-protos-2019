@@ -130,9 +130,10 @@ public static class Util
 				return BuildPlatform.LinuxUniversal;
 #endif
 
-
+#if !UNITY_2017_3_OR_NEWER
 			case BuildTarget.StandaloneOSXIntel:
 				return BuildPlatform.MacOSX32;
+#endif
 
 #if UNITY_4_2_AND_GREATER
 			case BuildTarget.StandaloneOSXIntel64:
@@ -188,6 +189,18 @@ public static class Util
 	public static bool IsAScriptDLL(string filename)
 	{
 		return filename.StartsWith("Assembly-");
+	}
+	
+	public static bool IsAUnityEngineDLL(string filename)
+	{
+		return filename.StartsWith("UnityEngine.");
+	}
+	
+	public static bool IsAKnownSystemDLL(string filename)
+	{
+		var filenameLower = filename.ToLower();
+
+		return filenameLower == "system.dll" || filenameLower == "system.core.dll" || filenameLower == "mscorlib.dll" || filenameLower == "mono.security.dll" || filenameLower == "boo.lang.dll";
 	}
 
 	public static string RemovePrefix(string prefix, string val)
@@ -703,6 +716,19 @@ public static class Util
 		       IsFileOfType(file, ".controller") ||
 		       IsFileOfType(file, ".mask");
 	}
+	
+	public static bool IsFileAUnityAsset(string file)
+	{
+		return IsFileOfType(file, ".unity") ||
+		       IsFileOfType(file, ".prefab") ||
+		       IsFileOfType(file, ".asset") ||
+		       IsFileOfType(file, ".controller") ||
+		       IsFileOfType(file, ".mat") ||
+		       IsFileOfType(file, ".flare") ||
+		       IsFileOfType(file, ".physicMaterial") ||
+		       IsFileOfType(file, ".guiskin") ||
+			   IsFileAUnityAnimation(file);
+	}
 
 	// high-level filename checks
 
@@ -1139,7 +1165,7 @@ public static class Util
 	{
 		get
 		{
-			if (IsDefaultEditorLogPathOverriden)
+			if (IsDefaultEditorLogPathOverridden)
 			{
 				return BuildReportTool.Options.EditorLogOverridePath;
 			}
@@ -1151,15 +1177,15 @@ public static class Util
 	{
 		get
 		{
-			if (IsDefaultEditorLogPathOverriden)
+			if (IsDefaultEditorLogPathOverridden)
 			{
-				return "(Overriden)";
+				return "(Overridden)";
 			}
 			return "(Default)";
 		}
 	}
 
-	public static bool IsDefaultEditorLogPathOverriden
+	public static bool IsDefaultEditorLogPathOverridden
 	{
 		get
 		{
@@ -1216,6 +1242,51 @@ public static class Util
 			// happens with users who use custom builders
 			//Debug.LogWarning("Folder \"" + buildFolder + "\" does not exist.");
 			return "";
+		}
+
+		buildFolder += "/";
+
+		return buildFolder;
+	}
+
+	public static string GetBuildDataFolder(string buildFilePath)
+	{
+		string buildFolder = buildFilePath;
+
+		const string WINDOWS_APP_FILE_TYPE = ".exe";
+		const string MAC_APP_FILE_TYPE = ".app";
+
+		if (buildFolder.EndsWith(WINDOWS_APP_FILE_TYPE)) // Windows
+		{
+			//
+			// example:
+			// "/Users/Ferds/Unity Projects/BuildReportTool/testwin64.exe"
+			//
+			// need to remove ".exe" at end
+			// then append "_Data" at end
+			//
+			buildFolder = buildFolder.Substring(0, buildFolder.Length - WINDOWS_APP_FILE_TYPE.Length);
+			buildFolder += "_Data";
+		}
+		else if (buildFolder.EndsWith(MAC_APP_FILE_TYPE)) // Mac OS X
+		{
+			//
+			// example:
+			// "/Users/Ferds/Unity Projects/BuildReportTool/testmac.app"
+			//
+			// .app is really just a folder.
+			//
+			buildFolder += "/Contents/Data";
+		}
+		else if (Directory.Exists(buildFolder + "/Data")) // iOS
+		{
+			buildFolder += "/Data";
+		}
+		else if (!Directory.Exists(buildFolder))
+		{
+			// happens with users who use custom builders
+			//Debug.LogWarning("Folder \"" + buildFolder + "\" does not exist.");
+			return string.Empty;
 		}
 
 		buildFolder += "/";
@@ -1363,9 +1434,13 @@ public static class Util
 	{
 		return EditorBuildSettings.scenes.Where(s => s.enabled).Select(n => n.path).ToArray();
 	}
+	
+	public static EditorBuildSettingsScene[] GetAllScenesInBuild()
+	{
+		return EditorBuildSettings.scenes;
+	}
 
-
-	public static BuildReportTool.SizePart CreateSizePartFromFile(string filename, string fileFullPath)
+	public static BuildReportTool.SizePart CreateSizePartFromFile(string filename, string fileFullPath, bool getRawSize = true)
 	{
 		BuildReportTool.SizePart outPart = new BuildReportTool.SizePart();
 
@@ -1373,9 +1448,17 @@ public static class Util
 
 		if (File.Exists(fileFullPath))
 		{
-			long fileSizeBytes = GetFileSizeInBytes(fileFullPath);
-			outPart.RawSizeBytes = fileSizeBytes;
-			outPart.RawSize = GetBytesReadable(fileSizeBytes);
+			if (getRawSize)
+			{
+				long fileSizeBytes = GetFileSizeInBytes(fileFullPath);
+				outPart.RawSizeBytes = fileSizeBytes;
+				outPart.RawSize = GetBytesReadable(fileSizeBytes);
+			}
+			else
+			{
+				outPart.RawSizeBytes = -1;
+				outPart.RawSize = "N/A";
+			}
 
 
 			long importedSizeBytes = -1;
@@ -1529,7 +1612,7 @@ public static class Util
 		return ret;
 	}
 
-	public static void SerializeBuildInfoAtFolder(BuildInfo buildInfo, string pathToSave)
+	public static string SerializeBuildInfoAtFolder(BuildInfo buildInfo, string pathToSave)
 	{
 		string filePath = pathToSave;
 		if (!string.IsNullOrEmpty(pathToSave))
@@ -1545,6 +1628,8 @@ public static class Util
 		//Debug.Log("built filepath " + filePath);
 
 		SerializeBuildInfo(buildInfo, filePath);
+
+		return filePath;
 	}
 
 	public static void SerializeBuildInfo(BuildInfo buildInfo, string serializedBuildInfoFilePath)

@@ -128,7 +128,7 @@ namespace SocialPoint.AssetBundlesClient
             _request = UnityWebRequest.GetAssetBundle(url, (uint)assetBundleVersion, 0);
             if(_request != null)
             {
-                _request.Send();
+                _request.SendWebRequest();
             }
         }
 

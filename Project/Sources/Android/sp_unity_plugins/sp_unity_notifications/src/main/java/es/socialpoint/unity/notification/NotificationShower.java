@@ -1,6 +1,7 @@
 package es.socialpoint.unity.notification;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -36,6 +38,7 @@ public class NotificationShower {
     private String mTitle;
     private Origin mOrigin;
     private Bundle mExtras;
+    private String mChannelId;
 
     public static NotificationShower create(Context context, Bundle extras) {
         return new NotificationShower(context, extras);
@@ -45,6 +48,29 @@ public class NotificationShower {
         mContext = context;
         mAlarmId = unmanagedId--;
         mExtras = extras;
+
+        if(extras != null && extras.containsKey(IntentParameters.EXTRA_CHANNEL_ID))
+        {
+            mChannelId = extras.getString(IntentParameters.EXTRA_CHANNEL_ID);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            {
+                NotificationManager notificationManager =
+                        (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                NotificationChannel channel = notificationManager.getNotificationChannel(mChannelId);
+                if (channel == null)
+                {
+                    Log.e(TAG, "Invalid notification channel '" + mChannelId + "', falling back to the default");
+                    mChannelId = null;
+                }
+            }
+        }
+
+        if (mChannelId == null)
+        {
+            mChannelId = NotificationBridge.DEFAULT_CHANNEL_ID;
+        }
     }
 
    public NotificationShower setAlarmId(int alarmId) {
@@ -81,13 +107,13 @@ public class NotificationShower {
     }
     
     public void show() {
-        Log.d(TAG, "Showing notification ID: " + mAlarmId + " [ " + mTitle + " : " + mText + "]");
+        Log.d(TAG, "Showing notification ID: " + mAlarmId + " [ " + mTitle + " : " + mText + " ] in channel '" + mChannelId + "'");
         if(mText == null && mTitle == null) {
             Log.e(TAG, "Invalid notification shower");
         }
 
         // Create notification builder and set default parameters and configuration
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext, mChannelId)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
 

@@ -10,6 +10,8 @@ public class Help : BaseScreen
 {
 	public override string Name { get{ return Labels.HELP_CATEGORY_LABEL; } }
 
+	const int LABEL_LENGTH = 16000;
+
 	public override void RefreshData(BuildInfo buildReport)
 	{
 		const string README_FILENAME = "README.txt";
@@ -17,6 +19,27 @@ public class Help : BaseScreen
 
 		const string CHANGELOG_FILENAME = "VERSION.txt";
 		_changelogContents = BuildReportTool.Util.GetPackageFileContents(CHANGELOG_FILENAME);
+		
+		
+		if (_readmeContents.Length > LABEL_LENGTH)
+		{
+			_readmeContents = _readmeContents.Substring(0, LABEL_LENGTH);
+		}
+
+		if (_changelogContents.Length > LABEL_LENGTH)
+		{
+			_changelogContents = _changelogContents.Substring(0, LABEL_LENGTH);
+		}
+
+		if (_readmeGuiContent == null)
+		{
+			_readmeGuiContent = new GUIContent(_readmeContents);
+		}
+
+		if (_changelogGuiContent == null)
+		{
+			_changelogGuiContent = new GUIContent(_changelogContents);
+		}
 	}
 
 	public override void DrawGUI(Rect position, BuildInfo buildReportToDisplay)
@@ -43,7 +66,7 @@ public class Help : BaseScreen
 					_readmeScrollPos = GUILayout.BeginScrollView(
 						_readmeScrollPos);
 
-						float readmeHeight = GUI.skin.GetStyle(HELP_CONTENT_GUI_STYLE).CalcHeight(new GUIContent(_readmeContents), HELP_CONTENT_WIDTH);
+						float readmeHeight = GUI.skin.GetStyle(HELP_CONTENT_GUI_STYLE).CalcHeight(_readmeGuiContent, HELP_CONTENT_WIDTH);
 
 						EditorGUILayout.SelectableLabel(_readmeContents, HELP_CONTENT_GUI_STYLE, GUILayout.Width(HELP_CONTENT_WIDTH), GUILayout.Height(readmeHeight));
 
@@ -53,8 +76,8 @@ public class Help : BaseScreen
 				{
 					_changelogScrollPos = GUILayout.BeginScrollView(
 						_changelogScrollPos);
-
-						float changelogHeight = GUI.skin.GetStyle(HELP_CONTENT_GUI_STYLE).CalcHeight(new GUIContent(_changelogContents), HELP_CONTENT_WIDTH);
+						
+						float changelogHeight = GUI.skin.GetStyle(HELP_CONTENT_GUI_STYLE).CalcHeight(_changelogGuiContent, HELP_CONTENT_WIDTH);
 
 						EditorGUILayout.SelectableLabel(_changelogContents, HELP_CONTENT_GUI_STYLE, GUILayout.Width(HELP_CONTENT_WIDTH), GUILayout.Height(changelogHeight));
 
@@ -85,6 +108,9 @@ public class Help : BaseScreen
 	Vector2 _changelogScrollPos;
 	string _changelogContents;
 	float _changelogHeight;
+
+	GUIContent _readmeGuiContent;
+	GUIContent _changelogGuiContent;
 }
 
 }

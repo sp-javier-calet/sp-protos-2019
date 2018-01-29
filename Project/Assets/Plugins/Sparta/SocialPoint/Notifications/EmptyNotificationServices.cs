@@ -35,5 +35,9 @@ namespace SocialPoint.Notifications
                 return false;
             }
         }
+
+        public void SetupChannels(NotificationChannel[] channels)
+        {
+        }
     }
 }
