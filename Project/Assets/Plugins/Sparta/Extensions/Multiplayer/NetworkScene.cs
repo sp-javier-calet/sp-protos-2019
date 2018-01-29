@@ -678,6 +678,8 @@ namespace SocialPoint.Multiplayer
     {
         NetworkSceneContext _context = null;
 
+        NetworkGameObject _fakeGameObject;
+
         public NetworkSceneContext Context
         {
             get
@@ -694,11 +696,12 @@ namespace SocialPoint.Multiplayer
         readonly NetworkBehaviourContainerParser<INetworkSceneBehaviour> _behaviourParser;
         readonly NetworkGameObjectParser _objectParser;
 
-        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null, Action<Exception> reportHandledException = null)
+        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null, Action<Exception> handleException = null)
         {
             Context = context;
-            _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject, reportHandledException);
-            _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>(reportHandledException);
+            _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject, handleException);
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>(handleException);
+            _fakeGameObject = CreateObject(0, 0);
         }
     
         public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
@@ -767,8 +770,8 @@ namespace SocialPoint.Multiplayer
                 if(go == null)
                 {
                     Base.Log.w("Trying to update game object " + id + " not present in the scene. Ignoring update data.");
-                    // Create a game object just to parse the skipped object update data.
-                    _objectParser.Parse(CreateObject(id, 0), reader);
+                    // Parse object to skipp its update data.
+                    _objectParser.Parse(_fakeGameObject, reader);
                     continue;
                 }
                 _objectParser.Parse(go, reader);

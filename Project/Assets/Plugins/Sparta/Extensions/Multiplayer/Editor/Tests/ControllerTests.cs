@@ -24,8 +24,8 @@ namespace SocialPoint.Multiplayer
             _client = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
             _serverCtrl = new NetworkServerSceneController(_server, new NetworkSceneContext());
-            _clientCtrl = new NetworkClientSceneController(_client, new NetworkSceneContext(), null);
-            _client2Ctrl = new NetworkClientSceneController(_client2, new NetworkSceneContext(), null);
+            _clientCtrl = new NetworkClientSceneController(_client, new NetworkSceneContext());
+            _client2Ctrl = new NetworkClientSceneController(_client2, new NetworkSceneContext());
             _serverCtrl.ServerConfig.EnablePrediction = true;
             _serverCtrl.Restart(_server);
             _clientCtrl.Restart(_client);

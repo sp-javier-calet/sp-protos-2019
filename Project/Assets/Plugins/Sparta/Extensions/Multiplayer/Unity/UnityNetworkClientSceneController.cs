@@ -15,7 +15,7 @@ namespace SocialPoint.Multiplayer
 
     public class UnityNetworkClientSceneController : NetworkClientSceneController
     {
-        public UnityNetworkClientSceneController(INetworkClient client, NetworkSceneContext context, ICrashReporter crashReporter) : base(client, context, crashReporter)
+        public UnityNetworkClientSceneController(INetworkClient client, NetworkSceneContext context) : base(client, context)
         {
         }
 

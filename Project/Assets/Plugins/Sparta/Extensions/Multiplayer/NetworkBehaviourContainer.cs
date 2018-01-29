@@ -731,11 +731,11 @@ namespace SocialPoint.Multiplayer
     {
         TypedDiffReadParser<Behaviour> _behaviourParser;
         MemoryStream _memStream = new MemoryStream(64 * 1024);
-        Action<Exception> _reportHandledException;
+        Action<Exception> _handleException;
 
-        public NetworkBehaviourContainerParser(Action<Exception> reportHandledException = null)
+        public NetworkBehaviourContainerParser(Action<Exception> handleException = null)
         {
-            _reportHandledException = reportHandledException;
+            _handleException = handleException;
             _behaviourParser = new TypedDiffReadParser<Behaviour>();
         }
 
@@ -762,18 +762,18 @@ namespace SocialPoint.Multiplayer
                 _memStream.Write(bytes, 0, bytes.Length);
                 _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
-                Behaviour behaviour;
 
                 try
                 {
+                    Behaviour behaviour;
                     if(_behaviourParser.TryParse(code, memReader, out behaviour))
                     {
                         obj.Add(behaviour);
                     }
                 }
-                catch(EndOfStreamException e)
+                catch(Exception e)
                 {
-                    ReportBehaviourParsingError(new EndOfStreamException("Failed to read past end of stream when parsing the behaviour with code: " + code, e));
+                    ReportHandledException(e, code);
                 }
 
                 _memStream.Seek(0, SeekOrigin.Begin);
@@ -799,29 +799,30 @@ namespace SocialPoint.Multiplayer
                 _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
 
-                Behaviour behaviour;
-                if(isDiff)
+                try
                 {
-                    int index = obj.SerializersCodes.IndexOf(code);
-                    if(index != -1)
+                    Behaviour behaviour;
+                    if(isDiff)
                     {
-                        try
+                        int index = obj.SerializersCodes.IndexOf(code);
+                        if(index != -1)
                         {
                             _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
                         }
-                        catch(EndOfStreamException e)
+                    }
+                    else
+                    {
+                        if(_behaviourParser.TryParse(code, memReader, out behaviour))
                         {
-                            ReportBehaviourParsingError(new EndOfStreamException("Failed to read past end of stream when parsing the behaviour with code: " + code, e));
+                            obj.Add(behaviour);
                         }
                     }
                 }
-                else
+                catch(Exception e)
                 {
-                    if(_behaviourParser.TryParse(code, memReader, out behaviour))
-                    {
-                        obj.Add(behaviour);
-                    }
+                    ReportHandledException(e, code);
                 }
+
                 _memStream.Seek(0, SeekOrigin.Begin);
             }
            
@@ -839,13 +840,21 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        void ReportBehaviourParsingError(Exception e)
+        void ReportHandledException(Exception e, byte code)
         {
-            Base.Log.e(e.Message);
+            string errorMessage = "Failed parsing the behaviour with code: " + code.ToString();
 
-            if(_reportHandledException != null)
+            Base.Log.e(errorMessage + " due to exception: " + e.ToString());
+
+            var newException = new Exception(errorMessage, e);
+
+            if(_handleException == null)
             {
-                _reportHandledException(e);
+                throw newException;
+            }
+            else
+            {
+                _handleException(newException);
             }
         }
     }

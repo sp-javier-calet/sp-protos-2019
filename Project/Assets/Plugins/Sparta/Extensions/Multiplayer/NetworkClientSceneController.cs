@@ -16,7 +16,7 @@ namespace SocialPoint.Multiplayer
         INetworkMessageReceiver _receiver;
         NetworkSceneParser _parser;
 
-        Action<Exception> ReportHandledException;
+        public event Action<Exception> HandleException;
 
         Dictionary<int, object> _pendingActions;
         int _lastAppliedAction;
@@ -64,15 +64,10 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public NetworkClientSceneController(INetworkClient client, NetworkSceneContext context, ICrashReporter crashReporter, bool restart = false)
+        public NetworkClientSceneController(INetworkClient client, NetworkSceneContext context, bool restart = false)
             : base(context)
         {
             _client = client;
-
-            if(crashReporter != null)
-            {
-                ReportHandledException += crashReporter.ReportHandledException;
-            }
 
             if(restart)
             {
@@ -117,7 +112,7 @@ namespace SocialPoint.Multiplayer
 
             _clientScene = new NetworkScene(Context);
             _scene = (NetworkScene)_clientScene.Clone();
-            _parser = new NetworkSceneParser(Context, null, ReportHandledException);
+            _parser = new NetworkSceneParser(Context, null, HandleException);
             _pendingActions = new Dictionary<int, object>();
             _pendingGameObjectAdded = new List<NetworkGameObject>();
 

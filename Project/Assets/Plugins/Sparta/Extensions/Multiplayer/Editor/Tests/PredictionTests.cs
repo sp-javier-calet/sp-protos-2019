@@ -30,8 +30,8 @@ namespace SocialPoint.Multiplayer
             _serverCtrl.ServerConfig.EnablePrediction = true;
             _serverCtrl.Restart(localServer);
 
-            _clientCtrl1 = new NetworkClientSceneController(_client1, new NetworkSceneContext(), null, true);
-            _clientCtrl2 = new NetworkClientSceneController(_client2, new NetworkSceneContext(), null, true);
+            _clientCtrl1 = new NetworkClientSceneController(_client1, new NetworkSceneContext(), true);
+            _clientCtrl2 = new NetworkClientSceneController(_client2, new NetworkSceneContext(), true);
 
             _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
             _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);

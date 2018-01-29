@@ -243,7 +243,7 @@ namespace SocialPoint.Multiplayer
             var objectParser = new NetworkGameObjectParser(context, factory);
             objectParser.RegisterBehaviour(1, new TestObjectParser());
 
-            var sceneParser = new NetworkSceneParser(context, objectParser, null);
+            var sceneParser = new NetworkSceneParser(context, objectParser);
             sceneParser.RegisterSceneBehaviour(1, new TestSceneParser());
 
             SerializationTestUtils<NetworkScene>

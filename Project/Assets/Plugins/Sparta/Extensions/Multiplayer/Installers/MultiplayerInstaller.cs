@@ -72,8 +72,8 @@ namespace SocialPoint.Multiplayer
         {
             UnityNetworkClientSceneController networkClient = new UnityNetworkClientSceneController(
                                                                   Container.Resolve<INetworkClient>(),
-                                                                  Container.Resolve<NetworkSceneContext>(),
-                                                                  Container.Resolve<ICrashReporter>());
+                                                                  Container.Resolve<NetworkSceneContext>());
+            networkClient.HandleException += Container.Resolve<ICrashReporter>().ReportHandledException;
             return networkClient;
         }
 
