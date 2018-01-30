@@ -227,7 +227,7 @@ namespace SocialPoint.Utils
             return SineEaseInOut(t, b, c, d);
         }
 
-        [Obsolete("Use SineEaseInOut method")]
+        [Obsolete("Use QuadEaseIn method")]
         public static float InQuad(float t, float b, float c, float d)
         {
             return QuadEaseIn(t, b, c, d);
