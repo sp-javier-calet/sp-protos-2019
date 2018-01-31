@@ -12,8 +12,9 @@ namespace SocialPoint.TimeLinePlayables
 
         public enum HowToAnimateType
         {
+            UseInitialTransformValues,
             UseAbsoluteValues,
-            UseReferencedTransforms
+            UseReferenceTransform
         }
 
         public enum AnimateType
@@ -22,7 +23,8 @@ namespace SocialPoint.TimeLinePlayables
             Tween
         }
             
-        public HowToAnimateType HowToAnimate = HowToAnimateType.UseAbsoluteValues;
+        public HowToAnimateType HowToAnimateFrom = HowToAnimateType.UseInitialTransformValues;
+        public HowToAnimateType HowToAnimateTo = HowToAnimateType.UseAbsoluteValues;
         public AnimateType AnimationType = AnimateType.AnimationCurve;
         public EaseType EaseType = EaseType.Linear;
         public AnimationCurve AnimationCurve = defaultAnimationCurve;

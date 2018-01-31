@@ -223,6 +223,7 @@ MonoBehaviour:
   DisappearAnimationFactory: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
+  _containers2d: []
   _containers3d: []
   PlayableDirectors:
   - {fileID: 320133653854603426}
@@ -760,7 +761,7 @@ PlayableDirector:
     - 67e9b6c8b8874428594e90673c606467: {fileID: 224301889076567880}
     - 95124833bb1f6474597faa3300a3fffc: {fileID: 224900404046356020}
     - 8321f43c26d554667b63846b96435e98: {fileID: 224301889076567880}
-    - 38d15a3a4ce634d27b54b1130ad21dec: {fileID: 224900404046356020}
+    - 38d15a3a4ce634d27b54b1130ad21dec: {fileID: 224301889076567880}
     - e13bd112c3a3b498087a4613ff32f0ef: {fileID: 224900404046356020}
     - a933b0b690719407190c595c27991058: {fileID: 224301889076567880}
     - 9ced812c0b3e442d2948ae169e476ad6: {fileID: 224900404046356020}

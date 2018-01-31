@@ -5,6 +5,17 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class RotationTweenPlayableMixerBehaviour : BaseTweenPlayableMixerBehaviour
     {
+        public Transform _binding;
+        public Vector3 _defaultValue;
+
+        public override void OnGraphStop(Playable playable)
+        {
+            if(_binding != null)
+            {
+                _binding.eulerAngles = _defaultValue;
+            }
+        }
+
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
@@ -12,6 +23,12 @@ namespace SocialPoint.TimeLinePlayables
             if(trackBinding == null)
             {
                 return;
+            }
+
+            if(_binding == null)
+            {
+                _binding = trackBinding;
+                _defaultValue = _binding.eulerAngles;
             }
 
             // Get number of clips for the current track
@@ -25,38 +42,14 @@ namespace SocialPoint.TimeLinePlayables
             var blendedRotation = Vector3.zero;
             var rotationTotalWeight = 0f;
 
-            DebugLog("Input count: " + inputCount);
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<BaseTweenPlayableBehaviour>)playable.GetInput(i);
-                var playableBehaviour = (ScaleTweenPlayableBehaviour)playableInput.GetBehaviour();
-
-                if(trackBinding.localScale == playableBehaviour.AnimateTo)
-                {
-                    continue;
-                }
-
-                if(!_firstFrameHappened)
-                {
-                    // We need to setup this in the first processed frame for each of the clips, because from the BaseTweenPlayableBehaviour 
-                    // we have no access to the current selected Transform to animate...
-                    if(playableBehaviour.HowToAnimate == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
-                    {
-                        if(playableBehaviour.UseCurrentFromValue)
-                        {
-                            playableBehaviour.AnimateFrom = currentRotation;
-                        }
-
-                        if(playableBehaviour.UseCurrentToValue)
-                        {
-                            playableBehaviour.AnimateTo = currentRotation;
-                        }
-                    }
-                    _firstFrameHappened = true;
-                }
-
+                var playableBehaviour = (RotationTweenPlayableBehaviour)playableInput.GetBehaviour();
                 var inputWeight = playable.GetInputWeight(i);
                 var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
+
+                playableBehaviour.SetAnimatedValues(_defaultValue);
 
                 rotationTotalWeight += inputWeight;
                 blendedRotation += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;

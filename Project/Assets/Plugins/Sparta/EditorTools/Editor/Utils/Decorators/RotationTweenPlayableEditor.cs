@@ -19,6 +19,10 @@ namespace SpartaTools.Editor.Utils.Decorators
             var fromExposedRefence = serializedObject.FindProperty("TransformFrom");
             var toExposedRefence = serializedObject.FindProperty("TransformTo");
 
+            var oldHowToAnimateFrom = template.HowToAnimateFrom;
+            var oldHowToAnimateTo = template.HowToAnimateTo;
+            var oldAnimationType = template.AnimationType;
+
             GUI.enabled = false;
             EditorGUILayout.PropertyField(scriptReference, true);
             GUI.enabled = true;
@@ -28,34 +32,29 @@ namespace SpartaTools.Editor.Utils.Decorators
 
             EditorGUI.BeginChangeCheck();
 
-            template.HowToAnimate = (BaseTweenPlayableBehaviour.HowToAnimateType)EditorGUILayout.EnumPopup("How To Animate", template.HowToAnimate);
-            if(template.HowToAnimate == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferencedTransforms)
+            EditorGUILayout.LabelField("Animate From", EditorStyles.boldLabel);
+            template.HowToAnimateFrom = (BaseTweenPlayableBehaviour.HowToAnimateType)EditorGUILayout.EnumPopup(new GUIContent("How To Animate:"), template.HowToAnimateFrom);
+            if(template.HowToAnimateFrom == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferenceTransform)
             {
-                EditorGUILayout.PropertyField(fromExposedRefence, new GUIContent("Reference From"), true);
-                EditorGUILayout.PropertyField(toExposedRefence, new GUIContent("Reference To"), true);
+                EditorGUILayout.PropertyField(fromExposedRefence, new GUIContent("Reference Transform:"), true);
             }
-            else
+            else if(template.HowToAnimateFrom == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
             {
-                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-                EditorGUILayout.LabelField("Animate From:", EditorStyles.boldLabel);
+                template.AnimateFrom = EditorGUILayout.Vector3Field("Values:", template.AnimateFrom);
+            }
 
-                template.UseCurrentFromValue = EditorGUILayout.Toggle("Use Current Value", template.UseCurrentFromValue);
-                if(!template.UseCurrentFromValue)
-                {
-                    EditorGUI.indentLevel++;
-                    template.AnimateFrom = EditorGUILayout.Vector3Field("Value From", template.AnimateFrom);
-                    EditorGUI.indentLevel--;
-                }
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
 
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Animate To:", EditorStyles.boldLabel);
-                template.UseCurrentToValue = EditorGUILayout.Toggle("Use Current Value", template.UseCurrentToValue);
-                if(!template.UseCurrentToValue)
-                {
-                    EditorGUI.indentLevel++;
-                    template.AnimateTo = EditorGUILayout.Vector3Field("Value To", template.AnimateTo);
-                    EditorGUI.indentLevel--;
-                }
+            EditorGUILayout.LabelField("Animate To", EditorStyles.boldLabel);
+            template.HowToAnimateTo = (BaseTweenPlayableBehaviour.HowToAnimateType)EditorGUILayout.EnumPopup(new GUIContent("How To Animate:"), template.HowToAnimateTo);
+            if(template.HowToAnimateTo == BaseTweenPlayableBehaviour.HowToAnimateType.UseReferenceTransform)
+            {
+                EditorGUILayout.PropertyField(toExposedRefence, new GUIContent("Reference Transform:"), true);
+            }
+            else if(template.HowToAnimateTo == BaseTweenPlayableBehaviour.HowToAnimateType.UseAbsoluteValues)
+            {
+                template.AnimateTo = EditorGUILayout.Vector3Field("Values:", template.AnimateTo);
             }
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -68,6 +67,14 @@ namespace SpartaTools.Editor.Utils.Decorators
             else
             {
                 template.EaseType = (EaseType)EditorGUILayout.EnumPopup("Easing", template.EaseType);
+            }
+
+            // We need to focre gui changing if some enum popup has changed
+            if(oldHowToAnimateFrom != template.HowToAnimateFrom ||
+               oldHowToAnimateTo != template.HowToAnimateTo ||
+               oldAnimationType != template.AnimationType)
+            {
+                GUI.changed = true;
             }
 
             if(EditorGUI.EndChangeCheck())

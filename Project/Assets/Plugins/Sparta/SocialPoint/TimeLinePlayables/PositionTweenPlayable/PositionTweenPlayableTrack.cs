@@ -16,13 +16,14 @@ namespace SocialPoint.TimeLinePlayables
 
         public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var trackBinding = director.GetGenericBinding(this) as Transform;
             if(trackBinding == null)
             {
                 return;
             }
 
+            var defaultPosition = trackBinding.position;
             var serializedObject = new UnityEditor.SerializedObject(trackBinding);
             var iterator = serializedObject.GetIterator();
             while(iterator.NextVisible(true))
@@ -34,7 +35,7 @@ namespace SocialPoint.TimeLinePlayables
 
                 driver.AddFromName<Transform>(trackBinding.gameObject, iterator.propertyPath);
             }
-            #endif
+#endif
 
             base.GatherProperties(director, driver);
         }

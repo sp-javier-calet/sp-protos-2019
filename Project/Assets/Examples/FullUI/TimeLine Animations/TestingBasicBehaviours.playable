@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 337831424, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: TestingBasicScale
+  m_Name: TestingBasicBehaviours
   m_EditorClassIdentifier: 
   m_NextId: 0
   m_Tracks:
@@ -31,7 +31,8 @@ MonoBehaviour:
   m_Name: ScaleTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
@@ -78,7 +79,8 @@ MonoBehaviour:
   m_Name: ScaleTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
@@ -272,8 +274,9 @@ MonoBehaviour:
   m_Name: PositionTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 1
-    AnimationType: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 2
+    AnimationType: 1
     EaseType: 0
     AnimationCurve:
       serializedVersion: 2
@@ -297,9 +300,9 @@ MonoBehaviour:
     InverseDuration: 0
     TransformFrom: {fileID: 0}
     TransformTo: {fileID: 0}
-    UseCurrentFromValue: 1
+    UseCurrentFromValue: 0
     UseCurrentToValue: 0
-    AnimateFrom: {x: 0, y: 0, z: 0}
+    AnimateFrom: {x: 500, y: 100, z: 0}
     AnimateTo: {x: 0, y: 0, z: 0}
   TransformFrom:
     exposedName: 8321f43c26d554667b63846b96435e98
@@ -319,7 +322,8 @@ MonoBehaviour:
   m_Name: ScaleTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
@@ -379,7 +383,8 @@ MonoBehaviour:
   m_Name: PositionTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
@@ -426,7 +431,8 @@ MonoBehaviour:
   m_Name: ScaleTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 1
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
@@ -1077,7 +1083,8 @@ MonoBehaviour:
   m_Name: PositionTweenPlayableClip
   m_EditorClassIdentifier: 
   Template:
-    HowToAnimate: 0
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
     AnimationType: 0
     EaseType: 0
     AnimationCurve:
