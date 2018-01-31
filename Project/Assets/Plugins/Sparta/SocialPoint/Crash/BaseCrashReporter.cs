@@ -898,17 +898,17 @@ namespace SocialPoint.Crash
         void HandleLog(string logString, string stackTrace, LogType type)
         {
             bool dotrack = type == LogType.Exception && _exceptionLogActive;
-			dotrack |= type == LogType.Error && _errorLogActive;
+            dotrack |= type == LogType.Error && _errorLogActive;
             
-			if(dotrack)
+            if(dotrack)
             {
-				bool handled = type == LogType.Error;
+                bool handled = type == LogType.Error;
                 TrackException(logString, stackTrace, handled);
             }
 
             if(_alertViewPrototype != null && type == LogType.Exception)
             {
-				CreateAlertView(logString, stackTrace, type, dotrack);
+                CreateAlertView(logString, stackTrace, type, dotrack);
             }
         }
 
