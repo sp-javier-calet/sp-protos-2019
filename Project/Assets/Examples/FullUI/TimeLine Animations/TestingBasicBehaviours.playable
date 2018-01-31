@@ -47,8 +47,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -95,8 +95,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -290,8 +290,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -338,8 +338,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -399,8 +399,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -447,8 +447,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -695,6 +695,54 @@ MonoBehaviour:
     m_PreExtrapolationTime: 0
     m_DisplayName: PositionTweenPlayableClip
     m_Version: 1
+--- !u!114 &114492757779700156
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc5e33ad3b6b442995cb20644b62961, type: 3}
+  m_Name: RotationTweenPlayableClip
+  m_EditorClassIdentifier: 
+  Template:
+    HowToAnimateFrom: 0
+    HowToAnimateTo: 1
+    AnimationType: 0
+    EaseType: 0
+    AnimationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 1
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 0
+    Duration: 0
+    InverseDuration: 0
+    TransformFrom: {fileID: 0}
+    TransformTo: {fileID: 0}
+    UseCurrentFromValue: 1
+    UseCurrentToValue: 0
+    AnimateFrom: {x: 0, y: 0, z: 0}
+    AnimateTo: {x: 0, y: 0, z: 90}
+  TransformFrom:
+    exposedName: 
+    defaultValue: {fileID: 0}
+  TransformTo:
+    exposedName: 
+    defaultValue: {fileID: 0}
 --- !u!114 &114506506797930574
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1052,6 +1100,82 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Template:
     TimeScale: 1
+--- !u!114 &114747065119912246
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b3b742774a0448598acf814c8fbdc96, type: 3}
+  m_Name: Rotation Tween Playable Track
+  m_EditorClassIdentifier: 
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_AnimClip: {fileID: 0}
+  m_Parent: {fileID: 114975251357014524}
+  m_Children: []
+  m_Clips:
+  - m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 114492757779700156}
+    m_UnderlyingAsset: {fileID: 114492757779700156}
+    m_Duration: 2
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 114747065119912246}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: RotationTweenPlayableClip
+    m_Version: 1
 --- !u!114 &114783564677929648
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1099,8 +1223,8 @@ MonoBehaviour:
       - serializedVersion: 2
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -1138,4 +1262,5 @@ MonoBehaviour:
   m_Children:
   - {fileID: 114338307647640600}
   - {fileID: 114087061029460412}
+  - {fileID: 114747065119912246}
   m_Clips: []
