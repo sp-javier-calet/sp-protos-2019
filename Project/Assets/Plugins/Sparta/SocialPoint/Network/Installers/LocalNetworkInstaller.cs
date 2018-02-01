@@ -1,7 +1,6 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -40,68 +39,35 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer);
-            Container.Rebind<SimulateNetworkServer>().ToMethod<SimulateNetworkServer>(CreateServer, SetupServer);
-            Container.Bind<IDeltaUpdateable>().ToLookup<SimulateNetworkServer>();
-            Container.Rebind<INetworkServer>("internal").ToLookup<SimulateNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
+            Container.Rebind<LocalNetworkServerFactory>().ToMethod<LocalNetworkServerFactory>(CreateLocalServerFactory);
+            Container.Rebind<SimulateNetworkServerFactory>().ToMethod<SimulateNetworkServerFactory>(CreateSimulateServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<SimulateNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<LocalNetworkServerFactory>();
 
-            Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient);
-            Container.Rebind<SimulateNetworkClient>().ToMethod<SimulateNetworkClient>(CreateClient, SetupClient);
-            Container.Bind<IDeltaUpdateable>().ToLookup<SimulateNetworkClient>();
-            Container.Rebind<INetworkClient>("internal").ToLookup<SimulateNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
+            Container.Rebind<LocalNetworkClientFactory>().ToMethod<LocalNetworkClientFactory>(CreateLocalClientFactory);
+            Container.Rebind<SimulateNetworkClientFactory>().ToMethod<SimulateNetworkClientFactory>(CreateSimulateClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<SimulateNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<LocalNetworkClientFactory>();
         }
 
-        LocalNetworkClient CreateLocalClient()
+        LocalNetworkServerFactory CreateLocalServerFactory()
         {
-            return new LocalNetworkClient(
-                Container.Resolve<LocalNetworkServer>());
+            return new LocalNetworkServerFactory();
         }
 
-        SimulateNetworkClient CreateClient()
+        LocalNetworkClientFactory CreateLocalClientFactory()
         {
-            var client = new SimulateNetworkClient(
-                Container.Resolve<LocalNetworkClient>());
-            client.ReceptionDelay = Settings.Client.ReceptionDelay.Average;
-            client.ReceptionDelayVariance = Settings.Client.ReceptionDelay.Variance;
-            client.EmissionDelay = Settings.Client.EmissionDelay.Average;
-            client.EmissionDelayVariance = Settings.Client.EmissionDelay.Variance;
-            return client;
+            return new LocalNetworkClientFactory(Container.Resolve<LocalNetworkServerFactory>());
         }
 
-        LocalNetworkServer CreateLocalServer()
+        SimulateNetworkServerFactory CreateSimulateServerFactory()
         {
-            return new LocalNetworkServer();
+            return new SimulateNetworkServerFactory(Container.Resolve<LocalNetworkServerFactory>(), Settings.Server);
         }
 
-        SimulateNetworkServer CreateServer()
+        SimulateNetworkClientFactory CreateSimulateClientFactory()
         {
-            var server = new SimulateNetworkServer(
-                Container.Resolve<LocalNetworkServer>());
-            server.ReceptionDelay = Settings.Server.ReceptionDelay.Average;
-            server.ReceptionDelayVariance = Settings.Server.ReceptionDelay.Variance;
-            server.EmissionDelay = Settings.Server.EmissionDelay.Average;
-            server.EmissionDelayVariance = Settings.Server.EmissionDelay.Variance;
-            return server;
-        }
-
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            var dlgs = Container.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
+            return new SimulateNetworkClientFactory(Container.Resolve<LocalNetworkClientFactory>(), Settings.Client);
         }
     }
 }

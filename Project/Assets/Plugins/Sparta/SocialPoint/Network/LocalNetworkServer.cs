@@ -1,7 +1,7 @@
-﻿using SocialPoint.Base;
-using SocialPoint.Utils;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -218,5 +218,17 @@ namespace SocialPoint.Network
                 return false;
             }
         }
+    }
+
+    public class LocalNetworkServerFactory : INetworkServerFactory
+    {
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            return new LocalNetworkServer();
+        }
+
+        #endregion
     }
 }

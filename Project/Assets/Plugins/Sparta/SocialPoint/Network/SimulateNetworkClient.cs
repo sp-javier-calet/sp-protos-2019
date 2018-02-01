@@ -1,27 +1,34 @@
 ﻿using SocialPoint.Base;
-using System.Collections.Generic;
-using System;
-using System.IO;
+using SocialPoint.Dependency;
 using SocialPoint.IO;
+using SocialPoint.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
-    public sealed class SimulateNetworkClient : SimulateNetworkBase, INetworkClient, INetworkClientDelegate
+    public sealed class SimulateNetworkClient : SimulateNetworkBase, INetworkClient, INetworkClientDelegate, IDisposable
     {
         INetworkClient _client;
         List<INetworkClientDelegate> _delegates;
+        IUpdateScheduler _scheduler;
 
-        public SimulateNetworkClient(INetworkClient client) :
+        public SimulateNetworkClient(INetworkClient client, IUpdateScheduler scheduler = null) :
             base(client)
         {
             _delegates = new List<INetworkClientDelegate>();
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
+            _scheduler = scheduler;
+            if(_scheduler != null)
+            {
+                _scheduler.Add(this);
+            }
         }
 
-        public SimulateNetworkClient(LocalNetworkServer server) :
-            this(new LocalNetworkClient(server))
+        public SimulateNetworkClient(LocalNetworkServer server, IUpdateScheduler scheduler = null) :
+            this(new LocalNetworkClient(server), scheduler)
         {
         }
 
@@ -120,5 +127,55 @@ namespace SocialPoint.Network
         }
 
         #endregion
+
+        #region IDisposable implementation
+
+        void IDisposable.Dispose()
+        {
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
+            }
+        }
+
+        #endregion
+    }
+
+    public class SimulateNetworkClientFactory : INetworkClientFactory
+    {
+        readonly INetworkClientFactory _clientFactory;
+        readonly LocalNetworkInstaller.ClientSettingsData _settings;
+
+        public SimulateNetworkClientFactory(INetworkClientFactory clientFactory, LocalNetworkInstaller.ClientSettingsData settings)
+        {
+            _clientFactory = clientFactory;
+            _settings = settings;
+        }
+
+        #region INetworkClientFactory implementation
+
+        INetworkClient INetworkClientFactory.Create()
+        {
+            var client = new SimulateNetworkClient(_clientFactory.Create(), Services.Instance.Resolve<IUpdateScheduler>());
+            SetupClient(client);
+
+            return client;
+        }
+
+        #endregion
+
+        void SetupClient(SimulateNetworkClient client)
+        {
+            client.ReceptionDelay = _settings.ReceptionDelay.Average;
+            client.ReceptionDelayVariance = _settings.ReceptionDelay.Variance;
+            client.EmissionDelay = _settings.EmissionDelay.Average;
+            client.EmissionDelayVariance = _settings.EmissionDelay.Variance;
+
+            var dlgs = Services.Instance.ResolveList<INetworkClientDelegate>();
+            for(var i = 0; i < dlgs.Count; i++)
+            {
+                client.AddDelegate(dlgs[i]);
+            }
+        }
     }
 }

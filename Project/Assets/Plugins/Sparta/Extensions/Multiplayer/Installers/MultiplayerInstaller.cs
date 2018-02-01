@@ -60,7 +60,8 @@ namespace SocialPoint.Multiplayer
 
         NetworkServerSceneController CreateServerSceneController()
         {
-            var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<NetworkSceneContext>(), Container.Resolve<IGameTime>());
+            var factory = Container.Resolve<INetworkServerFactory>();
+            var server = new NetworkServerSceneController(factory.Create(), Container.Resolve<NetworkSceneContext>(), Container.Resolve<IGameTime>());
 
             server.BufferSize = Settings.ServerBufferSize;
 
@@ -69,8 +70,9 @@ namespace SocialPoint.Multiplayer
 
         UnityNetworkClientSceneController CreateClientSceneController()
         {
+            var factory = Container.Resolve<INetworkClientFactory>();
             UnityNetworkClientSceneController networkClient = new UnityNetworkClientSceneController(
-                                                                  Container.Resolve<INetworkClient>(),
+                                                                  factory.Create(),
                                                                   Container.Resolve<NetworkSceneContext>());
             return networkClient;
         }

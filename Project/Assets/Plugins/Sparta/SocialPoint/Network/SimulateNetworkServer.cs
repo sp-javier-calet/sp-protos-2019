@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Base;
 using System.Collections.Generic;
 using System;
-using System.IO;
+using SocialPoint.Dependency;
 using SocialPoint.IO;
 
 namespace SocialPoint.Network
@@ -136,5 +136,43 @@ namespace SocialPoint.Network
         }
 
         #endregion
+    }
+
+    public class SimulateNetworkServerFactory : INetworkServerFactory
+    {
+        readonly INetworkServerFactory _serverFactory;
+        readonly LocalNetworkInstaller.ServerSettingsData _settings;
+
+        public SimulateNetworkServerFactory(INetworkServerFactory serverFactory, LocalNetworkInstaller.ServerSettingsData settings)
+        {
+            _serverFactory = serverFactory;
+            _settings = settings;
+        }
+
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            var server = new SimulateNetworkServer(_serverFactory.Create());
+            SetupServer(server);
+
+            return server;
+        }
+
+        #endregion
+        
+        void SetupServer(SimulateNetworkServer server)
+        {
+            server.ReceptionDelay = _settings.ReceptionDelay.Average;
+            server.ReceptionDelayVariance = _settings.ReceptionDelay.Variance;
+            server.EmissionDelay = _settings.EmissionDelay.Average;
+            server.EmissionDelayVariance = _settings.EmissionDelay.Variance;
+
+            var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
+            for(var i = 0; i < dlgs.Count; i++)
+            {
+                server.AddDelegate(dlgs[i]);
+            }
+        }
     }
 }

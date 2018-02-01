@@ -1,10 +1,9 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
-
     public sealed class LocalNetworkClient : INetworkClient
     {
         INetworkMessageReceiver _receiver;
@@ -142,5 +141,24 @@ namespace SocialPoint.Network
                 return -1;
             }
         }
+    }
+
+    public class LocalNetworkClientFactory : INetworkClientFactory
+    {
+        readonly INetworkServerFactory _serverFactory;
+
+        public LocalNetworkClientFactory(INetworkServerFactory serverFactory)
+        {
+            _serverFactory = serverFactory;
+        }
+
+        #region INetworkClientFactory implementation
+
+        INetworkClient INetworkClientFactory.Create()
+        {
+            return new LocalNetworkClient(_serverFactory.Create() as LocalNetworkServer);
+        }
+
+        #endregion
     }
 }

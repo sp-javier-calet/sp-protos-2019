@@ -1,5 +1,4 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
@@ -19,6 +18,11 @@ namespace SocialPoint.Network
         void OnMessageReceived(NetworkMessageData data);
 
         void OnNetworkError(Error err);
+    }
+
+    public interface INetworkServerFactory
+    {
+        INetworkServer Create();
     }
 
     public interface INetworkServer : INetworkMessageSender

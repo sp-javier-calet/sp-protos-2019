@@ -198,7 +198,9 @@ namespace Examples.Lockstep
         void StartClient(GameLockstepMode mode)
         {
             _mode = mode;
-            _netClient = Services.Instance.Resolve<INetworkClient>();
+
+            var clientFactory = Services.Instance.Resolve<INetworkClientFactory>();
+            _netClient = clientFactory.Create();
             _netClient.RemoveDelegate(this);
             _netClient.AddDelegate(this);
             SetupPhoton(_netClient as PhotonNetworkBase);
@@ -232,10 +234,16 @@ namespace Examples.Lockstep
 
         void StartServer()
         {
-            _netServer = Services.Instance.Resolve<INetworkServer>();
+            var factory = Services.Instance.Resolve<INetworkServerFactory>();
+            _netServer = factory.Create();
             SetupPhoton(_netServer as PhotonNetworkBase);
-            _netLockstepServer = Services.Instance.Resolve<LockstepNetworkServer>();
-            _netLockstepServer.ServerConfig.MatchmakingEnabled = true;
+
+            _netLockstepServer = new LockstepNetworkServer(_netServer,
+                Services.Instance.Resolve<IMatchmakingServer>(),
+                Services.Instance.Resolve<IUpdateScheduler>());
+            _netLockstepServer.Config = Services.Instance.Resolve<LockstepConfig>();
+            _netLockstepServer.ServerConfig = Services.Instance.Resolve<LockstepServerConfig>();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);

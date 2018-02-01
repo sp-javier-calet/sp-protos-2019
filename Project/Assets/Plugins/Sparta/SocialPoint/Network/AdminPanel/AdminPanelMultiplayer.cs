@@ -126,7 +126,8 @@ namespace SocialPoint.Network
         {
             if(_server == null && _container != null)
             {
-                _server = _container.Resolve<INetworkServer>();
+                var factory = _container.Resolve<INetworkServerFactory>();
+                _server = factory.Create();
             }
             if(_server == null)
             {
@@ -164,7 +165,8 @@ namespace SocialPoint.Network
         {
             if(_client == null && _container != null)
             {
-                _client = _container.Resolve<INetworkClient>();
+                var clientFactory = _container.Resolve<INetworkClientFactory>();
+                _client = clientFactory.Create();
             }
             if(_client == null)
             {

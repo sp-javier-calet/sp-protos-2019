@@ -102,8 +102,10 @@ public class LockstepInstaller : ServiceInstaller
 
     LockstepNetworkClient CreateClientNetworkController()
     {
+        var clientFactory = Container.Resolve<INetworkClientFactory>();
+
         var client = new LockstepNetworkClient(
-            Container.Resolve<INetworkClient>(),
+            clientFactory.Create(),
             Container.Resolve<LockstepClient>(),
             Container.Resolve<LockstepCommandFactory>());
         client.SendTrack = Container.Resolve<IEventTracker>().TrackSystemEvent;
@@ -112,8 +114,10 @@ public class LockstepInstaller : ServiceInstaller
 
     LockstepNetworkServer CreateServerNetworkController()
     {
+        var serverFactory = Container.Resolve<INetworkServerFactory>();
+
         var ctrl = new LockstepNetworkServer(
-            Container.Resolve<INetworkServer>(),
+            serverFactory.Create(),
             Container.Resolve<IMatchmakingServer>(),
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();

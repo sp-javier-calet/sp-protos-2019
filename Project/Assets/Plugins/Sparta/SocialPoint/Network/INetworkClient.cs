@@ -13,6 +13,11 @@ namespace SocialPoint.Network
         void OnNetworkError(Error err);
     }
 
+    public interface INetworkClientFactory
+    {
+        INetworkClient Create();
+    }
+
     public interface INetworkClient : INetworkMessageSender
     {
         bool Connected{ get; }

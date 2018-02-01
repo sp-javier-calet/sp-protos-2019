@@ -46,13 +46,15 @@ namespace SocialPoint.Multiplayer
         void INetworkSceneBehaviour.OnStart()
         {
             //#warning as we install 2 clients we should know which NetworkClient to use here
-            _client = Services.Instance.Resolve<INetworkClient>();
+            var clientFactory = Services.Instance.Resolve<INetworkClientFactory>();
+            _client = clientFactory.Create();
             _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
             NetworkGameObject gameObjectPrefab = new NetworkGameObject(_clientController.Context);
 
             if (CreateServer)
             {
-                _server = Services.Instance.Resolve<INetworkServer>();
+                var factory = Services.Instance.Resolve<INetworkServerFactory>();
+                _server = factory.Create();
                 _serverController = Services.Instance.Resolve<NetworkServerSceneController>();
             }
 
