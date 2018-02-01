@@ -218,6 +218,14 @@ namespace SocialPoint.Network
                 return false;
             }
         }
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+            _delegates.Clear();
+            _clients.Clear();
+            _clientList.Clear();
+        }
     }
 
     public class LocalNetworkServerFactory : INetworkServerFactory

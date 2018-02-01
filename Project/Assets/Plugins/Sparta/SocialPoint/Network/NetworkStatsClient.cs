@@ -198,6 +198,15 @@ namespace SocialPoint.Network
             base.RestartStats();
             _latencies = new List<int>();
         }
+
+        void IDisposable.Dispose()
+        {
+            Disconnect();
+            _scheduler.Remove(this);
+            _client.RemoveDelegate(this);
+            _latencies.Clear();
+            _delegates.Clear();
+        }
     }
 
     public class NetworkStatsClientFactory : INetworkClientFactory

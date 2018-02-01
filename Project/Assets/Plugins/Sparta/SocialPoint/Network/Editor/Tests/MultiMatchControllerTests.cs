@@ -116,6 +116,11 @@ namespace SocialPoint.Network
                 dlg.OnMessageReceived(data);
             }
         }
+
+        void System.IDisposable.Dispose()
+        {
+            _delegates.Clear();
+        }
     }
 
     public interface INetworkMatchDelegate : INetworkServerDelegate, INetworkMessageReceiver

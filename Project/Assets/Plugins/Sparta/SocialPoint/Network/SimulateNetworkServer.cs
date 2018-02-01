@@ -136,6 +136,13 @@ namespace SocialPoint.Network
         }
 
         #endregion
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+            _server.RemoveDelegate(this);
+            _delegates.Clear();
+        }
     }
 
     public class SimulateNetworkServerFactory : INetworkServerFactory

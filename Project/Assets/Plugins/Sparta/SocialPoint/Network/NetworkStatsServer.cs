@@ -8,7 +8,6 @@ namespace SocialPoint.Network
 {
     public class NetworkStatsServer : NetworkStatsBase, INetworkServer, INetworkServerDelegate, IUpdateable
     {
-
         INetworkServer _server;
         List<INetworkServerDelegate> _delegates;
         List<byte> _clients;
@@ -160,6 +159,17 @@ namespace SocialPoint.Network
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMessageReceived(data);
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+            _delegates.Clear();
+            _server.RemoveDelegate(this);
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
             }
         }
     }

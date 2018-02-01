@@ -1,4 +1,5 @@
-﻿using SocialPoint.Base;
+﻿using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
@@ -18,7 +19,7 @@ namespace SocialPoint.Network
         INetworkClient Create();
     }
 
-    public interface INetworkClient : INetworkMessageSender
+    public interface INetworkClient : INetworkMessageSender, IDisposable
     {
         bool Connected{ get; }
 

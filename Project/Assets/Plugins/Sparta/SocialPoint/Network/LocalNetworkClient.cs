@@ -141,6 +141,12 @@ namespace SocialPoint.Network
                 return -1;
             }
         }
+
+        void IDisposable.Dispose()
+        {
+            Disconnect();
+            _delegates.Clear();
+        }
     }
 
     public class LocalNetworkClientFactory : INetworkClientFactory
