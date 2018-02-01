@@ -30,7 +30,7 @@ def main():
 def get_conflicted_files(paths):
     conflicted = []
     for rpath in paths:
-        path = rpath;
+        path = rpath
         if os.path.isfile(path):
             with open(path, 'rb') as file:
                 found = False
