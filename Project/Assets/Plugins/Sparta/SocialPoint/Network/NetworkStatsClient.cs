@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Utils;
+using SocialPoint.Dependency;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -197,6 +198,33 @@ namespace SocialPoint.Network
             base.RestartStats();
             _latencies = new List<int>();
         }
+    }
+
+    public class NetworkStatsClientFactory : INetworkClientFactory
+    {
+        readonly INetworkClientFactory _clientFactory;
+        readonly NetworkStatsInstaller.SettingsData _settings;
+
+        public NetworkStatsClientFactory(INetworkClientFactory clientFactory, NetworkStatsInstaller.SettingsData settings)
+        {
+            _clientFactory = clientFactory;
+            _settings = settings;
+        }
+
+        #region INetworkClientFactory implementation
+
+        INetworkClient INetworkClientFactory.Create()
+        {
+            var client = new NetworkStatsClient(
+                _clientFactory.Create(),
+                Services.Instance.Resolve<IUpdateScheduler>()
+            );
+            client.PingInterval = _settings.PingInterval;
+
+            return client;
+        }
+
+        #endregion
     }
 }
 

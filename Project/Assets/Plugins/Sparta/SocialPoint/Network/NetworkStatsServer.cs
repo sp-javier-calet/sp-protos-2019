@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -161,6 +162,28 @@ namespace SocialPoint.Network
                 _delegates[i].OnMessageReceived(data);
             }
         }
+    }
+
+    public class NetworkStatsServerFactory : INetworkServerFactory
+    {
+        readonly INetworkServerFactory _serverFactory;
+
+        public NetworkStatsServerFactory(INetworkServerFactory serverFactory)
+        {
+            _serverFactory = serverFactory;
+        }
+
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            return new NetworkStatsServer(
+                _serverFactory.Create(),
+                Services.Instance.Resolve<IUpdateScheduler>()
+            );
+        }
+
+        #endregion
     }
 }
 
