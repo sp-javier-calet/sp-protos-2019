@@ -19,7 +19,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(TransformFrom != null)
                 {
-                    AnimateFrom = TransformFrom.position;
+                    AnimateFrom = TransformFrom.localScale;
                 }
                 else
                 {
@@ -35,7 +35,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(TransformTo != null)
                 {
-                    AnimateTo = TransformTo.position;
+                    AnimateTo = TransformTo.localScale;
                 }
                 else
                 {
