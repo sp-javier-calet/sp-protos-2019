@@ -4,15 +4,10 @@ import sys
 import os.path
 import re
 import subprocess
-import argparse
 
 from check_conflict_settings import *
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path-prefix', dest='path_prefix', default='./')
-    args = parser.parse_args()
-
     files_str = get_staged_files_str()
     if files_str == "" or files_str is None:
         sys.exit(0)
@@ -20,7 +15,7 @@ def main():
 
     files = get_added_or_mod_source_files(files_str)
 
-    conflicted = get_conflicted_files(files, args.path_prefix)
+    conflicted = get_conflicted_files(files)
 
     if len(conflicted) > 0:
         print("You have merge markers in the following files:")
@@ -32,11 +27,11 @@ def main():
 # end def main
 
 
-def get_conflicted_files(paths, path_prefix):
+def get_conflicted_files(paths):
     conflicted = []
     for rpath in paths:
-        path = os.path.join(path_prefix, rpath)
-        if os.path.isfile(path) and not should_skip_file(path):
+        path = rpath;
+        if os.path.isfile(path):
             with open(path, 'rb') as file:
                 found = False
                 for line in file:
