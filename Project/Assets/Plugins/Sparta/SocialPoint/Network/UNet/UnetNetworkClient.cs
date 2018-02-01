@@ -1,9 +1,9 @@
 ﻿using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
-using System;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.Network
 {
@@ -209,6 +209,36 @@ namespace SocialPoint.Network
             {
                 DebugUtils.Assert(LatencySupported);
                 return -1;
+            }
+        }
+    }
+
+    public class UnetNetworkClientFactory : INetworkClientFactory
+    {
+        readonly UnetNetworkInstaller.SettingsData _settings;
+
+        public UnetNetworkClientFactory(UnetNetworkInstaller.SettingsData settings)
+        {
+            _settings = settings;
+        }
+        #region INetworkClientFactory implementation
+
+        INetworkClient INetworkClientFactory.Create()
+        {
+            var client = new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort);
+            SetupClient(client);
+
+            return client;
+        }
+
+        #endregion
+
+        void SetupClient(INetworkClient client)
+        {
+            var dlgs = Services.Instance.ResolveList<INetworkClientDelegate>();
+            for(var i = 0; i < dlgs.Count; i++)
+            {
+                client.AddDelegate(dlgs[i]);
             }
         }
     }

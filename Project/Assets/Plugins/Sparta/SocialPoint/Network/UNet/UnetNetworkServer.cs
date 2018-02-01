@@ -1,8 +1,9 @@
 ﻿using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -227,6 +228,37 @@ namespace SocialPoint.Network
             get
             {
                 return false;
+            }
+        }
+    }
+
+    public class UnetNetworkServerFactory : INetworkServerFactory
+    {
+        readonly UnetNetworkInstaller.SettingsData _settings;
+
+        public UnetNetworkServerFactory(UnetNetworkInstaller.SettingsData settings)
+        {
+            _settings = settings;
+        }
+
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            var server = new UnetNetworkServer(Services.Instance.Resolve<IUpdateScheduler>(), _settings.Config.ServerPort);
+            SetupServer(server);
+
+            return server;
+        }
+
+        #endregion
+
+        void SetupServer(INetworkServer server)
+        {
+            var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
+            for(var i = 0; i < dlgs.Count; i++)
+            {
+                server.AddDelegate(dlgs[i]);
             }
         }
     }
