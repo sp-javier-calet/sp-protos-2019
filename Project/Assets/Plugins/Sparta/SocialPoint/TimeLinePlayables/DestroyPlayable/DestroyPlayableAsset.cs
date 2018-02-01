@@ -1,0 +1,29 @@
+﻿using System;
+using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
+
+namespace SocialPoint.TimeLinePlayables
+{
+    [Serializable]
+    public class DestroyPlayableAsset : PlayableAsset, ITimelineClipAsset
+    {
+        public DestroyPlayableData Template = new DestroyPlayableData();
+        public ExposedReference<GameObject> GameObject;
+
+        public ClipCaps clipCaps
+        {
+            get { return ClipCaps.None; }
+        }
+
+        public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
+        {
+            var playable = ScriptPlayable<DestroyPlayableData>.Create(graph, Template);
+
+            var clone = playable.GetBehaviour();
+            clone.GameObject = GameObject.Resolve(graph.GetResolver());
+
+            return playable;
+        }
+    }
+}

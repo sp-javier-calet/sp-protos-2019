@@ -4,13 +4,13 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [TrackColor(0.5f, 0f, 0f)]
-    [TrackClipType(typeof(TimeScalePlayableAsset))]
-    public class TimeScalePlayableTrack : TrackAsset
+    [TrackColor(0.5f, 0.5f, 0.5f)]
+    [TrackClipType(typeof(DestroyPlayableAsset))]
+    public class DestroyPlayableTrack : TrackAsset
     {
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
-            return ScriptPlayable<TimeScalePlayableMixer>.Create(graph, inputCount);
+            return ScriptPlayable<DestroyPlayableMixer>.Create(graph, inputCount);
         }
     }
 }
