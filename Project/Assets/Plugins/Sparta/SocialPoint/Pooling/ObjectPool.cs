@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 
@@ -11,6 +12,10 @@ namespace SocialPoint.Pooling
 
         void OnSpawned(object obj)
         {
+            if(obj == null)
+            {
+                return;
+            }
             var recycleObj = obj as IRecyclable;
             if(recycleObj != null)
             {
@@ -20,19 +25,33 @@ namespace SocialPoint.Pooling
 
         void OnRecycled(object obj)
         {
-            var recycleObj = obj as IRecyclable;
-            if(recycleObj != null)
+            if(obj == null)
             {
-                recycleObj.OnRecycle();
+                return;
+            }
+            var recycle = obj as IRecyclable;
+            if(recycle != null)
+            {
+                recycle.OnRecycle();
+            }
+            var list = obj as IList;
+            if(list != null)
+            {
+                list.Clear();
+            }
+            var dict = obj as IDictionary;
+            if(dict != null)
+            {
+                dict.Clear();
             }
         }
 
         void OnDisposed(object obj)
         {
-            var disposeObj = obj as IDisposable;
-            if(disposeObj != null)
+            var dispose = obj as IDisposable;
+            if(dispose != null)
             {
-                disposeObj.Dispose();
+                dispose.Dispose();
             }
         }
 

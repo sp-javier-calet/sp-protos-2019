@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using NSubstitute;
 using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Pooling
 {
@@ -116,6 +117,20 @@ namespace SocialPoint.Pooling
             Assert.AreEqual(obj, obj2);
             obj.Received(1).OnRecycle();
             obj.Received(1).OnSpawn();
+        }
+
+        [Test]
+        public void ClearCollection()
+        {
+            var list = new List<int>();
+            list.Add(42);
+            _pool.Return(list);
+            Assert.AreEqual(0, list.Count);
+            var dict = new Dictionary<int, int>();
+            dict[42] = 42;
+            _pool.Return(1, dict);
+            Assert.AreEqual(0, dict.Count);
+
         }
 
     }
