@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Pooling
 {
@@ -37,7 +38,36 @@ namespace SocialPoint.Pooling
 
         #region typepool
 
-        public T Get<T>(Func<T> fallback = null) where T : class
+        public T Get<T>() where T : class, new()
+        {
+            var obj = DoGet<T>();
+            if(obj == null)
+            {
+                obj = CreateInstance<T>();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T Get<T>(Func<T> fallback) where T : class
+        {
+            var obj = DoGet<T>();
+            if(obj == null && fallback != null)
+            {
+                obj = fallback();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T TryGet<T>() where T : class
+        {
+            var obj = DoGet<T>();
+            OnSpawned(obj);
+            return obj;
+        }
+
+        T DoGet<T>() where T : class
         {
             var objType = typeof(T);
             Stack<object> pooledObjects = null;
@@ -49,11 +79,6 @@ namespace SocialPoint.Pooling
                     obj = (T)pooledObjects.Pop();
                 }
             }
-            if(obj == null)
-            {
-                obj = fallback != null ? fallback() : (T)CreateInstance(objType);
-            }
-            OnSpawned(obj);
             return obj;
         }
 
@@ -85,9 +110,37 @@ namespace SocialPoint.Pooling
 
         #region idpool
 
-        public T Get<T>(int id, Func<T> fallback = null) where T : class
+        public T Get<T>(int id) where T : class, new()
         {
-            var objType = typeof(T);
+            T obj = DoGet<T>(id);
+            if(obj == null)
+            {
+                obj = CreateInstance<T>();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T Get<T>(int id, Func<T> fallback) where T : class
+        {
+            T obj = DoGet<T>(id);
+            if(obj == null && fallback != null)
+            {
+                obj = fallback();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T TryGet<T>(int id) where T : class
+        {
+            T obj = DoGet<T>(id);
+            OnSpawned(obj);
+            return obj;
+        }
+
+        T DoGet<T>(int id) where T : class
+        {
             Stack<object> pooledObjects = null;
             T obj = null;
             if(_ids.TryGetValue(id, out pooledObjects))
@@ -97,11 +150,6 @@ namespace SocialPoint.Pooling
                     obj = (T)pooledObjects.Pop();
                 }
             }
-            if(obj == null)
-            {
-                obj = fallback != null ? fallback() : (T)CreateInstance(objType);
-            }
-            OnSpawned(obj);
             return obj;
         }
 
@@ -136,9 +184,9 @@ namespace SocialPoint.Pooling
 
         #endregion idpool
 
-        object CreateInstance(Type t)
+        T CreateInstance<T>()
         {
-            return Activator.CreateInstance(t);
+            return (T)Activator.CreateInstance(typeof(T));
         }
 
         public void Dispose()

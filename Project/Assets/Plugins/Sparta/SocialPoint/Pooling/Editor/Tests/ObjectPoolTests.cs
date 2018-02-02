@@ -67,7 +67,7 @@ namespace SocialPoint.Pooling
             var obj = Substitute.For<IDisposable>();
             _pool.Return<IDisposable>(obj);
             obj.DidNotReceive().Dispose();
-            var obj2 = _pool.Get<IDisposable>();
+            var obj2 = _pool.TryGet<IDisposable>();
             obj.DidNotReceive().Dispose();
             Assert.AreEqual(obj, obj2);
             _pool.Return<IDisposable>(obj);
@@ -82,7 +82,7 @@ namespace SocialPoint.Pooling
             var obj = Substitute.For<IDisposable>();
             _pool.Return<IDisposable>(1, obj);
             obj.DidNotReceive().Dispose();
-            var obj2 = _pool.Get<IDisposable>(1);
+            var obj2 = _pool.TryGet<IDisposable>(1);
             obj.DidNotReceive().Dispose();
             Assert.AreEqual(obj, obj2);
             _pool.Return<IDisposable>(1, obj);
@@ -98,7 +98,7 @@ namespace SocialPoint.Pooling
             _pool.Return<IRecyclable>(obj);
             obj.Received(1).OnRecycle();
             obj.DidNotReceive().OnSpawn();
-            var obj2 = _pool.Get<IRecyclable>();
+            var obj2 = _pool.TryGet<IRecyclable>();
             Assert.AreEqual(obj, obj2);
             obj.Received(1).OnRecycle();
             obj.Received(1).OnSpawn();
@@ -112,7 +112,7 @@ namespace SocialPoint.Pooling
             _pool.Return<IRecyclable>(1, obj);
             obj.Received(1).OnRecycle();
             obj.DidNotReceive().OnSpawn();
-            var obj2 = _pool.Get<IRecyclable>(1);
+            var obj2 = _pool.TryGet<IRecyclable>(1);
             Assert.AreEqual(obj, obj2);
             obj.Received(1).OnRecycle();
             obj.Received(1).OnSpawn();
