@@ -14,7 +14,7 @@ namespace SocialPoint.Sockets
             UDP
         }
 
-        const string ServerAddress = "127.0.0.1";
+        const string ServerAddress = "0.0.0.0";
         const int PeerLimit = 100;
         const string ConnectionKey = "TestConnectionKey";
         const int UpdateTime = 10;
