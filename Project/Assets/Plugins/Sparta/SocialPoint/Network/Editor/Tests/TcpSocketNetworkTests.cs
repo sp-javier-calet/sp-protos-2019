@@ -6,6 +6,7 @@ using SocialPoint.Network;
 namespace SocialPoint.Network
 {
     [TestFixture]
+    [Ignore("Wont' do")]
     [Category("SocialPoint.Network")]
     class TcpSocketNetworkTests : BaseNetworkTests, INetworkClientDelegate, INetworkServerDelegate
     {
