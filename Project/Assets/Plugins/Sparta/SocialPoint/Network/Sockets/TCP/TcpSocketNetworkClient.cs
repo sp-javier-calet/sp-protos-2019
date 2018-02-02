@@ -39,7 +39,6 @@ namespace SocialPoint.Network
 
         public void Disconnect()
         {
-            _client.Close();
             OnDisconnected();
         }
 
@@ -164,6 +163,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnClientDisconnected();
             }
+            _client.Close();
             _socketMessageReader.MessageReceived -= OnServerMessageReceived;
             _scheduler.Remove(this);
         }
@@ -174,7 +174,6 @@ namespace SocialPoint.Network
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
-            _stream.Clear();
             _stream = null;
         }
     }
