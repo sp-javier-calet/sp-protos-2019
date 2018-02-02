@@ -5,8 +5,6 @@ namespace SocialPoint.Sockets
 {
     class Program
     {
-
-
         public static void Main(string[] args)
         {
             UpdateScheduler updateScheduler = new UpdateScheduler();
