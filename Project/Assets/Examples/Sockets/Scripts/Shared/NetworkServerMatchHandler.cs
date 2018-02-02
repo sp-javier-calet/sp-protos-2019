@@ -21,20 +21,17 @@ namespace SocialPoint.Sockets
 
         void INetworkServerDelegate.OnServerStarted()
         {
-           
-                Log.d("NetworkServerMatchHandler OnServerStarted: " + _matchId);
+            Log.d("NetworkServerMatchHandler OnServerStarted: " + _matchId);
         }
 
         void INetworkServerDelegate.OnServerStopped()
         {
-            
-                Log.d("NetworkServerMatchHandler OnServerStopped:" + _matchId);
+            Log.d("NetworkServerMatchHandler OnServerStopped:" + _matchId);
         }
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
-            
-                Log.d("NetworkServerMatchHandler OnClientConnected: ClientID " + clientId + " _matchId: " + _matchId);
+            Log.d("NetworkServerMatchHandler OnClientConnected: ClientID " + clientId + " _matchId: " + _matchId);
 
             _sender.SendMessage(new NetworkMessageData
             {
@@ -45,19 +42,16 @@ namespace SocialPoint.Sockets
 
         void INetworkServerDelegate.OnClientDisconnected(byte clientId)
         {
-           
-                Log.d("NetworkServerMatchHandler OnClientDisconnected: ClientID " + clientId + " _matchId: " + _matchId);
+            Log.d("NetworkServerMatchHandler OnClientDisconnected: ClientID " + clientId + " _matchId: " + _matchId);
         }
 
         void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            
-                Log.d("NetworkServerMatchHandler INetworkServerDelegate OnMessageReceived: ClientID " + data.ClientIds[0] + " _matchId: " + _matchId);
+            Log.d("NetworkServerMatchHandler INetworkServerDelegate OnMessageReceived: ClientID " + data.ClientIds[0] + " _matchId: " + _matchId);
         }
 
         void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
-            
             Log.e("NetworkServerMatchHandler OnNetworkError: " + err.ToString() + " _matchId: " + _matchId);
         }
 
@@ -77,8 +71,7 @@ namespace SocialPoint.Sockets
                     MessageType = TypeMessages.DefaultMessageType,
                 }, cmd);
 
-
-                    Log.d("NetworkServerMatchHandler INetworkMessageReceiver OnMessageReceived: ClientID " + data.ClientIds[0] + " _matchId: " + _matchId + " Message: " + cmd.Message);
+                Log.d("NetworkServerMatchHandler INetworkMessageReceiver OnMessageReceived: ClientID " + data.ClientIds[0] + " _matchId: " + _matchId + " Message: " + cmd.Message);
             }
         }
         #endregion
