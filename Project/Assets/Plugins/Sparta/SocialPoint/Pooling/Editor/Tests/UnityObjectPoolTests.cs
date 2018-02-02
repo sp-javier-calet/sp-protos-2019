@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace SocialPoint.Pooling
 {
+    [TestFixture]
+    [Category("SocialPoint.Pooling")]
     public class UnityObjectPoolTests
     {
         class TestBehaviour : MonoBehaviour

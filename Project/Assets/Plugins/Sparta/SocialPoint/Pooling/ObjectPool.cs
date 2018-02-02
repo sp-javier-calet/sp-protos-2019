@@ -3,41 +3,66 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Pooling
 {
-    public class ObjectPool
+    public class ObjectPool : IDisposable
     {
-        Dictionary<Type, object> poolDictionary = new Dictionary<Type, object>();
-        Dictionary<int, object> idPoolDictionary = new Dictionary<int, object>();
+        Dictionary<Type, Stack<object>> _types = new Dictionary<Type, Stack<object>>();
+        Dictionary<int, Stack<object>> _ids = new Dictionary<int, Stack<object>>();
 
-        #region typepool
-        public T Get<T>(Func<T> fallback = null)
+        void OnSpawned(object obj)
         {
-            var objType = typeof(T);
-            object pooledObjects = null;
-
-            if(poolDictionary.TryGetValue(objType, out pooledObjects))
+            var recycleObj = obj as IRecyclable;
+            if(recycleObj != null)
             {
-                var pooledObjectsCasted = (Stack<T>)pooledObjects;
-                if(pooledObjectsCasted.Count > 0)
-                {
-                    return pooledObjectsCasted.Pop();
-                }
+                recycleObj.OnSpawn();
             }
-
-            return fallback != null ? fallback() : (T)CreateInstance(objType);
         }
 
-        public void Return<T>(T obj)
+        void OnRecycled(object obj)
+        {
+            var recycleObj = obj as IRecyclable;
+            if(recycleObj != null)
+            {
+                recycleObj.OnRecycle();
+            }
+        }
+
+        void OnDisposed(object obj)
+        {
+            var disposeObj = obj as IDisposable;
+            if(disposeObj != null)
+            {
+                disposeObj.Dispose();
+            }
+        }
+
+        #region typepool
+
+        public T Get<T>(Func<T> fallback = null) where T : class
+        {
+            var objType = typeof(T);
+            Stack<object> pooledObjects = null;
+            T obj = null;
+            if(_types.TryGetValue(objType, out pooledObjects))
+            {
+                if(pooledObjects.Count > 0)
+                {
+                    obj = (T)pooledObjects.Pop();
+                }
+            }
+            if(obj == null)
+            {
+                obj = fallback != null ? fallback() : (T)CreateInstance(objType);
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public void Return<T>(T obj) where T : class
         {
             DoReturnByType(obj);
         }
 
-        public void Return<T>(List<T> list)
-        {
-            list.Clear();
-            DoReturnByType(list);
-        }
-
-        void DoReturnByType<T>(T obj)
+        void DoReturnByType<T>(T obj) where T : class
         {
             if(obj == null)
             {
@@ -45,74 +70,70 @@ namespace SocialPoint.Pooling
             }
 
             var objType = typeof(T);
-            object pooledObjects = null;
-            Stack<T> pooledObjectsCasted = null;
+            Stack<object> pooledObjects = null;
 
-            if(!poolDictionary.TryGetValue(objType, out pooledObjects))
+            if(!_types.TryGetValue(objType, out pooledObjects))
             {
-                pooledObjectsCasted = new Stack<T>();
-                poolDictionary.Add(objType, pooledObjectsCasted);
+                pooledObjects = new Stack<object>();
+                _types.Add(objType, pooledObjects);
             }
-            else
-            {
-                pooledObjectsCasted = (Stack<T>)pooledObjects;
-            }
-
-            pooledObjectsCasted.Push(obj);
+            OnRecycled(obj);
+            pooledObjects.Push(obj);
         }
+
         #endregion typepool
 
         #region idpool
-        public T Get<T>(int id, Func<T> fallback = null)
+
+        public T Get<T>(int id, Func<T> fallback = null) where T : class
         {
             var objType = typeof(T);
-            object pooledObjects = null;
-
-            if(idPoolDictionary.TryGetValue(id, out pooledObjects))
+            Stack<object> pooledObjects = null;
+            T obj = null;
+            if(_ids.TryGetValue(id, out pooledObjects))
             {
-                var pooledObjectsCasted = (Stack<T>)pooledObjects;
-                if(pooledObjectsCasted.Count > 0)
+                if(pooledObjects.Count > 0)
                 {
-                    return pooledObjectsCasted.Pop();
+                    obj = (T)pooledObjects.Pop();
                 }
             }
-
-            return fallback != null ? fallback() : (T)CreateInstance(objType);
+            if(obj == null)
+            {
+                obj = fallback != null ? fallback() : (T)CreateInstance(objType);
+            }
+            OnSpawned(obj);
+            return obj;
         }
 
-        public void Return<T>(int id, List<T> list)
+        public void Return<T>(int id, List<T> list) where T : class
         {
             list.Clear();
             DoReturnById(id, list);
         }
 
-        public void Return<T>(int id, T obj)
+        public void Return<T>(int id, T obj) where T : class
         {
             DoReturnById(id, obj);
         }
 
-        void DoReturnById<T>(int id, T obj)
+        void DoReturnById<T>(int id, T obj) where T : class
         {
             if(obj == null)
             {
                 return;
             }
 
-            object pooledObjects = null;
-            Stack<T> pooledObjectsCasted = null;
+            Stack<object> pooledObjects = null;
 
-            if(!idPoolDictionary.TryGetValue(id, out pooledObjects))
+            if(!_ids.TryGetValue(id, out pooledObjects))
             {
-                pooledObjectsCasted = new Stack<T>();
-                idPoolDictionary.Add(id, pooledObjectsCasted);
+                pooledObjects = new Stack<object>();
+                _ids.Add(id, pooledObjects);
             }
-            else
-            {
-                pooledObjectsCasted = (Stack<T>)pooledObjects;
-            }
-
-            pooledObjectsCasted.Push(obj);
+            OnRecycled(obj);
+            pooledObjects.Push(obj);
         }
+
         #endregion idpool
 
         object CreateInstance(Type t)
@@ -120,10 +141,41 @@ namespace SocialPoint.Pooling
             return Activator.CreateInstance(t);
         }
 
+        public void Dispose()
+        {
+            Clear();
+        }
+
+        void OnStackDisposed(Stack<Object> stack)
+        {
+            var itr = stack.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                OnDisposed(itr.Current);
+            }
+            itr.Dispose();
+        }
+
         public void Clear()
         {
-            poolDictionary.Clear();
-            idPoolDictionary.Clear();
+            {
+                var itr = _types.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    OnStackDisposed(itr.Current.Value);
+                }
+                itr.Dispose();
+            }
+            {
+                var itr = _ids.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    OnStackDisposed(itr.Current.Value);
+                }
+                itr.Dispose();
+            }
+            _types.Clear();
+            _ids.Clear();
         }
     }
 }
