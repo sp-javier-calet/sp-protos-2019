@@ -29,6 +29,10 @@ namespace SocialPoint.Network
 
         public void Start()
         {
+            if(Running)
+            {
+                return;
+            }
             if(_scheduler != null && !_server.LatencySupported)
             {
                 _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendStatusMessageInterval);
@@ -51,6 +55,10 @@ namespace SocialPoint.Network
 
         public void Stop()
         {
+            if(!Running)
+            {
+                return;
+            }
             if(_scheduler != null)
             {
                 _scheduler.Remove(this);

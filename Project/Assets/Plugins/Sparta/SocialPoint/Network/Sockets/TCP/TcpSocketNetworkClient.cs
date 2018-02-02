@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
+using SocialPoint.Base;
+using SocialPoint.Dependency;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -176,6 +177,39 @@ namespace SocialPoint.Network
             _receiver = null;
             _stream.Clear();
             _stream = null;
+        }
+    }
+
+    public class TcpSocketNetworkClientFactory : INetworkClientFactory
+    {
+        readonly TcpSocketNetworkInstaller.SettingsData _settings;
+
+        public TcpSocketNetworkClientFactory(TcpSocketNetworkInstaller.SettingsData settings)
+        {
+            _settings = settings;
+        }
+
+        #region INetworkClientFactory implementation
+
+        INetworkClient INetworkClientFactory.Create()
+        {
+            var client = new TcpSocketNetworkClient(
+                Services.Instance.Resolve<IUpdateScheduler>(),
+                _settings.Config.ServerAddress, _settings.Config.ServerPort);
+            SetupClient(client);
+
+            return client;
+        }
+
+        #endregion
+
+        void SetupClient(INetworkClient client)
+        {
+            var dlgs = Services.Instance.ResolveList<INetworkClientDelegate>();
+            for(var i = 0; i < dlgs.Count; i++)
+            {
+                client.AddDelegate(dlgs[i]);
+            }
         }
     }
 }

@@ -398,7 +398,6 @@ namespace Examples.Lockstep
 
             if(_netClient != null)
             {
-                _netClient.Disconnect();
                 _netClient.Dispose();
             }
             if(_netLockstepServer != null)
@@ -407,7 +406,6 @@ namespace Examples.Lockstep
             }
             if(_netServer != null)
             {
-                _netServer.Stop();
                 _netServer.Dispose();
             }
             if(_matchClient != null)

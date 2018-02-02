@@ -1,5 +1,4 @@
 ﻿using System;
-using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
 
@@ -24,51 +23,23 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.Rebind<TcpSocketNetworkServer>().ToMethod<TcpSocketNetworkServer>(CreateSocketServer, SetupServer);
-            Container.Bind<IDisposable>().ToLookup<TcpSocketNetworkServer>();
-            Container.Rebind<INetworkServer>("internal").ToLookup<TcpSocketNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<TcpSocketNetworkServer>();
+            Container.Rebind<TcpSocketNetworkServerFactory>().ToMethod<TcpSocketNetworkServerFactory>(CreateTcpSocketNetworkServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<TcpSocketNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<TcpSocketNetworkServerFactory>();
 
-            Container.Rebind<TcpSocketNetworkClient>().ToMethod<TcpSocketNetworkClient>(CreateSocketClient, SetupClient);
-            Container.Bind<IDisposable>().ToLookup<TcpSocketNetworkClient>();
-            Container.Rebind<INetworkClient>("internal").ToLookup<TcpSocketNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<TcpSocketNetworkClient>();
+            Container.Rebind<TcpSocketNetworkClientFactory>().ToMethod<TcpSocketNetworkClientFactory>(CreateTcpSocketNetworkClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<TcpSocketNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<TcpSocketNetworkClientFactory>();
         }
 
-        TcpSocketNetworkClient CreateSocketClient()
+        TcpSocketNetworkServerFactory CreateTcpSocketNetworkServerFactory()
         {
-            TcpSocketNetworkClient socketClient =  new TcpSocketNetworkClient(
-                Container.Resolve<IUpdateScheduler>(),
-                Settings.Config.ServerAddress, 
-                Settings.Config.ServerPort);
-            return socketClient; 
+            return new TcpSocketNetworkServerFactory(Settings);
         }
 
-        TcpSocketNetworkServer CreateSocketServer()
+        TcpSocketNetworkClientFactory CreateTcpSocketNetworkClientFactory()
         {
-            TcpSocketNetworkServer socketServer = new TcpSocketNetworkServer(
-                Container.Resolve<IUpdateScheduler>(),
-                Settings.Config.ServerAddress, 
-                Settings.Config.ServerPort);
-            return socketServer; 
-        }
-
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            var dlgs = Container.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
+            return new TcpSocketNetworkClientFactory(Settings);
         }
     }
 }
