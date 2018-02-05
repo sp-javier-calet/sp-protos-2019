@@ -1,56 +1,68 @@
 ﻿using System;
+using System.Threading;
 using SocialPoint.Utils;
+using SocialPoint.Console;
 
 namespace SocialPoint.Sockets
 {
     class Program
     {
+
         public static void Main(string[] args)
         {
+            int sleepTime = 0;
+
             UpdateScheduler updateScheduler = new UpdateScheduler();
-            if(args.Length == 0 || args.Length == 1)
+            if (args.Length == 0 || args.Length == 1 || args.Length == 2)
             {
-                Console.WriteLine("Please enter (TCP or UDP) and the port: ex -> TCP 8888");
+                System.Console.WriteLine("Please enter (TCP or UDP), the port and the ThreadSleepTime: ex -> TCP 8888 100");
                 return;
             }
-            if(args[0] == "TCP" || args[0] == "UDP")
+            if (args[0] == "TCP" || args[0] == "UDP")
             {
                 int port;
                 bool portOK = int.TryParse(args[1], out port);
-                if(portOK)
+
+                bool sleepTimeOK = int.TryParse(args[2], out sleepTime);
+
+                if (portOK && sleepTimeOK)
                 {
                     SocketServer server;
-                    if(args[0] == "TCP")
+                    if (args[0] == "TCP")
                     {
-                        Console.WriteLine("INSTANTIATE TCP SERVER");
+                        System.Console.WriteLine("INSTANTIATE TCP SERVER");
                         server = new SocketServer(SocketServer.Protocol.TCP, port, updateScheduler);
                         server.Start();
                     }
-                    else if(args[0] == "UDP")
+                    else if (args[0] == "UDP")
                     {
-                        Console.WriteLine("INSTANTIATE UDP SERVER");
+                        System.Console.WriteLine("INSTANTIATE UDP SERVER");
                         server = new SocketServer(SocketServer.Protocol.UDP, port, updateScheduler);
                         server.Start();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Please add a correct port: ex -> 8888");
+                    System.Console.WriteLine("Please add a correct port and a corect ThreadSleepTime: ex -> 8888 100");
+                    return;
                 }
             }
             else
             {
-                Console.WriteLine("Please enter (TCP or UDP): ex -> TCP");
+                System.Console.WriteLine("Please enter (TCP or UDP): ex -> TCP");
+                return;
             }
 
-            while(true)
+            float updateTime = 1000f / sleepTime;
+            while (true)
             {
-                if(Console.KeyAvailable)
+                if (System.Console.KeyAvailable)
                 {
                     return;
                 }
 
-                updateScheduler.Update(1.0f, 1.0f);
+                updateScheduler.Update(updateTime, updateTime);
+                Thread.Sleep(sleepTime);
             }
         }
     }

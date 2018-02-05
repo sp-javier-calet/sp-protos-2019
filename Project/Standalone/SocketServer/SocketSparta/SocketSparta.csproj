@@ -196,6 +196,24 @@
     <Compile Include="..\..\..\Assets\Examples\Sockets\Scripts\Shared\TypeMessages.cs">
       <Link>TypeMessages.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleApplication.cs">
+      <Link>Console\ConsoleApplication.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleCommand.cs">
+      <Link>Console\ConsoleCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleCommandOption.cs">
+      <Link>Console\ConsoleCommandOption.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleHelpCommand.cs">
+      <Link>Console\ConsoleHelpCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleException.cs">
+      <Link>Console\ConsoleException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleUtils.cs">
+      <Link>Console\ConsoleUtils.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\INetEventListener.cs.meta">
