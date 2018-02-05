@@ -168,7 +168,9 @@ namespace SocialPoint.Login
 
         string _forcedErrorCode = null;
         string _forcedErrorType = null;
+#if ADMIN_PANEL
         IHttpConnection _loginConnection;
+#endif
         ErrorDelegate _loginEndCallback;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
@@ -212,11 +214,11 @@ namespace SocialPoint.Login
             }
         }
 
-        public ICommandQueue CommandQueue{ get; set; }
+        public ICommandQueue CommandQueue { get; set; }
 
         void OnAppOpenedFromSource(AppSource src)
         {
-            #if ADMIN_PANEL
+#if ADMIN_PANEL
             if(SetAppSource(src))
             {
                 if(IsLogged)
@@ -229,7 +231,7 @@ namespace SocialPoint.Login
                     DoLogin(_loginEndCallback);
                 }
             }
-            #endif
+#endif
         }
 
         bool SetAppSource(AppSource src)
@@ -380,7 +382,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public TrackEventDelegate TrackEvent{ private get; set; }
+        public TrackEventDelegate TrackEvent { private get; set; }
 
         public string SecurityToken
         {
@@ -767,12 +769,12 @@ namespace SocialPoint.Login
             {
                 DebugLog("DoLogin - _availableConnectivityErrorRetries < 0");
 
-                #if DEBUG
+#if DEBUG
                 if(responseBody != null && responseBody.Length > 0)
                 {
                     DebugLog(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
                 }
-                #endif
+#endif
 
                 var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
@@ -793,14 +795,19 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("DoLogin- login\n----\n" + req + "----\n");
-                _loginConnection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
+                var connection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
+#if ADMIN_PANEL
+                _loginConnection = connection;
+#endif
             }
         }
 
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("OnLogin - login\n----\n" + resp + "----\n");
+#if ADMIN_PANEL
             _loginConnection = null;
+#endif
 
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
@@ -860,14 +867,14 @@ namespace SocialPoint.Login
             {
                 Data = new GenericData();
             }
-            
+
             Data.Load(genericData);
-            
+
             if(NewGenericDataEvent != null)
             {
                 NewGenericDataEvent(genericData);
             }
-            
+
             OnGenericDataLoaded();
         }
 
@@ -946,7 +953,8 @@ namespace SocialPoint.Login
             {
                 if(AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
                 {
-                    GetUsersPhotos(new List<User> { User }, AutoUpdateFriendsPhotosSize, (users, err) => {
+                    GetUsersPhotos(new List<User> { User }, AutoUpdateFriendsPhotosSize, (users, err) =>
+                    {
                         if(cbk != null)
                         {
                             cbk(err);
@@ -1216,7 +1224,7 @@ namespace SocialPoint.Login
         Error ReadNewLocalUser(byte[] data, out ErrorType errType)
         {
             errType = ErrorType.UserParse;
-            var reader = new JsonStreamReader(data);            
+            var reader = new JsonStreamReader(data);
             if(!reader.Read() || reader.Token != StreamToken.ObjectStart)
             {
                 return new Error("Empty login response");
@@ -2119,7 +2127,7 @@ namespace SocialPoint.Login
 
         public void AddForcedErrorRequestParams(HttpRequest req)
         {
-            #if ADMIN_PANEL
+#if ADMIN_PANEL
             if(AdminPanel.AdminPanel.IsAvailable)
             {
                 if(!string.IsNullOrEmpty(_forcedErrorCode))
@@ -2131,7 +2139,7 @@ namespace SocialPoint.Login
                     req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
                 }
             }
-            #endif
+#endif
         }
 
         #endregion
