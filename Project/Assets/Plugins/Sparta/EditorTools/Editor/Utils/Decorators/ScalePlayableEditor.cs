@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SpartaTools.Editor.Utils.Decorators
 {
     [CustomEditor(typeof(ScalePlayableAsset))]
-    public class ScalePlayableInspector : UnityEditor.Editor
+    public class ScalePlayableEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

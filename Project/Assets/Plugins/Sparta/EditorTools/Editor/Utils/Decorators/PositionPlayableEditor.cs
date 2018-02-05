@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SpartaTools.Editor.Utils.Decorators
 {
     [CustomEditor(typeof(PositionPlayableAsset))]
-    public class PositionPlayableInspector : UnityEditor.Editor
+    public class PositionPlayableEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

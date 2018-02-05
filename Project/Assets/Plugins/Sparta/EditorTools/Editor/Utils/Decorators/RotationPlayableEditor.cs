@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SpartaTools.Editor.Utils.Decorators
 {
     [CustomEditor(typeof(RotationPlayableAsset))]
-    public class RotationPlayableInspector : UnityEditor.Editor
+    public class RotationPlayableEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
