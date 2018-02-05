@@ -168,10 +168,10 @@ namespace SocialPoint.Login
 
         string _forcedErrorCode = null;
         string _forcedErrorType = null;
-#if ADMIN_PANEL
         IHttpConnection _loginConnection;
-#endif
+#if ADMIN_PANEL
         ErrorDelegate _loginEndCallback;
+#endif
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -786,7 +786,9 @@ namespace SocialPoint.Login
             }
             else
             {
+#if ADMIN_PANEL
                 _loginEndCallback = cbk;
+#endif
                 var req = new HttpRequest(GetUrl(LoginUri), HttpRequest.MethodType.POST);
                 SetupLoginHttpRequest(req);
                 if(HttpRequestEvent != null)
@@ -795,19 +797,18 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("DoLogin- login\n----\n" + req + "----\n");
-                var connection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
-#if ADMIN_PANEL
-                _loginConnection = connection;
-#endif
+                _loginConnection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
             }
         }
 
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("OnLogin - login\n----\n" + resp + "----\n");
-#if ADMIN_PANEL
-            _loginConnection = null;
-#endif
+            if(_loginConnection != null)
+            {
+                _loginConnection.Cancel();
+                _loginConnection = null;
+            }
 
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
@@ -2103,7 +2104,7 @@ namespace SocialPoint.Login
             AddForcedErrorRequestParams(req);
         }
 
-        #region Forced Login Errors
+#region Forced Login Errors
 
         public void SetForcedErrorCode(string code)
         {
@@ -2142,7 +2143,7 @@ namespace SocialPoint.Login
 #endif
         }
 
-        #endregion
+#endregion
 
         // PUBLIC
 
