@@ -806,6 +806,7 @@ namespace SocialPoint.Login
             DebugLog("OnLogin - login\n----\n" + resp + "----\n");
             if(_loginConnection != null)
             {
+                _loginConnection.Release();
                 _loginConnection.Cancel();
                 _loginConnection = null;
             }
