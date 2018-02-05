@@ -37,10 +37,13 @@ namespace SpartaTools.Editor.Utils.Decorators
             if(template.HowToAnimateFrom == BaseTransformPlayableData.HowToAnimateType.UseReferenceTransform)
             {
                 EditorGUILayout.PropertyField(fromExposedRefence, new GUIContent("Reference Transform:"), true);
+
+                var obj = ((Transform)fromExposedRefence.objectReferenceValue);
+                template.AnimateFrom = obj != null ? obj.rotation : Quaternion.identity;
             }
             else if(template.HowToAnimateFrom == BaseTransformPlayableData.HowToAnimateType.UseAbsoluteValues)
             {
-                template.AnimateFrom = EditorGUILayout.Vector3Field("Values:", template.AnimateFrom);
+                template.AnimateFrom = ConvertToQuaternion(EditorGUILayout.Vector3Field("Values:", template.AnimateFrom.eulerAngles));
             }
 
             EditorGUILayout.Space();
@@ -51,10 +54,13 @@ namespace SpartaTools.Editor.Utils.Decorators
             if(template.HowToAnimateTo == BaseTransformPlayableData.HowToAnimateType.UseReferenceTransform)
             {
                 EditorGUILayout.PropertyField(toExposedRefence, new GUIContent("Reference Transform:"), true);
+
+                var obj = ((Transform)toExposedRefence.objectReferenceValue);
+                template.AnimateTo = obj != null ? obj.rotation : Quaternion.identity;
             }
             else if(template.HowToAnimateTo == BaseTransformPlayableData.HowToAnimateType.UseAbsoluteValues)
             {
-                template.AnimateTo = EditorGUILayout.Vector3Field("Values:", template.AnimateTo);
+                template.AnimateTo = ConvertToQuaternion(EditorGUILayout.Vector3Field("Values:", template.AnimateTo.eulerAngles));
             }
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -70,9 +76,7 @@ namespace SpartaTools.Editor.Utils.Decorators
             }
 
             // We need to focre gui changing if some enum popup has changed
-            if(oldHowToAnimateFrom != template.HowToAnimateFrom ||
-               oldHowToAnimateTo != template.HowToAnimateTo ||
-               oldAnimationType != template.AnimationType)
+            if(oldHowToAnimateFrom != template.HowToAnimateFrom || oldHowToAnimateTo != template.HowToAnimateTo || oldAnimationType != template.AnimationType)
             {
                 GUI.changed = true;
             }
@@ -81,6 +85,11 @@ namespace SpartaTools.Editor.Utils.Decorators
             {
                 serializedObject.ApplyModifiedProperties();
             }
+        }
+
+        Quaternion ConvertToQuaternion(Vector3 eulerAngles)
+        {
+            return Quaternion.Euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
         }
     }
 }

@@ -6,21 +6,21 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class OpacityPlayableMixer : BasePlayableMixer
     {
-        public MaskableGraphic _trackBinding;
-        public Color _defaultValue;
+        public CanvasGroup _trackBinding;
+        public float _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
-                _trackBinding.color = _defaultValue;
+                _trackBinding.alpha = _defaultValue;
             }
         }
 
         // NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
-            _trackBinding = playerData as MaskableGraphic;
+            _trackBinding = playerData as CanvasGroup;
             if(_trackBinding == null)
             {
                 return;
@@ -28,7 +28,7 @@ namespace SocialPoint.TimeLinePlayables
 
             if(!_firstFrameHappened)
             {
-                _defaultValue = _trackBinding.color;
+                _defaultValue = _trackBinding.alpha;
 
                 _firstFrameHappened = true;
             }
@@ -53,10 +53,7 @@ namespace SocialPoint.TimeLinePlayables
                 alphaTotalWeight += inputWeight;
             }
 
-            var color = _defaultValue;
-            color.a = blendedAlpha + _defaultValue.a * (1f - alphaTotalWeight);
-
-            _trackBinding.color = color;
+            _trackBinding.alpha = blendedAlpha + _defaultValue * (1f - alphaTotalWeight);
         }
     }
 }

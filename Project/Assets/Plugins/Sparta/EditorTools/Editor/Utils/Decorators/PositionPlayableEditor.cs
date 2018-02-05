@@ -70,8 +70,8 @@ namespace SpartaTools.Editor.Utils.Decorators
             }
 
             // We need to focre gui changing if some enum popup has changed
-            if(oldHowToAnimateFrom != template.HowToAnimateFrom || 
-               oldHowToAnimateTo != template.HowToAnimateTo || 
+            if(oldHowToAnimateFrom != template.HowToAnimateFrom ||
+               oldHowToAnimateTo != template.HowToAnimateTo ||
                oldAnimationType != template.AnimationType)
             {
                 GUI.changed = true;

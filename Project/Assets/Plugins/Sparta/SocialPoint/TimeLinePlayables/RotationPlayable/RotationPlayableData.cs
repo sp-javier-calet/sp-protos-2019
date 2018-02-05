@@ -6,16 +6,16 @@ namespace SocialPoint.TimeLinePlayables
     [Serializable]
     public class RotationPlayableData : BaseTransformPlayableData
     {
-        public Vector3 AnimateFrom;
-        public Vector3 AnimateTo;
+        public Quaternion AnimateFrom;
+        public Quaternion AnimateTo;
 
-        public void SetAnimatedValues(Vector3 defaultTransformValue)
+        public void SetAnimatedValues(Quaternion defaultValue)
         {
             if(HowToAnimateFrom == HowToAnimateType.UseReferenceTransform)
             {
                 if(TransformFrom != null)
                 {
-                    AnimateFrom = TransformFrom.eulerAngles;
+                    AnimateFrom = TransformFrom.rotation;
                 }
                 else
                 {
@@ -26,7 +26,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(HowToAnimateFrom == HowToAnimateType.UseInitialTransformValues)
                 {
-                    AnimateFrom = defaultTransformValue;
+                    AnimateFrom = defaultValue;
                 }
 
                 TransformFrom = null;
@@ -36,7 +36,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(TransformTo != null)
                 {
-                    AnimateTo = TransformTo.eulerAngles;
+                    AnimateTo = TransformTo.rotation;
                 }
                 else
                 {
@@ -47,7 +47,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(HowToAnimateTo == HowToAnimateType.UseInitialTransformValues)
                 {
-                    AnimateTo = defaultTransformValue;
+                    AnimateTo = defaultValue;
                 }
 
                 TransformTo = null;

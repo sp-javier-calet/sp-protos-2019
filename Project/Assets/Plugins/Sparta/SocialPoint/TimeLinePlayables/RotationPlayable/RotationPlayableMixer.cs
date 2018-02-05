@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using SocialPoint.Base;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace SocialPoint.TimeLinePlayables
@@ -6,13 +7,13 @@ namespace SocialPoint.TimeLinePlayables
     public class RotationPlayableMixer : BaseTransformPlayableMixer
     {
         public Transform _trackBinding;
-        public Vector3 _defaultValue;
+        public Quaternion _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
-                _trackBinding.eulerAngles = _defaultValue;
+                _trackBinding.rotation = _defaultValue;
             }
         }
 
@@ -27,8 +28,7 @@ namespace SocialPoint.TimeLinePlayables
 
             if(!_firstFrameHappened)
             {
-                _defaultValue = _trackBinding.eulerAngles;
-
+                _defaultValue = _trackBinding.rotation;
                 _firstFrameHappened = true;
             }
 
@@ -40,8 +40,8 @@ namespace SocialPoint.TimeLinePlayables
             }
 
             // Track the current value to store values between clips and avoid reseting values to the default value
-            var currentRotation = _trackBinding.eulerAngles;
-            var blendedRotation = Vector3.zero;
+            var currentRotation = _trackBinding.rotation;
+            var blendedRotation = Quaternion.identity;
             var rotationTotalWeight = 0f;
 
             for(int i = 0; i < inputCount; i++)
@@ -54,10 +54,58 @@ namespace SocialPoint.TimeLinePlayables
                 playableBehaviour.SetAnimatedValues(_defaultValue);
 
                 rotationTotalWeight += inputWeight;
-                blendedRotation += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
+                var desiredRotation = Quaternion.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress);
+                desiredRotation = NormalizeQuaternion(desiredRotation);
+
+                if(Quaternion.Dot(blendedRotation, desiredRotation) < 0f)
+                {
+                    desiredRotation = ScaleQuaternion(desiredRotation, -1f);
+                }
+
+                desiredRotation = ScaleQuaternion(desiredRotation, inputWeight);
+                blendedRotation = AddQuaternions(blendedRotation, desiredRotation);
             }
 
-            _trackBinding.eulerAngles = blendedRotation + currentRotation * (1f - rotationTotalWeight);
+            var weightedDefaultRotation = ScaleQuaternion(_defaultValue, 1f - rotationTotalWeight);
+            _trackBinding.rotation = AddQuaternions(blendedRotation, weightedDefaultRotation);
+        }
+
+        static Quaternion AddQuaternions(Quaternion first, Quaternion second)
+        {
+            first.w += second.w;
+            first.x += second.x;
+            first.y += second.y;
+            first.z += second.z;
+
+            return first;
+        }
+
+        static Quaternion ScaleQuaternion(Quaternion rotation, float multiplier)
+        {
+            rotation.w *= multiplier;
+            rotation.x *= multiplier;
+            rotation.y *= multiplier;
+            rotation.z *= multiplier;
+
+            return rotation;
+        }
+
+        static float QuaternionMagnitude(Quaternion rotation)
+        {
+            return Mathf.Sqrt((Quaternion.Dot(rotation, rotation)));
+        }
+
+        static Quaternion NormalizeQuaternion(Quaternion rotation)
+        {
+            float magnitude = QuaternionMagnitude(rotation);
+
+            if(magnitude > 0f)
+            {
+                return ScaleQuaternion(rotation, 1f / magnitude);
+            }
+
+            Log.w("Cannot normalize a quaternion with zero magnitude.");
+            return Quaternion.identity;
         }
     }
 }
