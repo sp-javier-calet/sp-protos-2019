@@ -101,19 +101,14 @@ namespace SocialPoint.Pooling
             return obj;
         }
 
-        public void Return<T>(T obj) where T : class
-        {
-            DoReturnByType(obj);
-        }
-
-        void DoReturnByType<T>(T obj) where T : class
+        public void Return(object obj)
         {
             if(obj == null)
             {
                 return;
             }
 
-            var objType = typeof(T);
+            var objType = obj.GetType();
             Stack<object> pooledObjects = null;
 
             if(!_types.TryGetValue(objType, out pooledObjects))
@@ -172,18 +167,8 @@ namespace SocialPoint.Pooling
             return obj;
         }
 
-        public void Return<T>(int id, List<T> list) where T : class
-        {
-            list.Clear();
-            DoReturnById(id, list);
-        }
 
-        public void Return<T>(int id, T obj) where T : class
-        {
-            DoReturnById(id, obj);
-        }
-
-        void DoReturnById<T>(int id, T obj) where T : class
+        public void Return(int id, object obj)
         {
             if(obj == null)
             {

@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using NSubstitute;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +13,32 @@ namespace SocialPoint.Pooling
         class TestObject
         {
             public int Value = 42;
+        }
+
+        class TestDisposable : IDisposable
+        {
+            public int DisposeCount;
+
+            public void Dispose()
+            {
+                DisposeCount++;
+            }
+        }
+
+        class TestRecyclable : IRecyclable
+        {
+            public int SpawnCount;
+            public int RecycleCount;
+
+            public void OnSpawn()
+            {
+                SpawnCount++;
+            }
+
+            public void OnRecycle()
+            {
+                RecycleCount++;
+            }
         }
 
         [SetUp]
@@ -65,58 +90,58 @@ namespace SocialPoint.Pooling
         [Test]
         public void DisposableByType()
         {
-            var obj = Substitute.For<IDisposable>();
-            _pool.Return<IDisposable>(obj);
-            obj.DidNotReceive().Dispose();
-            var obj2 = _pool.TryGet<IDisposable>();
-            obj.DidNotReceive().Dispose();
+            var obj = new TestDisposable();
+            _pool.Return(obj);
+            Assert.AreEqual(0, obj.DisposeCount);
+            var obj2 = _pool.TryGet<TestDisposable>();
+            Assert.AreEqual(0, obj.DisposeCount);
             Assert.AreEqual(obj, obj2);
-            _pool.Return<IDisposable>(obj);
-            obj.DidNotReceive().Dispose();
+            _pool.Return(obj);
+            Assert.AreEqual(0, obj.DisposeCount);
             _pool.Clear();
-            obj.Received(1).Dispose();
+            Assert.AreEqual(1, obj.DisposeCount);
         }
 
         [Test]
         public void DisposableById()
         {
-            var obj = Substitute.For<IDisposable>();
-            _pool.Return<IDisposable>(1, obj);
-            obj.DidNotReceive().Dispose();
-            var obj2 = _pool.TryGet<IDisposable>(1);
-            obj.DidNotReceive().Dispose();
+            var obj = new TestDisposable();
+            _pool.Return(1, obj);
+            Assert.AreEqual(0, obj.DisposeCount);
+            var obj2 = _pool.TryGet<TestDisposable>(1);
+            Assert.AreEqual(0, obj.DisposeCount);
             Assert.AreEqual(obj, obj2);
-            _pool.Return<IDisposable>(1, obj);
-            obj.DidNotReceive().Dispose();
+            _pool.Return(1, obj);
+            Assert.AreEqual(0, obj.DisposeCount);
             _pool.Clear();
-            obj.Received(1).Dispose();
+            Assert.AreEqual(1, obj.DisposeCount);
         }
 
         [Test]
         public void RecyclabeByType()
         {
-            var obj = Substitute.For<IRecyclable>();
-            _pool.Return<IRecyclable>(obj);
-            obj.Received(1).OnRecycle();
-            obj.DidNotReceive().OnSpawn();
-            var obj2 = _pool.TryGet<IRecyclable>();
+            var obj = new TestRecyclable();
+            _pool.Return(obj);
+            Assert.AreEqual(1, obj.RecycleCount);
+            Assert.AreEqual(0, obj.SpawnCount);
+            var obj2 = _pool.TryGet<TestRecyclable>();
             Assert.AreEqual(obj, obj2);
-            obj.Received(1).OnRecycle();
-            obj.Received(1).OnSpawn();
+            Assert.AreEqual(1, obj.RecycleCount);
+            Assert.AreEqual(1, obj.SpawnCount);
         }
 
 
         [Test]
         public void RecyclabeById()
         {
-            var obj = Substitute.For<IRecyclable>();
-            _pool.Return<IRecyclable>(1, obj);
-            obj.Received(1).OnRecycle();
-            obj.DidNotReceive().OnSpawn();
+            var obj = new TestRecyclable();
+            _pool.Return(1, obj);
+            Assert.AreEqual(1, obj.RecycleCount);
+            Assert.AreEqual(0, obj.SpawnCount);
             var obj2 = _pool.TryGet<IRecyclable>(1);
             Assert.AreEqual(obj, obj2);
-            obj.Received(1).OnRecycle();
-            obj.Received(1).OnSpawn();
+            Assert.AreEqual(1, obj.RecycleCount);
+            Assert.AreEqual(1, obj.SpawnCount);
         }
 
         [Test]
