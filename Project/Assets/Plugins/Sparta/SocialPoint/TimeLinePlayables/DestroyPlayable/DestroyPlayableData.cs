@@ -34,21 +34,27 @@ namespace SocialPoint.TimeLinePlayables
 
         public override void OnGraphStop(Playable playable)
         {
-            SetActiveState(InitialActiveState);
+            if(!Application.isPlaying)
+            {
+                SetActiveState(InitialActiveState);
+            }
         }
 
         public void SetActiveState(bool active)
         {
             if(GameObject != null)
             {
-#if UNITY_EDITOR
-                GameObject.SetActive(active);
-#else
-                if(!active)
+                if(!Application.isPlaying)
                 {
-                    DestroyGameObject();
+                    if(!active)
+                    {
+                        DestroyGameObject();
+                    }
                 }
-#endif
+                else
+                {
+                    GameObject.SetActive(active);
+                }
             }
         }
 

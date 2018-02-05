@@ -95,10 +95,10 @@ namespace SocialPoint.GUIControl
                 for(int i = 0, _containers3dCount = _containers3d.Count; i < _containers3dCount; i++)
                 {
                     var element = _containers3d[i];
-                    var renderer = element.GetComponent<Renderer>();
-                    if(renderer != null && renderer.material != null)
+                    var rend = element.GetComponent<Renderer>();
+                    if(rend != null && rend.material != null)
                     {
-                        materials.Add(renderer.material);
+                        materials.Add(rend.material);
                     }
                 }
                 return materials;
@@ -367,7 +367,10 @@ namespace SocialPoint.GUIControl
                 var container = gameObject.GetComponent<UI3DContainer>() ?? gameObject.AddComponent<UI3DContainer>();
                 container.OnDestroyed += On3dContainerDestroyed;
 
-                LayersController.Add3DContainer(this, gameObject);
+                if(LayersController != null)
+                {
+                    LayersController.Add3DContainer(this, gameObject);
+                }
             }
         }
 
