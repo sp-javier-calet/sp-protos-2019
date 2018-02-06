@@ -35,7 +35,7 @@ namespace SocialPoint.TimeLinePlayables
         {
             if(GameObject != null)
             {
-                if(UsePooling)
+                if(Application.isPlaying && UsePooling)
                 {
                     GameObject.Recycle();
                 }
