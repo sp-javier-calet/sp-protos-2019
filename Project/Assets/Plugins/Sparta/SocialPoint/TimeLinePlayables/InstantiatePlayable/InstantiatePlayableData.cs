@@ -59,7 +59,7 @@ namespace SocialPoint.TimeLinePlayables
 
         public void InstantiateOrSpawn()
         {
-            if(UsePooling)
+            if(Application.isPlaying && UsePooling)
             {
                 InstantiatedPrefab = Prefab.Spawn(Parent);
             }
@@ -99,7 +99,7 @@ namespace SocialPoint.TimeLinePlayables
                     UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
                 }
 
-                if(UsePooling)
+                if(Application.isPlaying && UsePooling)
                 {
                     InstantiatedPrefab.Recycle();
                 }

@@ -348,7 +348,7 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     InstantiatedPrefab: {fileID: 0}
     Parent: {fileID: 0}
-    UsePooling: 0
+    UsePooling: 1
     IsInstantiated: 0
     PrefabIs3DObject: 1
     LocalPosition: {x: 0, y: 0, z: 0}
