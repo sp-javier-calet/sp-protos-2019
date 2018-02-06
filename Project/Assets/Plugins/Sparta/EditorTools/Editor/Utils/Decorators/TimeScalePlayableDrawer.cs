@@ -9,7 +9,7 @@ namespace SpartaTools.Editor.Utils.Decorators
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var timeScaleProp = property.FindPropertyRelative("_timeScale");
+            var timeScaleProp = property.FindPropertyRelative("TimeScale");
             EditorGUILayout.PropertyField(timeScaleProp);
         }
     }

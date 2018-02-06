@@ -1,10 +1,11 @@
 using System;
 using SocialPoint.Utils;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class BaseTransformPlayableData : BasePlayableData
     {
         readonly static AnimationCurve defaultAnimationCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));

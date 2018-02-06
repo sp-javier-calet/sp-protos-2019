@@ -5,7 +5,7 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class DestroyPlayableAsset : PlayableAsset, ITimelineClipAsset
     {
         public DestroyPlayableData Template = new DestroyPlayableData();

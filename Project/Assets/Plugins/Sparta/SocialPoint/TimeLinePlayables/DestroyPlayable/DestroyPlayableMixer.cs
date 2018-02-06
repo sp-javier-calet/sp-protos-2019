@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace SocialPoint.TimeLinePlayables
@@ -23,9 +24,17 @@ namespace SocialPoint.TimeLinePlayables
                 if(playTime - playableBehaviour.CustomClipStart >= 0 && !playableBehaviour.IsDestroyed)
                 {
                     playableBehaviour.IsDestroyed = true;
-                    playableBehaviour.SetActiveState(false);
+
+                    if(!Application.isPlaying)
+                    {
+                        playableBehaviour.SetActiveState(false);
+                    }
+                    else
+                    {
+                        playableBehaviour.DestroyGameObject();
+                    }
                 }
-                else if(playTime - playableBehaviour.CustomClipStart < 0 && playableBehaviour.IsDestroyed)
+                else if(!Application.isPlaying && playTime - playableBehaviour.CustomClipStart < 0 && playableBehaviour.IsDestroyed)
                 {
                     playableBehaviour.IsDestroyed = false;
                     playableBehaviour.SetActiveState(playableBehaviour.InitialActiveState);

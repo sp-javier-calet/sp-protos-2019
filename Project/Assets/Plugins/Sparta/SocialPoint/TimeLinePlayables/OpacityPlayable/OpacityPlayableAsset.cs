@@ -5,7 +5,7 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class OpacityPlayableAsset : PlayableAsset, ITimelineClipAsset
     {
         public OpacityPlayableData Template = new OpacityPlayableData();

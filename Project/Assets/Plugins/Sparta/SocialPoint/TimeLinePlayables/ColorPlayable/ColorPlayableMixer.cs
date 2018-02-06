@@ -6,14 +6,15 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class ColorPlayableMixer : BasePlayableMixer
     {
-        public MaskableGraphic _trackBinding;
-        public Color _defaultValue;
+        MaskableGraphic _trackBinding;
+        Color _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
                 _trackBinding.color = _defaultValue;
+                _firstFrameHappened = false;
             }
         }
 

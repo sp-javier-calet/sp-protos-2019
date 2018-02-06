@@ -5,14 +5,15 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class PositionPlayableMixer : BaseTransformPlayableMixer
     {
-        public Transform _trackBinding;
-        public Vector3 _defaultValue;
+        Transform _trackBinding;
+        Vector3 _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
                 _trackBinding.position = _defaultValue;
+                _firstFrameHappened = false;
             }
         }
 
@@ -28,7 +29,6 @@ namespace SocialPoint.TimeLinePlayables
             if(!_firstFrameHappened)
             {
                 _defaultValue = _trackBinding.position;
-
                 _firstFrameHappened = true;
             }
 
@@ -39,25 +39,30 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            // Track the current value to store values between clips and avoid reseting values to the default value
-            var currentPosition = _trackBinding.position;
-            var blendedPosition = Vector3.zero;
-            var positionTotalWeight = 0f;
+            var newPosition = _defaultValue;
+            var playTime = playable.GetGraph().GetRootPlayable(0).GetTime();
 
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<BaseTransformPlayableData>)playable.GetInput(i);
-                var playableBehaviour = (PositionPlayableData)playableInput.GetBehaviour();
-                var inputWeight = playable.GetInputWeight(i);
-                var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
+                var playableInputData = (PositionPlayableData)playableInput.GetBehaviour();
+                playableInputData.ComputeAnimatedValues(_defaultValue);
 
-                playableBehaviour.SetAnimatedValues(_defaultValue);
-
-                positionTotalWeight += inputWeight;
-                blendedPosition += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
+                if(playTime - playableInputData.CustomClipEnd >= 0)
+                {
+                    newPosition = playableInputData.AnimateTo;
+                }
+                else
+                {
+                    var tweenProgress = GetTweenProgress(playableInput, playableInputData, playTime);
+                    if(tweenProgress > 0f)
+                    {
+                        newPosition = Vector3.Lerp(playableInputData.AnimateFrom, playableInputData.AnimateTo, tweenProgress);
+                    }                        
+                }
             }
 
-            _trackBinding.position = blendedPosition + currentPosition * (1f - positionTotalWeight);
+            _trackBinding.position = newPosition;
         }
     }
 }

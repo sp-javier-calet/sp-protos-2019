@@ -1,25 +1,28 @@
 using System;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class BasePlayableData : PlayableBehaviour
     {
-        public float Duration;
-        public float InverseDuration;
-
-        public override void PrepareFrame(Playable playable, FrameData info)
+        public TimelineClip CustomClipReference { get; set; }
+        public double CustomClipStart
         {
-            var duration = playable.GetDuration();
-            if(Mathf.Approximately((float)duration, 0f))
+            get
             {
-                throw new UnityException("A Tween cannot have a duration of zero.");
+                return CustomClipReference.start;
             }
+        }
 
-            Duration = (float)duration;
-            InverseDuration = 1f / (float)duration;
+        public double CustomClipEnd
+        {
+            get
+            {
+                return CustomClipReference.end;
+            }
         }
     }
 }

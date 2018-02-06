@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class PositionPlayableData : BaseTransformPlayableData
     {
         public Vector3 AnimateFrom; 
         public Vector3 AnimateTo;
 
-        public void SetAnimatedValues(Vector3 defaultTransformValue)
+        public void ComputeAnimatedValues(Vector3 defaultTransformValue)
         {
             if(HowToAnimateFrom == HowToAnimateType.UseReferenceTransform)
             {

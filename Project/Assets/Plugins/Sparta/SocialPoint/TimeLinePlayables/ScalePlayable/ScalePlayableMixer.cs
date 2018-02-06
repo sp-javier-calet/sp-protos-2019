@@ -5,14 +5,15 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class ScalePlayableMixer : BaseTransformPlayableMixer
     {
-        public Transform _trackBinding;
-        public Vector3 _defaultValue;
+        Transform _trackBinding;
+        Vector3 _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
                 _trackBinding.localScale = _defaultValue;
+                _firstFrameHappened = false;
             }
         }
 
@@ -28,7 +29,6 @@ namespace SocialPoint.TimeLinePlayables
             if(!_firstFrameHappened)
             {
                 _defaultValue = _trackBinding.localScale;
-
                 _firstFrameHappened = true;
             }
 
@@ -39,25 +39,30 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            // Track the current value to store values between clips and avoid reseting values to the default value
-            var currentScale = _trackBinding.localScale;
-            var blendedScale = Vector3.zero;
-            var scaleTotalWeight = 0f;
+            var newScale = _defaultValue;
+            var playTime = playable.GetGraph().GetRootPlayable(0).GetTime();
 
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<BaseTransformPlayableData>)playable.GetInput(i);
-                var playableBehaviour = (ScalePlayableData)playableInput.GetBehaviour();
-                var inputWeight = playable.GetInputWeight(i);
-                var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
+                var playableInputData = (ScalePlayableData)playableInput.GetBehaviour();
+                playableInputData.ComputeAnimatedValues(_defaultValue);
 
-                playableBehaviour.SetAnimatedValues(_defaultValue);
-
-                scaleTotalWeight += inputWeight;
-                blendedScale += Vector3.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress) * inputWeight;
+                if(playTime - playableInputData.CustomClipEnd >= 0)
+                {
+                    newScale = playableInputData.AnimateTo;
+                }
+                else
+                {
+                    var tweenProgress = GetTweenProgress(playableInput, playableInputData, playTime);
+                    if(tweenProgress > 0f)
+                    {
+                        newScale = Vector3.Lerp(playableInputData.AnimateFrom, playableInputData.AnimateTo, tweenProgress);
+                    }
+                }
             }
-                
-            _trackBinding.localScale = blendedScale + currentScale * (1f - scaleTotalWeight);
+
+            _trackBinding.localScale = newScale;
         }
     }
 }

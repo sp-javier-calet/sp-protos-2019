@@ -8,7 +8,7 @@ using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class InstantiatePlayableData : BasePlayableData
     {
         public GameObject Prefab;
@@ -21,20 +21,31 @@ namespace SocialPoint.TimeLinePlayables
         public Quaternion LocalRotation = Quaternion.identity;
         public Vector3 LocalScale = Vector3.one;
 
-        public TimelineClip CustomClipReference { get; set; }
-        public double CustomClipStart
+        Canvas _baseCanvas;
+        public Canvas BaseCanvas
         {
             get
             {
-                return CustomClipReference.start;
+                if(_baseCanvas == null && Parent != null)
+                {
+                    _baseCanvas = Parent.GetComponentInParent<Canvas>();
+                }
+
+                return _baseCanvas;
             }
         }
 
-        public double CustomClipEnd
+        UIViewController _uiViewController;
+        public UIViewController UIViewController
         {
             get
             {
-                return CustomClipReference.end;
+                if(_uiViewController == null && Parent != null)
+                {
+                    _uiViewController = Parent.GetComponentInParent<UIViewController>();
+                }
+
+                return _uiViewController;
             }
         }
 
@@ -65,28 +76,29 @@ namespace SocialPoint.TimeLinePlayables
                 trans.localScale = LocalScale;
             }
 
-            var baseCanvas = Parent.GetComponentInParent<Canvas>();
-            if(baseCanvas != null)
+            if(PrefabIs3DObject)
             {
-                if(PrefabIs3DObject)
+                if(UIViewController != null)
                 {
-                    var uiViewController = Parent.GetComponentInParent<UIViewController>();
-                    if(uiViewController != null)
-                    {
-                        uiViewController.Add3DContainer(InstantiatedPrefab);                      
-                    }
-                }
-                else
-                {
-                    InstantiatedPrefab.SetLayerRecursively(baseCanvas.gameObject.layer);
+                    UIViewController.Add3DContainer(InstantiatedPrefab);
                 }
             }
+            // TODO add new layering system to 2d elements
+            //else if(BaseCanvas != null)
+            //{
+            //    InstantiatedPrefab.SetLayerRecursively(BaseCanvas.gameObject.layer);
+            //}
         }
 
         public void DestroyOrRecycle()
         {
             if(InstantiatedPrefab != null)
             {
+                if(UIViewController != null && PrefabIs3DObject)
+                {
+                    UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
+                }
+
                 if(UsePooling)
                 {
                     InstantiatedPrefab.Recycle();

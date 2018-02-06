@@ -32,10 +32,19 @@ namespace SpartaTools.Editor.Utils.Decorators
             EditorGUILayout.PropertyField(parentExposedRefence, new GUIContent("Parent:"), true);
             template.UsePooling = EditorGUILayout.Toggle("Use Pooling:", template.UsePooling);
 
+            template.LocalPosition = EditorGUILayout.Vector3Field("Local Position:", template.LocalPosition);
+            template.LocalRotation = ConvertToQuaternion(EditorGUILayout.Vector3Field("Local Rotation:", template.LocalRotation.eulerAngles));
+            template.LocalScale = EditorGUILayout.Vector3Field("Local Scale:", template.LocalScale);
+    
             if(EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
             }
+        }
+
+        Quaternion ConvertToQuaternion(Vector3 eulerAngles)
+        {
+            return Quaternion.Euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
         }
     }
 }

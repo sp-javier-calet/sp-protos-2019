@@ -6,14 +6,15 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class RotationPlayableMixer : BaseTransformPlayableMixer
     {
-        public Transform _trackBinding;
-        public Quaternion _defaultValue;
+        Transform _trackBinding;
+        Quaternion _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
                 _trackBinding.rotation = _defaultValue;
+                _firstFrameHappened = false;
             }
         }
 
@@ -39,73 +40,30 @@ namespace SocialPoint.TimeLinePlayables
                 return;
             }
 
-            // Track the current value to store values between clips and avoid reseting values to the default value
-            var currentRotation = _trackBinding.rotation;
-            var blendedRotation = Quaternion.identity;
-            var rotationTotalWeight = 0f;
+            var newRotation = _defaultValue;
+            var playTime = playable.GetGraph().GetRootPlayable(0).GetTime();
 
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<BaseTransformPlayableData>)playable.GetInput(i);
-                var playableBehaviour = (RotationPlayableData)playableInput.GetBehaviour();
-                var inputWeight = playable.GetInputWeight(i);
-                var tweenProgress = GetTweenProgress(playableInput, playableBehaviour);
+                var playableInputData = (RotationPlayableData)playableInput.GetBehaviour();
+                playableInputData.ComputeAnimatedValues(_defaultValue);
 
-                playableBehaviour.SetAnimatedValues(_defaultValue);
-
-                rotationTotalWeight += inputWeight;
-                var desiredRotation = Quaternion.Lerp(playableBehaviour.AnimateFrom, playableBehaviour.AnimateTo, tweenProgress);
-                desiredRotation = NormalizeQuaternion(desiredRotation);
-
-                if(Quaternion.Dot(blendedRotation, desiredRotation) < 0f)
+                if(playTime - playableInputData.CustomClipEnd >= 0)
                 {
-                    desiredRotation = ScaleQuaternion(desiredRotation, -1f);
+                    newRotation = playableInputData.AnimateTo;
                 }
-
-                desiredRotation = ScaleQuaternion(desiredRotation, inputWeight);
-                blendedRotation = AddQuaternions(blendedRotation, desiredRotation);
+                else
+                {
+                    var tweenProgress = GetTweenProgress(playableInput, playableInputData, playTime);
+                    if(tweenProgress > 0f)
+                    {
+                        newRotation = Quaternion.Lerp(playableInputData.AnimateFrom, playableInputData.AnimateTo, tweenProgress);
+                    }
+                }
             }
 
-            var weightedDefaultRotation = ScaleQuaternion(_defaultValue, 1f - rotationTotalWeight);
-            _trackBinding.rotation = AddQuaternions(blendedRotation, weightedDefaultRotation);
-        }
-
-        static Quaternion AddQuaternions(Quaternion first, Quaternion second)
-        {
-            first.w += second.w;
-            first.x += second.x;
-            first.y += second.y;
-            first.z += second.z;
-
-            return first;
-        }
-
-        static Quaternion ScaleQuaternion(Quaternion rotation, float multiplier)
-        {
-            rotation.w *= multiplier;
-            rotation.x *= multiplier;
-            rotation.y *= multiplier;
-            rotation.z *= multiplier;
-
-            return rotation;
-        }
-
-        static float QuaternionMagnitude(Quaternion rotation)
-        {
-            return Mathf.Sqrt((Quaternion.Dot(rotation, rotation)));
-        }
-
-        static Quaternion NormalizeQuaternion(Quaternion rotation)
-        {
-            float magnitude = QuaternionMagnitude(rotation);
-
-            if(magnitude > 0f)
-            {
-                return ScaleQuaternion(rotation, 1f / magnitude);
-            }
-
-            Log.w("Cannot normalize a quaternion with zero magnitude.");
-            return Quaternion.identity;
+            _trackBinding.rotation = newRotation;
         }
     }
 }

@@ -6,14 +6,15 @@ namespace SocialPoint.TimeLinePlayables
 {
     public class OpacityPlayableMixer : BasePlayableMixer
     {
-        public CanvasGroup _trackBinding;
-        public float _defaultValue;
+        CanvasGroup _trackBinding;
+        float _defaultValue;
 
         public override void OnGraphStop(Playable playable)
         {
             if(_trackBinding != null)
             {
                 _trackBinding.alpha = _defaultValue;
+                _firstFrameHappened = false;
             }
         }
 

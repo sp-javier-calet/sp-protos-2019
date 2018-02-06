@@ -1,22 +1,23 @@
 using SocialPoint.Utils;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace SocialPoint.TimeLinePlayables
 {
     public class BaseTransformPlayableMixer : BasePlayableMixer
     {
-        protected static float GetTweenProgress(ScriptPlayable<BaseTransformPlayableData> playableInput, BaseTransformPlayableData playableBehaviour)
+        protected static float GetTweenProgress(ScriptPlayable<BaseTransformPlayableData> playableInput, BaseTransformPlayableData playableInputBehaviour, double playTime)
         {
-            var time = playableInput.GetTime();
-            var normalisedTime = (float)(time * playableBehaviour.InverseDuration);
+            var duration = playableInputBehaviour.CustomClipEnd - playableInputBehaviour.CustomClipStart;
+            var normalizedClipPosition = Mathf.Clamp01((float)((playTime - playableInputBehaviour.CustomClipStart) / duration));
 
-            if(playableBehaviour.AnimationType == BaseTransformPlayableData.AnimateType.AnimationCurve && playableBehaviour.AnimationCurve != null)
+            if(playableInputBehaviour.AnimationType == BaseTransformPlayableData.AnimateType.AnimationCurve && playableInputBehaviour.AnimationCurve != null)
             {
-                return playableBehaviour.AnimationCurve.Evaluate(normalisedTime);
+                return playableInputBehaviour.AnimationCurve.Evaluate(normalizedClipPosition);
             }
             else
             {
-               return playableBehaviour.EaseType.ToFunction()(normalisedTime, 0f, 1f, 1f);
+                return playableInputBehaviour.EaseType.ToFunction()(normalizedClipPosition, 0f, 1f, 1f);
             }
         }
     }

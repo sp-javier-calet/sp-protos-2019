@@ -64,8 +64,11 @@ namespace SocialPoint.GUIControl
             {
                 DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
             }
-                
-            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, DeviceInfo.ScreenSize.x - ScreenBoundsDelta.x, DeviceInfo.ScreenSize.y - ScreenBoundsDelta.y);
+
+            var screenWidth = DeviceInfo == null ? Screen.width : DeviceInfo.ScreenSize.x;
+            var screenHeight = DeviceInfo == null ? Screen.height : DeviceInfo.ScreenSize.y;
+
+            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, screenWidth - ScreenBoundsDelta.x, screenHeight - ScreenBoundsDelta.y);
 
             _eventSystem = Services.Instance.Resolve<SPStandaloneInputModule>();
             if(_eventSystem != null)

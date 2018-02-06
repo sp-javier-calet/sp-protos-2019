@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class RotationPlayableData : BaseTransformPlayableData
     {
         public Quaternion AnimateFrom;
         public Quaternion AnimateTo;
 
-        public void SetAnimatedValues(Quaternion defaultValue)
+        public void ComputeAnimatedValues(Quaternion defaultValue)
         {
             if(HowToAnimateFrom == HowToAnimateType.UseReferenceTransform)
             {

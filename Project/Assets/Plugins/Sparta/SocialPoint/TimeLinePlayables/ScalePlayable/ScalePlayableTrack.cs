@@ -11,7 +11,24 @@ namespace SocialPoint.TimeLinePlayables
     {
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
-            return ScriptPlayable<ScalePlayableMixer>.Create(graph, inputCount);
+            var mixer = ScriptPlayable<ScalePlayableMixer>.Create(graph, inputCount);
+
+            var iter = GetClips().GetEnumerator();
+            while(iter.MoveNext())
+            {
+                var clip = iter.Current;
+                if(clip != null)
+                {
+                    var customClip = clip.asset as ScalePlayableAsset;
+                    if(customClip != null)
+                    {
+                        customClip.CustomClipReference = clip;
+                    }
+                }
+            }
+            iter.Dispose();
+
+            return mixer;
         }
 
         public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)

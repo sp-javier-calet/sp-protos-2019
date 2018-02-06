@@ -1,9 +1,10 @@
 using System;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class OpacityPlayableData : BasePlayableData
     {
         [Range(0f, 1f)]

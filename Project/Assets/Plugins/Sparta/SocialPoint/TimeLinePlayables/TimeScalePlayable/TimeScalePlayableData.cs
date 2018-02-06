@@ -1,9 +1,9 @@
 using System;
-using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 namespace SocialPoint.TimeLinePlayables
 {
-    [Serializable]
+    [Serializable, NotKeyable]
     public class TimeScalePlayableData : BasePlayableData
     {
         public float TimeScale = 1f;
