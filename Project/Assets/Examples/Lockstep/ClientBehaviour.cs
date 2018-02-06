@@ -199,16 +199,24 @@ namespace Examples.Lockstep
         {
             _mode = mode;
 
-            var clientFactory = Services.Instance.Resolve<INetworkClientFactory>();
-            _netClient = clientFactory.Create();
-            _netClient.RemoveDelegate(this);
+            _netLockstepClient = CreateLockstepNetworkClient();
+            _netClient = _netLockstepClient.Network;
             _netClient.AddDelegate(this);
             SetupPhoton(_netClient as PhotonNetworkBase);
-            _netLockstepClient = Services.Instance.Resolve<LockstepNetworkClient>();
-            _netLockstepClient.EndReceived -= OnClientEndReceived;
             _netLockstepClient.EndReceived += OnClientEndReceived;
             _netClient.Connect();
             _netLockstepClient.SendPlayerReady();
+        }
+
+        LockstepNetworkClient CreateLockstepNetworkClient()
+        {
+            var clientFactory = Services.Instance.Resolve<INetworkClientFactory>();
+
+            var client = new LockstepNetworkClient(clientFactory.Create(),
+                Services.Instance.Resolve<LockstepClient>(),
+                Services.Instance.Resolve<LockstepCommandFactory>());
+
+            return client;
         }
 
         void OnClientEndReceived(Attr result)
@@ -239,13 +247,12 @@ namespace Examples.Lockstep
             SetupPhoton(_netServer as PhotonNetworkBase);
 
             _netLockstepServer = new LockstepNetworkServer(_netServer,
-                Services.Instance.Resolve<IMatchmakingServer>(),
+                new EmptyMatchmakingServer(),
                 Services.Instance.Resolve<IUpdateScheduler>());
             _netLockstepServer.Config = Services.Instance.Resolve<LockstepConfig>();
             _netLockstepServer.ServerConfig = Services.Instance.Resolve<LockstepServerConfig>();
-            _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = true;
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
-            _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
             _netServer.Start();
 
@@ -272,8 +279,7 @@ namespace Examples.Lockstep
         public void OnMatchClicked()
         {
             SetupGameScreen();
-            _matchClient = Services.Instance.Resolve<IMatchmakingClient>();
-            _matchClient.RemoveDelegate(this);
+            _matchClient = new EmptyMatchmakingClient();
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
             _matchClient.Start(null, false, string.Empty);
