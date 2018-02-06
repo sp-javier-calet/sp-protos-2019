@@ -1,7 +1,8 @@
-﻿using System;
+﻿#define SPARTA_LOG_VERBOSE
+
 using System.Threading;
+using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Console;
 
 namespace SocialPoint.Sockets
 {
@@ -15,7 +16,7 @@ namespace SocialPoint.Sockets
             UpdateScheduler updateScheduler = new UpdateScheduler();
             if (args.Length == 0 || args.Length == 1 || args.Length == 2)
             {
-                System.Console.WriteLine("Please enter (TCP or UDP), the port and the ThreadSleepTime: ex -> TCP 8888 100");
+                Log.d("Please enter (TCP or UDP), the port and the ThreadSleepTime: ex -> TCP 8888 100");
                 return;
             }
             if (args[0] == "TCP" || args[0] == "UDP")
@@ -30,26 +31,24 @@ namespace SocialPoint.Sockets
                     SocketServer server;
                     if (args[0] == "TCP")
                     {
-                        System.Console.WriteLine("INSTANTIATE TCP SERVER");
                         server = new SocketServer(SocketServer.Protocol.TCP, port, updateScheduler);
                         server.Start();
                     }
                     else if (args[0] == "UDP")
                     {
-                        System.Console.WriteLine("INSTANTIATE UDP SERVER");
                         server = new SocketServer(SocketServer.Protocol.UDP, port, updateScheduler);
                         server.Start();
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine("Please add a correct port and a corect ThreadSleepTime: ex -> 8888 100");
+                    Log.d("Please add a correct port and a corect ThreadSleepTime: ex -> 8888 100");
                     return;
                 }
             }
             else
             {
-                System.Console.WriteLine("Please enter (TCP or UDP): ex -> TCP");
+                Log.d("Please enter (TCP or UDP): ex -> TCP");
                 return;
             }
 

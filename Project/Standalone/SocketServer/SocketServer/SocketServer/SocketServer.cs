@@ -25,15 +25,19 @@ namespace SocialPoint.Sockets
 
         public SocketServer(Protocol protocol, int port, IUpdateScheduler updateScheduler)
         {
-            switch(protocol)
+            switch (protocol)
             {
-            case Protocol.TCP:
-                _netServer = new TcpSocketNetworkServer(updateScheduler, ServerAddress, port);
-                break;
-            case Protocol.UDP:
-                _netServer = new UdpSocketNetworkServer(updateScheduler, PeerLimit, ConnectionKey, UpdateTime);
-                (_netServer as UdpSocketNetworkServer).Port = port;
-                break;
+                case Protocol.TCP:
+                    Log.d("INSTANTIATE TCP SERVER PORT: " + port + " ServerAddress: " + ServerAddress);
+
+                    _netServer = new TcpSocketNetworkServer(updateScheduler, ServerAddress, port);
+                    break;
+                case Protocol.UDP:
+                    Log.d("INSTANTIATE UDP SERVER PORT: " + port+ " ServerAddress: " + ServerAddress);
+
+                    _netServer = new UdpSocketNetworkServer(updateScheduler, PeerLimit, ConnectionKey, UpdateTime);
+                    (_netServer as UdpSocketNetworkServer).Port = port;
+                    break;
             }
             _matchDelegateFactory = new NetworkMatchDelegateFactory();
             _multiMatch = new MultiMatchController(_netServer, _matchDelegateFactory, TypeMessages.ConnectMessageType);
@@ -41,6 +45,7 @@ namespace SocialPoint.Sockets
 
         public void Start()
         {
+            Log.d("SERVER START!");
             _netServer.Start();
         }
     }
