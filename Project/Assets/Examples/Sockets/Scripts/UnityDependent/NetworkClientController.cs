@@ -2,6 +2,7 @@
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,11 @@ namespace SocialPoint.Sockets
 
     public class NetworkClientController : MonoBehaviour, INetworkClientDelegate, INetworkMessageReceiver
     {
+        enum Protocol
+        {
+            TCP = 0,
+            UDP = 1
+        }
 
         [SerializeField]
         InputField _matchInputField;
@@ -18,32 +24,57 @@ namespace SocialPoint.Sockets
         InputField _ipInputField;
 
         [SerializeField]
+        InputField _portInputField;
+
+        [SerializeField]
         InputField _messageInputField;
 
         [SerializeField]
         Text _logText;
 
+        [SerializeField]
+        Dropdown _protocolDropdown;
+
         INetworkClient _netClient;
         string _matchId;
         string _ipAdrress;
+        int _port;
+
+        Protocol _protocol = Protocol.TCP;
 
         public void CreateOrJoinMatch()
         {
-            PrintLog("CreateOrJoinMatch ");
-
             _matchId = _matchInputField.text;
             _ipAdrress = _ipInputField.text;
+            _port = int.Parse(_portInputField.text);
+
 
             PrintLog("Session Name: " + _matchInputField.text);
             PrintLog("IP Adress: " + _ipInputField.text);
+            PrintLog("Port: " + _portInputField.text);
 
             //CONNECT CLIENT TO SERVER
-            ConnectClient(_ipAdrress);
+            ConnectClient(_ipAdrress,_port);
         }
 
-        void ConnectClient(string ipAdress)
+        void ConnectClient(string ipAdress, int port)
         {
-            _netClient = Services.Instance.Resolve<INetworkClient>();
+            _protocol = (Protocol)Enum.Parse(typeof(Protocol), _protocolDropdown.value.ToString());
+
+            IUpdateScheduler updater= Services.Instance.Resolve<IUpdateScheduler>();
+            switch (_protocol)
+            {
+                case Protocol.TCP:
+                    PrintLog("TCP CLIENT: ");
+                    _netClient = new TcpSocketNetworkClient(updater, ipAdress, port); 
+                    break;
+                case Protocol.UDP:
+                    PrintLog("UDP CLIENT: ");
+                    _netClient = new UdpSocketNetworkClient(updater);
+                    (_netClient as UdpSocketNetworkClient).ServerAddress = ipAdress;
+                    (_netClient as UdpSocketNetworkClient).ServerPort = port;
+                    break;
+            }
 
             _netClient.AddDelegate(this);
             _netClient.RegisterReceiver(this);
