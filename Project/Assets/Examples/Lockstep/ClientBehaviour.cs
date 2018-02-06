@@ -409,7 +409,9 @@ namespace Examples.Lockstep
 
             if(_netClient != null)
             {
+                _netClient.RemoveDelegate(this);
                 _netClient.Dispose();
+                _netClient = null;
             }
             if(_netLockstepServer != null)
             {
@@ -417,7 +419,9 @@ namespace Examples.Lockstep
             }
             if(_netServer != null)
             {
+                _netServer.RemoveDelegate(this);
                 _netServer.Dispose();
+                _netServer = null;
             }
             if(_matchClient != null)
             {

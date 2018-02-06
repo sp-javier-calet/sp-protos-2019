@@ -204,6 +204,7 @@ namespace SocialPoint.Network
             Disconnect();
             _scheduler.Remove(this);
             _client.RemoveDelegate(this);
+            _client.Dispose();
             _latencies.Clear();
             _delegates.Clear();
         }

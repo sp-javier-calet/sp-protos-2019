@@ -173,8 +173,9 @@ namespace SocialPoint.Network
         void IDisposable.Dispose()
         {
             Stop();
-            _delegates.Clear();
             _server.RemoveDelegate(this);
+            _server.Dispose();
+            _delegates.Clear();
             if(_scheduler != null)
             {
                 _scheduler.Remove(this);
