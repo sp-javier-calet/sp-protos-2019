@@ -34,8 +34,10 @@ namespace SocialPoint.Matchmaking
 
         PhotonMatchmakingClientDelegate CreatePhotonDelegate()
         {
+            var factory = Container.Resolve<PhotonNetworkClientFactory>() as INetworkClientFactory;
+
             return new PhotonMatchmakingClientDelegate(
-                Container.Resolve<PhotonNetworkClient>(),
+                factory.Create() as PhotonNetworkClient,
                 Container.Resolve<IMatchmakingClient>());
         }
 

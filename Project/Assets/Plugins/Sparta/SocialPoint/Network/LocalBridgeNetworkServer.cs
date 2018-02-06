@@ -5,8 +5,8 @@ namespace SocialPoint.Network
 {
     class LocalBridgeNetworkServer : ILocalNetworkServer
     {
-        INetworkServer _netServer;
-        ILocalNetworkServer _localServer;
+        readonly INetworkServer _netServer;
+        readonly ILocalNetworkServer _localServer;
 
         public bool Running
         {
@@ -128,6 +128,53 @@ namespace SocialPoint.Network
             Stop();
             _netServer.Dispose();
             _localServer.Dispose();
+        }
+    }
+
+    class LocalBridgeNetworkServerFactory : ILocalNetworkServerFactory
+    {
+        readonly PhotonNetworkInstaller.SettingsData _settings;
+        readonly INetworkServerFactory _photonNetworkServerFactory;
+        readonly INetworkServerFactory _localNetworkServerFactory;
+
+        public LocalBridgeNetworkServerFactory(PhotonNetworkInstaller.SettingsData settings,
+            INetworkServerFactory photonNetworkServerFactory,
+            INetworkServerFactory localNetworkServerFactory)
+        {
+            _settings = settings;
+            _photonNetworkServerFactory = photonNetworkServerFactory;
+            _localNetworkServerFactory = localNetworkServerFactory;
+        }
+
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            var netServer = _photonNetworkServerFactory.Create();
+            var localServer = _localNetworkServerFactory.Create();
+
+            SetupPhotonServer((PhotonNetworkServer)netServer);
+
+            var server = new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer);
+            SetupServer(server);
+
+            return server;
+        }
+
+        #endregion
+
+        void SetupPhotonServer(PhotonNetworkServer server)
+        {
+            server.Config = _settings.Config;
+        }
+
+        void SetupServer(INetworkServer server)
+        {
+            var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
+            for (var i = 0; i < dlgs.Count; i++)
+            {
+                server.AddDelegate(dlgs[i]);
+            }
         }
     }
 }

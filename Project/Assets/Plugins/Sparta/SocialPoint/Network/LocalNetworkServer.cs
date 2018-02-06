@@ -228,7 +228,9 @@ namespace SocialPoint.Network
         }
     }
 
-    public class LocalNetworkServerFactory : INetworkServerFactory
+    public interface ILocalNetworkServerFactory : INetworkServerFactory {}
+
+    public class LocalNetworkServerFactory : ILocalNetworkServerFactory
     {
         #region INetworkServerFactory implementation
 

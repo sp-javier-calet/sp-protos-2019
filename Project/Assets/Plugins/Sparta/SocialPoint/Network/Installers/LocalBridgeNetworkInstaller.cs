@@ -4,54 +4,45 @@ namespace SocialPoint.Network
 {
     public class LocalBridgeNetworkInstaller : SubInstaller
     {
-        public PhotonNetworkInstaller.SettingsData PhotonSettings = new PhotonNetworkInstaller.SettingsData();
+        public PhotonNetworkInstaller.SettingsData Settings = new PhotonNetworkInstaller.SettingsData();
 
         public override void InstallBindings()
         {
             // Server
-            Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
-            Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer);
-            Container.Rebind<LocalBridgeNetworkServer>().ToMethod<LocalBridgeNetworkServer>(CreateLocalBridgeServer);
-            Container.Rebind<INetworkServer>().ToLookup<LocalBridgeNetworkServer>();
-            Container.Rebind<ILocalNetworkServer>().ToLookup<LocalBridgeNetworkServer>();
+            Container.Rebind<PhotonNetworkServerFactory>().ToMethod<PhotonNetworkServerFactory>(CreatePhotonServerFactory);
+            Container.Rebind<LocalNetworkServerFactory>().ToMethod<LocalNetworkServerFactory>(CreateLocalServerFactory);
+            Container.Rebind<LocalBridgeNetworkServerFactory>().ToMethod<LocalBridgeNetworkServerFactory>(CreateLocalBridgeNetworkServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<LocalBridgeNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<LocalBridgeNetworkServerFactory>();
+            Container.Rebind<ILocalNetworkServerFactory>().ToLookup<LocalBridgeNetworkServerFactory>();
 
             // Client
-            Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient);
-            Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
+            Container.Rebind<LocalNetworkClientFactory>().ToMethod<LocalNetworkClientFactory>(CreateLocalClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<LocalNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<LocalNetworkClientFactory>();
         }
 
-        void SetupPhotonServer(PhotonNetworkServer server)
+        PhotonNetworkServerFactory CreatePhotonServerFactory()
         {
-            server.Config = PhotonSettings.Config;
+            return new PhotonNetworkServerFactory(Settings, false);
         }
 
-        LocalNetworkServer CreateLocalServer()
+        LocalNetworkServerFactory CreateLocalServerFactory()
         {
-            return new LocalNetworkServer();
+            return new LocalNetworkServerFactory();
         }
 
-        LocalBridgeNetworkServer CreateLocalBridgeServer()
+        LocalBridgeNetworkServerFactory CreateLocalBridgeNetworkServerFactory()
         {
-            var netServer = Container.Resolve<PhotonNetworkServer>();
-            var localServer = Container.Resolve<LocalNetworkServer>();
-
-            var server = new LocalBridgeNetworkServer(netServer, localServer);
-            SetupServer(server);
-            return server;
+            return new LocalBridgeNetworkServerFactory(Settings,
+                Container.Resolve<PhotonNetworkServerFactory>(),
+                Container.Resolve<LocalNetworkServerFactory>());
         }
 
-        void SetupServer(INetworkServer server)
+        LocalNetworkClientFactory CreateLocalClientFactory()
         {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for (var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
+            return new LocalNetworkClientFactory(Container.Resolve<LocalNetworkServerFactory>());
         }
 
-        LocalNetworkClient CreateLocalClient()
-        {
-            return new LocalNetworkClient(Container.Resolve<ILocalNetworkServer>());
-        }
     }
 }

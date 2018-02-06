@@ -123,6 +123,18 @@ namespace SocialPoint.Network
         }
     }
 
+    class TestNetworkServerFactory : INetworkServerFactory
+    {
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            return new TestNetworkServer();
+        }
+
+        #endregion
+    }
+
     public interface INetworkMatchDelegate : INetworkServerDelegate, INetworkMessageReceiver
     {
     }
