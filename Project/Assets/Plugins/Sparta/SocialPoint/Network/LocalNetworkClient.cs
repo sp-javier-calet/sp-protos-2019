@@ -151,9 +151,9 @@ namespace SocialPoint.Network
 
     public class LocalNetworkClientFactory : INetworkClientFactory
     {
-        readonly INetworkServerFactory _serverFactory;
+        readonly ILocalNetworkServerFactory _serverFactory;
 
-        public LocalNetworkClientFactory(INetworkServerFactory serverFactory)
+        public LocalNetworkClientFactory(ILocalNetworkServerFactory serverFactory)
         {
             _serverFactory = serverFactory;
         }
@@ -162,7 +162,7 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
-            return new LocalNetworkClient(_serverFactory.Create() as LocalNetworkServer);
+            return new LocalNetworkClient(_serverFactory.Server as ILocalNetworkServer);
         }
 
         #endregion

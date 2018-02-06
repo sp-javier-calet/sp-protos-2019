@@ -228,15 +228,21 @@ namespace SocialPoint.Network
         }
     }
 
-    public interface ILocalNetworkServerFactory : INetworkServerFactory {}
+    public interface ILocalNetworkServerFactory : INetworkServerFactory
+    {
+        ILocalNetworkServer Server { get; }
+    }
 
     public class LocalNetworkServerFactory : ILocalNetworkServerFactory
     {
         #region INetworkServerFactory implementation
 
+        public ILocalNetworkServer Server { get; private set; }
+
         INetworkServer INetworkServerFactory.Create()
         {
-            return new LocalNetworkServer();
+            Server = new LocalNetworkServer();
+            return Server;
         }
 
         #endregion

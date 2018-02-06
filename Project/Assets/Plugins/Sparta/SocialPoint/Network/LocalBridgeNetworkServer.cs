@@ -131,11 +131,13 @@ namespace SocialPoint.Network
         }
     }
 
-    class LocalBridgeNetworkServerFactory : ILocalNetworkServerFactory
+    public class LocalBridgeNetworkServerFactory : ILocalNetworkServerFactory
     {
         readonly PhotonNetworkInstaller.SettingsData _settings;
         readonly INetworkServerFactory _photonNetworkServerFactory;
         readonly INetworkServerFactory _localNetworkServerFactory;
+
+        public ILocalNetworkServer Server { get; private set; }
 
         public LocalBridgeNetworkServerFactory(PhotonNetworkInstaller.SettingsData settings,
             INetworkServerFactory photonNetworkServerFactory,
@@ -155,10 +157,10 @@ namespace SocialPoint.Network
 
             SetupPhotonServer((PhotonNetworkServer)netServer);
 
-            var server = new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer);
-            SetupServer(server);
+            Server = new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer);
+            SetupServer(Server);
 
-            return server;
+            return Server;
         }
 
         #endregion
@@ -166,6 +168,7 @@ namespace SocialPoint.Network
         void SetupPhotonServer(PhotonNetworkServer server)
         {
             server.Config = _settings.Config;
+            server.Config.CreateRoom = true;
         }
 
         void SetupServer(INetworkServer server)

@@ -41,7 +41,7 @@ namespace SocialPoint.Network
 
         LocalNetworkClientFactory CreateLocalClientFactory()
         {
-            return new LocalNetworkClientFactory(Container.Resolve<LocalNetworkServerFactory>());
+            return new LocalNetworkClientFactory(Container.Resolve<ILocalNetworkServerFactory>());
         }
 
     }

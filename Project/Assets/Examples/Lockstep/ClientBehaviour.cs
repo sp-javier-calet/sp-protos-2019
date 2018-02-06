@@ -270,10 +270,10 @@ namespace Examples.Lockstep
         public void OnHostClicked()
         {
             SetupGameScreen();
+            _mode = GameLockstepMode.Host;
             StartServer();
             _netLockstepServer.UnregisterLocalClient();
             _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
-            StartClient(GameLockstepMode.Host);
         }
 
         public void OnMatchClicked()
@@ -347,6 +347,11 @@ namespace Examples.Lockstep
 
         void INetworkServerDelegate.OnServerStarted()
         {
+            Log.i("INetworkServerDelegate.OnServerStarted");
+            if(_mode == GameLockstepMode.Host)
+            {
+                StartClient(GameLockstepMode.Host);
+            }
         }
 
         void INetworkServerDelegate.OnServerStopped()

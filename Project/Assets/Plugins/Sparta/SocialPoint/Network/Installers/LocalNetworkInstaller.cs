@@ -43,6 +43,7 @@ namespace SocialPoint.Network
             Container.Rebind<SimulateNetworkServerFactory>().ToMethod<SimulateNetworkServerFactory>(CreateSimulateServerFactory);
             Container.Rebind<INetworkServerFactory>("internal").ToLookup<SimulateNetworkServerFactory>();
             Container.Rebind<INetworkServerFactory>().ToLookup<LocalNetworkServerFactory>();
+            Container.Rebind<ILocalNetworkServerFactory>().ToLookup<LocalNetworkServerFactory>();
 
             Container.Rebind<LocalNetworkClientFactory>().ToMethod<LocalNetworkClientFactory>(CreateLocalClientFactory);
             Container.Rebind<SimulateNetworkClientFactory>().ToMethod<SimulateNetworkClientFactory>(CreateSimulateClientFactory);
@@ -57,7 +58,7 @@ namespace SocialPoint.Network
 
         LocalNetworkClientFactory CreateLocalClientFactory()
         {
-            return new LocalNetworkClientFactory(Container.Resolve<LocalNetworkServerFactory>());
+            return new LocalNetworkClientFactory(Container.Resolve<ILocalNetworkServerFactory>());
         }
 
         SimulateNetworkServerFactory CreateSimulateServerFactory()
