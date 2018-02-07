@@ -72,6 +72,8 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(IsParticleSystem)
                 {
+                    InstantiatedPrefab.SetLayerRecursively(Parent.gameObject.layer);
+
                     // Hack - We need to setup the scaling mode to be in "Hierarchy" if we want to scale the
                     // ParticleSystems correctly in our UI.
                     //
@@ -94,6 +96,22 @@ namespace SocialPoint.TimeLinePlayables
                     // Hack - This way we can have ParticleSystem working in editor while testing/developing
                     if(!Application.isPlaying)
                     {
+                        //var parentParticleSystem = Parent.gameObject.GetComponent<ParticleSystem>();
+                        //if(parentParticleSystem == null)
+                        //{
+                        //    parentParticleSystem = Parent.gameObject.AddComponent<ParticleSystem>();
+                        //}
+
+                        //if(parentParticleSystem != null)
+                        //{
+                        //    var emission = parentParticleSystem.emission;
+                        //    emission.rateOverTime = 0;
+
+                        //    parentParticleSystem.Stop();
+                        //    parentParticleSystem.Play();
+                        //}
+
+
                         var mainParticleSystem = InstantiatedPrefab.GetComponent<ParticleSystem>();
                         if(mainParticleSystem == null)
                         {
@@ -104,10 +122,10 @@ namespace SocialPoint.TimeLinePlayables
                         {
                             var emission = mainParticleSystem.emission;
                             emission.rateOverTime = 0;
-                        }
 
-                        mainParticleSystem.Stop();
-                        mainParticleSystem.Play();
+                            mainParticleSystem.Stop();
+                            mainParticleSystem.Play();
+                        }
                     }
                 }
 
@@ -119,7 +137,7 @@ namespace SocialPoint.TimeLinePlayables
 
             if(Application.isPlaying && UIViewController != null)
             {
-                //UIViewController.Add3DContainer(InstantiatedPrefab);
+                UIViewController.Add3DContainer(InstantiatedPrefab);
             }
         }
 
@@ -129,7 +147,7 @@ namespace SocialPoint.TimeLinePlayables
             {
                 if(Application.isPlaying && UIViewController != null)
                 {
-                    //UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
+                    UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
                 }
 
                 if(Application.isPlaying && UsePooling)
