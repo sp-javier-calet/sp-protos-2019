@@ -30,7 +30,6 @@ namespace SocialPoint.TimeLinePlayables
             if(!_firstFrameHappened)
             {
                 _defaultValue = _trackBinding.alpha;
-
                 _firstFrameHappened = true;
             }
 
@@ -47,10 +46,10 @@ namespace SocialPoint.TimeLinePlayables
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<BasePlayableData>)playable.GetInput(i);
-                var playableBehaviour = (OpacityPlayableData)playableInput.GetBehaviour();
+                var playableInputData = (OpacityPlayableData)playableInput.GetBehaviour();
                 var inputWeight = playable.GetInputWeight(i);
 
-                blendedAlpha += playableBehaviour.Alpha * inputWeight;
+                blendedAlpha += playableInputData.Alpha * inputWeight;
                 alphaTotalWeight += inputWeight;
             }
 

@@ -26,11 +26,12 @@ namespace SpartaTools.Editor.Utils.Decorators
             EditorGUILayout.Space();
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(prefabExposedRefence, new GUIContent("Prefab:"), true);
-            template.PrefabIs3DObject = EditorGUILayout.Toggle("Prefab Is 3D:", template.PrefabIs3DObject);
 
-            EditorGUILayout.PropertyField(parentExposedRefence, new GUIContent("Parent:"), true);
+            EditorGUILayout.PropertyField(prefabExposedRefence, new GUIContent("Prefab:"));
+            EditorGUILayout.PropertyField(parentExposedRefence, new GUIContent("Parent:"));
             template.UsePooling = EditorGUILayout.Toggle("Use Pooling:", template.UsePooling);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             template.LocalPosition = EditorGUILayout.Vector3Field("Local Position:", template.LocalPosition);
             template.LocalRotation = ConvertToQuaternion(EditorGUILayout.Vector3Field("Local Rotation:", template.LocalRotation.eulerAngles));

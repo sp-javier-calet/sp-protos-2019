@@ -19,25 +19,25 @@ namespace SocialPoint.TimeLinePlayables
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<DestroyPlayableData>)playable.GetInput(i);
-                var playableBehaviour = playableInput.GetBehaviour();
+                var playableInputData = playableInput.GetBehaviour();
 
-                if(playTime - playableBehaviour.CustomClipStart >= 0 && !playableBehaviour.IsDestroyed)
+                if(playTime - playableInputData.CustomClipStart >= 0 && !playableInputData.IsDestroyed)
                 {
-                    playableBehaviour.IsDestroyed = true;
+                    playableInputData.IsDestroyed = true;
 
                     if(!Application.isPlaying)
                     {
-                        playableBehaviour.SetActiveState(false);
+                        playableInputData.SetActiveState(false);
                     }
                     else
                     {
-                        playableBehaviour.DestroyGameObject();
+                        playableInputData.DestroyGameObject();
                     }
                 }
-                else if(!Application.isPlaying && playTime - playableBehaviour.CustomClipStart < 0 && playableBehaviour.IsDestroyed)
+                else if(!Application.isPlaying && playTime - playableInputData.CustomClipStart < 0 && playableInputData.IsDestroyed)
                 {
-                    playableBehaviour.IsDestroyed = false;
-                    playableBehaviour.SetActiveState(playableBehaviour.InitialActiveState);
+                    playableInputData.IsDestroyed = false;
+                    playableInputData.SetActiveState(playableInputData.InitialActiveState);
                 }
             }
         }

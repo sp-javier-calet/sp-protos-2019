@@ -9,6 +9,7 @@ namespace SocialPoint.TimeLinePlayables
     public class OpacityPlayableAsset : PlayableAsset, ITimelineClipAsset
     {
         public OpacityPlayableData Template = new OpacityPlayableData();
+        public TimelineClip CustomClipReference { get; set; }
 
         public ClipCaps clipCaps
         {
@@ -17,7 +18,11 @@ namespace SocialPoint.TimeLinePlayables
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
-            return ScriptPlayable<OpacityPlayableData>.Create(graph, Template);
+            var playable = ScriptPlayable<OpacityPlayableData>.Create(graph, Template);
+            var clone = playable.GetBehaviour();
+            clone.CustomClipReference = CustomClipReference;
+
+            return playable;
         }
     }
 }

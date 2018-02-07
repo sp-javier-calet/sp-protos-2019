@@ -18,17 +18,17 @@ namespace SocialPoint.TimeLinePlayables
             for(int i = 0; i < inputCount; i++)
             {
                 var playableInput = (ScriptPlayable<InstantiatePlayableData>)playable.GetInput(i);
-                var playableBehaviour = playableInput.GetBehaviour();
+                var playableInputData = playableInput.GetBehaviour();
 
-                if(playTime - playableBehaviour.CustomClipStart >= 0 && !playableBehaviour.IsInstantiated)
+                if(playTime - playableInputData.CustomClipStart >= 0 && !playableInputData.IsInstantiated)
                 {
-                    playableBehaviour.IsInstantiated = true;
-                    playableBehaviour.InstantiateOrSpawn();
+                    playableInputData.IsInstantiated = true;
+                    playableInputData.InstantiateOrSpawn();
                 }
-                else if(playTime - playableBehaviour.CustomClipStart < 0 && playableBehaviour.IsInstantiated)
+                else if(playTime - playableInputData.CustomClipStart < 0 && playableInputData.IsInstantiated)
                 {
-                    playableBehaviour.IsInstantiated = false;
-                    playableBehaviour.DestroyOrRecycle();
+                    playableInputData.IsInstantiated = false;
+                    playableInputData.DestroyOrRecycle();
                 }
             }
         }

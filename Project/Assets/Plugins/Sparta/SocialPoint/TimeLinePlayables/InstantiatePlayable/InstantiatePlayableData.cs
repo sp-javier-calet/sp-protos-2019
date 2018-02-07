@@ -16,7 +16,6 @@ namespace SocialPoint.TimeLinePlayables
         public Transform Parent;
         public bool UsePooling;
         public bool IsInstantiated;
-        public bool PrefabIs3DObject;
         public Vector3 LocalPosition = Vector3.zero;
         public Quaternion LocalRotation = Quaternion.identity;
         public Vector3 LocalScale = Vector3.one;
@@ -76,25 +75,17 @@ namespace SocialPoint.TimeLinePlayables
                 trans.localScale = LocalScale;
             }
 
-            if(PrefabIs3DObject)
+            if(UIViewController != null)
             {
-                if(UIViewController != null)
-                {
-                    UIViewController.Add3DContainer(InstantiatedPrefab);
-                }
+                UIViewController.Add3DContainer(InstantiatedPrefab);
             }
-            // TODO add new layering system to 2d elements
-            //else if(BaseCanvas != null)
-            //{
-            //    InstantiatedPrefab.SetLayerRecursively(BaseCanvas.gameObject.layer);
-            //}
         }
 
         public void DestroyOrRecycle()
         {
             if(InstantiatedPrefab != null)
             {
-                if(UIViewController != null && PrefabIs3DObject)
+                if(UIViewController != null)
                 {
                     UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
                 }
