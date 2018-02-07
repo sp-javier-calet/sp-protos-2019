@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [Serializable, NotKeyable]
     public class TimeScalePlayableData : BasePlayableData

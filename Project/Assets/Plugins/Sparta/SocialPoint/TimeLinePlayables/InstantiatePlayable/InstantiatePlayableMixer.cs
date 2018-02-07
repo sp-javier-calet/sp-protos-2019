@@ -1,6 +1,6 @@
 using UnityEngine.Playables;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     public class InstantiatePlayableMixer : BasePlayableMixer
     {

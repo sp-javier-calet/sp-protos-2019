@@ -3,7 +3,7 @@ using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [Serializable, NotKeyable]
     public class BaseTransformPlayableData : BasePlayableData

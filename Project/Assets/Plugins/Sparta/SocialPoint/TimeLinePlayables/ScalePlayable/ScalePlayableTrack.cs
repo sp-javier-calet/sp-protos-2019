@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [TrackColor(0f, 0.5f, 1f)]
     [TrackClipType(typeof(ScalePlayableAsset))]

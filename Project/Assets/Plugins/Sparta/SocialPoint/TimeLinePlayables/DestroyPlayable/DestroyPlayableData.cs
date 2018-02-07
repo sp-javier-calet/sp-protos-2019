@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [Serializable, NotKeyable]
     public class DestroyPlayableData : BasePlayableData

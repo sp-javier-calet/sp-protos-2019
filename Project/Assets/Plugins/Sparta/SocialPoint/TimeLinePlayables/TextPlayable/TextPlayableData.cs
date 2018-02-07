@@ -4,7 +4,7 @@ using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [Serializable, NotKeyable]
     public class TextPlayableData : BaseTransformPlayableData

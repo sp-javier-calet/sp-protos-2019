@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Timeline;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     [Serializable, NotKeyable]
     public class OpacityPlayableData : BasePlayableData

@@ -2,7 +2,7 @@
 using UnityEngine.Playables;
 using UnityEngine.UI;
 
-namespace SocialPoint.TimeLinePlayables
+namespace SocialPoint.TimelinePlayables
 {
     public class ColorPlayableMixer : BasePlayableMixer
     {
