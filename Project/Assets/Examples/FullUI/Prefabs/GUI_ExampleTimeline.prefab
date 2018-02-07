@@ -2256,7 +2256,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 417.9923, y: -314.78015}
+  m_AnchoredPosition: {x: 755.26794, y: -568.77454}
   m_SizeDelta: {x: 917.3, y: 344.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224030427951997892
@@ -2446,7 +2446,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -821.7599, y: 173.8995}
+  m_AnchoredPosition: {x: -798.48315, y: 131.97641}
   m_SizeDelta: {x: 225.4, y: 225.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224322928617463480
@@ -2633,7 +2633,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 417.9923, y: -314.78015}
+  m_AnchoredPosition: {x: 755.26794, y: -568.77454}
   m_SizeDelta: {x: 917.30005, y: 106.400024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224570801752205606
@@ -2972,7 +2972,7 @@ PlayableDirector:
     value: {fileID: 224001682851917830}
   - key: {fileID: 114315809791469568, guid: 632c27fe9f2db4521adad2ff0e909da8, type: 2}
     value: {fileID: 224001682851917830}
-  - key: {fileID: 114351039235220264, guid: 632c27fe9f2db4521adad2ff0e909da8, type: 2}
+  - key: {fileID: 0}
     value: {fileID: 225745240424792048}
   - key: {fileID: 0}
     value: {fileID: 114848917132203786}
@@ -3002,6 +3002,10 @@ PlayableDirector:
     value: {fileID: 114848917132203786}
   - key: {fileID: 114809940923051710, guid: 632c27fe9f2db4521adad2ff0e909da8, type: 2}
     value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 114714667111689308, guid: 632c27fe9f2db4521adad2ff0e909da8, type: 2}
+    value: {fileID: 225745240424792048}
   m_ExposedReferences:
     m_References:
     - 1e417016a173442f8be7e42d19cb27ca: {fileID: 224565111860226732}
@@ -3048,6 +3052,8 @@ PlayableDirector:
     - 352e25959f005444ea116b82baedeac9: {fileID: 0}
     - 693f79ee19bca46a5bf7000bff0907e2: {fileID: 224565111860226732}
     - 5fe591c455e6b41039b2de5d76a745bf: {fileID: 0}
+    - bcd1763f875e14d0fa8159b83442053f: {fileID: 1493398043024142}
+    - 462cd530f94f545a5abb35d9d1b5b3d4: {fileID: 1467783513421376}
     - da02b12a1785d4622ba46b3481e8a6b7: {fileID: 224709338513381450}
     - 5fa6c658631ff43788caa4ec150766dd: {fileID: 224565111860226732}
     - c5543b495dbd64a17b53b10c20f3dfce: {fileID: 224709338513381450}
