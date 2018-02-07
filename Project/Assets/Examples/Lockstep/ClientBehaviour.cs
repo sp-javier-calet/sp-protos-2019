@@ -348,6 +348,8 @@ namespace Examples.Lockstep
         void INetworkServerDelegate.OnServerStarted()
         {
             Log.i("INetworkServerDelegate.OnServerStarted");
+
+            // Only call start client once the server has started.
             if(_mode == GameLockstepMode.Host)
             {
                 StartClient(GameLockstepMode.Host);

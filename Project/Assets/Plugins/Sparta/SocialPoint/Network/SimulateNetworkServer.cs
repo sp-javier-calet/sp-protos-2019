@@ -1,6 +1,6 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.IO;
 

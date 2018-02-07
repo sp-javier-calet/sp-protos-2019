@@ -6,6 +6,7 @@ namespace SocialPoint.Matchmaking
 {
     public class EmptyMatchmakingServer : IMatchmakingServer, IDisposable
     {
+        // If matchmaking is enabled in the LockstepNetworkServer instance, it needs a proper response.
         const string JSONResponse = "{\"player1_token\" : \"aaa\", \"player2_token\" : \"bbb\", \"player_1\" : {\"id\" : 2147483646}, \"player_2\" : {\"id\" : 2147483647}}";
 
         readonly List<IMatchmakingServerDelegate> _delegates;
