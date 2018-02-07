@@ -30,6 +30,7 @@ namespace SpartaTools.Editor.Utils.Decorators
             EditorGUILayout.PropertyField(prefabExposedRefence, new GUIContent("Prefab:"));
             EditorGUILayout.PropertyField(parentExposedRefence, new GUIContent("Parent:"));
             template.UsePooling = EditorGUILayout.Toggle("Use Pooling:", template.UsePooling);
+            template.IsParticleSystem = EditorGUILayout.Toggle("Is ParticleSystem:", template.IsParticleSystem);
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 

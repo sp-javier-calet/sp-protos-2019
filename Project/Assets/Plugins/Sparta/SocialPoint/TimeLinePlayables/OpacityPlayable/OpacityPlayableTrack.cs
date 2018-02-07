@@ -32,19 +32,29 @@ namespace SocialPoint.TimeLinePlayables
             return mixer;
         }
 
-//        public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)
-//        {
-//#if UNITY_EDITOR
-//            var trackBinding = director.GetGenericBinding(this) as CanvasGroup;
-//            if(trackBinding == null)
-//            {
-//                return;
-//            }
+        public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)
+        {
+#if UNITY_EDITOR
+            var trackBinding = director.GetGenericBinding(this) as CanvasGroup;
+            if(trackBinding == null)
+            {
+                return;
+            }
 
-//            driver.AddFromName<CanvasGroup>(trackBinding.gameObject, "alpha");
-//#endif
+            var serializedObject = new UnityEditor.SerializedObject(trackBinding);
+            var iterator = serializedObject.GetIterator();
+            while(iterator.NextVisible(true))
+            {
+                if(iterator.hasVisibleChildren)
+                {
+                    continue;
+                }
 
-        //    base.GatherProperties(director, driver);
-        //}
+                driver.AddFromName<CanvasGroup>(trackBinding.gameObject, iterator.propertyPath);
+            }
+#endif
+
+            base.GatherProperties(director, driver);
+        }
     }
 }

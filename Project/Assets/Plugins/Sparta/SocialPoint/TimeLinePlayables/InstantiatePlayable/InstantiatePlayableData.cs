@@ -16,6 +16,7 @@ namespace SocialPoint.TimeLinePlayables
         public Transform Parent;
         public bool UsePooling;
         public bool IsInstantiated;
+        public bool IsParticleSystem;
         public Vector3 LocalPosition = Vector3.zero;
         public Quaternion LocalRotation = Quaternion.identity;
         public Vector3 LocalScale = Vector3.one;
@@ -69,15 +70,56 @@ namespace SocialPoint.TimeLinePlayables
 
             if(InstantiatedPrefab != null)
             {
+                if(IsParticleSystem)
+                {
+                    // Hack - We need to setup the scaling mode to be in "Hierarchy" if we want to scale the
+                    // ParticleSystems correctly in our UI.
+                    //
+                    // With the new ParticleSystem that tech art are developing/updating all the ParticleSystem
+                    // will have "Hierarchy" as default and at that point we can remove this Hack
+                    var particleSystems = InstantiatedPrefab.GetComponentsInChildren<ParticleSystem>(true);
+                    if(particleSystems.Length > 0)
+                    {
+                        for(int i = 0; i < particleSystems.Length; ++i)
+                        {
+                            var particle = particleSystems[i];
+                            if(particle != null)
+                            {
+                                var main = particle.main;
+                                main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+                            }
+                        }
+                    }
+
+                    // Hack - This way we can have ParticleSystem working in editor while testing/developing
+                    if(!Application.isPlaying)
+                    {
+                        var mainParticleSystem = InstantiatedPrefab.GetComponent<ParticleSystem>();
+                        if(mainParticleSystem == null)
+                        {
+                            mainParticleSystem = InstantiatedPrefab.AddComponent<ParticleSystem>();
+                        }
+
+                        if(mainParticleSystem != null)
+                        {
+                            var emission = mainParticleSystem.emission;
+                            emission.rateOverTime = 0;
+                        }
+
+                        mainParticleSystem.Stop();
+                        mainParticleSystem.Play();
+                    }
+                }
+
                 var trans = InstantiatedPrefab.transform;
                 trans.localPosition = LocalPosition;
                 trans.localRotation = LocalRotation;
                 trans.localScale = LocalScale;
             }
 
-            if(UIViewController != null)
+            if(Application.isPlaying && UIViewController != null)
             {
-                UIViewController.Add3DContainer(InstantiatedPrefab);
+                //UIViewController.Add3DContainer(InstantiatedPrefab);
             }
         }
 
@@ -85,9 +127,9 @@ namespace SocialPoint.TimeLinePlayables
         {
             if(InstantiatedPrefab != null)
             {
-                if(UIViewController != null)
+                if(Application.isPlaying && UIViewController != null)
                 {
-                    UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
+                    //UIViewController.On3dContainerDestroyed(InstantiatedPrefab);
                 }
 
                 if(Application.isPlaying && UsePooling)

@@ -267,6 +267,7 @@ MonoBehaviour:
     Parent: {fileID: 0}
     UsePooling: 0
     IsInstantiated: 0
+    IsParticleSystem: 1
     LocalPosition: {x: 0, y: 0, z: 0}
     LocalRotation: {x: 0, y: 0, z: 0, w: 1}
     LocalScale: {x: 5, y: 5, z: 5}
@@ -355,6 +356,7 @@ MonoBehaviour:
     Parent: {fileID: 0}
     UsePooling: 1
     IsInstantiated: 0
+    IsParticleSystem: 1
     LocalPosition: {x: 0, y: 0, z: 0}
     LocalRotation: {x: 0, y: 0, z: 0, w: 1}
     LocalScale: {x: 200, y: 200, z: 200}
@@ -778,47 +780,61 @@ MonoBehaviour:
   m_Name: OpacityPlayableAsset
   m_EditorClassIdentifier: 
   Template:
+    <CustomClipReference>k__BackingField:
+      m_Start: 0
+      m_ClipIn: 0
+      m_Asset: {fileID: 0}
+      m_UnderlyingAsset: {fileID: 0}
+      m_Duration: 0
+      m_TimeScale: 0
+      m_ParentTrack: {fileID: 0}
+      m_EaseInDuration: 0
+      m_EaseOutDuration: 0
+      m_BlendInDuration: 0
+      m_BlendOutDuration: 0
+      m_MixInCurve:
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      m_MixOutCurve:
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      m_BlendInCurveMode: 0
+      m_BlendOutCurveMode: 0
+      m_ExposedParameterNames: []
+      m_AnimationCurves: {fileID: 0}
+      m_Recordable: 0
+      m_PostExtrapolationMode: 0
+      m_PreExtrapolationMode: 0
+      m_PostExtrapolationTime: 0
+      m_PreExtrapolationTime: 0
+      m_DisplayName: 
+      m_Version: 1
+      <dirtyHash>k__BackingField: 0
     Alpha: 1
---- !u!114 &114351039235220264
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7a1cb463ec434109819d00c90429343, type: 3}
-  m_Name: Opacity Playable Track
-  m_EditorClassIdentifier: 
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename: 
-  m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 114590049465331780}
-  m_Children: []
-  m_Clips:
-  - m_Start: 3.05
+  <CustomClipReference>k__BackingField:
+    m_Start: 3.05
     m_ClipIn: 0
     m_Asset: {fileID: 114316572154667298}
     m_UnderlyingAsset: {fileID: 114316572154667298}
     m_Duration: 1.9499999999999997
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 114351039235220264}
+    m_ParentTrack: {fileID: 0}
     m_EaseInDuration: 0.8
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
     m_BlendOutDuration: -1
     m_MixInCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 2
-        time: 0
+      - time: 0
         value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
-      - serializedVersion: 2
-        time: 1
+      - time: 1
         value: 1
         inSlope: 2
         outSlope: 2
@@ -827,16 +843,13 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 0
     m_MixOutCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 2
-        time: 0
+      - time: 0
         value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
-      - serializedVersion: 2
-        time: 1
+      - time: 1
         value: 0
         inSlope: 0
         outSlope: 0
@@ -855,6 +868,7 @@ MonoBehaviour:
     m_PreExtrapolationTime: 0
     m_DisplayName: OpacityPlayableAsset
     m_Version: 1
+    <dirtyHash>k__BackingField: -9643540
 --- !u!114 &114436972558325470
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1305,8 +1319,21 @@ MonoBehaviour:
   m_Parent: {fileID: 11400000}
   m_Children:
   - {fileID: 114315809791469568}
-  - {fileID: 114351039235220264}
+  - {fileID: 114714667111689308}
   m_Clips: []
+--- !u!114 &114599660088402610
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16698ca177dce4c8cab4d38d3b51662a, type: 3}
+  m_Name: OpacityPlayableAsset
+  m_EditorClassIdentifier: 
+  Template:
+    Alpha: 1
 --- !u!114 &114610979232087674
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1745,6 +1772,82 @@ MonoBehaviour:
   TransformTo:
     exposedName: 
     defaultValue: {fileID: 0}
+--- !u!114 &114714667111689308
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35804e6df5984972b0c0bb09adc8884, type: 3}
+  m_Name: Opacity Playable Track1
+  m_EditorClassIdentifier: 
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_AnimClip: {fileID: 0}
+  m_Parent: {fileID: 114590049465331780}
+  m_Children: []
+  m_Clips:
+  - m_Start: 3.05
+    m_ClipIn: 0
+    m_Asset: {fileID: 114599660088402610}
+    m_UnderlyingAsset: {fileID: 114599660088402610}
+    m_Duration: 1.5
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 114714667111689308}
+    m_EaseInDuration: 0.735
+    m_EaseOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: OpacityPlayableAsset
+    m_Version: 1
 --- !u!114 &114755864824998188
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1887,7 +1990,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114165316433125150}
     m_UnderlyingAsset: {fileID: 114100105109555580}
-    m_Duration: 1
+    m_Duration: 0.75
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114809940923051710}
     m_EaseInDuration: 0
@@ -1945,7 +2048,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114100105109555580}
     m_UnderlyingAsset: {fileID: 114100105109555580}
-    m_Duration: 1
+    m_Duration: 0.75
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114809940923051710}
     m_EaseInDuration: 0
