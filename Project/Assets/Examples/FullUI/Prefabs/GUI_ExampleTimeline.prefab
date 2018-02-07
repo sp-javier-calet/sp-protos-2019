@@ -223,10 +223,8 @@ MonoBehaviour:
   DisappearAnimationFactory: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
-  _containers2d: []
   _containers3d: []
-  PlayableDirectors:
-  - {fileID: 320133653854603426}
+  PlayableDirectors: {fileID: 320133653854603426}
 --- !u!114 &114270642222387668
 MonoBehaviour:
   m_ObjectHideFlags: 1

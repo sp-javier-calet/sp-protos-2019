@@ -5,23 +5,19 @@ using UnityEngine.Playables;
 
 public class ScreenControllerTimeline : UIViewController
 {
-    public List<PlayableDirector> PlayableDirectors = new List<PlayableDirector>();
+    public PlayableDirector PlayableDirectors;
 
     public void ExecuteTweenScale()
     {
-        if(PlayableDirectors.Count > 0)
+        if(PlayableDirectors != null)
         {
-            var playable = PlayableDirectors[0];
-            if(playable != null)
+            if(PlayableDirectors.state == PlayState.Playing)
             {
-                if(playable.state == PlayState.Playing)
-                {
-                    playable.Pause();
-                }
-                else
-                {
-                    playable.Play();
-                }
+                PlayableDirectors.Pause();
+            }
+            else
+            {
+                PlayableDirectors.Play();
             }
         }
     }
