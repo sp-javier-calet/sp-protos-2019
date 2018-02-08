@@ -41,7 +41,7 @@ TEMP_*.meta
 *.PSD
 *.PSD.meta
 
-# JetBrains IDE
+# JetBrains Rider IDE
 .idea
 Assets/Plugins/Editor/JetBrains
 Assets/Plugins/Editor/JetBrains.meta
