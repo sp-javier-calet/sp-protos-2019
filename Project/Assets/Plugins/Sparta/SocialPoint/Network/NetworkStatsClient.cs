@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -214,11 +213,13 @@ namespace SocialPoint.Network
     {
         readonly INetworkClientFactory _clientFactory;
         readonly NetworkStatsInstaller.SettingsData _settings;
+        readonly IUpdateScheduler _updateScheduler;
 
-        public NetworkStatsClientFactory(INetworkClientFactory clientFactory, NetworkStatsInstaller.SettingsData settings)
+        public NetworkStatsClientFactory(INetworkClientFactory clientFactory, NetworkStatsInstaller.SettingsData settings, IUpdateScheduler updateScheduler)
         {
             _clientFactory = clientFactory;
             _settings = settings;
+            _updateScheduler = updateScheduler;
         }
 
         #region INetworkClientFactory implementation
@@ -227,7 +228,7 @@ namespace SocialPoint.Network
         {
             var client = new NetworkStatsClient(
                 _clientFactory.Create(),
-                Services.Instance.Resolve<IUpdateScheduler>()
+                _updateScheduler
             );
             client.PingInterval = _settings.PingInterval;
 

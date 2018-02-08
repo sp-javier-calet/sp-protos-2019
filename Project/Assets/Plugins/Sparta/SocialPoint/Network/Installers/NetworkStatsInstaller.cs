@@ -1,5 +1,6 @@
 ﻿using System;
 using SocialPoint.Dependency;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -30,12 +31,12 @@ namespace SocialPoint.Network
 
         NetworkStatsServerFactory CreateNetworkStatsServerFactory()
         {
-            return new NetworkStatsServerFactory(Container.Resolve<INetworkServerFactory>("internal"));
+            return new NetworkStatsServerFactory(Container.Resolve<INetworkServerFactory>("internal"), Container.Resolve<IUpdateScheduler>());
         }
 
         NetworkStatsClientFactory CreateNetworkStatsClientFactory()
         {
-            return new NetworkStatsClientFactory(Container.Resolve<INetworkClientFactory>("internal"), Settings);
+            return new NetworkStatsClientFactory(Container.Resolve<INetworkClientFactory>("internal"), Settings, Container.Resolve<IUpdateScheduler>());
         }
     }
 }

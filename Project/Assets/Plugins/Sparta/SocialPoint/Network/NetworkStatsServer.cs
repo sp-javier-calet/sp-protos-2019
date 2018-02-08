@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -186,10 +185,12 @@ namespace SocialPoint.Network
     public class NetworkStatsServerFactory : INetworkServerFactory
     {
         readonly INetworkServerFactory _serverFactory;
+        readonly IUpdateScheduler _updateScheduler;
 
-        public NetworkStatsServerFactory(INetworkServerFactory serverFactory)
+        public NetworkStatsServerFactory(INetworkServerFactory serverFactory, IUpdateScheduler updateScheduler)
         {
             _serverFactory = serverFactory;
+            _updateScheduler = updateScheduler;
         }
 
         #region INetworkServerFactory implementation
@@ -198,7 +199,7 @@ namespace SocialPoint.Network
         {
             return new NetworkStatsServer(
                 _serverFactory.Create(),
-                Services.Instance.Resolve<IUpdateScheduler>()
+                _updateScheduler
             );
         }
 
