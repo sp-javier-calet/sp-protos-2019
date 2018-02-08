@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -63,12 +64,16 @@ namespace SocialPoint.Network
 
         SimulateNetworkServerFactory CreateSimulateServerFactory()
         {
-            return new SimulateNetworkServerFactory(Container.Resolve<LocalNetworkServerFactory>(), Settings.Server);
+            return new SimulateNetworkServerFactory(Container.Resolve<LocalNetworkServerFactory>(),
+                Settings.Server, Container.ResolveList<INetworkServerDelegate>());
         }
 
         SimulateNetworkClientFactory CreateSimulateClientFactory()
         {
-            return new SimulateNetworkClientFactory(Container.Resolve<LocalNetworkClientFactory>(), Settings.Client);
+            return new SimulateNetworkClientFactory(Container.Resolve<LocalNetworkClientFactory>(),
+                Settings.Client,
+                Container.Resolve<IUpdateScheduler>(),
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -34,12 +35,15 @@ namespace SocialPoint.Network
 
         UnetNetworkServerFactory CreateUnetServerFactory()
         {
-            return new UnetNetworkServerFactory(Settings);
+            return new UnetNetworkServerFactory(Settings,
+                Container.Resolve<IUpdateScheduler>(),
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
         UnetNetworkClientFactory CreateUnetClientFactory()
         {
-            return new UnetNetworkClientFactory(Settings);
+            return new UnetNetworkClientFactory(Settings,
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

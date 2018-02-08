@@ -26,12 +26,16 @@ namespace SocialPoint.Network
 
         PhotonNetworkServerFactory CreatePhotonServerFactory()
         {
-            return new PhotonNetworkServerFactory(Settings);
+            return new PhotonNetworkServerFactory(Settings,
+                Container.Resolve<UnityEngine.Transform>(),
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
         PhotonNetworkClientFactory CreatePhotonClientFactory()
         {
-            return new PhotonNetworkClientFactory(Settings);
+            return new PhotonNetworkClientFactory(Settings,
+                Container.Resolve<UnityEngine.Transform>(),
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

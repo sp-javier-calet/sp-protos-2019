@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using SocialPoint.Base;
-using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -241,39 +240,5 @@ namespace SocialPoint.Network
             _connectedDataClients = null;
            
         }
-    }
-
-    public class TcpSocketNetworkServerFactory : INetworkServerFactory
-    {
-        readonly TcpSocketNetworkInstaller.SettingsData _settings;
-
-        public TcpSocketNetworkServerFactory(TcpSocketNetworkInstaller.SettingsData settings)
-        {
-            _settings = settings;
-        }
-
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
-        {
-            var server = new TcpSocketNetworkServer(
-                Services.Instance.Resolve<IUpdateScheduler>(),
-                _settings.Config.ServerAddress, _settings.Config.ServerPort);
-            SetupServer(server);
-
-            return server;
-        }
-
-        #endregion
-
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
     }
 }

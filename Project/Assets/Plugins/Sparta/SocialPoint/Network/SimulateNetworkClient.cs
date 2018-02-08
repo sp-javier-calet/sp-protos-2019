@@ -1,5 +1,4 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using System;
@@ -139,43 +138,5 @@ namespace SocialPoint.Network
         }
 
         #endregion
-    }
-
-    public class SimulateNetworkClientFactory : INetworkClientFactory
-    {
-        readonly INetworkClientFactory _clientFactory;
-        readonly LocalNetworkInstaller.ClientSettingsData _settings;
-
-        public SimulateNetworkClientFactory(INetworkClientFactory clientFactory, LocalNetworkInstaller.ClientSettingsData settings)
-        {
-            _clientFactory = clientFactory;
-            _settings = settings;
-        }
-
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
-        {
-            var client = new SimulateNetworkClient(_clientFactory.Create(), Services.Instance.Resolve<IUpdateScheduler>());
-            SetupClient(client);
-
-            return client;
-        }
-
-        #endregion
-
-        void SetupClient(SimulateNetworkClient client)
-        {
-            client.ReceptionDelay = _settings.ReceptionDelay.Average;
-            client.ReceptionDelayVariance = _settings.ReceptionDelay.Variance;
-            client.EmissionDelay = _settings.EmissionDelay.Average;
-            client.EmissionDelayVariance = _settings.EmissionDelay.Variance;
-
-            var dlgs = Services.Instance.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
-        }
     }
 }

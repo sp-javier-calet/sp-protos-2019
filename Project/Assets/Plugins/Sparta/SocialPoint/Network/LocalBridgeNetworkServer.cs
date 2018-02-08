@@ -1,5 +1,4 @@
 using SocialPoint.Base;
-using SocialPoint.Dependency;
 
 namespace SocialPoint.Network
 {
@@ -128,56 +127,6 @@ namespace SocialPoint.Network
             Stop();
             _netServer.Dispose();
             _localServer.Dispose();
-        }
-    }
-
-    public class LocalBridgeNetworkServerFactory : ILocalNetworkServerFactory
-    {
-        readonly PhotonNetworkInstaller.SettingsData _settings;
-        readonly INetworkServerFactory _photonNetworkServerFactory;
-        readonly INetworkServerFactory _localNetworkServerFactory;
-
-        public ILocalNetworkServer Server { get; private set; }
-
-        public LocalBridgeNetworkServerFactory(PhotonNetworkInstaller.SettingsData settings,
-            INetworkServerFactory photonNetworkServerFactory,
-            INetworkServerFactory localNetworkServerFactory)
-        {
-            _settings = settings;
-            _photonNetworkServerFactory = photonNetworkServerFactory;
-            _localNetworkServerFactory = localNetworkServerFactory;
-        }
-
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
-        {
-            var netServer = _photonNetworkServerFactory.Create();
-            var localServer = _localNetworkServerFactory.Create();
-
-            SetupPhotonServer((PhotonNetworkServer)netServer);
-
-            Server = new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer);
-            SetupServer(Server);
-
-            return Server;
-        }
-
-        #endregion
-
-        void SetupPhotonServer(PhotonNetworkServer server)
-        {
-            server.Config = _settings.Config;
-            server.Config.CreateRoom = true;
-        }
-
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
-            for (var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -34,12 +35,16 @@ namespace SocialPoint.Network
 
         TcpSocketNetworkServerFactory CreateTcpSocketNetworkServerFactory()
         {
-            return new TcpSocketNetworkServerFactory(Settings);
+            return new TcpSocketNetworkServerFactory(Settings,
+                Container.Resolve<IUpdateScheduler>(),
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
         TcpSocketNetworkClientFactory CreateTcpSocketNetworkClientFactory()
         {
-            return new TcpSocketNetworkClientFactory(Settings);
+            return new TcpSocketNetworkClientFactory(Settings,
+                Container.Resolve<IUpdateScheduler>(),
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

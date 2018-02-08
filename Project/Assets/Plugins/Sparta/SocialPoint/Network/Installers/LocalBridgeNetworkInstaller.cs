@@ -24,7 +24,10 @@ namespace SocialPoint.Network
 
         PhotonNetworkServerFactory CreatePhotonServerFactory()
         {
-            return new PhotonNetworkServerFactory(Settings, false);
+            return new PhotonNetworkServerFactory(Settings,
+                Container.Resolve<UnityEngine.Transform>(),
+                Container.ResolveList<INetworkServerDelegate>(),
+                false);
         }
 
         LocalNetworkServerFactory CreateLocalServerFactory()
@@ -36,7 +39,8 @@ namespace SocialPoint.Network
         {
             return new LocalBridgeNetworkServerFactory(Settings,
                 Container.Resolve<PhotonNetworkServerFactory>(),
-                Container.Resolve<LocalNetworkServerFactory>());
+                Container.Resolve<LocalNetworkServerFactory>(),
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
         LocalNetworkClientFactory CreateLocalClientFactory()

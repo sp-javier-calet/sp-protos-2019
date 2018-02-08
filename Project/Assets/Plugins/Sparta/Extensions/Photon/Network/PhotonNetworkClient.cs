@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using SocialPoint.Base;
-using SocialPoint.Dependency;
 using SocialPoint.IO;
 
 namespace SocialPoint.Network
@@ -215,41 +214,6 @@ namespace SocialPoint.Network
             get
             {
                 return PhotonNetwork.GetPing();
-            }
-        }
-    }
-
-    public class PhotonNetworkClientFactory : INetworkClientFactory
-    {
-        readonly PhotonNetworkInstaller.SettingsData _settings;
-
-        public PhotonNetworkClientFactory(PhotonNetworkInstaller.SettingsData settings)
-        {
-            _settings = settings;
-        }
-
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
-        {
-            var transform = Services.Instance.Resolve<UnityEngine.Transform>();
-            var client = transform.gameObject.AddComponent<PhotonNetworkClient>();
-
-            SetupClient(client);
-
-            return client;
-        }
-
-        #endregion
-
-        void SetupClient(PhotonNetworkClient client)
-        {
-            client.Config = _settings.Config;
-
-            var dlgs = Services.Instance.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
             }
         }
     }

@@ -3,7 +3,6 @@ using SocialPoint.Base;
 using SocialPoint.IO;
 using ExitGames.Client.Photon;
 using System.IO;
-using SocialPoint.Dependency;
 
 namespace SocialPoint.Network
 {
@@ -261,46 +260,6 @@ namespace SocialPoint.Network
             var reader = new SystemBinaryReader(stream);
 
             OnMessageReceived(info, reader);
-        }
-    }
-
-    public class PhotonNetworkServerFactory : INetworkServerFactory
-    {
-        readonly PhotonNetworkInstaller.SettingsData _settings;
-        readonly bool _setDelegates;
-
-        public PhotonNetworkServerFactory(PhotonNetworkInstaller.SettingsData settings, bool setDelegates = true)
-        {
-            _settings = settings;
-            _setDelegates = setDelegates;
-        }
-        
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
-        {
-            var transform = Services.Instance.Resolve<UnityEngine.Transform>();
-            var server = transform.gameObject.AddComponent<PhotonNetworkServer>();
-
-            SetupServer(server);
-
-            return server;
-        }
-
-        #endregion
-
-        void SetupServer(PhotonNetworkServer server)
-        {
-            server.Config = _settings.Config;
-
-            if(_setDelegates)
-            {
-                var dlgs = Services.Instance.ResolveList<INetworkServerDelegate>();
-                for(var i = 0; i < dlgs.Count; i++)
-                {
-                    server.AddDelegate(dlgs[i]);
-                }
-            }
         }
     }
 }
