@@ -7,7 +7,7 @@ namespace SocialPoint.GUIControl
     /// <summary>
     /// This class can execute TimeLine animations.
     /// </summary>
-    public class UnityTimeLineAnimation : UIViewAnimation
+    public class UnityTimelineAnimation : UIViewAnimation
     {
         PlayableDirector _director;
 
@@ -20,7 +20,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public UnityTimeLineAnimation(PlayableDirector director)
+        public UnityTimelineAnimation(PlayableDirector director)
         {
             _director = director;
         }
@@ -43,13 +43,13 @@ namespace SocialPoint.GUIControl
     }
 
     [CreateAssetMenu(menuName = "UI Animations/Unity TimeLine Animation")]
-    public class UnityTimeLineAnimationFactory : UIViewAnimationFactory
+    public class UnityTimelineAnimationFactory : UIViewAnimationFactory
     {
         public PlayableDirector Director;
 
         public override UIViewAnimation Create()
         {
-            return new UnityTimeLineAnimation(Director);
+            return new UnityTimelineAnimation(Director);
         }
     }
 }
