@@ -9,6 +9,7 @@ namespace SocialPoint.Pooling
     {
         Dictionary<Type, Stack<object>> _types = new Dictionary<Type, Stack<object>>();
         Dictionary<int, Stack<object>> _ids = new Dictionary<int, Stack<object>>();
+        Func<Type, object> _createDelegate;
 
         void OnSpawned(object obj)
         {
@@ -91,7 +92,7 @@ namespace SocialPoint.Pooling
             var objType = typeof(T);
             Stack<object> pooledObjects = null;
             T obj = null;
-            if(_types.TryGetValue(objType, out pooledObjects))
+            if(_types != null && _types.TryGetValue(objType, out pooledObjects))
             {
                 if(pooledObjects.Count > 0)
                 {
@@ -103,7 +104,7 @@ namespace SocialPoint.Pooling
 
         public void Return(object obj)
         {
-            if(obj == null)
+            if(obj == null || _types == null)
             {
                 return;
             }
@@ -157,7 +158,7 @@ namespace SocialPoint.Pooling
         {
             Stack<object> pooledObjects = null;
             T obj = null;
-            if(_ids.TryGetValue(id, out pooledObjects))
+            if(_ids != null && _ids.TryGetValue(id, out pooledObjects))
             {
                 if(pooledObjects.Count > 0)
                 {
@@ -170,7 +171,7 @@ namespace SocialPoint.Pooling
 
         public void Return(int id, object obj)
         {
-            if(obj == null)
+            if(obj == null || _ids == null)
             {
                 return;
             }
@@ -188,9 +189,24 @@ namespace SocialPoint.Pooling
 
         #endregion idpool
 
-        T CreateInstance<T>()
+        public void RegisterCreationDelegate(Func<Type, object> dlg)
         {
-            return (T)Activator.CreateInstance(typeof(T));
+            _createDelegate = dlg;
+        }
+
+        T CreateInstance<T>() where T : class
+        {
+            var type = typeof(T);
+            T obj = null;
+            if(obj == null && _createDelegate != null)
+            {
+                obj = _createDelegate(type) as T;
+            }
+            if(obj == null)
+            {
+                obj = Activator.CreateInstance(typeof(T)) as T;
+            }
+            return obj;
         }
 
         public void Dispose()
@@ -211,23 +227,33 @@ namespace SocialPoint.Pooling
         public void Clear()
         {
             {
-                var itr = _types.GetEnumerator();
-                while(itr.MoveNext())
+                var types = _types;
+                _types = null;
+                if(types != null)
                 {
-                    OnStackDisposed(itr.Current.Value);
+                    var itr = types.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        OnStackDisposed(itr.Current.Value);
+                    }
+                    itr.Dispose();
+                    types.Clear();
                 }
-                itr.Dispose();
             }
             {
-                var itr = _ids.GetEnumerator();
-                while(itr.MoveNext())
+                var ids = _ids;
+                _ids = null;
+                if(ids != null)
                 {
-                    OnStackDisposed(itr.Current.Value);
+                    var itr = ids.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        OnStackDisposed(itr.Current.Value);
+                    }
+                    itr.Dispose();
+                    ids.Clear();
                 }
-                itr.Dispose();
             }
-            _types.Clear();
-            _ids.Clear();
         }
     }
 }
