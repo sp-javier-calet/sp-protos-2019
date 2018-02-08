@@ -12,7 +12,7 @@ namespace SocialPoint.TimelinePlayables
 
         public ClipCaps clipCaps
         {
-            get { return ClipCaps.Extrapolation | ClipCaps.Blending; }
+            get { return ClipCaps.Blending; }
         }
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)

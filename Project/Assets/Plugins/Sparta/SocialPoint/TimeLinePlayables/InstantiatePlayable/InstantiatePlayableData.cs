@@ -70,6 +70,7 @@ namespace SocialPoint.TimelinePlayables
 
             if(InstantiatedPrefab != null)
             {
+                // TODO At some point, when we can hace both 2D and 3D objects in the same popup we can remove this if is not needed
                 if(IsParticleSystem)
                 {
                     InstantiatedPrefab.SetLayerRecursively(Parent.gameObject.layer);
@@ -77,8 +78,9 @@ namespace SocialPoint.TimelinePlayables
                     // Hack - We need to setup the scaling mode to be in "Hierarchy" if we want to scale the
                     // ParticleSystems correctly in our UI.
                     //
-                    // With the new ParticleSystem that tech art are developing/updating all the ParticleSystem
-                    // will have "Hierarchy" as default and at that point we can remove this Hack
+                    // The new ParticleSystems that tech art are developing/updating, will have "Hierarchy" as default 
+                    // and at that point we can remove this Hack. Until then we need to live with this if we want to adapt 
+                    // particles to UI correctly
                     var particleSystems = InstantiatedPrefab.GetComponentsInChildren<ParticleSystem>(true);
                     if(particleSystems.Length > 0)
                     {
@@ -90,41 +92,6 @@ namespace SocialPoint.TimelinePlayables
                                 var main = particle.main;
                                 main.scalingMode = ParticleSystemScalingMode.Hierarchy;
                             }
-                        }
-                    }
-
-                    // Hack - This way we can have ParticleSystem working in editor while testing/developing
-                    if(!Application.isPlaying)
-                    {
-                        //var parentParticleSystem = Parent.gameObject.GetComponent<ParticleSystem>();
-                        //if(parentParticleSystem == null)
-                        //{
-                        //    parentParticleSystem = Parent.gameObject.AddComponent<ParticleSystem>();
-                        //}
-
-                        //if(parentParticleSystem != null)
-                        //{
-                        //    var emission = parentParticleSystem.emission;
-                        //    emission.rateOverTime = 0;
-
-                        //    parentParticleSystem.Stop();
-                        //    parentParticleSystem.Play();
-                        //}
-
-
-                        var mainParticleSystem = InstantiatedPrefab.GetComponent<ParticleSystem>();
-                        if(mainParticleSystem == null)
-                        {
-                            mainParticleSystem = InstantiatedPrefab.AddComponent<ParticleSystem>();
-                        }
-
-                        if(mainParticleSystem != null)
-                        {
-                            var emission = mainParticleSystem.emission;
-                            emission.rateOverTime = 0;
-
-                            mainParticleSystem.Stop();
-                            mainParticleSystem.Play();
                         }
                     }
                 }
