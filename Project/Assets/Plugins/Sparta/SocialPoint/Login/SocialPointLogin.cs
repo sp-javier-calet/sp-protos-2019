@@ -797,6 +797,13 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("DoLogin- login\n----\n" + req + "----\n");
+                
+                if(_loginConnection != null)
+                {
+                    _loginConnection.Release();
+                    _loginConnection.Cancel();
+                }
+
                 _loginConnection = _httpClient.Send(req, resp => OnLogin(resp, cbk));
             }
         }
