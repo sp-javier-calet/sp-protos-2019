@@ -719,8 +719,8 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 114315809791469568}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: -1
-    m_BlendOutDuration: -1
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -896,8 +896,8 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 114436972558325470}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: -1
-    m_BlendOutDuration: -1
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -954,8 +954,8 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 114436972558325470}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: -1
-    m_BlendOutDuration: -1
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -2348,6 +2348,50 @@ MonoBehaviour:
   - {fileID: 114436972558325470}
   - {fileID: 114788272698824752}
   m_Clips: []
+--- !u!114 &114951354253859542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71c152798ecbd42ff8cb5708a9efd809, type: 3}
+  m_Name: PositionPlayableAsset(Clone)
+  m_EditorClassIdentifier: 
+  Template:
+    HowToAnimateFrom: 2
+    HowToAnimateTo: 2
+    AnimationType: 0
+    EaseType: 13
+    AnimationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    TransformFrom: {fileID: 0}
+    TransformTo: {fileID: 0}
+    AnimateFrom: {x: 0, y: 0, z: 0}
+    AnimateTo: {x: 0, y: 0, z: 0}
+  TransformFrom:
+    exposedName: a0485939e51ed4e1fae3be330e8bef47
+    defaultValue: {fileID: 0}
+  TransformTo:
+    exposedName: 8c043d41ae1ae45f7ad8d4c718a2f0ca
+    defaultValue: {fileID: 0}
 --- !u!114 &114956228845042506
 MonoBehaviour:
   m_ObjectHideFlags: 1
