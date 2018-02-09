@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using SocialPoint.IO;
-using System.Collections.Generic;
+﻿using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
