@@ -17,9 +17,9 @@ namespace SocialPoint.Examples.Sockets
 
         NetworkMatchDelegateFactory _matchDelegateFactory;
 
-        #pragma warning disable 0169
+        #pragma warning disable 0414
         MultiMatchController _multiMatch;
-        #pragma warning restore 0169
+        #pragma warning restore 0414
 
 
         void Awake()
