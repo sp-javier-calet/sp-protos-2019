@@ -50,13 +50,9 @@ namespace SocialPoint.Network
             _receiver = receiver;
         }
 
-        public void OnMessageSent(NetworkMessageData data, byte[] body)
+        public void OnMessageSent(int dataLength)
         {
-            _uploadBandwidth += body.Length;
-            if(_sender != null)
-            {
-                _sender.SendMessage(data, body);
-            }
+            _uploadBandwidth += dataLength;
         }
 
         #region INetworkMessageReceiver implementation
@@ -81,7 +77,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            return new NetworkStatsMessage(data, this);
+            return new NetworkStatsMessage(_sender.CreateMessage(data), this);
         }
 
         #endregion
@@ -111,24 +107,22 @@ namespace SocialPoint.Network
 
     class NetworkStatsMessage : INetworkMessage
     {
+        readonly NetworkStatsWriter _writer;
         NetworkStatsBase _stats;
-        NetworkMessageData _data;
-        MemoryStream _stream;
-        SystemBinaryWriter _writer;
+        INetworkMessage _realMsg;
 
-
-        public NetworkStatsMessage(NetworkMessageData data, NetworkStatsBase stats)
+        public NetworkStatsMessage(INetworkMessage realMsg, NetworkStatsBase stats)
         {
             _stats = stats;
-            _data = data;
-            _stream = new MemoryStream();
-            _writer = new SystemBinaryWriter(_stream);
+            _realMsg = realMsg;
+            _writer = new NetworkStatsWriter(_realMsg.Writer);
         }
 
         #region INetworkMessage implementation
         public void Send()
         {
-            _stats.OnMessageSent(_data, _stream.ToArray());
+            _realMsg.Send();
+            _stats.OnMessageSent(_writer.DataLength);
         }
         public IWriter Writer
         {

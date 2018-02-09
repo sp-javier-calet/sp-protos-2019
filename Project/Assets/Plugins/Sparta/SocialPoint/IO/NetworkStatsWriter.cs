@@ -30,7 +30,7 @@
 
         void IWriter.Write(byte[] buffer, int offset, int count)
         {
-            _dataLength += buffer.Length;
+            _dataLength += buffer.Length + (sizeof(int) * 2);
             _writer.Write(buffer, offset, count);
         }
 
@@ -72,7 +72,7 @@
 
         void IWriter.Write(byte[] buffer, int count)
         {
-            _dataLength += buffer.Length;
+            _dataLength += buffer.Length + sizeof(int);
             _writer.Write(buffer, count);
         }
 
