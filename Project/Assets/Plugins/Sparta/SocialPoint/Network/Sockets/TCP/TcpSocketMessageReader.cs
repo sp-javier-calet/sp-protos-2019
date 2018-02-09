@@ -70,9 +70,10 @@ namespace SocialPoint.Network
                 _memStream.Seek(5, SeekOrigin.Begin);
                 if(MessageReceived != null)
                 {
-                    MessageReceived(new NetworkMessageData {
+                    MessageReceived(new NetworkMessageData
+                    {
                         MessageType = Type,
-                        ClientIds = _clientId == 0 ? null : new List<byte>(){ _clientId },
+                        ClientIds = _clientId == 0 ? null : new List<byte>() { _clientId },
                     }, _reader);
                 }
                 _memStream.Seek(0, SeekOrigin.Begin);
