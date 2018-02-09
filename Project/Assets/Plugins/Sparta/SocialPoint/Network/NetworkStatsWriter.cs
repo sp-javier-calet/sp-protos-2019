@@ -1,4 +1,6 @@
-﻿namespace SocialPoint.IO
+﻿using SocialPoint.IO;
+
+namespace SocialPoint.Network
 {
     public class NetworkStatsWriter : IWriter
     {
@@ -30,7 +32,7 @@
 
         void IWriter.Write(byte[] buffer, int offset, int count)
         {
-            _dataLength += buffer.Length + (sizeof(int) * 2);
+            _dataLength += System.Math.Min(buffer.Length - offset, count) + sizeof(int);
             _writer.Write(buffer, offset, count);
         }
 
@@ -78,7 +80,7 @@
 
         void IWriter.Write(string value)
         {
-            System.Text.Encoding.Unicode.GetByteCount(value);
+            _dataLength += System.Text.Encoding.Unicode.GetByteCount(value) + sizeof(int);
             _writer.Write(value);
         }
 

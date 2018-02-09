@@ -813,6 +813,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsWriter.cs">
+      <Link>Network\NetworkStatsWriter.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
@@ -920,9 +923,6 @@
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
       <Link>Multiplayer\NetworkActionProcessor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\NetworkStatsWriter.cs">
-      <Link>IO\NetworkStatsWriter.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup />
