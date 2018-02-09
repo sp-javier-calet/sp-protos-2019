@@ -47,7 +47,6 @@ namespace SocialPoint.Network
                     ClientIds = _clientId == 0 ? null : new List<byte>() { _clientId },
                 }, _reader);
             }
-            _memStream.Seek(0, SeekOrigin.Begin);
         }
     }
 }

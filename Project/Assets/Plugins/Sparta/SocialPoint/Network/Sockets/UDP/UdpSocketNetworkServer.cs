@@ -159,15 +159,15 @@ namespace SocialPoint.Network
                     _delegates[j].OnClientDisconnected((disconectedClient.Id));
                 }
                 disconectedClient.Reader.MessageReceived -= OnClientMessageReceived;
-                _connectedDataClients.Remove(disconectedClient);
+                _connectedDataClients.RemoveAt(pos);
             }
         }
 
         public void OnNetworkError(NetEndPoint endPoint, int socketErrorCode)
         {
+            Error error = new Error(socketErrorCode);
             for(var i = 0; i < _delegates.Count; i++)
             {
-                Error error = new Error(socketErrorCode);
                 _delegates[i].OnNetworkError(error);
             }
         }
@@ -199,23 +199,23 @@ namespace SocialPoint.Network
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
             var clientsToSendMessage = new List<NetPeer>();
-            if(data.ClientIds != null && data.ClientIds.Count > 0)
+
+            if(data.ClientIds == null || data.ClientIds.Count == 0)
             {
+                List<byte> allClientsID = new List<byte>();
                 for(int i = 0; i < _connectedDataClients.Count; i++)
                 {
-                    var clientData = _connectedDataClients[i];
-                    if(data.ClientIds.Contains(clientData.Id))
-                    {
-                        clientsToSendMessage.Add(clientData.Client);
-                    }
+                    allClientsID.Add(_connectedDataClients[i].Id);
                 }
+                data.ClientIds = allClientsID;
             }
-            else
+
+            for(int i = 0; i < _connectedDataClients.Count; i++)
             {
-                for(int i = 0; i < _connectedDataClients.Count; i++)
+                var clientData = _connectedDataClients[i];
+                if(data.ClientIds.Contains(clientData.Id))
                 {
-                    var simpleSocketClientData = _connectedDataClients[i];
-                    clientsToSendMessage.Add(simpleSocketClientData.Client);
+                    clientsToSendMessage.Add(clientData.Client);
                 }
             }
 
@@ -246,12 +246,13 @@ namespace SocialPoint.Network
         public void Dispose()
         {
             StopServer();
+            _updateScheduler.Remove(this);
+            _updateScheduler = null;
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
             _connectedDataClients.Clear();
             _connectedDataClients = null;
-
         }
     }
 }

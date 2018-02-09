@@ -30,6 +30,8 @@ namespace SocialPoint.Network
             _scheduler = scheduler;
             _client = new NetManager(this, connectionKey);
             _client.UpdateTime = updateTime;
+
+            _socketMessageReader = new UdpSocketMessageReader();
         }
 
         public void Connect()
@@ -113,7 +115,6 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnClientConnected();
             }
-            _socketMessageReader = new UdpSocketMessageReader();
             _socketMessageReader.MessageReceived += OnServerMessageReceived;
         }
 
@@ -171,6 +172,14 @@ namespace SocialPoint.Network
         public void Dispose()
         {
             _client.Stop();
+            _peer = null;
+            _scheduler.Remove(this);
+            _scheduler = null;
+            if(_socketMessageReader != null)
+            {
+                _socketMessageReader.MessageReceived -= OnServerMessageReceived;
+            }
+            _socketMessageReader = null;
             _delegates.Clear();
             _delegates = null;
             _receiver = null;

@@ -228,12 +228,14 @@ namespace SocialPoint.Network
 
         public void Dispose()
         {
+            _updateScheduler.Remove(this);
+            _updateScheduler = null;
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
             _connectedDataClients.Clear();
             _connectedDataClients = null;
-
+            _listener = null;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace SocialPoint.Network
         virtual protected void SetUp()
         {
             _scheduler = new UpdateScheduler();
+            _currentEvents.Clear();
         }
 
         override protected void WaitForEvents(params NetworkDelegateType[] typeEvent)
@@ -48,43 +49,33 @@ namespace SocialPoint.Network
             _currentEvents.Clear();
         }
 
+        void AddCurrentEvent(NetworkDelegateType ev)
+        {
+            if(!_currentEvents.Contains(ev))
+            {
+                _currentEvents.Add(ev);
+            }
+        }
+
+
         #region INetworkClientDelegate implementation
 
         void INetworkClientDelegate.OnClientConnected()
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientConnected1))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientConnected1);
-            }
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientConnected2))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientConnected2);
-            }
+            AddCurrentEvent(NetworkDelegateType.ClientConnected1);
+            AddCurrentEvent(NetworkDelegateType.ClientConnected2);
         }
 
         void INetworkClientDelegate.OnClientDisconnected()
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientDisconnected1))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientDisconnected1);
-            }
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientDisconnected2))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientDisconnected2);
-            }
+            AddCurrentEvent(NetworkDelegateType.ClientDisconnected1);
+            AddCurrentEvent(NetworkDelegateType.ClientDisconnected2);
         }
 
         void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
         {
-
-            if(!_currentEvents.Contains(NetworkDelegateType.MessageClientReceived1))
-            {
-                _currentEvents.Add(NetworkDelegateType.MessageClientReceived1);
-            }
-            if(!_currentEvents.Contains(NetworkDelegateType.MessageClientReceived2))
-            {
-                _currentEvents.Add(NetworkDelegateType.MessageClientReceived2);
-            }
+            AddCurrentEvent(NetworkDelegateType.MessageClientReceived1);
+            AddCurrentEvent(NetworkDelegateType.MessageClientReceived2);
         }
 
         void INetworkClientDelegate.OnNetworkError(SocialPoint.Base.Error err)
@@ -97,42 +88,27 @@ namespace SocialPoint.Network
 
         void INetworkServerDelegate.OnServerStarted()
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ServerStarted))
-            {
-                _currentEvents.Add(NetworkDelegateType.ServerStarted);
-            }
+            AddCurrentEvent(NetworkDelegateType.ServerStarted);
         }
 
         void INetworkServerDelegate.OnServerStopped()
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ServerStopped))
-            {
-                _currentEvents.Add(NetworkDelegateType.ServerStopped);
-            }
+            AddCurrentEvent(NetworkDelegateType.ServerStopped);
         }
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientConnectedInServer))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientConnectedInServer);
-            }
+            AddCurrentEvent(NetworkDelegateType.ClientConnectedInServer);
         }
 
         void INetworkServerDelegate.OnClientDisconnected(byte clientId)
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.ClientDisconectedInServer))
-            {
-                _currentEvents.Add(NetworkDelegateType.ClientDisconectedInServer);
-            }
+            AddCurrentEvent(NetworkDelegateType.ClientDisconectedInServer);
         }
 
         void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            if(!_currentEvents.Contains(NetworkDelegateType.MessageServerReceived))
-            {
-                _currentEvents.Add(NetworkDelegateType.MessageServerReceived);
-            }
+            AddCurrentEvent(NetworkDelegateType.MessageServerReceived);
         }
 
         void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
