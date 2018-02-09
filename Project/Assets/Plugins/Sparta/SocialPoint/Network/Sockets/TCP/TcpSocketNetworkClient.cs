@@ -101,11 +101,11 @@ namespace SocialPoint.Network
 
         void ConnectClient()
         {
-            if (_connecting && _client.Connected)
+            if(_connecting && _client.Connected)
             {
                 _connecting = false;
                 _connected = true;
-                for (var i = 0; i < _delegates.Count; i++)
+                for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected();
                 }
@@ -117,11 +117,11 @@ namespace SocialPoint.Network
 
         void OnServerMessageReceived(NetworkMessageData data, IReader reader)
         {
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMessageReceived(data);
             }
-            if (_receiver != null)
+            if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
             }
@@ -129,7 +129,7 @@ namespace SocialPoint.Network
 
         void DisconnectClient()
         {
-            if (Connected && IsSocketDisconnected())
+            if(Connected && IsSocketDisconnected())
             {
                 OnDisconnected();
             }
@@ -137,10 +137,10 @@ namespace SocialPoint.Network
 
         bool IsSocketDisconnected()
         {
-            if (_client.Client.Poll(0, SelectMode.SelectRead))
+            if(_client.Client.Poll(0, SelectMode.SelectRead))
             {
                 byte[] buff = new byte[1];
-                if (_client.Client.Receive(buff, SocketFlags.Peek) == 0)
+                if(_client.Client.Receive(buff, SocketFlags.Peek) == 0)
                 {
                     return true;
                 }
@@ -150,7 +150,7 @@ namespace SocialPoint.Network
 
         void ReceiveServerMessages()
         {
-            while (_client.Connected && _client.Available > 0)
+            while(_client.Connected && _client.Available > 0)
             {
                 _socketMessageReader.Receive();
             }
@@ -159,7 +159,7 @@ namespace SocialPoint.Network
         void OnDisconnected()
         {
             _connected = false;
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected();
             }

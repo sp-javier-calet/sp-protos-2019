@@ -123,9 +123,10 @@ namespace SocialPoint.Network
 
             WaitForEvents();
 
-            NetworkMessageData data = new NetworkMessageData {
+            NetworkMessageData data = new NetworkMessageData
+            {
                 MessageType = 5,
-                ClientIds = new List<byte>(){ 1 }
+                ClientIds = new List<byte>() { 1 }
             };
 
             var msg = _client.CreateMessage(data);
@@ -155,7 +156,8 @@ namespace SocialPoint.Network
 
             WaitForEvents();
 
-            var data = new NetworkMessageData {
+            var data = new NetworkMessageData
+            {
                 MessageType = 5
             };
 
@@ -163,7 +165,7 @@ namespace SocialPoint.Network
             msg.Writer.Write("test");
             msg.Send();
 
-            WaitForEvents(NetworkDelegateType.MessageClientReceived1,NetworkDelegateType.MessageClientReceived2);
+            WaitForEvents(NetworkDelegateType.MessageClientReceived1, NetworkDelegateType.MessageClientReceived2);
 
             Assert.AreEqual(data.MessageType, receiver1.Data.MessageType);
             Assert.AreEqual(data.MessageType, receiver2.Data.MessageType);
@@ -188,9 +190,10 @@ namespace SocialPoint.Network
 
             WaitForEvents();
 
-            var data = new NetworkMessageData {
+            var data = new NetworkMessageData
+            {
                 MessageType = 5,
-                ClientIds = new List<byte>(){ 1 }
+                ClientIds = new List<byte>() { 1 }
             };
             var msg = _server.CreateMessage(data);
 
@@ -220,7 +223,7 @@ namespace SocialPoint.Network
             _server.Start();
             _client.Connect();
 
-            WaitForEvents(NetworkDelegateType.ClientConnected1,NetworkDelegateType.ClientConnectedInServer);
+            WaitForEvents(NetworkDelegateType.ClientConnected1, NetworkDelegateType.ClientConnectedInServer);
 
             sdlg.Received(1).OnClientConnected(Arg.Any<byte>());
             cdlg.Received(1).OnClientConnected();
@@ -238,12 +241,12 @@ namespace SocialPoint.Network
             _client.Connect();
             WaitForEvents();
             _server.Stop();
-            WaitForEvents(NetworkDelegateType.ClientDisconnected1,NetworkDelegateType.ClientDisconectedInServer);
+            WaitForEvents(NetworkDelegateType.ClientDisconnected1, NetworkDelegateType.ClientDisconectedInServer);
             sdlg.Received(1).OnClientDisconnected(Arg.Any<byte>());
             cdlg.Received(1).OnClientDisconnected();
         }
 
-      
+
 
         [Test]
         public void OnClientConnectedCalledIfDelegateAddedAfterConnect()
@@ -262,8 +265,9 @@ namespace SocialPoint.Network
         {
             var sdlg = Substitute.For<INetworkServerDelegate>();
             _server.Start();
-            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData {
-                ClientIds = new List<byte>(){ 1 },
+            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData
+            {
+                ClientIds = new List<byte>() { 1 },
                 MessageType = 1
             }, Substitute.For<INetworkShareable>()));
             _server.AddDelegate(sdlg);
@@ -273,8 +277,9 @@ namespace SocialPoint.Network
 
             WaitForEvents(NetworkDelegateType.MessageClientReceived1);
 
-            cdlg.Received().OnMessageReceived(new NetworkMessageData {
-                ClientIds = new List<byte>(){ 1 },
+            cdlg.Received().OnMessageReceived(new NetworkMessageData
+            {
+                ClientIds = new List<byte>() { 1 },
                 MessageType = 1
             });
         }

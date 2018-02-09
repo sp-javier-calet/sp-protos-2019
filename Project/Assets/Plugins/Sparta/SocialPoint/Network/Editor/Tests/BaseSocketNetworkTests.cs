@@ -7,7 +7,7 @@ namespace SocialPoint.Network
 {
     [TestFixture]
     [Category("SocialPoint.Network")]
-    public abstract class BaseSocketNetworkTests : BaseNetworkTests,  INetworkClientDelegate, INetworkServerDelegate
+    public abstract class BaseSocketNetworkTests : BaseNetworkTests, INetworkClientDelegate, INetworkServerDelegate
     {
         const int SleepThread = 10;
         protected UpdateScheduler _scheduler;
@@ -33,7 +33,7 @@ namespace SocialPoint.Network
             else
             {
                 var i = 0;
-                
+
                 bool delegateCalled = false;
                 List<NetworkDelegateType> eventsList = new List<NetworkDelegateType>(typeEvent);
                 List<NetworkDelegateType> result = new List<NetworkDelegateType>();
@@ -76,7 +76,7 @@ namespace SocialPoint.Network
 
         void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
         {
-           
+
             if(!_currentEvents.Contains(NetworkDelegateType.MessageClientReceived1))
             {
                 _currentEvents.Add(NetworkDelegateType.MessageClientReceived1);

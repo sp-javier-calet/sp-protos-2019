@@ -41,7 +41,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
-           
+
             _updateScheduler.Add(this);
 
         }
@@ -99,7 +99,7 @@ namespace SocialPoint.Network
             return (int)TimeUtils.Timestamp;
         }
 
-        public bool Running{ get; protected set; }
+        public bool Running { get; protected set; }
 
         public string Id
         {
@@ -119,7 +119,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            var clientsToSendMessage = new  List<NetworkStream>();
+            var clientsToSendMessage = new List<NetworkStream>();
             if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
                 for(int i = 0; i < _connectedDataClients.Count; i++)
@@ -139,7 +139,7 @@ namespace SocialPoint.Network
                     clientsToSendMessage.Add(simpleSocketClientData.Reader.Stream);
                 }
             }
-           
+
             return new TcpSocketNetworkMessage(data, clientsToSendMessage);
         }
 
@@ -203,6 +203,9 @@ namespace SocialPoint.Network
                 var c = _connectedDataClients[i];
                 if(IsSocketConnected(c.TcpClient.Client) == false)
                 {
+                    c.TcpClient.Client.Close();
+                    c.TcpClient.Close();
+
                     for(var j = 0; j < _delegates.Count; j++)
                     {
                         _delegates[j].OnClientDisconnected((c.Id));
@@ -230,7 +233,7 @@ namespace SocialPoint.Network
             _receiver = null;
             _connectedDataClients.Clear();
             _connectedDataClients = null;
-           
+
         }
     }
 }

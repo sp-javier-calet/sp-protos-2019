@@ -52,7 +52,8 @@ namespace SocialPoint.Network
 
             WaitForEvents();
 
-            var data = new NetworkMessageData {
+            var data = new NetworkMessageData
+            {
                 MessageType = 5,
                 Unreliable = true
             };
@@ -60,7 +61,7 @@ namespace SocialPoint.Network
             var clientMsg = _client.CreateMessage(data);
             clientMsg.Writer.Write("test");
             clientMsg.Send();
-            
+
             var serverMsg = _server.CreateMessage(data);
             serverMsg.Writer.Write("test");
             serverMsg.Send();

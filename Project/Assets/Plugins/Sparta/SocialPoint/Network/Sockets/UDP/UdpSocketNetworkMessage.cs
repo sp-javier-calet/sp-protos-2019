@@ -31,10 +31,10 @@ namespace SocialPoint.Network
             _memStream.Seek(0, SeekOrigin.Begin);
             var data = _memStream.ToArray();
             _netDataWriter.Put(_data.MessageType);
-            _netDataWriter.Put(data,0,data.Length);
+            _netDataWriter.Put(data, 0, data.Length);
             for(int i = 0; i < _peers.Count; i++)
             {
-                _peers[i].Send(_netDataWriter,_data.Unreliable ? SendOptions.Unreliable :  SendOptions.ReliableOrdered);
+                _peers[i].Send(_netDataWriter, _data.Unreliable ? SendOptions.Unreliable : SendOptions.ReliableOrdered);
             }
         }
 
@@ -46,5 +46,5 @@ namespace SocialPoint.Network
             }
         }
     }
-            
+
 }

@@ -10,8 +10,8 @@ namespace SocialPoint.Network
 {
     public class UdpSocketNetworkClient : INetworkClient, IDisposable, IUpdateable, INetEventListener
     {
-        public string ServerAddress{ get; set; }
-        public int ServerPort{ get; set; }
+        public string ServerAddress { get; set; }
+        public int ServerPort { get; set; }
 
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;

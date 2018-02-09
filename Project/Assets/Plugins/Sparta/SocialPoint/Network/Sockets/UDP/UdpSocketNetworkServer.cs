@@ -32,11 +32,11 @@ namespace SocialPoint.Network
         NetManager _server;
         byte _nextClientID = 1;
 
-        public UdpSocketNetworkServer(IUpdateScheduler updateScheduler, int peerLimit = DefaultPeerLimit, string connectionKey = DefaultConnectionKey,int updateTime = DefaultUpdateTime)
+        public UdpSocketNetworkServer(IUpdateScheduler updateScheduler, int peerLimit = DefaultPeerLimit, string connectionKey = DefaultConnectionKey, int updateTime = DefaultUpdateTime)
         {
             Port = DefaultPort;
             _updateScheduler = updateScheduler;
-            _server = new NetManager(this, peerLimit,connectionKey);
+            _server = new NetManager(this, peerLimit, connectionKey);
             _server.UpdateTime = updateTime;
         }
 
@@ -102,7 +102,7 @@ namespace SocialPoint.Network
             return (int)TimeUtils.Timestamp;
         }
 
-        public bool Running{ get; protected set; }
+        public bool Running { get; protected set; }
 
         public string Id
         {
@@ -120,7 +120,7 @@ namespace SocialPoint.Network
             }
         }
 
-       
+
         public void Update()
         {
             if(_server.IsRunning)
@@ -153,6 +153,7 @@ namespace SocialPoint.Network
             if(pos > -1)
             {
                 var disconectedClient = _connectedDataClients[pos];
+                _server.DisconnectPeer(disconectedClient.Client);
                 for(var j = 0; j < _delegates.Count; j++)
                 {
                     _delegates[j].OnClientDisconnected((disconectedClient.Id));
@@ -191,13 +192,13 @@ namespace SocialPoint.Network
         {
         }
 
-      
+
         #endregion
 
         #region Messages
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            var clientsToSendMessage = new  List<NetPeer>();
+            var clientsToSendMessage = new List<NetPeer>();
             if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
                 for(int i = 0; i < _connectedDataClients.Count; i++)
@@ -250,7 +251,7 @@ namespace SocialPoint.Network
             _receiver = null;
             _connectedDataClients.Clear();
             _connectedDataClients = null;
-           
+
         }
     }
 }

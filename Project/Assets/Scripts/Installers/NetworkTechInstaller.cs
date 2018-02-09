@@ -29,7 +29,7 @@ public class NetworkTechInstaller : Installer
     public override void InstallBindings()
     {
         SubInstaller techInstaller;
-        switch (Settings.Tech)
+        switch(Settings.Tech)
         {
             case NetworkTech.Unet:
                 var unet = new UnetNetworkInstaller();
