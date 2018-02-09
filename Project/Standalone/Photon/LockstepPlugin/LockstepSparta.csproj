@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -35,10 +35,10 @@
       <HintPath>..\..\..\Assets\Plugins\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.XML" />
     <Reference Include="LZ4">
       <HintPath>..\..\..\Assets\Plugins\Sparta\External\LZ4\LZ4.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\ClientCommandData.cs">
@@ -304,6 +304,9 @@
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ShortEncoding.cs">
       <Link>IO\ShortEncoding.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\NetworkStatsWriter.cs">
+      <Link>IO\NetworkStatsWriter.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
