@@ -1,19 +1,17 @@
-﻿#define SPARTA_LOG_VERBOSE
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using SocialPoint.Base;
 using SocialPoint.Console;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     class MainClass
     {
         public static void Main(string[] args)
         {
-
-            if (args.Length < 3)
+            if(args.Length < 7)
             {
                 Log.d("Please enter clients +  number of clients, the protocol(tcp|udp), the port and the update time: ex -> clients --numClients=10 --protocol=tcp --ipAdress=52.90.17.72 --port=7777 --update=100 --testTime=120");
                 return;
@@ -42,7 +40,7 @@ namespace SocialPoint.Sockets
 
         static void OnCommandCommand(ConsoleCommand cmd)
         {
-
+            List<SocketClient> _netClientsList = new List<SocketClient>();
             UpdateScheduler updateScheduler = new UpdateScheduler();
 
             int numClients;
@@ -56,30 +54,47 @@ namespace SocialPoint.Sockets
             bool updateTimeOK = int.TryParse(cmd["update"].Value, out updateTime);
             bool testTimeOK = int.TryParse(cmd["testTime"].Value, out testTime);
 
-            if (!portOK || !updateTimeOK || !numClientsOK || !testTimeOK)
+            if(!portOK || !updateTimeOK || !numClientsOK || !testTimeOK)
             {
                 Log.d("Please enter clients +  number of clients, the protocol(tcp|udp), the port and the update time: ex -> clients --numClients=10 --protocol=tcp --ipAdress=52.90.17.72 --port=7777 --update=100 --testTime=120");
                 return;
             }
-
-            SocketClients clients = null;
-            if (cmd["protocol"].Value == "tcp")
+            SocketClient.Protocol protocol = SocketClient.Protocol.TCP;
+            if(cmd["protocol"].Value == "tcp")
             {
-                clients = new SocketClients(numClients,SocketClients.Protocol.TCP,ipAdress, port, updateScheduler);
+                protocol = SocketClient.Protocol.TCP;
             }
-            if (cmd["protocol"].Value == "udp")
+            if(cmd["protocol"].Value == "udp")
             {
-                clients = new SocketClients(numClients, SocketClients.Protocol.UDP, ipAdress, port, updateScheduler);
+                protocol = SocketClient.Protocol.UDP;
             }
-            clients.Connect();
 
             float scaleTime = 1000f / updateTime;
+            int matchId = 0;
+            SocketClient client = null;
+            for(int i = 0; i < numClients; i++)
+            {
+                client = new SocketClient(protocol, ipAdress, port, "matchID" + matchId.ToString(), updateScheduler);
+                client.Connect();
+                _netClientsList.Add((client));
+                updateScheduler.Update(scaleTime, scaleTime);
+
+                if(i % 2 == 1)
+                {
+                    matchId++;
+                }
+            }
+            for(int i = 0; i < _netClientsList.Count; i++)
+            {
+                _netClientsList[i].SendMessage("Message -> TestMessage Client: " + i + " Ticks: " + DateTime.UtcNow.Ticks);
+                updateScheduler.Update(scaleTime, scaleTime);
+            }
 
             DateTime startTime = DateTime.UtcNow;
 
-            while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(testTime))
+            while(DateTime.UtcNow - startTime < TimeSpan.FromSeconds(testTime))
             {
-                if (System.Console.KeyAvailable)
+                if(System.Console.KeyAvailable)
                 {
                     return;
                 }
@@ -88,7 +103,10 @@ namespace SocialPoint.Sockets
                 Thread.Sleep(updateTime);
             }
 
-            clients.Disconnect();
+            for(int i = 0; i < _netClientsList.Count; i++)
+            {
+                _netClientsList[i].Disconnect();
+            }
         }
     }
 }

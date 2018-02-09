@@ -1,10 +1,8 @@
-﻿#define SPARTA_LOG_VERBOSE
-
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     public class SocketServer
     {
@@ -25,7 +23,7 @@ namespace SocialPoint.Sockets
 
         public SocketServer(Protocol protocol, int port, IUpdateScheduler updateScheduler)
         {
-            switch (protocol)
+            switch(protocol)
             {
                 case Protocol.TCP:
                     Log.d("INSTANTIATE TCP SERVER PORT: " + port + " ServerAddress: " + ServerAddress);
@@ -33,7 +31,7 @@ namespace SocialPoint.Sockets
                     _netServer = new TcpSocketNetworkServer(updateScheduler, ServerAddress, port);
                     break;
                 case Protocol.UDP:
-                    Log.d("INSTANTIATE UDP SERVER PORT: " + port+ " ServerAddress: " + ServerAddress);
+                    Log.d("INSTANTIATE UDP SERVER PORT: " + port + " ServerAddress: " + ServerAddress);
 
                     _netServer = new UdpSocketNetworkServer(updateScheduler, PeerLimit, ConnectionKey, UpdateTime);
                     (_netServer as UdpSocketNetworkServer).Port = port;

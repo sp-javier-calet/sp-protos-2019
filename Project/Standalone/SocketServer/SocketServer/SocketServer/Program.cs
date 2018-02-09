@@ -1,17 +1,15 @@
-﻿#define SPARTA_LOG_VERBOSE
-
-using System.Threading;
+﻿using System.Threading;
 using SocialPoint.Base;
 using SocialPoint.Console;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     class Program
     {
         public static void Main(string[] args)
         {
-            if (args.Length < 3)
+            if(args.Length < 3)
             {
                 Log.d("Please enter server +  the protocol(tcp|udp), the port and the update time: ex -> server --protocol=tcp --port=7777 --update=100");
                 return;
@@ -41,7 +39,7 @@ namespace SocialPoint.Sockets
 
             bool portOK = int.TryParse(cmd["port"].Value, out port);
             bool updateTimeOK = int.TryParse(cmd["update"].Value, out updateTime);
-           
+
             if(!portOK || !updateTimeOK)
             {
                 Log.d("Please enter server +  the protocol(tcp|udp), the port and the update time: ex -> server --protocol=tcp --port=7777 --update=100");
@@ -53,16 +51,16 @@ namespace SocialPoint.Sockets
             {
                 server = new SocketServer(SocketServer.Protocol.TCP, port, updateScheduler);
             }
-            if (cmd["protocol"].Value == "udp")
+            if(cmd["protocol"].Value == "udp")
             {
                 server = new SocketServer(SocketServer.Protocol.UDP, port, updateScheduler);
             }
             server.Start();
 
             float scaleTime = 1000f / updateTime;
-            while (true)
+            while(true)
             {
-                if (System.Console.KeyAvailable)
+                if(System.Console.KeyAvailable)
                 {
                     return;
                 }
