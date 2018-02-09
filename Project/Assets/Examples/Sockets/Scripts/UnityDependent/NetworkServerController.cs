@@ -6,18 +6,21 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 using SocialPoint.Base;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     public class NetworkServerController : MonoBehaviour
     {
         [SerializeField]
         Text _logText;
 
-       INetworkServer _netServer;
+        INetworkServer _netServer;
 
         NetworkMatchDelegateFactory _matchDelegateFactory;
 
+        #pragma warning disable 0169
         MultiMatchController _multiMatch;
+        #pragma warning restore 0169
+
 
         void Awake()
         {
@@ -36,10 +39,6 @@ namespace SocialPoint.Sockets
         {
             _matchDelegateFactory = new NetworkMatchDelegateFactory();
             _multiMatch = new MultiMatchController(_netServer, _matchDelegateFactory, TypeMessages.ConnectMessageType);
-
-            //HACK FOR ASSIGNED BUT NEVER USED VARIABLES ERROR!!!!!!!!
-            _netServer.RemoveDelegate(_multiMatch);
-            _netServer.AddDelegate(_multiMatch);
         }
 
         void Start()
@@ -64,14 +63,14 @@ namespace SocialPoint.Sockets
             _netServer.Stop();
 
             var dserver = _netServer as IDisposable;
-            if (dserver != null)
+            if(dserver != null)
             {
                 dserver.Dispose();
             }
         }
         public void OnPrintLog(string message)
         {
-            if (!IsHeadless())
+            if(!IsHeadless())
             {
                 string msg = "SERVER: " + message + "\n";
                 Log.d(msg);

@@ -1,6 +1,6 @@
 ﻿using SocialPoint.IO;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     public sealed class DefaultMessage : INetworkShareable
     {

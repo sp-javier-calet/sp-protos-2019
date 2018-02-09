@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
 
     public class NetworkClientController : MonoBehaviour, INetworkClientDelegate, INetworkMessageReceiver
@@ -70,9 +70,10 @@ namespace SocialPoint.Sockets
                     break;
                 case Protocol.UDP:
                     PrintLog("UDP CLIENT: ");
-                    _netClient = new UdpSocketNetworkClient(updater);
-                    (_netClient as UdpSocketNetworkClient).ServerAddress = ipAdress;
-                    (_netClient as UdpSocketNetworkClient).ServerPort = port;
+                    UdpSocketNetworkClient client = new UdpSocketNetworkClient(updater);
+                    client.ServerAddress = ipAdress;
+                    client.ServerPort = port;
+                    _netClient = client;
                     break;
             }
 

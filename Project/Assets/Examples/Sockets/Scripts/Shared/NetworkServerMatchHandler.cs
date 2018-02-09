@@ -1,9 +1,7 @@
-﻿#define SPARTA_LOG_VERBOSE
-
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.Network;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     class NetworkServerMatchHandler : INetworkServerDelegate, INetworkMessageReceiver
     {

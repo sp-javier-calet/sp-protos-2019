@@ -1,7 +1,6 @@
-﻿using System;
-using SocialPoint.Network;
+﻿using SocialPoint.Network;
 
-namespace SocialPoint.Sockets
+namespace SocialPoint.Examples.Sockets
 {
     public class NetworkMatchDelegateFactory : INetworkMatchDelegateFactory
     {
