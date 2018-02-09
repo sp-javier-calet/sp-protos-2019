@@ -33,9 +33,10 @@ namespace SocialPoint.Examples.Sockets
                 case Protocol.UDP:
                     Log.d("INSTANTIATE UDP CLIENTS: " + " PORT: " + port + " IPAdress: " + ipAdress+ " MatchID: " + matchID);
 
-                    _netClient = new UdpSocketNetworkClient(updateScheduler, ConnectionKey, UpdateTime);
-                    (_netClient as UdpSocketNetworkClient).ServerPort = port;
-                    (_netClient as UdpSocketNetworkClient).ServerAddress = ipAdress;
+                    UdpSocketNetworkClient client = new UdpSocketNetworkClient(updateScheduler, ConnectionKey, UpdateTime);
+                    client.ServerPort = port;
+                    client.ServerAddress = ipAdress;
+                    _netClient = client;
                     break;
             }
 

@@ -33,8 +33,9 @@ namespace SocialPoint.Examples.Sockets
                 case Protocol.UDP:
                     Log.d("INSTANTIATE UDP SERVER PORT: " + port + " ServerAddress: " + ServerAddress);
 
-                    _netServer = new UdpSocketNetworkServer(updateScheduler, PeerLimit, ConnectionKey, UpdateTime);
-                    (_netServer as UdpSocketNetworkServer).Port = port;
+                    UdpSocketNetworkServer server = new UdpSocketNetworkServer(updateScheduler, PeerLimit, ConnectionKey, UpdateTime);
+                    server.Port = port;
+                    _netServer = server;
                     break;
             }
             _matchDelegateFactory = new NetworkMatchDelegateFactory();
