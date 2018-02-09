@@ -811,12 +811,7 @@ namespace SocialPoint.Login
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("OnLogin - login\n----\n" + resp + "----\n");
-            if(_loginConnection != null)
-            {
-                _loginConnection.Release();
-                _loginConnection.Cancel();
-                _loginConnection = null;
-            }
+            _loginConnection = null;
 
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
