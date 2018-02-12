@@ -159,6 +159,10 @@
     {
         [super application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
     }
+    else
+    {
+        completionHandler();
+    }
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
