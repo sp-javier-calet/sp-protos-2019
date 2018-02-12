@@ -98,4 +98,11 @@ MonoBehaviour:
     TcpSocket:
       Config:
         ServerAddress: 127.0.0.1
+        ServerPort: 7777
+    UdpSocket:
+      Config:
+        ServerAddress: 127.0.0.1
         ServerPort: 8888
+        PeerLimit: 100
+        ConnectionKey: TestConnectionKey
+        UpdateTime: 10

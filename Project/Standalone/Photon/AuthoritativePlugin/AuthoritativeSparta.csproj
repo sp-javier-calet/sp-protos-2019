@@ -72,9 +72,6 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkBehaviourContainer.cs">
       <Link>Multiplayer\NetworkBehaviourContainer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
-      <Link>Network\NetworkClientSceneController.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkGameObject.cs">
       <Link>Multiplayer\NetworkGameObject.cs</Link>
     </Compile>
@@ -813,6 +810,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsWriter.cs">
+      <Link>Network\NetworkStatsWriter.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
@@ -917,6 +917,9 @@
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Pooling\ObjectPool.cs">
       <Link>Pooling\ObjectPool.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Pooling\IRecyclable.cs">
+      <Link>Pooling\IRecyclable.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
       <Link>Multiplayer\NetworkActionProcessor.cs</Link>

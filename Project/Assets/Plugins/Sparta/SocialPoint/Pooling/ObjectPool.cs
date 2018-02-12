@@ -1,129 +1,259 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Pooling
 {
-    public class ObjectPool
+    public class ObjectPool : IDisposable
     {
-        Dictionary<Type, object> poolDictionary = new Dictionary<Type, object>();
-        Dictionary<int, object> idPoolDictionary = new Dictionary<int, object>();
+        Dictionary<Type, Stack<object>> _types = new Dictionary<Type, Stack<object>>();
+        Dictionary<int, Stack<object>> _ids = new Dictionary<int, Stack<object>>();
+        Func<Type, object> _createDelegate;
 
-        #region typepool
-        public T Get<T>(Func<T> fallback = null)
-        {
-            var objType = typeof(T);
-            object pooledObjects = null;
-
-            if(poolDictionary.TryGetValue(objType, out pooledObjects))
-            {
-                var pooledObjectsCasted = (Stack<T>)pooledObjects;
-                if(pooledObjectsCasted.Count > 0)
-                {
-                    return pooledObjectsCasted.Pop();
-                }
-            }
-
-            return fallback != null ? fallback() : (T)CreateInstance(objType);
-        }
-
-        public void Return<T>(T obj)
-        {
-            DoReturnByType(obj);
-        }
-
-        public void Return<T>(List<T> list)
-        {
-            list.Clear();
-            DoReturnByType(list);
-        }
-
-        void DoReturnByType<T>(T obj)
+        void OnSpawned(object obj)
         {
             if(obj == null)
             {
                 return;
             }
-
-            var objType = typeof(T);
-            object pooledObjects = null;
-            Stack<T> pooledObjectsCasted = null;
-
-            if(!poolDictionary.TryGetValue(objType, out pooledObjects))
+            var recycleObj = obj as IRecyclable;
+            if(recycleObj != null)
             {
-                pooledObjectsCasted = new Stack<T>();
-                poolDictionary.Add(objType, pooledObjectsCasted);
+                recycleObj.OnSpawn();
             }
-            else
-            {
-                pooledObjectsCasted = (Stack<T>)pooledObjects;
-            }
-
-            pooledObjectsCasted.Push(obj);
         }
+
+        void OnRecycled(object obj)
+        {
+            if(obj == null)
+            {
+                return;
+            }
+            var recycle = obj as IRecyclable;
+            if(recycle != null)
+            {
+                recycle.OnRecycle();
+            }
+            var list = obj as IList;
+            if(list != null)
+            {
+                list.Clear();
+            }
+            var dict = obj as IDictionary;
+            if(dict != null)
+            {
+                dict.Clear();
+            }
+        }
+
+        void OnDisposed(object obj)
+        {
+            var dispose = obj as IDisposable;
+            if(dispose != null)
+            {
+                dispose.Dispose();
+            }
+        }
+
+        #region typepool
+
+        public T Get<T>() where T : class, new()
+        {
+            var obj = DoGet<T>();
+            if(obj == null)
+            {
+                obj = CreateInstance<T>();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T Get<T>(Func<T> fallback) where T : class
+        {
+            var obj = DoGet<T>();
+            if(obj == null && fallback != null)
+            {
+                obj = fallback();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T TryGet<T>() where T : class
+        {
+            var obj = DoGet<T>();
+            OnSpawned(obj);
+            return obj;
+        }
+
+        T DoGet<T>() where T : class
+        {
+            var objType = typeof(T);
+            Stack<object> pooledObjects = null;
+            T obj = null;
+            if(_types != null && _types.TryGetValue(objType, out pooledObjects))
+            {
+                if(pooledObjects.Count > 0)
+                {
+                    obj = (T)pooledObjects.Pop();
+                }
+            }
+            return obj;
+        }
+
+        public void Return(object obj)
+        {
+            if(obj == null || _types == null)
+            {
+                return;
+            }
+
+            var objType = obj.GetType();
+            Stack<object> pooledObjects = null;
+
+            if(!_types.TryGetValue(objType, out pooledObjects))
+            {
+                pooledObjects = new Stack<object>();
+                _types.Add(objType, pooledObjects);
+            }
+            OnRecycled(obj);
+            pooledObjects.Push(obj);
+        }
+
         #endregion typepool
 
         #region idpool
-        public T Get<T>(int id, Func<T> fallback = null)
-        {
-            var objType = typeof(T);
-            object pooledObjects = null;
 
-            if(idPoolDictionary.TryGetValue(id, out pooledObjects))
+        public T Get<T>(int id) where T : class, new()
+        {
+            T obj = DoGet<T>(id);
+            if(obj == null)
             {
-                var pooledObjectsCasted = (Stack<T>)pooledObjects;
-                if(pooledObjectsCasted.Count > 0)
+                obj = CreateInstance<T>();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T Get<T>(int id, Func<T> fallback) where T : class
+        {
+            T obj = DoGet<T>(id);
+            if(obj == null && fallback != null)
+            {
+                obj = fallback();
+            }
+            OnSpawned(obj);
+            return obj;
+        }
+
+        public T TryGet<T>(int id) where T : class
+        {
+            T obj = DoGet<T>(id);
+            OnSpawned(obj);
+            return obj;
+        }
+
+        T DoGet<T>(int id) where T : class
+        {
+            Stack<object> pooledObjects = null;
+            T obj = null;
+            if(_ids != null && _ids.TryGetValue(id, out pooledObjects))
+            {
+                if(pooledObjects.Count > 0)
                 {
-                    return pooledObjectsCasted.Pop();
+                    obj = (T)pooledObjects.Pop();
                 }
             }
-
-            return fallback != null ? fallback() : (T)CreateInstance(objType);
+            return obj;
         }
 
-        public void Return<T>(int id, List<T> list)
-        {
-            list.Clear();
-            DoReturnById(id, list);
-        }
 
-        public void Return<T>(int id, T obj)
+        public void Return(int id, object obj)
         {
-            DoReturnById(id, obj);
-        }
-
-        void DoReturnById<T>(int id, T obj)
-        {
-            if(obj == null)
+            if(obj == null || _ids == null)
             {
                 return;
             }
 
-            object pooledObjects = null;
-            Stack<T> pooledObjectsCasted = null;
+            Stack<object> pooledObjects = null;
 
-            if(!idPoolDictionary.TryGetValue(id, out pooledObjects))
+            if(!_ids.TryGetValue(id, out pooledObjects))
             {
-                pooledObjectsCasted = new Stack<T>();
-                idPoolDictionary.Add(id, pooledObjectsCasted);
+                pooledObjects = new Stack<object>();
+                _ids.Add(id, pooledObjects);
             }
-            else
-            {
-                pooledObjectsCasted = (Stack<T>)pooledObjects;
-            }
-
-            pooledObjectsCasted.Push(obj);
+            OnRecycled(obj);
+            pooledObjects.Push(obj);
         }
+
         #endregion idpool
 
-        object CreateInstance(Type t)
+        public void RegisterCreationDelegate(Func<Type, object> dlg)
         {
-            return Activator.CreateInstance(t);
+            _createDelegate = dlg;
+        }
+
+        T CreateInstance<T>() where T : class
+        {
+            var type = typeof(T);
+            T obj = null;
+            if(obj == null && _createDelegate != null)
+            {
+                obj = _createDelegate(type) as T;
+            }
+            if(obj == null)
+            {
+                obj = Activator.CreateInstance(typeof(T)) as T;
+            }
+            return obj;
+        }
+
+        public void Dispose()
+        {
+            Clear();
+        }
+
+        void OnStackDisposed(Stack<Object> stack)
+        {
+            var itr = stack.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                OnDisposed(itr.Current);
+            }
+            itr.Dispose();
         }
 
         public void Clear()
         {
-            poolDictionary.Clear();
-            idPoolDictionary.Clear();
+            {
+                var types = _types;
+                _types = null;
+                if(types != null)
+                {
+                    var itr = types.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        OnStackDisposed(itr.Current.Value);
+                    }
+                    itr.Dispose();
+                    types.Clear();
+                }
+            }
+            {
+                var ids = _ids;
+                _ids = null;
+                if(ids != null)
+                {
+                    var itr = ids.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        OnStackDisposed(itr.Current.Value);
+                    }
+                    itr.Dispose();
+                    ids.Clear();
+                }
+            }
         }
     }
 }

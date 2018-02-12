@@ -5,14 +5,12 @@
 //
 //
 
-#import <SPUnityPlugins/SPUnitySubController.h>
-
 #import "UnityAppController.h"
 #import "AppsFlyerTracker.h"
 #import "AppsFlyerDelegate.h"
 #import "AppDelegateListener.h"
 
-@interface AppsFlyerAppController : SPUnitySubController <AppDelegateListener>
+@interface AppsFlyerAppController : UnityAppController <AppDelegateListener>
 {
     BOOL didEnteredBackGround;
 }
@@ -48,20 +46,20 @@
     NSLog(@"got onOpenURL = %@", notification.userInfo);
     NSURL *url = notification.userInfo[@"url"];
     NSString *sourceApplication = notification.userInfo[@"sourceApplication"];
-    
+
     if (sourceApplication == nil) {
         sourceApplication = @"";
     }
-    
+
     if (url != nil) {
         [[AppsFlyerTracker sharedTracker] handleOpenURL:url sourceApplication:sourceApplication withAnnotation:nil];
     }
-    
+
 }
 
 - (void)didReceiveRemoteNotification:(NSNotification*)notification {
     NSLog(@"got didReceiveRemoteNotification = %@", notification.userInfo);
-    
+
     //We don't want to enable Tracking App Launches from push notifications
     //[[AppsFlyerTracker sharedTracker] handlePushNotification:notification.userInfo];
 }
@@ -76,23 +74,23 @@
 }
 
 -(void)didBecomeActive:(NSNotification*)notification {
-    
+
     NSLog(@"got didBecomeActive(out) = %@", notification.userInfo);
     if (didEnteredBackGround == YES) {
         NSLog(@"got didBecomeActive = %@", notification.userInfo);
-        
+
         //We don't want to Track App Launches every time we come from background, nor risk this being called before login
         //[[AppsFlyerTracker sharedTracker] trackAppLaunch];
-        
+
         didEnteredBackGround = NO;
-        
+
     }
 
 }
 
 - (void)willResignActive:(NSNotification*)notification {
     NSLog(@"got willResignActive = %@", notification.userInfo);
-    
+
 }
 
 - (void)didEnterBackground:(NSNotification*)notification {
@@ -102,12 +100,12 @@
 
 - (void)willEnterForeground:(NSNotification*)notification {
     NSLog(@"got willEnterForeground = %@", notification.userInfo);
-    
+
 }
 
 - (void)willTerminate:(NSNotification*)notification {
     NSLog(@"got willTerminate = %@", notification.userInfo);
-   
+
 }
 
 @end

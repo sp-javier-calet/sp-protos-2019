@@ -1,12 +1,8 @@
-//
-//  HsUnityAppController.m
-//
-#import <SPUnityPlugins/SPUnitySubController.h>
 
+#import <SPUnityPlugins/SPAppControllerDelegate.h>
 #import <Foundation/Foundation.h>
 #import "HelpshiftCore.h"
 #import "HelpshiftSupport.h"
-#import "UnityAppController.h"
 #import "Helpshift.h"
 #import "HelpshiftAll.h"
 
@@ -75,7 +71,8 @@
 
     [configDictionary removeObjectsForKeys:@[@"__hs__apiKey", @"__hs__appId", @"__hs__domainName"]];
 
-    [Helpshift installForApiKey:apiKey domainName:domainName appID:appId withOptions:configDictionary];
+    [HelpshiftCore initializeWithProvider:[HelpshiftAll sharedInstance]];
+    [HelpshiftCore installForApiKey:apiKey domainName:domainName appID:appId withOptions:configDictionary];
 }
 
 + (BOOL) installDefault {
@@ -91,13 +88,13 @@
 
 
 
-@interface HsUnityAppController : SPUnitySubController
+@interface SPHelpshiftAppController : NSObject<SPAppControllerDelegate>
 
 @end
 
-@implementation HsUnityAppController : SPUnitySubController
+@implementation SPHelpshiftAppController
 
-- (BOOL) application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (void) application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     /*
      Starting Unity 2.3.0 release onwards, the Helpshift install call through scripts is deprecated for both
@@ -121,68 +118,40 @@
         // domain name are set correctly in the default config. Otherwise you can initialize Helpshift with custom
         // configuration by uncommenting the code below.
 
-        NSDictionary *installConfig = @{}; //Set your custom configuration
+        // NSDictionary *installConfig = @{}; //Set your custom configuration
 
         // [HelpshiftCore initializeWithProvider:[HelpshiftAll sharedInstance]];
         // [HelpshiftCore installForApiKey:@"<your_api_key>" domainName:@"<your_domain_name>.helpshift.com" appID:@"<your_app_id>" withOptions:installConfig];
     }
-
-    return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
-- (void) application:(UIApplication *)app didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [super application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-
+- (void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Helpshift::register device token with Helpshift for Push Notification. Please make sure you've initialized Helpshift
     // in Obj-C
     [HelpshiftCore registerDeviceToken:deviceToken];
 }
 
-- (void) application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
-    if (![HelpshiftCore handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler]) {
-        // Handle events for background url session. Once you have implemented this function in UnityAppController, uncomment
-        // the code below and comment the call completionHandler();
-
-        //[super application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
-        completionHandler();
-    }
+- (BOOL) application:application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
+    return [HelpshiftCore handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
 }
 
 - (void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    if (![HelpshiftCore handleRemoteNotification:userInfo withController:[UIApplication sharedApplication].keyWindow.rootViewController]) {
-        [super application:application didReceiveRemoteNotification:userInfo];
-    }
+    [HelpshiftCore handleRemoteNotification:userInfo withController:application.keyWindow.rootViewController];
 }
 
 - (void) application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    if (![HelpshiftCore handleLocalNotification:notification withController:[UIApplication sharedApplication].keyWindow.rootViewController]) {
-        [super application:application didReceiveLocalNotification:notification];
-    }
+    [HelpshiftCore handleLocalNotification:notification withController:application.keyWindow.rootViewController];
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-
-    if (![HelpshiftCore handleInteractiveRemoteNotification:userInfo forAction:identifier completionHandler:completionHandler]) {
-
-        // Handle action with identifier. Once you have implemented this function in UnityAppController, uncomment
-        // the code below and comment the call completionHandler();
-
-        //[super application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-        completionHandler();
-    }
+- (BOOL) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+    return [HelpshiftCore handleInteractiveRemoteNotification:userInfo forAction:identifier completionHandler:completionHandler];
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
-    if(![HelpshiftCore handleInteractiveLocalNotification:notification forAction:identifier completionHandler:completionHandler]) {
-        // Handle action with identifier. Once you have implemented this function in UnityAppController, uncomment
-        // the code below and comment the call completionHandler();
-
-        //[super application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-        completionHandler();
-    }
+- (BOOL) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+    return [HelpshiftCore handleInteractiveLocalNotification:notification forAction:identifier completionHandler:completionHandler];
 }
 
-- (BOOL) application:(UIApplication *)application openURL:(nonnull NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(nonnull id)annotation {
+- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     if([[url host] isEqualToString:@"helpshift"]) {
         NSArray *components = [[url path] componentsSeparatedByString:@"/"];
         if([components count] == 3) {
@@ -192,13 +161,9 @@
                 [HelpshiftSupport showSingleFAQ:[components objectAtIndex:2] withController:[UIApplication sharedApplication].keyWindow.rootViewController withOptions:@{}];
             }
         }
-        return true;
+        return TRUE;
     }
-    return [super application:application
-                      openURL:url
-            sourceApplication:sourceApplication
-                   annotation:annotation];
+    return FALSE;
 }
 
 @end
-

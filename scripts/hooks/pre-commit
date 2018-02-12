@@ -17,6 +17,13 @@ find $REPO_PATH -name '*.orig*' -type f -delete
 find $REPO_PATH -name '*.DS_Store' -type f -delete
 find $REPO_PATH -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
 
+# Check files with conflicts
+python -B $REPO_PATH/scripts/hooks/check-merge-conflicts.py
+if [ $? -ne 0 ]
+then
+  echo "Commit files contain merge conflicts!"
+  exit 1
+fi
 
 OS="`uname`"
 if [ $OS == "Darwin" ];

@@ -11,19 +11,19 @@ namespace SocialPoint.Network
     {
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;
-        string _serverAddr;
-        int _serverPort;
         TcpClient _client;
         bool _connecting;
         bool _connected;
         IUpdateScheduler _scheduler;
         List<NetworkStream> _stream;
         TcpSocketMessageReader _socketMessageReader;
+        string _serverAddress;
+        int _serverPort;
 
         public TcpSocketNetworkClient(IUpdateScheduler scheduler, string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
         {
             _scheduler = scheduler;
-            _serverAddr = serverAddr;
+            _serverAddress = serverAddr;
             _serverPort = serverPort;
             _client = new TcpClient();
         }
@@ -32,14 +32,13 @@ namespace SocialPoint.Network
         {
             _connecting = true;
             _scheduler.Add(this);
-            _client.Connect(_serverAddr, _serverPort);
+            _client.Connect(_serverAddress, _serverPort);
             _stream = new List<NetworkStream>();
             _stream.Add(_client.GetStream());
         }
 
         public void Disconnect()
         {
-            _client.Close();
             OnDisconnected();
         }
 
@@ -164,6 +163,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnClientDisconnected();
             }
+            _client.Close();
             _socketMessageReader.MessageReceived -= OnServerMessageReceived;
             _scheduler.Remove(this);
         }
@@ -174,7 +174,6 @@ namespace SocialPoint.Network
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
-            _stream.Clear();
             _stream = null;
         }
     }

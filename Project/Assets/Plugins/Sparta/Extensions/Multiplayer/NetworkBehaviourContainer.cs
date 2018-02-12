@@ -731,9 +731,11 @@ namespace SocialPoint.Multiplayer
     {
         TypedDiffReadParser<Behaviour> _behaviourParser;
         MemoryStream _memStream = new MemoryStream(64 * 1024);
+        Action<Exception> _handleException;
 
-        public NetworkBehaviourContainerParser()
+        public NetworkBehaviourContainerParser(Action<Exception> handleException = null)
         {
+            _handleException = handleException;
             _behaviourParser = new TypedDiffReadParser<Behaviour>();
         }
 
@@ -760,11 +762,20 @@ namespace SocialPoint.Multiplayer
                 _memStream.Write(bytes, 0, bytes.Length);
                 _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
-                Behaviour behaviour;
-                if(_behaviourParser.TryParse(code, memReader, out behaviour))
+
+                try
                 {
-                    obj.Add(behaviour);
+                    Behaviour behaviour;
+                    if(_behaviourParser.TryParse(code, memReader, out behaviour))
+                    {
+                        obj.Add(behaviour);
+                    }
                 }
+                catch(Exception e)
+                {
+                    ReportHandledException(e, code);
+                }
+
                 _memStream.Seek(0, SeekOrigin.Begin);
             }
 
@@ -788,22 +799,30 @@ namespace SocialPoint.Multiplayer
                 _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
 
-                Behaviour behaviour;
-                if(isDiff)
+                try
                 {
-                    int index = obj.SerializersCodes.IndexOf(code);
-                    if(index != -1)
+                    Behaviour behaviour;
+                    if(isDiff)
                     {
-                        _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
+                        int index = obj.SerializersCodes.IndexOf(code);
+                        if(index != -1)
+                        {
+                            _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
+                        }
+                    }
+                    else
+                    {
+                        if(_behaviourParser.TryParse(code, memReader, out behaviour))
+                        {
+                            obj.Add(behaviour);
+                        }
                     }
                 }
-                else
+                catch(Exception e)
                 {
-                    if(_behaviourParser.TryParse(code, memReader, out behaviour))
-                    {
-                        obj.Add(behaviour);
-                    }
+                    ReportHandledException(e, code);
                 }
+
                 _memStream.Seek(0, SeekOrigin.Begin);
             }
            
@@ -819,6 +838,24 @@ namespace SocialPoint.Multiplayer
             }
 
             return obj;
+        }
+
+        void ReportHandledException(Exception e, byte code)
+        {
+            string errorMessage = "Failed parsing the behaviour with code: " + code.ToString();
+
+            Base.Log.e(errorMessage + " due to exception: " + e.ToString());
+
+            var newException = new Exception(errorMessage, e);
+
+            if(_handleException == null)
+            {
+                throw newException;
+            }
+            else
+            {
+                _handleException(newException);
+            }
         }
     }
 }
