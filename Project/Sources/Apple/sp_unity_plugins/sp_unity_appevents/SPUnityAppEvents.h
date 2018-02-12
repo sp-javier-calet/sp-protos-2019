@@ -9,10 +9,10 @@
 #ifndef __SPUnityAppEvents__
 #define __SPUnityAppEvents__
 
-#import "SPUnitySubController.h"
+#import "SPAppControllerDelegate.h"
 
 
-@interface SPUnityAppEvents : SPUnitySubController
+@interface SPUnityAppEvents : NSObject<SPAppControllerDelegate>
 @end
 
 #endif /* __SPUnityAppEvents__ */
