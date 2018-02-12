@@ -2,6 +2,7 @@
 using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Crash;
 using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
@@ -72,6 +73,7 @@ namespace SocialPoint.Multiplayer
             UnityNetworkClientSceneController networkClient = new UnityNetworkClientSceneController(
                                                                   Container.Resolve<INetworkClient>(),
                                                                   Container.Resolve<NetworkSceneContext>());
+            networkClient.HandleException += Container.Resolve<ICrashReporter>().ReportHandledException;
             return networkClient;
         }
 

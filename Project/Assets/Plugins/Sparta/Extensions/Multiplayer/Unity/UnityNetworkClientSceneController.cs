@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using SocialPoint.Network;
+using SocialPoint.Crash;
 
 namespace SocialPoint.Multiplayer
 {

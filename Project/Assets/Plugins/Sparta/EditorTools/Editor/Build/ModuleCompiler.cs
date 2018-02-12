@@ -507,7 +507,7 @@ namespace SpartaTools.Editor.Build
             for(int i = 0, activeCompilationDefinesLength = activeCompilationDefines.Length; i < activeCompilationDefinesLength; i++)
             {
                 var item = activeCompilationDefines[i];
-                if(item.StartsWith("UNITY_5"))
+                if(item.StartsWith("UNITY_5") || item.StartsWith("UNITY_20"))
                 {
                     compiler.AddDefinedSymbol(item);
                 }
