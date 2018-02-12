@@ -72,9 +72,6 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkBehaviourContainer.cs">
       <Link>Multiplayer\NetworkBehaviourContainer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
-      <Link>Network\NetworkClientSceneController.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkGameObject.cs">
       <Link>Multiplayer\NetworkGameObject.cs</Link>
     </Compile>

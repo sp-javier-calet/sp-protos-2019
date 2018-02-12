@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.Crash;
 
 namespace SocialPoint.Multiplayer
 {
@@ -14,6 +15,8 @@ namespace SocialPoint.Multiplayer
         NetworkScene _clientScene;
         INetworkMessageReceiver _receiver;
         NetworkSceneParser _parser;
+
+        public event Action<Exception> HandleException;
 
         Dictionary<int, object> _pendingActions;
         int _lastAppliedAction;
@@ -109,7 +112,7 @@ namespace SocialPoint.Multiplayer
 
             _clientScene = new NetworkScene(Context);
             _scene = (NetworkScene)_clientScene.Clone();
-            _parser = new NetworkSceneParser(Context);
+            _parser = new NetworkSceneParser(Context, null, HandleException);
             _pendingActions = new Dictionary<int, object>();
             _pendingGameObjectAdded = new List<NetworkGameObject>();
 

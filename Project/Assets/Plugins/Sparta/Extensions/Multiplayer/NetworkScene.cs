@@ -329,24 +329,27 @@ namespace SocialPoint.Multiplayer
 
         public virtual bool RemoveObject(int id)
         {
-            var go = FindObject(id);
-            bool removed = false;
-            if(go != null)
+            return RemoveObject(FindObject(id));
+        }
+
+        bool RemoveObject(NetworkGameObject go)
+        {
+            if(go == null)
             {
-                _objects.Remove(id);
-                SyncObjects.Remove(id);
-                go.Invalidate();
-                if(OnObjectRemoved != null)
-                {
-                    OnObjectRemoved(go);
-                }
-                removed = true;
+                return false;
             }
 
-            if(!removed)
+            if(!_objects.Remove(go.Id))
             {
-                //TODO: Find a way to reuse ids?
                 return false;
+            }
+
+            SyncObjects.Remove(go.Id);
+            go.Invalidate();
+
+            if(OnObjectRemoved != null)
+            {
+                OnObjectRemoved(go);
             }
 
             var tmp = Context.Pool.Get<List<INetworkSceneBehaviour>>();
@@ -358,11 +361,11 @@ namespace SocialPoint.Multiplayer
                 {
                     continue;
                 }
-
-                current.OnDestroyObject(id);
+                current.OnDestroyObject(go.Id);
             }
-            Context.Pool.Return(tmp);
             itr.Dispose();
+            Context.Pool.Return(tmp);
+
             return true;
         }
 
@@ -611,46 +614,62 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, Bitset dirty)
         {
-            var syncObjects = newScene.SyncObjects;
+            var objectsToCreate = newScene.Context.Pool.Get<List<NetworkGameObject>>();
+            var objectsToUpdateNew = newScene.Context.Pool.Get<List<NetworkGameObject>>();
+            var objectsToUpdateOld = newScene.Context.Pool.Get<List<NetworkGameObject>>();
+            var objectsToRemove = newScene.Context.Pool.Get<List<NetworkGameObject>>();
 
-            // write changes
-            writer.Write(syncObjects.Values.Count);
-            var itr = syncObjects.Values.GetEnumerator();
-            while(itr.MoveNext())
+            objectsToCreate.Clear();
+            objectsToUpdateNew.Clear();
+            objectsToUpdateOld.Clear();
+            objectsToRemove.Clear();
+
+            foreach(var go in newScene.SyncObjects.Values)
             {
-                var go = itr.Current;
-                writer.Write(go.Id);
                 var oldGo = oldScene.FindObject(go.Id);
                 if(oldGo == null)
                 {
-                    _objectSerializer.Serialize(go, writer);
+                    objectsToCreate.Add(go);
                 }
                 else
                 {
-                    _objectSerializer.Serialize(go, oldGo, writer);
+                    objectsToUpdateNew.Add(go);
+                    objectsToUpdateOld.Add(oldGo);
                 }
             }
-            itr.Dispose();
-
-            // remove objects
-            var tmp = newScene.Context.Pool.Get<List<NetworkGameObject>>();
-            tmp.Clear();
-            var itrOldScene = oldScene.GetSyncObjectEnumerator(tmp);
-            var removed = new List<int>();
-            while(itrOldScene.MoveNext())
+            foreach(var oldGo in oldScene.SyncObjects.Values)
             {
-                var go = itrOldScene.Current;
-                if(newScene.FindObject(go.Id) == null)
+                if(!objectsToUpdateNew.Exists(go => go.Id == oldGo.Id))
                 {
-                    removed.Add(go.Id);
+                    objectsToRemove.Add(oldGo);
                 }
             }
-            itrOldScene.Dispose();
-            writer.Write(removed.Count);
-            for(var i = 0; i < removed.Count; i++)
+
+            writer.Write(objectsToCreate.Count);
+            foreach(var go in objectsToCreate)
             {
-                writer.Write(removed[i]);
+                _objectSerializer.Serialize(go, writer);
             }
+
+            writer.Write(objectsToUpdateNew.Count);
+            var i = 0;
+            foreach(var go in objectsToUpdateNew)
+            {
+                writer.Write(go.Id);
+                _objectSerializer.Serialize(go, objectsToUpdateOld[i++], writer);
+            }
+
+            writer.Write(objectsToRemove.Count);
+            foreach(var go in objectsToRemove)
+            {
+                writer.Write(go.Id);
+            }
+
+            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToCreate);
+            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateNew);
+            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateOld);
+            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToRemove);
+
             _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
     }
@@ -658,6 +677,8 @@ namespace SocialPoint.Multiplayer
     public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
         NetworkSceneContext _context = null;
+
+        NetworkGameObject _fakeGameObject;
 
         public NetworkSceneContext Context
         {
@@ -675,11 +696,12 @@ namespace SocialPoint.Multiplayer
         readonly NetworkBehaviourContainerParser<INetworkSceneBehaviour> _behaviourParser;
         readonly NetworkGameObjectParser _objectParser;
 
-        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null)
+        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null, Action<Exception> handleException = null)
         {
             Context = context;
-            _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject);
-            _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>();
+            _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject, handleException);
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>(handleException);
+            _fakeGameObject = CreateObject(1, 0);
         }
     
         public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
@@ -725,33 +747,47 @@ namespace SocialPoint.Multiplayer
             return scene;
         }
 
-
         public NetworkScene Parse(NetworkScene scene, IReader reader, Bitset dirty)
         {
-            var c = reader.ReadInt32();
-            for(var i = 0; i < c; i++)
+            var objectsToCreateCount = reader.ReadInt32();
+            for(var i = 0; i < objectsToCreateCount; i++)
+            {
+                var go = _objectParser.Parse(reader);
+                var oldGo = scene.FindObject(go.Id);
+                if(oldGo != null)
+                {
+                    Base.Log.w("Trying to add game object " + go.Id + " which was already in the scene. Replacing the old game object by the new one.");
+                    scene.RemoveObject(oldGo.Id);
+                }
+                scene.AddObject(go);
+            }
+
+            var objectsToUpdateCount = reader.ReadInt32();
+            for(var i = 0; i < objectsToUpdateCount; i++)
             {
                 var id = reader.ReadInt32();
                 var go = scene.FindObject(id);
                 if(go == null)
                 {
-                    go = _objectParser.Parse(reader);
-                    scene.AddObject(go);
+                    Base.Log.w("Trying to update game object " + id + " not present in the scene. Ignoring update data.");
+                    // Parse object to skipp its update data.
+                    _objectParser.Parse(_fakeGameObject, reader);
+                    continue;
                 }
-                else
-                {
-                    _objectParser.Parse(go, reader);
-                }
+                _objectParser.Parse(go, reader);
             }
-            c = reader.ReadInt32();
-            for(var i = 0; i < c; i++)
+
+            var objectsToRemoveCount = reader.ReadInt32();
+            for(var i = 0; i < objectsToRemoveCount; i++)
             {
                 var id = reader.ReadInt32();
                 scene.RemoveObject(id);
             }
 
             _behaviourParser.Parse(scene.TypedBehaviours, reader);
+
             scene.Context = Context;
+
             return scene;
         }
     }
