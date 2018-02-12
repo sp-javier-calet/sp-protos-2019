@@ -11,6 +11,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cac17465508f4606854288da484abf1, type: 3}
   m_Name: MultiplayerInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 1
+  _isGlobal: 0
   Settings:
     MultiplayerParentTag: MultiplayerParent
+    ServerBufferSize: 0
+    SyncGroupsSettings:
+    - SyncInterval: 0.3
+    - SyncInterval: 0.1
+    - SyncInterval: 0.05
