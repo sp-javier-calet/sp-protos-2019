@@ -13,9 +13,14 @@
 
         INetworkClient INetworkClientFactory.Create()
         {
-            return new LocalNetworkClient(_serverFactory.Server as ILocalNetworkServer);
+            return Create();
         }
 
         #endregion
+
+        public LocalNetworkClient Create()
+        {
+            return new LocalNetworkClient(_serverFactory.Server);
+        }
     }
 }

@@ -19,14 +19,18 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
-            var client = _transform.gameObject.AddComponent<PhotonNetworkClient>();
+            return Create();
+        }
 
+        #endregion
+
+        public PhotonNetworkClient Create()
+        {
+            var client = _transform.gameObject.AddComponent<PhotonNetworkClient>();
             SetupClient(client);
 
             return client;
         }
-
-        #endregion
 
         void SetupClient(PhotonNetworkClient client)
         {

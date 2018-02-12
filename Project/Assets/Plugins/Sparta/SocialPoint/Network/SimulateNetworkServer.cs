@@ -136,8 +136,9 @@ namespace SocialPoint.Network
 
         #endregion
 
-        void IDisposable.Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             Stop();
             _server.RemoveDelegate(this);
             _delegates.Clear();

@@ -22,13 +22,18 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
+            return Create();
+        }
+
+        #endregion
+
+        public SimulateNetworkClient Create()
+        {
             var client = new SimulateNetworkClient(_clientFactory.Create(), _updateScheduler);
             SetupClient(client);
 
             return client;
         }
-
-        #endregion
 
         void SetupClient(SimulateNetworkClient client)
         {

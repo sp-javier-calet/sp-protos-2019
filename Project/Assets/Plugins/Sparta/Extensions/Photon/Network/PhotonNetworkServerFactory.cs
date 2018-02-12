@@ -21,14 +21,18 @@ namespace SocialPoint.Network
 
         INetworkServer INetworkServerFactory.Create()
         {
-            var server = _transform.gameObject.AddComponent<PhotonNetworkServer>();
+            return Create();
+        }
 
+        #endregion
+
+        public PhotonNetworkServer Create()
+        {
+            var server = _transform.gameObject.AddComponent<PhotonNetworkServer>();
             SetupServer(server);
 
             return server;
         }
-
-        #endregion
 
         void SetupServer(PhotonNetworkServer server)
         {

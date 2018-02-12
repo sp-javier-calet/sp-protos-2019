@@ -20,13 +20,18 @@ namespace SocialPoint.Network
 
         INetworkServer INetworkServerFactory.Create()
         {
+            return Create();
+        }
+
+        #endregion
+
+        public UnetNetworkServer Create()
+        {
             var server = new UnetNetworkServer(_updateScheduler, _settings.Config.ServerPort);
             SetupServer(server);
 
             return server;
         }
-
-        #endregion
 
         void SetupServer(INetworkServer server)
         {

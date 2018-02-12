@@ -421,7 +421,6 @@ namespace Examples.Lockstep
             }
             if(_netServer != null)
             {
-                _netServer.RemoveDelegate(this);
                 _netServer.Dispose();
                 _netServer = null;
             }

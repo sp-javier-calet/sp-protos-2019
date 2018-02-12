@@ -6,24 +6,18 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
-    public sealed class SimulateNetworkClient : SimulateNetworkBase, INetworkClient, INetworkClientDelegate, IDisposable
+    public sealed class SimulateNetworkClient : SimulateNetworkBase, INetworkClient, INetworkClientDelegate
     {
         INetworkClient _client;
         List<INetworkClientDelegate> _delegates;
-        IUpdateScheduler _scheduler;
 
         public SimulateNetworkClient(INetworkClient client, IUpdateScheduler scheduler = null) :
-            base(client)
+            base(client, scheduler)
         {
             _delegates = new List<INetworkClientDelegate>();
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
-            _scheduler = scheduler;
-            if(_scheduler != null)
-            {
-                _scheduler.Add(this);
-            }
         }
 
         public SimulateNetworkClient(LocalNetworkServer server, IUpdateScheduler scheduler = null) :
@@ -122,18 +116,6 @@ namespace SocialPoint.Network
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMessageReceived(data);
-            }
-        }
-
-        #endregion
-
-        #region IDisposable implementation
-
-        void IDisposable.Dispose()
-        {
-            if(_scheduler != null)
-            {
-                _scheduler.Remove(this);
             }
         }
 

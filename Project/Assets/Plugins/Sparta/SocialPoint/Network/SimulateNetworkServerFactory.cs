@@ -19,13 +19,18 @@ namespace SocialPoint.Network
 
         INetworkServer INetworkServerFactory.Create()
         {
+            return Create();
+        }
+
+        #endregion
+
+        public SimulateNetworkServer Create()
+        {
             var server = new SimulateNetworkServer(_serverFactory.Create());
             SetupServer(server);
 
             return server;
         }
-
-        #endregion
 
         void SetupServer(SimulateNetworkServer server)
         {

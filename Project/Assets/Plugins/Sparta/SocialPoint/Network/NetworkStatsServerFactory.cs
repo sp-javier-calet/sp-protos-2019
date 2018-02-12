@@ -17,12 +17,14 @@ namespace SocialPoint.Network
 
         INetworkServer INetworkServerFactory.Create()
         {
-            return new NetworkStatsServer(
-                _serverFactory.Create(),
-                _updateScheduler
-            );
+            return Create();
         }
 
         #endregion
+
+        public NetworkStatsServer Create()
+        {
+            return new NetworkStatsServer(_serverFactory.Create(), _updateScheduler);
+        }
     }
 }

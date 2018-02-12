@@ -20,14 +20,19 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
+            return Create();
+        }
+
+        #endregion
+
+        public TcpSocketNetworkClient Create()
+        {
             var client = new TcpSocketNetworkClient(_updateScheduler,
                 _settings.Config.ServerAddress, _settings.Config.ServerPort);
             SetupClient(client);
 
             return client;
         }
-
-        #endregion
 
         void SetupClient(INetworkClient client)
         {

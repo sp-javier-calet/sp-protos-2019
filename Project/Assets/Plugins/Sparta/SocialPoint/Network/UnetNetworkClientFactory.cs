@@ -16,13 +16,18 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
+            return Create();
+        }
+
+        #endregion
+
+        public UnetNetworkClient Create()
+        {
             var client = new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort);
             SetupClient(client);
 
             return client;
         }
-
-        #endregion
 
         void SetupClient(INetworkClient client)
         {

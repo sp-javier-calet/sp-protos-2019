@@ -19,16 +19,18 @@ namespace SocialPoint.Network
 
         INetworkClient INetworkClientFactory.Create()
         {
-            var client = new NetworkStatsClient(
-                _clientFactory.Create(),
-                _updateScheduler
-            );
+            return Create();
+        }
+
+        #endregion
+
+        public NetworkStatsClient Create()
+        {
+            var client = new NetworkStatsClient(_clientFactory.Create(), _updateScheduler);
             client.PingInterval = _settings.PingInterval;
 
             return client;
         }
-
-        #endregion
     }
 }
 
