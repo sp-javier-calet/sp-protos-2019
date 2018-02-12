@@ -810,6 +810,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsWriter.cs">
+      <Link>Network\NetworkStatsWriter.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
