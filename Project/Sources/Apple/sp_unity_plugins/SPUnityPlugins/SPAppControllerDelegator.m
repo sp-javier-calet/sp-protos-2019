@@ -13,7 +13,6 @@
     self = [super init];
     if(self != nil)
     {
-        self.enabled = TRUE;
         _delegates = [[NSMutableArray alloc] init];
     }
     return self;
@@ -66,100 +65,79 @@
 
 - (void)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)])
         {
-            if([delegate respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)])
-            {
-                [delegate application:application didFinishLaunchingWithOptions:launchOptions];
-            }
+            [delegate application:application didFinishLaunchingWithOptions:launchOptions];
         }
     }
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationWillResignActive:)])
         {
-            if([delegate respondsToSelector:@selector(applicationWillResignActive:)])
-            {
-                [delegate applicationWillResignActive:application];
-            }
+            [delegate applicationWillResignActive:application];
         }
     }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationDidBecomeActive:)])
         {
-            if([delegate respondsToSelector:@selector(applicationDidBecomeActive:)])
-            {
-                [delegate applicationDidBecomeActive:application];
-            }
+            [delegate applicationDidBecomeActive:application];
         }
     }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationDidEnterBackground:)])
         {
-            if([delegate respondsToSelector:@selector(applicationDidEnterBackground:)])
-            {
-                [delegate applicationDidEnterBackground:application];
-            }
+            [delegate applicationDidEnterBackground:application];
         }
     }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationWillEnterForeground:)])
         {
-            if([delegate respondsToSelector:@selector(applicationWillEnterForeground:)])
-            {
-                [delegate applicationWillEnterForeground:application];
-            }
+            [delegate applicationWillEnterForeground:application];
         }
     }
 }
 
 - (void)applicationWillTerminate:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationWillTerminate:)])
         {
-            if([delegate respondsToSelector:@selector(applicationWillTerminate:)])
-            {
-                [delegate applicationWillTerminate:application];
-            }
+            [delegate applicationWillTerminate:application];
         }
     }
 }
 
 - (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)])
         {
-            if([delegate respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)])
+            if([delegate application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
             {
-                if([delegate application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -170,16 +148,13 @@
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
 {
     BOOL handled = FALSE;
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:openURL:options:)])
         {
-            if([delegate respondsToSelector:@selector(application:openURL:options:)])
+            if([delegate application:application openURL:url options:options])
             {
-                if([delegate application:application openURL:url options:options])
-                {
-                    handled = TRUE;
-                }
+                handled = TRUE;
             }
         }
     }
@@ -189,31 +164,28 @@
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     BOOL handled = FALSE;
-    if(self.enabled)
+    NSDictionary<UIApplicationOpenURLOptionsKey, id>* options = nil;
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        NSDictionary<UIApplicationOpenURLOptionsKey, id>* options = nil;
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)])
         {
-            if([delegate respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+            if([delegate application:application openURL:url sourceApplication:sourceApplication annotation:(id)annotation])
             {
-                if([delegate application:application openURL:url sourceApplication:sourceApplication annotation:(id)annotation])
-                {
-                    handled = TRUE;
-                }
+                handled = TRUE;
             }
-            else if([delegate respondsToSelector:@selector(application:openURL:options:)])
+        }
+        else if([delegate respondsToSelector:@selector(application:openURL:options:)])
+        {
+            if(options == nil)
             {
-                if(options == nil)
-                {
-                    options = [NSDictionary dictionaryWithObjectsAndKeys:
-                        sourceApplication, UIApplicationOpenURLOptionsSourceApplicationKey,
-                        annotation, UIApplicationOpenURLOptionsAnnotationKey,
-                        nil];
-                }
-                if([delegate application:application openURL:url options:options])
-                {
-                    handled = TRUE;
-                }
+                options = [NSDictionary dictionaryWithObjectsAndKeys:
+                    sourceApplication, UIApplicationOpenURLOptionsSourceApplicationKey,
+                    annotation, UIApplicationOpenURLOptionsAnnotationKey,
+                    nil];
+            }
+            if([delegate application:application openURL:url options:options])
+            {
+                handled = TRUE;
             }
         }
     }
@@ -222,16 +194,13 @@
 
 - (BOOL)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:handleEventsForBackgroundURLSession:completionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(application:handleEventsForBackgroundURLSession:completionHandler:)])
+            if([delegate application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler])
             {
-                if([delegate application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -242,14 +211,11 @@
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(applicationDidReceiveMemoryWarning:)])
         {
-            if([delegate respondsToSelector:@selector(applicationDidReceiveMemoryWarning:)])
-            {
-                [delegate applicationDidReceiveMemoryWarning:application];
-            }
+            [delegate applicationDidReceiveMemoryWarning:application];
         }
     }
 }
@@ -259,14 +225,11 @@
 #if !TARGET_OS_TV
 - (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didRegisterUserNotificationSettings:)])
         {
-            if([delegate respondsToSelector:@selector(application:didRegisterUserNotificationSettings:)])
-            {
-                [delegate application:application didRegisterUserNotificationSettings:notificationSettings];
-            }
+            [delegate application:application didRegisterUserNotificationSettings:notificationSettings];
         }
     }
 }
@@ -274,58 +237,46 @@
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)])
         {
-            if([delegate respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)])
-            {
-                [delegate application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-            }
+            [delegate application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
         }
     }
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)])
         {
-            if([delegate respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)])
-            {
-                [delegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
-            }
+            [delegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
         }
     }
 }
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
         {
-            if([delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
-            {
-                [delegate application:application didReceiveRemoteNotification:userInfo];
-            }
+            [delegate application:application didReceiveRemoteNotification:userInfo];
         }
     }
 }
 
 - (BOOL)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(userNotificationCenter:willPresentNotification:withCompletionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(userNotificationCenter:willPresentNotification:withCompletionHandler:)])
+            if([delegate userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler])
             {
-                if([delegate userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -336,16 +287,13 @@
 
 - (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)])
+            if([delegate application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler])
             {
-                if([delegate application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -354,16 +302,13 @@
 
 - (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)(void))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
+            if([delegate application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler])
             {
-                if([delegate application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -372,16 +317,13 @@
 
 - (BOOL)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
+            if([delegate userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler])
             {
-                if([delegate userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }
@@ -390,14 +332,11 @@
 
 - (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:didReceiveLocalNotification:)])
         {
-            if([delegate respondsToSelector:@selector(application:didReceiveLocalNotification:)])
-            {
-                [delegate application:application didReceiveLocalNotification:notification];
-            }
+            [delegate application:application didReceiveLocalNotification:notification];
         }
     }
 }
@@ -408,16 +347,13 @@
 #if !TARGET_OS_TV
 - (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
-    if(self.enabled)
+    for(id<SPAppControllerDelegate> delegate in _delegates)
     {
-        for(id<SPAppControllerDelegate> delegate in _delegates)
+        if([delegate respondsToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
         {
-            if([delegate respondsToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
+            if([delegate application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler])
             {
-                if([delegate application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler])
-                {
-                    return TRUE;
-                }
+                return TRUE;
             }
         }
     }

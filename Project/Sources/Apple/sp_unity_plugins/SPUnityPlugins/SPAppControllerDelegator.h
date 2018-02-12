@@ -7,8 +7,6 @@
 
 @interface SPAppControllerDelegator : NSObject<SPAppControllerDelegate>
 
-@property (nonatomic, assign) BOOL enabled;
-
 - (void)addAllDelegates;
 - (BOOL)addDelegate:(id<SPAppControllerDelegate>)delegate;
 - (BOOL)removeDelegate:(id<SPAppControllerDelegate>)delegate;
