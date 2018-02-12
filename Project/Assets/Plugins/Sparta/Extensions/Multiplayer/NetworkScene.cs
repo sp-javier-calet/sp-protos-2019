@@ -665,10 +665,10 @@ namespace SocialPoint.Multiplayer
                 writer.Write(go.Id);
             }
 
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToCreate);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateNew);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateOld);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToRemove);
+            newScene.Context.Pool.Return(objectsToCreate);
+            newScene.Context.Pool.Return(objectsToUpdateNew);
+            newScene.Context.Pool.Return(objectsToUpdateOld);
+            newScene.Context.Pool.Return(objectsToRemove);
 
             _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
