@@ -915,6 +915,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Pooling\ObjectPool.cs">
       <Link>Pooling\ObjectPool.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Pooling\IRecyclable.cs">
+      <Link>Pooling\IRecyclable.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
       <Link>Multiplayer\NetworkActionProcessor.cs</Link>
     </Compile>
