@@ -1,18 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
-    public class PhotonNetworkClientFactory : INetworkClientFactory
+    public class PhotonNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly PhotonNetworkInstaller.SettingsData _settings;
         readonly UnityEngine.Transform _transform;
-        readonly List<INetworkClientDelegate> _delegates;
 
-        public PhotonNetworkClientFactory(PhotonNetworkInstaller.SettingsData settings, UnityEngine.Transform transform, List<INetworkClientDelegate> delegates)
+        public PhotonNetworkClientFactory(
+            PhotonNetworkInstaller.SettingsData settings,
+            UnityEngine.Transform transform,
+            List<INetworkClientDelegate> delegates) : base(delegates)
         {
             _settings = settings;
             _transform = transform;
-            _delegates = delegates;
         }
 
         #region INetworkClientFactory implementation
@@ -26,20 +28,16 @@ namespace SocialPoint.Network
 
         public PhotonNetworkClient Create()
         {
-            var client = _transform.gameObject.AddComponent<PhotonNetworkClient>();
-            SetupClient(client);
+            var photon = _transform.GetComponent<PhotonNetworkBase>();
+            if(photon != null)
+            {
+                throw new Exception("There is already a Photon network object instantiated. Photon cannot have more than one connection!");
+            }
 
-            return client;
-        }
-
-        void SetupClient(PhotonNetworkClient client)
-        {
+            var client = Create<PhotonNetworkClient>(_transform.gameObject.AddComponent<PhotonNetworkClient>());
             client.Config = _settings.Config;
 
-            for(var i = 0; i < _delegates.Count; i++)
-            {
-                client.AddDelegate(_delegates[i]);
-            }
+            return client;
         }
     }
 }

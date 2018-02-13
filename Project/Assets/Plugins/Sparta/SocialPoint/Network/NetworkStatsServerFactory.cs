@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Network
 {
-    public class NetworkStatsServerFactory : INetworkServerFactory
+    public class NetworkStatsServerFactory : BaseNetworkServerFactory, INetworkServerFactory
     {
         readonly INetworkServerFactory _serverFactory;
         readonly IUpdateScheduler _updateScheduler;
@@ -24,7 +24,7 @@ namespace SocialPoint.Network
 
         public NetworkStatsServer Create()
         {
-            return new NetworkStatsServer(_serverFactory.Create(), _updateScheduler);
+            return Create<NetworkStatsServer>(new NetworkStatsServer(_serverFactory.Create(), _updateScheduler));
         }
     }
 }

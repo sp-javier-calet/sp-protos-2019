@@ -3,17 +3,18 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class TcpSocketNetworkClientFactory : INetworkClientFactory
+    public class TcpSocketNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly TcpSocketNetworkInstaller.SettingsData _settings;
         readonly IUpdateScheduler _updateScheduler;
-        readonly List<INetworkClientDelegate> _delegates;
 
-        public TcpSocketNetworkClientFactory(TcpSocketNetworkInstaller.SettingsData settings, IUpdateScheduler updateScheduler, List<INetworkClientDelegate> delegates)
+        public TcpSocketNetworkClientFactory(
+            TcpSocketNetworkInstaller.SettingsData settings,
+            IUpdateScheduler updateScheduler,
+            List<INetworkClientDelegate> delegates) : base(delegates)
         {
             _settings = settings;
             _updateScheduler = updateScheduler;
-            _delegates = delegates;
         }
 
         #region INetworkClientFactory implementation
@@ -27,19 +28,8 @@ namespace SocialPoint.Network
 
         public TcpSocketNetworkClient Create()
         {
-            var client = new TcpSocketNetworkClient(_updateScheduler,
-                _settings.Config.ServerAddress, _settings.Config.ServerPort);
-            SetupClient(client);
-
-            return client;
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            for(var i = 0; i < _delegates.Count; i++)
-            {
-                client.AddDelegate(_delegates[i]);
-            }
+            return Create<TcpSocketNetworkClient>(new TcpSocketNetworkClient(_updateScheduler,
+                _settings.Config.ServerAddress, _settings.Config.ServerPort));
         }
     }
 }

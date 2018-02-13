@@ -2,16 +2,17 @@
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkClientFactory : INetworkClientFactory
+    public class UnetNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly UnetNetworkInstaller.SettingsData _settings;
-        readonly List<INetworkClientDelegate> _delegates;
 
-        public UnetNetworkClientFactory(UnetNetworkInstaller.SettingsData settings, List<INetworkClientDelegate> delegates)
+        public UnetNetworkClientFactory(
+            UnetNetworkInstaller.SettingsData settings,
+            List<INetworkClientDelegate> delegates) : base(delegates)
         {
             _settings = settings;
-            _delegates = delegates;
         }
+
         #region INetworkClientFactory implementation
 
         INetworkClient INetworkClientFactory.Create()
@@ -23,18 +24,7 @@ namespace SocialPoint.Network
 
         public UnetNetworkClient Create()
         {
-            var client = new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort);
-            SetupClient(client);
-
-            return client;
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            for(var i = 0; i < _delegates.Count; i++)
-            {
-                client.AddDelegate(_delegates[i]);
-            }
+            return Create<UnetNetworkClient>(new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace SocialPoint.Network
 {
-    public class LocalNetworkClientFactory : INetworkClientFactory
+    public class LocalNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly ILocalNetworkServerFactory _serverFactory;
 

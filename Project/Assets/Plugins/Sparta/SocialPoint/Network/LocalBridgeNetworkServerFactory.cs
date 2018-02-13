@@ -2,24 +2,29 @@
 
 namespace SocialPoint.Network
 {
-    public class LocalBridgeNetworkServerFactory : ILocalNetworkServerFactory
+    public class LocalBridgeNetworkServerFactory : BaseNetworkServerFactory, ILocalNetworkServerFactory
     {
         readonly PhotonNetworkInstaller.SettingsData _settings;
         readonly INetworkServerFactory _photonNetworkServerFactory;
         readonly INetworkServerFactory _localNetworkServerFactory;
-        readonly List<INetworkServerDelegate> _delegates;
 
-        public ILocalNetworkServer Server { get; private set; }
+        public ILocalNetworkServer Server
+        {
+            get
+            {
+                return (ILocalNetworkServer)_server;
+            }
+        }
 
-        public LocalBridgeNetworkServerFactory(PhotonNetworkInstaller.SettingsData settings,
+        public LocalBridgeNetworkServerFactory(
+            PhotonNetworkInstaller.SettingsData settings,
             INetworkServerFactory photonNetworkServerFactory,
             INetworkServerFactory localNetworkServerFactory,
-            List<INetworkServerDelegate> delegates)
+            List<INetworkServerDelegate> delegates = null) : base(delegates)
         {
             _settings = settings;
             _photonNetworkServerFactory = photonNetworkServerFactory;
             _localNetworkServerFactory = localNetworkServerFactory;
-            _delegates = delegates;
         }
 
         #region INetworkServerFactory implementation
@@ -31,10 +36,7 @@ namespace SocialPoint.Network
 
             SetupPhotonServer((PhotonNetworkServer)netServer);
 
-            Server = new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer);
-            SetupServer(Server);
-
-            return Server;
+            return Create<LocalBridgeNetworkServer>(new LocalBridgeNetworkServer(netServer, (ILocalNetworkServer)localServer));
         }
 
         #endregion
@@ -43,14 +45,6 @@ namespace SocialPoint.Network
         {
             server.Config = _settings.Config;
             server.Config.CreateRoom = true;
-        }
-
-        void SetupServer(INetworkServer server)
-        {
-            for (var i = 0; i < _delegates.Count; i++)
-            {
-                server.AddDelegate(_delegates[i]);
-            }
         }
     }}
 

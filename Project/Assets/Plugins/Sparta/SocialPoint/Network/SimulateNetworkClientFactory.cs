@@ -3,19 +3,21 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class SimulateNetworkClientFactory : INetworkClientFactory
+    public class SimulateNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly INetworkClientFactory _clientFactory;
         readonly LocalNetworkInstaller.ClientSettingsData _settings;
         readonly IUpdateScheduler _updateScheduler;
-        readonly List<INetworkClientDelegate> _delegates;
 
-        public SimulateNetworkClientFactory(INetworkClientFactory clientFactory, LocalNetworkInstaller.ClientSettingsData settings, IUpdateScheduler updateScheduler, List<INetworkClientDelegate> delegates)
+        public SimulateNetworkClientFactory(
+            INetworkClientFactory clientFactory,
+            LocalNetworkInstaller.ClientSettingsData settings,
+            IUpdateScheduler updateScheduler,
+            List<INetworkClientDelegate> delegates) : base(delegates)
         {
             _clientFactory = clientFactory;
             _settings = settings;
             _updateScheduler = updateScheduler;
-            _delegates = delegates;
         }
 
         #region INetworkClientFactory implementation
@@ -29,7 +31,7 @@ namespace SocialPoint.Network
 
         public SimulateNetworkClient Create()
         {
-            var client = new SimulateNetworkClient(_clientFactory.Create(), _updateScheduler);
+            var client = Create<SimulateNetworkClient>(new SimulateNetworkClient(_clientFactory.Create(), _updateScheduler));
             SetupClient(client);
 
             return client;
@@ -41,11 +43,6 @@ namespace SocialPoint.Network
             client.ReceptionDelayVariance = _settings.ReceptionDelay.Variance;
             client.EmissionDelay = _settings.EmissionDelay.Average;
             client.EmissionDelayVariance = _settings.EmissionDelay.Variance;
-
-            for(var i = 0; i < _delegates.Count; i++)
-            {
-                client.AddDelegate(_delegates[i]);
-            }
         }
     }
 }

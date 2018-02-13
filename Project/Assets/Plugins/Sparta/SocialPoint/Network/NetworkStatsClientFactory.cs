@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Network
 {
-    public class NetworkStatsClientFactory : INetworkClientFactory
+    public class NetworkStatsClientFactory : BaseNetworkClientFactory, INetworkClientFactory
     {
         readonly INetworkClientFactory _clientFactory;
         readonly NetworkStatsInstaller.SettingsData _settings;
@@ -26,7 +26,7 @@ namespace SocialPoint.Network
 
         public NetworkStatsClient Create()
         {
-            var client = new NetworkStatsClient(_clientFactory.Create(), _updateScheduler);
+            var client = Create<NetworkStatsClient>(new NetworkStatsClient(_clientFactory.Create(), _updateScheduler));
             client.PingInterval = _settings.PingInterval;
 
             return client;
