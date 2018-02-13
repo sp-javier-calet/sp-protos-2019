@@ -133,6 +133,18 @@ namespace SocialPoint.Dependency
     class DependencyContainerTests
     {
         [Test]
+        public void CompareBindingKeys()
+        {
+            Assert.AreEqual(new BindingKey(typeof(TestService)), new BindingKey(typeof(TestService)));
+            Assert.AreEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService), "tag"));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService)), new BindingKey(typeof(AnotherTestService)));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService)));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService), "tag2"));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(AnotherTestService), "tag"));
+        }
+
+
+        [Test]
         public void SingleResolveTest()
         {
             var container = new DependencyContainer();

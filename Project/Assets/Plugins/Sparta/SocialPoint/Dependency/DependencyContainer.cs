@@ -25,13 +25,12 @@ namespace SocialPoint.Dependency
         public DependencyContainer()
         {
             _installed = new List<IInstaller>();
-            _bindings = new Dictionary<BindingKey, List<IBinding>>(new BindingKeyComparer());
+            _bindings = new Dictionary<BindingKey, List<IBinding>>();
             _resolving = new HashSet<IBinding>();
             _resolved = new List<IBinding>();
-            var comparer = new ReferenceComparer<IBinding>();
-            _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
-            _lookups = new Dictionary<BindingKey, List<IBinding>>(new BindingKeyComparer());
-            _listeners = new Dictionary<BindingKey, List<IListener>>(new BindingKeyComparer());
+            _instances = new Dictionary<IBinding, HashSet<object>>();
+            _lookups = new Dictionary<BindingKey, List<IBinding>>();
+            _listeners = new Dictionary<BindingKey, List<IListener>>();
         }
 
         public void AddBindingWithInstance<T>(IBinding binding, Type type, T instance, string tag = null)
@@ -350,7 +349,7 @@ namespace SocialPoint.Dependency
 
         bool IsLookup(BindingKey from, BindingKey to)
         {
-            if(from.Type == to.Type && from.Tag == to.Tag)
+            if(from.Equals(to))
             {
                 return true;
             }
@@ -381,13 +380,13 @@ namespace SocialPoint.Dependency
                 var key = itr.Current.Key;
                 for(var i = 0; i < bindings.Count; i++)
                 {
-                    if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
+                    if(filterKey.Type != null && !filterKey.Equals(key))
                     {
                         continue;
                     }
                     var binding = bindings[i];
                     var bindingKey = binding.Key;
-                    bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
+                    bool isInstanceBinding = fromKey.Equals(bindingKey);
 
                     if(isInstanceBinding || IsLookup(fromKey, key))
                     {
