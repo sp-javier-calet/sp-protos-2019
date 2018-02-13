@@ -7,7 +7,7 @@ namespace SocialPoint.Dependency
 
         bool Resolved { get; }
 
-        int Priority{ get; }
+        int Priority { get; }
 
         object Resolve();
 

@@ -19,8 +19,8 @@ namespace SocialPoint.Dependency
         List<IBinding> _resolved;
         Dictionary<IBinding, HashSet<object>> _instances;
         Dictionary<BindingKey, List<IBinding>> _lookups;
-        Dictionary<BindingKey, List<BindingKey>> _aliases;
         Dictionary<BindingKey, List<IListener>> _listeners;
+
 
         public DependencyContainer()
         {
@@ -31,7 +31,6 @@ namespace SocialPoint.Dependency
             var comparer = new ReferenceComparer<IBinding>();
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
             _lookups = new Dictionary<BindingKey, List<IBinding>>(new BindingKeyComparer());
-            _aliases = new Dictionary<BindingKey, List<BindingKey>>(new BindingKeyComparer());
             _listeners = new Dictionary<BindingKey, List<IListener>>(new BindingKeyComparer());
         }
 
@@ -81,15 +80,6 @@ namespace SocialPoint.Dependency
                 _lookups.Add(key, lookupsList);
             }
             lookupsList.Add(binding);
-
-            // Add alias
-            List<BindingKey> aliasesList;
-            if(!_aliases.TryGetValue(key, out aliasesList))
-            {
-                aliasesList = new List<BindingKey>();
-                _aliases.Add(key, aliasesList);
-            }
-            aliasesList.Add(binding.Key);
 
             Log.v(Tag, string.Format("Added lookup <{0}> for type `{1}`", tag, type.Name));
         }
@@ -259,10 +249,17 @@ namespace SocialPoint.Dependency
             if(listeners.Count > 0)
             {
                 var instance = binding.Resolve();
-                for(var j = 0; j < listeners.Count; ++j)
+                var itr = listeners.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    listeners[j].OnResolved(binding, instance);
+                    var keyListeners = itr.Current.Value;
+                    var keyBinding = itr.Current.Key;
+                    for(var j = 0; j < keyListeners.Count; ++j)
+                    {
+                        keyListeners[j].OnResolved(keyBinding, instance);
+                    }
                 }
+                itr.Dispose();
             }
         }
 
@@ -274,7 +271,6 @@ namespace SocialPoint.Dependency
             _resolved.Clear();
             _resolving.Clear();
             _lookups.Clear();
-            _aliases.Clear();
             _listeners.Clear();
             Log.v(Tag, "Depencency Container Cleared");
         }
@@ -307,26 +303,27 @@ namespace SocialPoint.Dependency
             DependencyGraphBuilder.EndPhase();
         }
 
-        List<IListener> FindListeners(IBinding binding)
+        Dictionary<IBinding, List<IListener>> FindListeners(IBinding binding)
         {
-            var listeners = new List<IListener>();
+            var listeners = new Dictionary<IBinding, List<IListener>>();
 
             // Look for direct bindings
             List<IListener> keyListeners;
-            if(_listeners.TryGetValue(binding.Key, out keyListeners))
+            if(_listeners.TryGetValue(binding.Key, out keyListeners) && keyListeners.Count > 0)
             {
-                listeners.AddRange(keyListeners);
+                listeners.Add(binding, keyListeners);
             }
 
-            // Look for aliased bindings
-            List<BindingKey> list;
-            if(_aliases.TryGetValue(binding.Key, out list))
+            // Look for lookup bindings
+            List<IBinding> list;
+            if(_lookups.TryGetValue(binding.Key, out list))
             {
-                foreach(var key in list)
+                for(var i=0; i<list.Count; i++)
                 {
-                    if(_listeners.TryGetValue(key, out keyListeners))
+                    var lookup = list[i];
+                    if(!listeners.ContainsKey(lookup) && _listeners.TryGetValue(lookup.Key, out keyListeners) && keyListeners.Count > 0)
                     {
-                        listeners.AddRange(keyListeners);
+                        listeners.Add(lookup, keyListeners);
                     }
                 }
             }

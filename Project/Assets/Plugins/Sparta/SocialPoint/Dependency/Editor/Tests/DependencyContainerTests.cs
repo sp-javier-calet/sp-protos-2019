@@ -653,11 +653,45 @@ namespace SocialPoint.Dependency
             container.Bind<TestInstanceService>().ToSingle<TestInstanceService>();
             container.Listen<TestService, AnotherTestService>().ThenResolve<TestInstanceService>();
 
+            TestInstanceService.Instantiated = false;
+
             container.Resolve<TestService>();
             Assert.IsFalse(TestInstanceService.Instantiated);
 
             container.Resolve<AnotherTestService>();
             Assert.IsTrue(TestInstanceService.Instantiated);
+        }
+
+        [Test]
+        public void ListenerLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<IDisposable>>();
+            container.Listen<IDisposable>().Then(setupCallback);
+
+            var disposable = container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(disposable);
+        }
+
+        [Test]
+        public void DoubleListenerLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestService, IDisposable>>();
+            container.Listen<TestService, IDisposable>().Then(setupCallback);
+
+            var service = container.Resolve<TestService>();
+            var disposable = container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(service, disposable);
         }
     }
 }
