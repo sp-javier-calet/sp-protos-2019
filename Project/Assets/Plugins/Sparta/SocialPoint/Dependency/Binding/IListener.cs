@@ -2,6 +2,6 @@
 {
     public interface IListener
     {
-        void OnResolved(object instance);
+        void OnResolved(IBinding binding, object instance);
     }
 }

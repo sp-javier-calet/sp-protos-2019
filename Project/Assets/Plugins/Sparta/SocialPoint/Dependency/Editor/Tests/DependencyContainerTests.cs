@@ -72,7 +72,7 @@ namespace SocialPoint.Dependency
         {
         }
     }
-        
+
     class TestBinding<T> : IBinding where T : new()
     {
         public int Priority { get; private set; }
@@ -124,7 +124,7 @@ namespace SocialPoint.Dependency
     {
         [Test]
         public void SingleResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<ITestService>().ToSingle<TestService>();
             var service = container.Resolve<ITestService>();
@@ -135,7 +135,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void TagResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<string>("tag1").ToInstance<string>("value1");
             container.Bind<string>("tag2").ToInstance<string>("value2");
@@ -147,7 +147,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void SingleMethodResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<ITestService>().ToSingle<TestService>();
             container.Bind<DependentService>().ToMethod<DependentService>(() => new DependentService(container.Resolve<ITestService>()));
@@ -247,7 +247,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveSingleTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<TestStruct>().ToSingle<TestStruct>();
             var resolved = container.Resolve<TestStruct>();
@@ -256,7 +256,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveInstanceTest()
-        {       
+        {
             var container = new DependencyContainer();
             const int value = 10;
             var instance = new TestStruct();
@@ -283,7 +283,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveGetterTest()
-        {       
+        {
             var container = new DependencyContainer();
             const int value = 10;
             var instance = new TestStruct();
@@ -559,6 +559,67 @@ namespace SocialPoint.Dependency
             container.Resolve<TestDisposable>();
 
             setupCallback.Received(1).Invoke(Arg.Any<TestDisposable>());
+        }
+
+        [Test]
+        public void SimpleDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().WhenResolved(setupCallback);
+
+            var service1 = container.Resolve<TestService>();
+            setupCallback.DidNotReceive().Invoke(Arg.Any<TestService>(), Arg.Any<AnotherTestService>());
+
+            var aservice1 = container.Resolve<AnotherTestService>();
+            setupCallback.Received(1).Invoke(service1, aservice1);
+            setupCallback.ClearReceivedCalls();
+
+            container.Resolve<TestService>();
+            container.Resolve<AnotherTestService>();
+
+            setupCallback.DidNotReceive().Invoke(Arg.Any<TestService>(), Arg.Any<AnotherTestService>());
+        }
+
+        [Test]
+        public void ToListDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().WhenResolved(setupCallback);
+
+            var service1 = container.Resolve<TestService>();
+            var aservices = container.ResolveList<AnotherTestService>();
+
+            setupCallback.Received(1).Invoke(service1, aservices[0]);
+            setupCallback.Received(1).Invoke(service1, aservices[1]);
+
+        }
+
+        [Test]
+        public void FromListDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().WhenResolved(setupCallback);
+
+            var services = container.ResolveList<TestService>();
+            var aservice = container.Resolve<AnotherTestService>();
+
+            setupCallback.Received(1).Invoke(services[0], aservice);
+            setupCallback.Received(1).Invoke(services[1], aservice);
+
         }
     }
 }

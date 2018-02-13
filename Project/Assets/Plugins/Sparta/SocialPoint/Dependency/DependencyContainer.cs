@@ -94,17 +94,20 @@ namespace SocialPoint.Dependency
             Log.v(Tag, string.Format("Added lookup <{0}> for type `{1}`", tag, type.Name));
         }
 
-        public void AddListener(IListener listener, Type type, string tag = null)
+        public void AddListener(IListener listener, BindingKey[] bindingKeys)
         {
-            List<IListener> list;
-            var key = new BindingKey(type, tag);
-            if(!_listeners.TryGetValue(key, out list))
+            for(var i = 0; i < bindingKeys.Length; i++)
             {
-                list = new List<IListener>();
-                _listeners.Add(key, list);
+                List<IListener> list;
+                var key = bindingKeys[i];
+                if(!_listeners.TryGetValue(key, out list))
+                {
+                    list = new List<IListener>();
+                    _listeners.Add(key, list);
+                }
+                list.Add(listener);
+                Log.v(Tag, string.Format("Added listener <{0}> for binding `{1}`", listener, key));
             }
-            list.Add(listener);
-            Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public bool HasBinding<T>(string tag = null)
@@ -186,6 +189,12 @@ namespace SocialPoint.Dependency
             return false;
         }
 
+
+        public T Resolve<T>(string tag = null, T def = default(T))
+        {
+            return (T)Resolve(typeof(T), tag, def);
+        }
+
         public object Resolve(Type type, string tag = null, object def = null)
         {
             object result;
@@ -209,7 +218,7 @@ namespace SocialPoint.Dependency
                 instances = new HashSet<object>();
                 _instances[binding] = instances;
             }
-            instances.Add(instance); 
+            instances.Add(instance);
         }
 
         bool TryResolve(IBinding binding, out object result)
@@ -252,7 +261,7 @@ namespace SocialPoint.Dependency
                 var instance = binding.Resolve();
                 for(var j = 0; j < listeners.Count; ++j)
                 {
-                    listeners[j].OnResolved(instance);
+                    listeners[j].OnResolved(binding, instance);
                 }
             }
         }
@@ -308,7 +317,7 @@ namespace SocialPoint.Dependency
             {
                 listeners.AddRange(keyListeners);
             }
-                
+
             // Look for aliased bindings
             List<BindingKey> list;
             if(_aliases.TryGetValue(binding.Key, out list))
@@ -319,7 +328,7 @@ namespace SocialPoint.Dependency
                     {
                         listeners.AddRange(keyListeners);
                     }
-                } 
+                }
             }
             return listeners;
         }
