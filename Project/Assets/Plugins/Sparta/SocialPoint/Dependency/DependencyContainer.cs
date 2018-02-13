@@ -137,8 +137,9 @@ namespace SocialPoint.Dependency
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
                 IBinding firstValidBinding = null;
-                foreach(var currentBinding in bindings)
+                for(var i = 0; i < bindings.Count; i++)
                 {
+                    var currentBinding = bindings[i];
                     if(firstValidBinding != null && firstValidBinding.Priority != currentBinding.Priority)
                     {
                         //Exit if we found a valid binding and the next one is of less priority
@@ -165,8 +166,9 @@ namespace SocialPoint.Dependency
             List<IBinding> bindings;
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
-                foreach(var currentBinding in bindings)
+                for(var i = 0; i < bindings.Count; i++)
                 {
+                    var currentBinding = bindings[i];
                     object resolved;
                     if(TryResolve(currentBinding, out resolved))
                     {
@@ -230,8 +232,9 @@ namespace SocialPoint.Dependency
             {
                 var resolved = _resolved.ToArray();
                 _resolved.Clear();
-                foreach(var resolvedBinding in resolved)
+                for(var i = 0; i < resolved.Length; i++)
                 {
+                    var resolvedBinding = resolved[i];
                     if(!binding.Resolved)
                     {
                         NotifyResolutionFinished(resolvedBinding);
@@ -332,17 +335,16 @@ namespace SocialPoint.Dependency
 
         BindingKey FindBindingKey(IBinding binding)
         {
-            using(var itr = _bindings.GetEnumerator())
+            var itr = _bindings.GetEnumerator();
+            while(itr.MoveNext())
             {
-                while(itr.MoveNext())
+                if(itr.Current.Value.Contains(binding))
                 {
-                    if(itr.Current.Value.Contains(binding))
-                    {
-                        return itr.Current.Key;
-                    }
+                    itr.Dispose();
+                    return itr.Current.Key;
                 }
             }
-
+            itr.Dispose();
             return new BindingKey();
         }
 
@@ -371,42 +373,41 @@ namespace SocialPoint.Dependency
         HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove = false)
         {
             var instances = new HashSet<object>();
-            using(var itr = _bindings.GetEnumerator())
+            var itr = _bindings.GetEnumerator();
+            while(itr.MoveNext())
             {
-                while(itr.MoveNext())
+                HashSet<object> bindingInstances;
+                var bindings = itr.Current.Value;
+                var key = itr.Current.Key;
+                for(var i = 0; i < bindings.Count; i++)
                 {
-                    HashSet<object> bindingInstances;
-                    var bindings = itr.Current.Value;
-                    var key = itr.Current.Key;
-                    for(var i = 0; i < bindings.Count; i++)
+                    if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
                     {
-                        if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
-                        {
-                            continue;
-                        }
-                        var binding = bindings[i];
-                        var bindingKey = binding.Key;
-                        bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
+                        continue;
+                    }
+                    var binding = bindings[i];
+                    var bindingKey = binding.Key;
+                    bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
 
-                        if(isInstanceBinding || IsLookup(fromKey, key))
+                    if(isInstanceBinding || IsLookup(fromKey, key))
+                    {
+                        if(_instances.TryGetValue(binding, out bindingInstances))
                         {
-                            if(_instances.TryGetValue(binding, out bindingInstances))
+                            var itr2 = bindingInstances.GetEnumerator();
+                            while(itr2.MoveNext())
                             {
-                                var itr2 = bindingInstances.GetEnumerator();
-                                while(itr2.MoveNext())
-                                {
-                                    instances.Add(itr2.Current);
-                                }
-                                itr2.Dispose();
-                                if(remove)
-                                {
-                                    _instances.Remove(binding);
-                                }
+                                instances.Add(itr2.Current);
+                            }
+                            itr2.Dispose();
+                            if(remove)
+                            {
+                                _instances.Remove(binding);
                             }
                         }
                     }
                 }
             }
+            itr.Dispose();
             return instances;
         }
 
