@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 
 namespace SocialPoint.Matchmaking
@@ -15,7 +16,7 @@ namespace SocialPoint.Matchmaking
             TriggerOnStart();
         }
 
-        public void Start(SocialPoint.Attributes.AttrDic extraData, bool searchForActiveMatch, string connectId)
+        public void Start(AttrDic extraData, bool searchForActiveMatch, string connectId)
         {
             Start();
         }

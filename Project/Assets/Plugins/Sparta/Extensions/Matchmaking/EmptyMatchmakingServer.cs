@@ -6,13 +6,14 @@ namespace SocialPoint.Matchmaking
 {
     public class EmptyMatchmakingServer : IMatchmakingServer, IDisposable
     {
-        // If matchmaking is enabled in the LockstepNetworkServer instance, it needs a proper response.
-        const string JSONResponse = "{\"player1_token\" : \"aaa\", \"player2_token\" : \"bbb\", \"player_1\" : {\"id\" : 2147483646}, \"player_2\" : {\"id\" : 2147483647}}";
-
         readonly List<IMatchmakingServerDelegate> _delegates;
 
-        public EmptyMatchmakingServer()
+        // If matchmaking is enabled in the LockstepNetworkServer instance, it needs a proper response.
+        string _fakeResponse;
+
+        public EmptyMatchmakingServer(string fakeResponse = default(string))
         {
+            _fakeResponse = fakeResponse;
             _delegates = new List<IMatchmakingServerDelegate>();
         }
 
@@ -32,7 +33,7 @@ namespace SocialPoint.Matchmaking
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMatchInfoReceived(System.Text.Encoding.UTF8.GetBytes(JSONResponse));
+                _delegates[i].OnMatchInfoReceived(System.Text.Encoding.UTF8.GetBytes(_fakeResponse));
             }
         }
 

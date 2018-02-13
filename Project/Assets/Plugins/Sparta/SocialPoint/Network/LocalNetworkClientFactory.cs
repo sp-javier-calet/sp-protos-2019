@@ -20,7 +20,11 @@
 
         public LocalNetworkClient Create()
         {
-            return new LocalNetworkClient(_serverFactory.Server);
+            if(_serverFactory.Server == null)
+            {
+                _serverFactory.Create();
+            }
+            return Create<LocalNetworkClient>(new LocalNetworkClient(_serverFactory.Server));
         }
     }
 }

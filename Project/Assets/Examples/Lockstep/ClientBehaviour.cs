@@ -11,7 +11,6 @@ using SocialPoint.Utils;
 using SocialPoint.Matchmaking;
 using SocialPoint.Attributes;
 using FixMath.NET;
-using System;
 using System.IO;
 
 #if ADMIN_PANEL
@@ -20,7 +19,6 @@ using SocialPoint.AdminPanel;
 
 namespace Examples.Lockstep
 {
-
     public enum GameLockstepMode
     {
         None,
@@ -33,6 +31,8 @@ namespace Examples.Lockstep
 
     public class ClientBehaviour : MonoBehaviour, IPointerClickHandler, IMatchmakingClientDelegate, INetworkClientDelegate, INetworkServerDelegate
     {
+        const string JSONResponse = "{\"player1_token\" : \"aaa\", \"player2_token\" : \"bbb\", \"player_1\" : {\"id\" : 2147483646}, \"player_2\" : {\"id\" : 2147483647}}";
+
         [SerializeField]
         Slider _manaSlider;
 
@@ -122,10 +122,6 @@ namespace Examples.Lockstep
             {
                 _model.OnInstantiate -= OnInstantiate;
                 _model.OnDurationEnd -= OnDurationEnd;
-            }
-            if(_netLockstepClient != null)
-            {
-                _netLockstepClient.EndReceived -= OnClientEndReceived;
             }
         }
 
@@ -247,7 +243,7 @@ namespace Examples.Lockstep
             SetupPhoton(_netServer as PhotonNetworkBase);
 
             _netLockstepServer = new LockstepNetworkServer(_netServer,
-                new EmptyMatchmakingServer(),
+                new EmptyMatchmakingServer(JSONResponse),
                 Services.Instance.Resolve<IUpdateScheduler>());
             _netLockstepServer.Config = Services.Instance.Resolve<LockstepConfig>();
             _netLockstepServer.ServerConfig = Services.Instance.Resolve<LockstepServerConfig>();
@@ -406,7 +402,16 @@ namespace Examples.Lockstep
                 stream.Close();
                 stream.Dispose();
             }
+            _replay.Dispose();
+            _replay.Clear();
             _lockstep.Stop();
+            if(_netLockstepClient != null)
+            {
+                _netLockstepClient.EndReceived -= OnClientEndReceived;
+                _netLockstepClient.Dispose();
+                _netLockstepClient = null;
+            }
+
             _model.Reset();
 
             if(_netClient != null)
@@ -417,10 +422,11 @@ namespace Examples.Lockstep
             }
             if(_netLockstepServer != null)
             {
-                _netLockstepServer.Stop();
+                _netLockstepServer.Dispose();
             }
             if(_netServer != null)
             {
+                _netServer.RemoveDelegate(this);
                 _netServer.Dispose();
                 _netServer = null;
             }
