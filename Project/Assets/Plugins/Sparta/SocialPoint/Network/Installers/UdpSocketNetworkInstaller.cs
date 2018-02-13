@@ -27,52 +27,28 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.Rebind<UdpSocketNetworkServer>().ToMethod<UdpSocketNetworkServer>(CreateSocketServer, SetupServer);
-            Container.Bind<IDisposable>().ToLookup<UdpSocketNetworkServer>();
-            Container.Rebind<INetworkServer>("internal").ToLookup<UdpSocketNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<UdpSocketNetworkServer>();
+            Container.Rebind<UdpSocketNetworkServerFactory>().ToMethod<UdpSocketNetworkServerFactory>(CreateUdpSocketNetworkServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<UdpSocketNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<UdpSocketNetworkServerFactory>();
 
-            Container.Rebind<UdpSocketNetworkClient>().ToMethod<UdpSocketNetworkClient>(CreateSocketClient, SetupClient);
-            Container.Bind<IDisposable>().ToLookup<UdpSocketNetworkClient>();
-            Container.Rebind<INetworkClient>("internal").ToLookup<UdpSocketNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<UdpSocketNetworkClient>();
+            Container.Rebind<UdpSocketNetworkClientFactory>().ToMethod<UdpSocketNetworkClientFactory>(CreateUdpSocketNetworkClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<UdpSocketNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<UdpSocketNetworkClientFactory>();
         }
 
-        UdpSocketNetworkClient CreateSocketClient()
+        UdpSocketNetworkServerFactory CreateUdpSocketNetworkServerFactory()
         {
-            UdpSocketNetworkClient socketClient =  new UdpSocketNetworkClient(
+            return new UdpSocketNetworkServerFactory(Settings,
                 Container.Resolve<IUpdateScheduler>(),
-                Settings.Config.ConnectionKey, 
-                Settings.Config.UpdateTime);
-            return socketClient; 
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
-        UdpSocketNetworkServer CreateSocketServer()
+        UdpSocketNetworkClientFactory CreateUdpSocketNetworkClientFactory()
         {
-            UdpSocketNetworkServer socketServer = new UdpSocketNetworkServer(
+            return new UdpSocketNetworkClientFactory(Settings,
                 Container.Resolve<IUpdateScheduler>(),
-                Settings.Config.PeerLimit,
-                Settings.Config.ConnectionKey,
-                Settings.Config.UpdateTime);
-            return socketServer; 
+                Container.ResolveList<INetworkClientDelegate>());
         }
 
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            var dlgs = Container.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
-        }
     }
 }
