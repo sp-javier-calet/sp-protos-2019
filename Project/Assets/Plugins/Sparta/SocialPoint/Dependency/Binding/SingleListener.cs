@@ -4,18 +4,24 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Dependency
 {
-    public sealed class SingleListener<T> : IListener
+    public sealed class SingleListener<T> : BaseListener
     {
-        event Action<T> _callback;
+        Action<T> _callback;
+        BindingKey _resolve;
 
-        public SingleListener<T> WhenResolved(Action<T> callback)
+        public SingleListener(DependencyContainer container) : base(container)
         {
-            _callback = callback;
-            return this;
         }
 
-        void IListener.OnResolved(IBinding binding, object instance)
+        public void Then(Action<T> callback)
         {
+            _callback = callback;
+        }
+
+        protected override void OnResolved(IBinding binding, object instance)
+        {
+            base.OnResolved(binding, instance);
+
             if(_callback != null)
             {
                 _callback((T)instance);

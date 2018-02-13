@@ -201,7 +201,7 @@ namespace SocialPoint.Dependency
 
         public static SingleListener<T> Listen<T>(this DependencyContainer container, string tag = null)
         {
-            var listener = new SingleListener<T>();
+            var listener = new SingleListener<T>(container);
             container.AddListener(listener, new []{
                 new BindingKey(typeof(T), tag),
             });
@@ -212,7 +212,7 @@ namespace SocialPoint.Dependency
         {
             var fromKey = new BindingKey(typeof(F), fromTag);
             var toKey = new BindingKey(typeof(T), toTag);
-            var listener = new DoubleListener<F, T>(fromKey, toKey);
+            var listener = new DoubleListener<F, T>(container, fromKey, toKey);
             container.AddListener(listener, new []{ fromKey, toKey });
             return listener;
         }
