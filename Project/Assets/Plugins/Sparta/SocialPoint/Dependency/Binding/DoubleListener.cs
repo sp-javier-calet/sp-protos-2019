@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Dependency
 {
-    public sealed class DoubleListener<F, T> : BaseListener
+    public sealed class DoubleListener<F, T> : BaseListener, IListener
     {
         event Action<F, T> _callback;
         readonly BindingKey _fromKey;
@@ -26,9 +26,8 @@ namespace SocialPoint.Dependency
             _callback = callback;
         }
 
-        protected override void OnResolved(IBinding binding, object instance)
+        void IListener.OnResolved(IBinding binding, object instance)
         {
-            base.OnResolved(binding, instance);
             if(binding.Key.Type == _fromKey.Type && binding.Key.Tag == _fromKey.Tag)
             {
                 var finstance = (F) instance;
@@ -52,6 +51,10 @@ namespace SocialPoint.Dependency
                         _callback(_fromInstances[i], tinstance);
                     }
                 }
+            }
+            if(_fromInstances.Count > 0 && _toInstances.Count > 0)
+            {
+                base.Trigger();
             }
         }
     }

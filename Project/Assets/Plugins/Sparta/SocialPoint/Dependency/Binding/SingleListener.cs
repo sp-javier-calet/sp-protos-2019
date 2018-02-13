@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Dependency
 {
-    public sealed class SingleListener<T> : BaseListener
+    public sealed class SingleListener<T> : BaseListener, IListener
     {
         Action<T> _callback;
         BindingKey _resolve;
@@ -18,14 +18,14 @@ namespace SocialPoint.Dependency
             _callback = callback;
         }
 
-        protected override void OnResolved(IBinding binding, object instance)
+        void IListener.OnResolved(IBinding binding, object instance)
         {
-            base.OnResolved(binding, instance);
-
             if(_callback != null)
             {
                 _callback((T)instance);
             }
+
+            base.Trigger();
         }
     }
 }

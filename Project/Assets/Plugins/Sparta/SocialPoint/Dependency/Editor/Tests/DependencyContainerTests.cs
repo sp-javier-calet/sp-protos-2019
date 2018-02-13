@@ -643,5 +643,21 @@ namespace SocialPoint.Dependency
             setupCallback.Received(1).Invoke(services[1], aservice);
 
         }
+
+        [Test]
+        public void DoubleListenerThenResolve()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+            container.Bind<TestInstanceService>().ToSingle<TestInstanceService>();
+            container.Listen<TestService, AnotherTestService>().ThenResolve<TestInstanceService>();
+
+            container.Resolve<TestService>();
+            Assert.IsFalse(TestInstanceService.Instantiated);
+
+            container.Resolve<AnotherTestService>();
+            Assert.IsTrue(TestInstanceService.Instantiated);
+        }
     }
 }

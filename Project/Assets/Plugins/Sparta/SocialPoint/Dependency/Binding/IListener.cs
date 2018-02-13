@@ -5,7 +5,7 @@
         void OnResolved(IBinding binding, object instance);
     }
 
-    public class BaseListener : IListener
+    public abstract class BaseListener
     {
         readonly DependencyContainer _container;
         BindingKey _resolve;
@@ -20,12 +20,7 @@
             _resolve = new BindingKey(typeof(K), tag);
         }
 
-        void IListener.OnResolved(IBinding binding, object instance)
-        {
-            OnResolved(binding, instance);
-        }
-
-        protected virtual void OnResolved(IBinding binding, object instance)
+        protected void Trigger()
         {
             if(_resolve.Type != null)
             {
