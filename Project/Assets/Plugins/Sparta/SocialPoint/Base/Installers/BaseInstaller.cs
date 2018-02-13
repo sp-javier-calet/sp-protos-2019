@@ -17,6 +17,9 @@ namespace SocialPoint.Base
             Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
             Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
             Container.Bind<NativeCallsHandler>().ToMethod<NativeCallsHandler>(CreateNativeCallsHandler);
+            Container.Listen<IUpdateable>().WhenResolved(OnUpdateableResolved);
+            Container.Listen<IDeltaUpdateable>().WhenResolved(OnUpdateableResolved);
+            Container.Listen<IDeltaUpdateable<int>>().WhenResolved(OnUpdateableResolved);
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNativeCallsHandler>(CreateAdminPanel);
@@ -24,14 +27,27 @@ namespace SocialPoint.Base
             #endif
         }
 
-        public void Initialize()
+        void OnUpdateableResolved(IUpdateable updateable)
         {
             var scheduler = Container.Resolve<IUpdateScheduler>();
-            var updateables = Container.ResolveList<IUpdateable>().ToArray();
-            if(updateables != null)
-            {
-                scheduler.Add(updateables);
-            }
+            scheduler.Add(updateable);
+        }
+
+        void OnUpdateableResolved(IDeltaUpdateable deltaUpdateable)
+        {
+            var scheduler = Container.Resolve<IUpdateScheduler>();
+            scheduler.Add(deltaUpdateable);
+        }
+
+        void OnUpdateableResolved(IDeltaUpdateable<int> deltaUpdateable)
+        {
+            var scheduler = Container.Resolve<IUpdateScheduler>();
+            scheduler.Add(deltaUpdateable);
+        }
+
+        public void Initialize()
+        {
+            Container.Resolve<IUpdateScheduler>();
         }
 
         NativeCallsHandler CreateNativeCallsHandler()

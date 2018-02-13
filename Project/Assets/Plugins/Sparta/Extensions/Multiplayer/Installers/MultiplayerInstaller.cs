@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
-    public class MultiplayerInstaller : ServiceInstaller, IInitializable
+    public class MultiplayerInstaller : ServiceInstaller
     {
         [Serializable]
         public class SettingsData
@@ -26,37 +26,14 @@ namespace SocialPoint.Multiplayer
         public override void InstallBindings()
         {
             Container.Rebind<NetworkServerSceneController>()
-                .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);        
+                .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);
             Container.Bind<IDeltaUpdateable>().ToLookup<NetworkServerSceneController>();
             Container.Rebind<UnityNetworkClientSceneController>()
                 .ToMethod<UnityNetworkClientSceneController>(CreateClientSceneController, SetupClientSceneController);
             Container.Rebind<NetworkClientSceneController>().ToLookup<UnityNetworkClientSceneController>();
             Container.Bind<IDeltaUpdateable>().ToLookup<UnityNetworkClientSceneController>();
-            Container.Bind<IInitializable>().ToInstance(this);
 
             Container.BindDefault<NetworkSceneContext>().ToMethod<NetworkSceneContext>(CreateContext);
-        }
-
-        //TODO FIX FOR ORDERS FIXME
-        public void Initialize()
-        {
-            var scheduler = Container.Resolve<IUpdateScheduler>();
-            var updateables = Container.ResolveList<IUpdateable>();
-            if(updateables != null)
-            {
-                for(var i = 0; i < updateables.Count; i++)
-                {
-                    scheduler.Add(updateables[i]);
-                }
-            }
-            var deltaUpdateables = Container.ResolveList<IDeltaUpdateable>();
-            if(deltaUpdateables != null)
-            {
-                for(var i = 0; i < deltaUpdateables.Count; i++)
-                {
-                    scheduler.Add(deltaUpdateables[i]);
-                }
-            }
         }
 
         NetworkServerSceneController CreateServerSceneController()
