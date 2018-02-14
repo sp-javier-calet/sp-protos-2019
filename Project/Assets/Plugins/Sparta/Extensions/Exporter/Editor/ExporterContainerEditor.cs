@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using System.Collections;
+using SocialPoint.Base;
 
 namespace SocialPoint.Exporter
 {
@@ -39,13 +40,12 @@ namespace SocialPoint.Exporter
                                 }
                             }
                         }
-                        catch(Exception)
+                        catch(Exception e)
                         {
+                            Log.w("Exception while exporting Types: " + e);
                         }
                     }
-                    _exporterTypes.Sort((x, y) => {
-                        return x.Name.CompareTo(y.Name);
-                    });
+                    _exporterTypes.Sort((x, y) => x.Name.CompareTo(y.Name));
                 }
                 return _exporterTypes;
             }
