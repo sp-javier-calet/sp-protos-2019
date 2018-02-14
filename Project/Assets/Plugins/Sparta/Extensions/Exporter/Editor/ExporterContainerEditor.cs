@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using System.Collections;
+using SocialPoint.Base;
 
 namespace SocialPoint.Exporter
 {
