@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework.Internal;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency

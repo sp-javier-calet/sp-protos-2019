@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;

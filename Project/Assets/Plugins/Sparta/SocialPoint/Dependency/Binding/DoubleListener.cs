@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.Dependency
 {
@@ -28,7 +27,7 @@ namespace SocialPoint.Dependency
 
         void IListener.OnResolved(IBinding binding, object instance)
         {
-            if(binding.Key.Type == _fromKey.Type && binding.Key.Tag == _fromKey.Tag)
+            if(binding.Key.Equals(_fromKey))
             {
                 var finstance = (F) instance;
                 _fromInstances.Add(finstance);
@@ -40,7 +39,7 @@ namespace SocialPoint.Dependency
                     }
                 }
             }
-            if(binding.Key.Type == _toKey.Type && binding.Key.Tag == _toKey.Tag)
+            if(binding.Key.Equals(_toKey))
             {
                 var tinstance = (T) instance;
                 _toInstances.Add(tinstance);
