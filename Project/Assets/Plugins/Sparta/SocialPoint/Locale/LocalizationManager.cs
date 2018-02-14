@@ -337,20 +337,19 @@ namespace SocialPoint.Locale
 
         public void UpdateDefaultLanguage()
         {
-            Attr language = null;
-            var languageStr = string.Empty;
+            string language = null;
             if(_storage != null && !UseAlwaysDeviceLanguage)
             {
                 // Load user language if is stored
-                language = _storage.Load(kLanguageSettingsKey);
-                if(language != null)
+                if(_storage.Has(kLanguageSettingsKey))
                 {
-                    languageStr = language.AsValue.ToString();
-                    _selectedLanguage = languageStr;
+                    var languageAttr = _storage.Load(kLanguageSettingsKey);
+                    language = languageAttr.AsValue.ToString();
+                    _selectedLanguage = language;
                 }
             }
 
-            _currentLanguage = (language == null ? GetSupportedLanguage(_currentLanguage) : languageStr);
+            _currentLanguage = (language == null) ? GetSupportedLanguage(_currentLanguage) : language;
             LoadCurrentLanguage();
         }
 

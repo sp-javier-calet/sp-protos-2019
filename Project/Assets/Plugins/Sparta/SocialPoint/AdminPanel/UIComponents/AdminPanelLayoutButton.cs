@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using SocialPoint.AssetBundlesClient;
+using SocialPoint.Base;
 using SocialPoint.Dependency;
 
 namespace SocialPoint.AdminPanel
@@ -27,7 +28,7 @@ namespace SocialPoint.AdminPanel
         }
 
         public Color GetHighlight()
-        {   
+        {
             return new Color(Color.r * 1.2f, Color.g * 1.2f, Color.b * 1.2f, Alpha);
         }
 
@@ -42,7 +43,7 @@ namespace SocialPoint.AdminPanel
 
     public partial class AdminPanelLayout
     {
-        public delegate void Callback (AssetBundleLoadAssetOperation request);
+        public delegate void Callback(AssetBundleLoadAssetOperation request);
         /*
          * Generic Button
          */
@@ -57,10 +58,15 @@ namespace SocialPoint.AdminPanel
             return CreateButton(label, ButtonColor.Default, onClick, enabled, imagePath, bestFit);
         }
 
+        public Button CreateButtonWithIcon(string label, ButtonColor buttonColor, Action onClick, string imagePath, bool bestFit, bool enabled = true)
+        {
+            return CreateButton(label, buttonColor, onClick, enabled, imagePath, bestFit);
+        }
+
         public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true, string imagePath = null, bool bestFit = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
-          
+
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
             layoutElement.flexibleWidth = 1;
@@ -74,18 +80,29 @@ namespace SocialPoint.AdminPanel
                 button.onClick.AddListener(() => onClick());
             }
 
-            Callback cb = (AssetBundleLoadAssetOperation request) => {
-                Texture prefab = null;
+            Callback cb = (AssetBundleLoadAssetOperation request) =>
+            {
                 if(request != null)
                 {
-                    prefab = request.GetAsset<Texture>();
-                    if(prefab != null)
+                    var texture = request.GetAsset<Texture>();
+                    if(texture != null)
                     {
-                        var iconImage = new GameObject("Admin Panel - Icon Button");
-                        iconImage.transform.parent = image.transform;
-                        iconImage.transform.localPosition = new Vector3(25, 0, 0);
-                        RawImage uitexture = iconImage.AddComponent<RawImage>();
-                        uitexture.texture = prefab;
+                        var textureTransform = CreateUIObject("Admin Panel - Icon Button", rectTransform);
+
+                        Vector2 anchorMin = textureTransform.anchorMin;
+                        Vector2 anchorMax = textureTransform.anchorMax;
+                        anchorMin.x = 0.75f;
+                        anchorMax.x = 1f;
+
+                        textureTransform.anchorMin = anchorMin;
+                        textureTransform.anchorMax = anchorMax;
+                        textureTransform.pivot = new Vector2(0.5f, 0.5f);
+                        
+                        var iconImage = textureTransform.gameObject;
+
+                        Image uitexture = iconImage.AddComponent<Image>();
+                        uitexture.preserveAspect = true;
+                        uitexture.sprite = Sprite.Create(texture as Texture2D, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f));
                         uitexture.raycastTarget = false;
                         Color col = uitexture.color;
                         col.a = 0.7f;
@@ -100,7 +117,7 @@ namespace SocialPoint.AdminPanel
             {
                 Services.Instance.Resolve<AssetBundleManager>().CoroutineRunner.StartCoroutine(SetImageIcon(imagePath, cb));
             }
-            
+
             return button;
         }
 
@@ -114,7 +131,7 @@ namespace SocialPoint.AdminPanel
             AssetBundleLoadAssetOperation request = null;
 
             // Get the asset
-            yield return Services.Instance.Resolve<AssetBundleManager>().LoadAssetAsyncRequest(imagePath+"_png", imagePath, typeof(Texture), req => request = req);
+            yield return Services.Instance.Resolve<AssetBundleManager>().LoadAssetAsyncRequest(imagePath + "_png", imagePath, typeof(Texture), req => request = req);
 
             // do something with it
             callBack(request);
@@ -132,11 +149,11 @@ namespace SocialPoint.AdminPanel
         public ConfirmActionButton CreateConfirmButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Confirm Button", Parent);
-            
+
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
             layoutElement.flexibleWidth = 1;
-            
+
             var image = rectTransform.gameObject.AddComponent<Image>();
             image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
 
@@ -149,7 +166,7 @@ namespace SocialPoint.AdminPanel
             }
 
             rectTransform.gameObject.AddComponent<EventTrigger>();
-            
+
             CreateButtonLabel(label, rectTransform, FontStyle.BoldAndItalic, enabled);
 
             return confirm;
@@ -220,7 +237,6 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-
         /*
          * Open Panel Button
          */
@@ -232,14 +248,14 @@ namespace SocialPoint.AdminPanel
         public Button CreateOpenPanelButton(string label, ButtonColor buttonColor, IAdminPanelGUI panel, bool enabled = true, bool replacePanel = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
-            
+
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
             layoutElement.flexibleWidth = 1;
-            
+
             var image = rectTransform.gameObject.AddComponent<Image>();
             image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
-            
+
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             var colors = button.colors;
@@ -248,7 +264,8 @@ namespace SocialPoint.AdminPanel
 
             if(enabled)
             {
-                button.onClick.AddListener(() => { 
+                button.onClick.AddListener(() =>
+                {
                     if(replacePanel)
                     {
                         ReplacePanel(panel);
@@ -259,7 +276,7 @@ namespace SocialPoint.AdminPanel
                     }
                 });
             }
-            
+
             CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
             CreateOpenPanelIndicator(rectTransform);
 
@@ -267,7 +284,6 @@ namespace SocialPoint.AdminPanel
 
             return button;
         }
-
 
         /*
          * Toggle Button
@@ -281,42 +297,42 @@ namespace SocialPoint.AdminPanel
         public Toggle CreateToggleButton(string label, bool status, ButtonColor buttonColor, Action<bool> onToggle, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Toggle Button", Parent);
-            
+
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
             layoutElement.flexibleWidth = 1;
-            
+
             var toggleBackground = CreateUIObject("Admin Panel - Toggle Background", rectTransform);
             var image = toggleBackground.gameObject.AddComponent<Image>();
             image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
-            
+
             // Status indicators parameters
             var anchorMin = Vector2.one;
             var anchorMax = Vector2.one;
-            int indicatorSize = (int)Mathf.Round(DefaultLabelHeight / 3);
+            int indicatorSize = (int) Mathf.Round(DefaultLabelHeight / 3);
             var anchoredPosition = new Vector2(-indicatorSize * 2, -indicatorSize - 1);
             var indicatorSizeDelta = new Vector2(indicatorSize, indicatorSize);
-            
+
             // Disabled indicator
             var disableIndicator = CreateUIObject("Admin Panel - Toggle Disabled Graphic", rectTransform);
             disableIndicator.anchorMin = anchorMin;
             disableIndicator.anchorMax = anchorMax;
             disableIndicator.anchoredPosition = anchoredPosition;
             disableIndicator.sizeDelta = indicatorSizeDelta;
-            
+
             var disImage = disableIndicator.gameObject.AddComponent<Image>();
             disImage.color = StatusDisabledColor;
-            
+
             // Enabled indicator
             var toggleIndicator = CreateUIObject("Admin Panel - Toggle Enabled Graphic", rectTransform);
             toggleIndicator.anchorMin = anchorMin;
             toggleIndicator.anchorMax = anchorMax;
             toggleIndicator.anchoredPosition = anchoredPosition;
             toggleIndicator.sizeDelta = indicatorSizeDelta;
-            
+
             var indImage = toggleIndicator.gameObject.AddComponent<Image>();
             indImage.color = StatusEnabledColor;
-            
+
             // Toggle button
             var toggle = rectTransform.gameObject.AddComponent<Toggle>();
             toggle.targetGraphic = image;
@@ -328,7 +344,7 @@ namespace SocialPoint.AdminPanel
             {
                 toggle.onValueChanged.AddListener(value => onToggle(value));
             }
-            
+
             CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
             return toggle;
@@ -419,7 +435,7 @@ namespace SocialPoint.AdminPanel
             text.resizeTextMinSize = 10;
             text.alignment = TextAnchor.MiddleCenter;
             text.fontStyle = style;
-            
+
             LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
         }
@@ -438,7 +454,7 @@ namespace SocialPoint.AdminPanel
             text.fontSize = DefaultFontSize / 2;
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleRight;
-            
+
             LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
         }

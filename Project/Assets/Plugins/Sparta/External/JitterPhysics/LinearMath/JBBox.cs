@@ -64,6 +64,8 @@ namespace Jitter.LinearMath
         /// </summary>
         public JVector Max;
 
+        public JQuaternion RotationInverse;
+
         /// <summary>
         /// Returns the largest box possible.
         /// </summary>
@@ -91,6 +93,13 @@ namespace Jitter.LinearMath
         {
             this.Min = min;
             this.Max = max;
+            RotationInverse = JQuaternion.Identity;
+        }
+
+        public JBBox(JVector min, JVector max, JQuaternion rotation)
+            :this(min, max)
+        {
+            RotationInverse = JQuaternion.Inverse(rotation);
         }
 
         /// <summary>
@@ -220,9 +229,18 @@ namespace Jitter.LinearMath
         /// <returns>The ContainmentType of the point.</returns>
         public ContainmentType Contains(ref JVector point)
         {
-            return ((((this.Min.X <= point.X) && (point.X <= this.Max.X)) &&
-                ((this.Min.Y <= point.Y) && (point.Y <= this.Max.Y))) &&
-                ((this.Min.Z <= point.Z) && (point.Z <= this.Max.Z))) ? ContainmentType.Contains : ContainmentType.Disjoint;
+            var pointRotated = point;
+            if(RotationInverse != JQuaternion.Identity)
+            {
+                var boxCenter = new JVector(Min.X + Max.X, Min.Y + Max.Y, Min.Z + Max.Z) / 2f;
+                pointRotated = point - boxCenter;
+                pointRotated = RotationInverse.RotateVector(pointRotated);
+                pointRotated += boxCenter;
+            }
+            
+            return ((((this.Min.X <= pointRotated.X) && (pointRotated.X <= this.Max.X)) &&
+                ((this.Min.Y <= pointRotated.Y) && (pointRotated.Y <= this.Max.Y))) &&
+                ((this.Min.Z <= pointRotated.Z) && (pointRotated.Z <= this.Max.Z))) ? ContainmentType.Contains : ContainmentType.Disjoint;
         }
 
         #endregion
@@ -337,6 +355,7 @@ namespace Jitter.LinearMath
         /// <param name="result">A JBBox containing the two given boxes.</param>
         public static void CreateMerged(ref JBBox original, ref JBBox additional, out JBBox result)
         {
+            result = new JBBox();
             JVector vector;
             JVector vector2;
             JVector.Min(ref original.Min, ref additional.Min, out vector2);

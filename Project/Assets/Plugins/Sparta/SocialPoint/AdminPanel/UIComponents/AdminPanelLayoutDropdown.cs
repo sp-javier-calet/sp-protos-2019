@@ -35,7 +35,7 @@ namespace SocialPoint.AdminPanel
             return colors;
         }
 
-        public Dropdown CreateDropdown(string currentKey, string[] options, Action<string> onChange = null)
+        public Dropdown CreateDropdown(string currentKey, string[] options, Action<string> onChange = null, bool addCurrentKey = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Dropdown", Parent);
             var dropdown = rectTransform.gameObject.AddComponent<Dropdown>();
@@ -58,7 +58,10 @@ namespace SocialPoint.AdminPanel
             if(options != null)
             {
                 dropdown.options = new List<Dropdown.OptionData>();
-                dropdown.options.Add(new Dropdown.OptionData(currentKey));
+                if(addCurrentKey)
+                {
+                    dropdown.options.Add(new Dropdown.OptionData(currentKey));
+                }
                 for(int i = 0, optionsLength = options.Length; i < optionsLength; i++)
                 {
                     var option = options[i];
