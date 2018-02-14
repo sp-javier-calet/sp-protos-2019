@@ -48,7 +48,10 @@ namespace SocialPoint.Rating
 
         void UpdateInfo()
         {
-            _infoTextComponent.text = _appRater.ToString();
+            if(_infoTextComponent != null)
+            {
+                _infoTextComponent.text = _appRater.ToString();
+            }
         }
     }
 }
