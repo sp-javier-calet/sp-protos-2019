@@ -36,7 +36,6 @@ namespace SocialPoint.Multiplayer
         }
 
         NetworkServerSceneController _netServer;
-        readonly NetworkSceneContext _networkContext;
 
         HttpMatchmakingServer _matchmaking;
 
@@ -46,6 +45,7 @@ namespace SocialPoint.Multiplayer
 
         const string MaxPlayersConfig = "MaxPlayers";
         const string GameAssemblyNameConfig = "GameAssemblyName";
+        const string CheatPasswordConfig = "CheatPassword";
         const string GameTypeConfig = "GameType";
         const string UsePluginHttpClient = "UsePluginHttpClient";
         const string HttpMaxRetriesConfig = "HttpMaxRetries";
@@ -63,9 +63,8 @@ namespace SocialPoint.Multiplayer
 
         const int RetryLogHttpRequestBodyMaxLength = 1024;
 
-        public AuthoritativePlugin(NetworkSceneContext context, string name="Authoritative") : base(name)
+        public AuthoritativePlugin(string name="Authoritative") : base(name)
         {
-            _networkContext = context;
             System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, error) =>
             {
                 return true;
@@ -110,7 +109,29 @@ namespace SocialPoint.Multiplayer
             PluginEventTracker = new HttpServerEventTracker(UpdateScheduler, trackHttpClient);
             PluginEventTracker.Start();
 
-            _netServer = new NetworkServerSceneController(this, _networkContext);
+            string gameAssembly;
+            string gameType;
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) && config.TryGetValue(GameTypeConfig, out gameType))
+            {
+                try
+                {
+                    var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
+                    _game = factory.Create(this, _fileManager, _matchmaking, UpdateScheduler, config);
+                    var netServerProvider = _game as INetworkServerSceneControllerProvider;
+                    if(netServerProvider != null)
+                    {
+                        _netServer = netServerProvider.NetworkServerSceneController;
+                    }
+                    else
+                    {
+                        _netServer = new NetworkServerSceneController(this, new NetworkSceneContext());
+                    }
+                }
+                catch (Exception e)
+                {
+                    errorMsg = e.Message;
+                }
+            }
 
             _netServer.SendMetric = PluginEventTracker.SendMetric;
             _netServer.SendLog = PluginEventTracker.SendLog;
@@ -128,21 +149,6 @@ namespace SocialPoint.Multiplayer
                 PluginEventTracker.GetBaseUrlCallback = _netServer.ServerConfig.GetBackendUrlCallback;
                 PluginEventTracker.Platform = "PhotonPlugin";
                 PluginEventTracker.UpdateCommonTrackData += (data) => { data.SetValue("ver", AppVersion); };
-            }
-
-            string gameAssembly;
-            string gameType;
-            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) && config.TryGetValue(GameTypeConfig, out gameType))
-            {
-                try
-                {
-                    var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
-                    _game = factory.Create(_netServer, this, _fileManager, _matchmaking, UpdateScheduler, config);
-                }
-                catch(Exception e)
-                {
-                    errorMsg = e.Message;
-                }
             }
 
             return string.IsNullOrEmpty(errorMsg);

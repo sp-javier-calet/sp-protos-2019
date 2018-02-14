@@ -60,8 +60,14 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
       <Link>Matchmaking\IMatchmakingServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\EventActionWrapper.cs">
+      <Link>Multiplayer/EventActionWrapper.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\INetworkServerGameFactory.cs">
       <Link>Multiplayer\INetworkServerGameFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\INetworkServerSceneControllerProvider.cs">
+      <Link>Multiplayer/INetworkServerSceneControllerProvider.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs">
       <Link>Multiplayer\MultiplayerModelExtensions.cs</Link>
