@@ -92,7 +92,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return PhotonNetwork.room == null ? null : PhotonNetwork.room.Name;
+                return PhotonNetwork.room == null ? null : PhotonNetwork.room.name;
             }
         }
 
@@ -104,7 +104,7 @@ namespace SocialPoint.Network
             {
                 var room = PhotonNetwork.room;
                 object serverId = 0;
-                if(room != null && room.CustomProperties.TryGetValue(ServerIdRoomProperty, out serverId))
+                if(room != null && room.customProperties.TryGetValue(ServerIdRoomProperty, out serverId))
                 {
                     if(serverId is int)
                     {
@@ -117,7 +117,7 @@ namespace SocialPoint.Network
 
         bool SetServerPlayer()
         {
-            if(PhotonNetwork.room.CustomProperties.ContainsKey(ServerIdRoomProperty))
+            if(PhotonNetwork.room.customProperties.ContainsKey(ServerIdRoomProperty))
             {
                 return false;
             }
