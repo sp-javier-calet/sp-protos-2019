@@ -1,4 +1,4 @@
-#if (UNITY_5 && !UNITY_5_0 && !UNITY_5_1 && !UNITY_5_2) || UNITY_2017_1_OR_NEWER
+#if UNITY_5 && !UNITY_5_0 && !UNITY_5_1 && !UNITY_5_2
 #define UNITY_MIN_5_3
 #endif
 
@@ -191,4 +191,3 @@ public class PhotonViewHandler : EditorWindow
         Debug.Log("Corrected scene views where needed.");
     }
 }
-
