@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 using UnityGameObject = UnityEngine.GameObject;
 using UnityTransform = UnityEngine.Transform;
+using UnityComponent = UnityEngine.Component;
 using MultiplayerTransform = SocialPoint.Multiplayer.Transform;
 using UnityCollider = UnityEngine.Collider;
 using MultiplayerCollider = SocialPoint.Multiplayer.SceneCollider;
@@ -26,7 +27,7 @@ namespace SocialPoint.Multiplayer
         public static SceneCollider ToMultiplayer(this UnityCollider c)
         {
             return new SceneCollider {
-                Id = c.name,
+                Id = c.GetMultiplayerId(),
                 Tags = new TagSet(c.transform.GetExportTags()),
                 Transform = c.transform.ToMultiplayer(),
                 Shape = c.ToPhysics()
@@ -36,7 +37,7 @@ namespace SocialPoint.Multiplayer
         public static SceneTransform ToMultiplayerSceneTransform(this UnityTransform t)
         {
             var st = new SceneTransform {
-                Id = t.name,
+                Id = t.GetMultiplayerId(),
                 Tags = new TagSet(t.GetExportTags()),
                 Transform = t.ToMultiplayer(),
                 Children = new List<Transform>()
@@ -48,6 +49,12 @@ namespace SocialPoint.Multiplayer
                 st.Children.Add(child.ToMultiplayer());
             }
             return st;
+        }
+
+        public static string GetMultiplayerId(this UnityComponent c)
+        {
+            var parentGroup = c.GetComponentInParent<SceneExporterGroup>();
+            return parentGroup != null ? parentGroup.name : c.name;
         }
     }
 }

@@ -1,59 +1,28 @@
 ﻿using UnityEngine;
-using SocialPoint.Network;
 using SocialPoint.Dependency;
-using SocialPoint.Physics;
 using SocialPoint.Utils;
-using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class UnityNetworkDebugDrawBehaviour : MonoBehaviour, INetworkSceneBehaviour
+    public class UnityNetworkDebugDrawBehaviour : INetworkSceneBehaviour
     {
         NetworkClientSceneController _clientController;
         NetworkServerSceneController _serverController;
         GameObject _multiObject = null;
-		NavMeshDebugDrawer _navMeshDebugDrawer = null;
+        NavMeshDebugDrawer _navMeshDebugDrawer = null;
+        SharpNav.TiledNavMesh _navMesh;
+        public bool IsServerEnabled{ get{ return _serverController != null && _serverController.Scene != null; } }
 
         private static readonly System.Type UnityDebugNetworkClientRigidBodyType = typeof(UnityDebugNetworkClientRigidBody);
 
-        public UnityNetworkDebugDrawBehaviour Init()
+        public void SetNavMesh(SharpNav.TiledNavMesh navMesh)
         {
-            _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
-            NetworkGameObject gameObjectPrefab = new NetworkGameObject(_clientController.Context);
-            _serverController = Services.Instance.Resolve<NetworkServerSceneController>();
-
-            _multiObject = UnityEngine.GameObject.Find("Multiplayer");
-            if(_multiObject )
-            {
-                if(_clientController.Scene.GetBehaviour<UnityNetworkDebugDrawBehaviour>(this) == null)
-                {
-                    _clientController.Scene.AddBehaviour(this);
-                }
-                _clientController.RegisterBehaviour(gameObjectPrefab, new UnityNetworkClientDebugBehaviour().Init(_clientController, _serverController));
-                _multiObject.AddComponent<UnityDebugMonoBehaviour>();
-
-                var debugScene = _multiObject.AddComponent<UnityDebugSceneMonoBehaviour>();
-                debugScene.Client = _clientController;
-                debugScene.Server = _serverController;
-
-                _navMeshDebugDrawer = _multiObject.AddComponent<NavMeshDebugDrawer>();
-            }
-            return this;
-        }
-
-		void SetNavMeshForDebugDrawer(SharpNav.TiledNavMesh navMesh)
-		{
-			_navMeshDebugDrawer.NavMesh = navMesh;
-		}
-
-        void OnDestroy()
-        {
-            _clientController.Scene.RemoveBehaviour(this);
+            _navMesh = navMesh;
         }
 
         void INetworkSceneBehaviour.OnInstantiateObject(NetworkGameObject go)
         {
-            if(go != null && _serverController != null)
+            if(IsServerEnabled && go != null && _serverController != null)
             {
                 var serverGo = _serverController.FindObject(go.Id);
                 if(serverGo != null)
@@ -82,11 +51,39 @@ namespace SocialPoint.Multiplayer
 
         public void Dispose()
         {
-
         }
 
         void INetworkSceneBehaviour.OnStart()
         {
+            if(!IsServerEnabled)
+            {
+                return;
+            }
+
+            _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
+            NetworkGameObject gameObjectPrefab = new NetworkGameObject(_clientController.Context);
+            _serverController = Services.Instance.Resolve<NetworkServerSceneController>();
+
+            _multiObject = GameObject.Find("Multiplayer");
+            if(_multiObject == null)
+            {
+                _multiObject = new GameObject("Multiplayer");
+                GameObject.DontDestroyOnLoad(_multiObject);
+            }
+
+            if(_clientController.Scene.GetBehaviour<UnityNetworkDebugDrawBehaviour>(this) == null)
+            {
+                _clientController.Scene.AddBehaviour(this);
+            }
+            _clientController.RegisterBehaviour(gameObjectPrefab, new UnityNetworkClientDebugBehaviour().Init(_clientController, _serverController));
+            _multiObject.AddComponent<UnityDebugMonoBehaviour>();
+
+            var debugScene = _multiObject.AddComponent<UnityDebugSceneMonoBehaviour>();
+            debugScene.Client = _clientController;
+            debugScene.Server = _serverController;
+
+            _navMeshDebugDrawer = _multiObject.AddComponent<NavMeshDebugDrawer>();
+            _navMeshDebugDrawer.NavMesh = _navMesh;
         }
 
         NetworkScene INetworkSceneBehaviour.Scene

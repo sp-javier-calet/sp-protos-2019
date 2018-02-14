@@ -137,7 +137,7 @@ namespace SocialPoint.Multiplayer
         public ValidatePassword ValidateCheatPassword { get; set; }
         public Action<Exception> ExceptionHandled { get; set; }
 
-        public NetworkServerSceneController(INetworkServer server, NetworkSceneContext context, IGameTime gameTime = null)
+        public NetworkServerSceneController(INetworkServer server, NetworkSceneContext context = null, IGameTime gameTime = null)
             : base(context)
         {
             GameTime = gameTime;
@@ -206,6 +206,11 @@ namespace SocialPoint.Multiplayer
                 _pendingActions = null;
             }
 
+            if(_pendingGameObjectAdded != null)
+            {
+                _pendingGameObjectAdded.Clear();
+            }
+
             _serializer = null;
 
             if(Context != null)
@@ -253,6 +258,10 @@ namespace SocialPoint.Multiplayer
             _server.RemoveDelegate(this);
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
+
+            _pendingGameObjectAdded.Clear();
+
+            OnAfterSceneUpdated.Clear();
         }
 
         public NetworkScene GetSceneForTimestamp(float ts)
@@ -379,6 +388,25 @@ namespace SocialPoint.Multiplayer
             _scene.Update(dt);
             //Add or remove logic changed during scene behaviour update
             UpdatePendingLogic();
+            // Add New GameObjects
+            AddPendingGameObjects();
+            UpdatePendingLogic();
+            OnAfterSceneUpdated.Call();
+        }
+
+        protected virtual void AddPendingGameObjects()
+        {
+            if(_pendingGameObjectAdded.Count > 0)
+            {
+                var oldPendingGameObjectsAdded = new List<NetworkGameObject>(_pendingGameObjectAdded);
+                _pendingGameObjectAdded.Clear();
+
+                for(int i = 0; i < oldPendingGameObjectsAdded.Count; ++i)
+                {
+                    var go = oldPendingGameObjectsAdded[i];
+                    _scene.AddObject(go);
+                }
+            }
         }
 
         public NetworkGameObject InstantiateLocal(byte objType, Transform trans = null)
@@ -389,16 +417,20 @@ namespace SocialPoint.Multiplayer
         public NetworkGameObject Instantiate(byte objType, Transform trans = null, bool local = false, int syncGroup = 0)
         {
             var go = Context.Pool.Get<NetworkGameObject>();
-            go.Init(Context, _scene.FreeObjectId, true, trans, objType, local, syncGroup);
+            go.Init(Context, _scene.ProvideObjectId(), true, trans, objType, local, syncGroup);
             SetupObject(go);
-            _scene.AddObject(go);
+            _pendingGameObjectAdded.Add(go);
             return go;
         }
 
         public void Destroy(int id)
         {
             SetupObjectToDestroy(id);
-            _scene.RemoveObject(id);
+            var go = _activeScene.FindObject(id);
+            if(go != null)
+            {
+                _scene.RemoveObject(id);
+            }
         }
 
         protected override void UpdatePendingLogic()
@@ -505,7 +537,6 @@ namespace SocialPoint.Multiplayer
             --ClientCount;
 
             _clientData.Remove(clientId);
-            UpdatePendingLogic();
             if(ClientDisconnected != null)
             {
                 ClientDisconnected(clientId);

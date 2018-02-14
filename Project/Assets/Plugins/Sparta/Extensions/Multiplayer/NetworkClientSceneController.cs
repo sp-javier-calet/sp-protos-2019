@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.Crash;
 
 namespace SocialPoint.Multiplayer
 {
@@ -15,10 +16,11 @@ namespace SocialPoint.Multiplayer
         INetworkMessageReceiver _receiver;
         NetworkSceneParser _parser;
 
+        public event Action<Exception> HandleException;
+
         Dictionary<int, object> _pendingActions;
         int _lastAppliedAction;
         float _serverTimestamp;
-        List<NetworkGameObject> _pendingGameObjectAdded;
 
         public event Action ServerUpdated;
 
@@ -109,9 +111,9 @@ namespace SocialPoint.Multiplayer
 
             _clientScene = new NetworkScene(Context);
             _scene = (NetworkScene)_clientScene.Clone();
-            _parser = new NetworkSceneParser(Context);
+            _parser = new NetworkSceneParser(Context, null, HandleException);
             _pendingActions = new Dictionary<int, object>();
-            _pendingGameObjectAdded = new List<NetworkGameObject>();
+            _pendingGameObjectAdded.Clear();
 
             Init(_clientScene);
 
@@ -124,6 +126,8 @@ namespace SocialPoint.Multiplayer
 
             _clientScene.OnObjectRemoved -= OnObjectRemovedFromScene;
             _clientScene.OnObjectRemoved += OnObjectRemovedFromScene;
+
+            OnAfterSceneUpdated.Clear();
         }
 
         public bool Equals(NetworkScene scene)
@@ -262,11 +266,12 @@ namespace SocialPoint.Multiplayer
                 _pendingActions.Clear();
                 _pendingActions = null;
             }
+
             if(_pendingGameObjectAdded != null)
             {
                 _pendingGameObjectAdded.Clear();
-                _pendingGameObjectAdded = null;
             }
+
             if(Context != null)
             {
                 Context.Clear();
@@ -284,7 +289,7 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-
+            OnAfterSceneUpdated.Call();
             AddPendingGameObjects();
             UpdatePendingLogic();
             UpdateObjects(dt);

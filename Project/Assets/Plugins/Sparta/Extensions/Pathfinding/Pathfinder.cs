@@ -88,7 +88,6 @@ namespace SocialPoint.Pathfinding
                     return true;
                 }
             }
-
             return false;
         }
 

@@ -21,7 +21,7 @@ namespace SocialPoint.Multiplayer
         {
             var unityColliders = ExportConfiguration.FindObjectsOfType<UnityEngine.Collider>(_tags);
             log.Log(string.Format("Saving {0} colliders...", unityColliders.Length));
-            var fh = files.Write(ExportName);
+            var fh = files.Write(GetPathExportName(ExportName));
 
             fh.Writer.Write(unityColliders.Length);
             for(var i=0; i<unityColliders.Length; i++)

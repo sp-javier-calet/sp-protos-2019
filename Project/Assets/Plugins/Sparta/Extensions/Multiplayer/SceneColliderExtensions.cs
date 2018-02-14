@@ -31,6 +31,6 @@ public static class SceneColliderExtensions
         size.Y *= scale.Y;
         size.Z *= scale.Z;
 
-        return new JBBox(center - size*0.5f, center + size*0.5f);
+        return new JBBox(center - size*0.5f, center + size*0.5f, collider.Transform.Rotation);
     }
 }

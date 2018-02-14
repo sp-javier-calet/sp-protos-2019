@@ -295,6 +295,7 @@ namespace SocialPoint.Multiplayer
 
         public INetworkBehaviour AddBehaviour(INetworkBehaviour behaviour, Type type)
         {
+            behaviour.GameObject = this;
             TypedBehaviours.Add(behaviour, type);
             return behaviour;
         }
@@ -503,11 +504,11 @@ namespace SocialPoint.Multiplayer
         readonly NetworkGameObjectFactoryDelegate _factory;
         readonly NetworkBehaviourContainerParser<INetworkBehaviour> _behaviourParser;
 
-        public NetworkGameObjectParser(NetworkSceneContext context, NetworkGameObjectFactoryDelegate factory = null)
+        public NetworkGameObjectParser(NetworkSceneContext context, NetworkGameObjectFactoryDelegate factory = null, Action<Exception> handleException = null)
         {
             Context = context;
             _factory = factory;
-            _behaviourParser = new NetworkBehaviourContainerParser<INetworkBehaviour>();
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkBehaviour>(handleException);
         }
 
         public NetworkGameObject Parse(IReader reader)

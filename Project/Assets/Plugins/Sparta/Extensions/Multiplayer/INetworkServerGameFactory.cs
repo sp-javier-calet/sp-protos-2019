@@ -8,6 +8,6 @@ namespace SocialPoint.Multiplayer
 {
     public interface INetworkServerGameFactory
     {
-        object Create(NetworkServerSceneController ctrl, INetworkServer networkServer, IFileManager fileManager, IMatchmakingServer matchmakingServer, IUpdateScheduler updateScheduler, Dictionary<string, string> config);
+        object Create(INetworkServer networkServer, IFileManager fileManager, IMatchmakingServer matchmakingServer, IUpdateScheduler updateScheduler, Dictionary<string, string> config);
     }
 }

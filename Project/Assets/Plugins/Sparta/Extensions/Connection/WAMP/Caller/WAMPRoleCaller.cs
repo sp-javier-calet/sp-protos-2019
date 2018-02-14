@@ -13,7 +13,7 @@ namespace SocialPoint.WAMP.Caller
 
         internal AttrList Data { get; private set; }
 
-        internal CallRequest(HandlerCall handler, AttrList data) : base(handler)
+        public CallRequest(HandlerCall handler, AttrList data) : base(handler)
         {
             Data = data;
         }

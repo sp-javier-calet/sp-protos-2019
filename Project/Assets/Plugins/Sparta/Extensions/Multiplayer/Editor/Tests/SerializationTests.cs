@@ -225,7 +225,7 @@ namespace SocialPoint.Multiplayer
             oldScene.AddBehaviour(new TestSceneSyncBehaviour(5, "test2"));
             var oldObj = new NetworkGameObject().Init(context, 1);
             oldObj.AddBehaviour(new TestObjectSyncBehaviour(6, "test"), testSceneSyncBehaviourType);
-            oldScene.AddObject(newObj);
+            oldScene.AddObject(oldObj);
 
             var objectSerializer = new NetworkGameObjectSerializer(context);
             objectSerializer.RegisterBehaviour(1, new TestObjectSerializer());
