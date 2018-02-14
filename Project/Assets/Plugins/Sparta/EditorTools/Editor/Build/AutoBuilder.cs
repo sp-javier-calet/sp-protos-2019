@@ -127,7 +127,8 @@ namespace SpartaTools.Editor.Build
         static void SetTarget(BuildTarget target)
         {
             // Select target platform
-            EditorUserBuildSettings.SwitchActiveBuildTarget(target);
+            var group = BuildPipeline.GetBuildTargetGroup(target);
+            EditorUserBuildSettings.SwitchActiveBuildTarget(group, target);
 
             if(target == BuildTarget.Android)
             {

@@ -4,17 +4,36 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using SpartaTools.Editor.Build;
+using UnityEditor.Build;
 
 namespace SpartaTools.Editor.View
 {
     [UnityEditor.InitializeOnLoad]
     public static class BuildSetApplier
     {
+        class TargetChangedListener : IActiveBuildTargetChanged
+        {
+            public int callbackOrder { get; set; }
+
+            public void OnActiveBuildTargetChanged(BuildTarget previousTarget, BuildTarget newTarget)
+            {
+                // Reapply the current config after change target platform
+                if (BuildSetApplier.AutoApply)
+                {
+                    BuildSetApplier.Reapply();
+                }
+            }
+        }
+
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
         const string AutoApplyLastTimeKey = "SpartaAutoApplyLastTime";
 
         static bool? _autoApply;
+
+        #pragma warning disable 414
+        static TargetChangedListener _targetChangedListener;
+        #pragma warning restore 414
 
         public static bool AutoApply
         {
@@ -66,9 +85,7 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
-            // Remove previous event if exists
-            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
-            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
+            _targetChangedListener = new TargetChangedListener();
 
             var playing = EditorApplication.isPlayingOrWillChangePlaymode;
             var compiling = EditorApplication.isCompiling;
@@ -133,15 +150,6 @@ namespace SpartaTools.Editor.View
             {
                 Debug.LogError(e.Message);    
                 CurrentMode = string.Empty;
-            }
-        }
-
-        static void OnTargetChanged()
-        {
-            // Reapply the current config after change target platform
-            if(AutoApply)
-            {
-                BuildSetApplier.Reapply();
             }
         }
 

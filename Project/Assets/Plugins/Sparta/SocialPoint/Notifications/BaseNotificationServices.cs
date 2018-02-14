@@ -87,6 +87,8 @@ namespace SocialPoint.Notifications
 
         public abstract void RequestPermissions();
 
+        public abstract void SetupChannels(NotificationChannel[] channels);
+
         #endregion
     }
 }

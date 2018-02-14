@@ -34,12 +34,6 @@
     <Reference Include="Ionic.Zlib.CF">
       <HintPath>..\..\..\Assets\Plugins\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
     </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\..\..\Assets\Plugins\Sparta\External\UnityTestTools\UnitTesting\Editor\NSubstitute\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\Server\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="LZ4">
@@ -272,6 +266,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsWriter.cs">
+      <Link>Network\NetworkStatsWriter.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
@@ -308,7 +305,6 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\LockstepNetworkClient.cs">
       <Link>Lockstep\Network\LockstepNetworkClient.cs</Link>
     </Compile>
-    <Compile Include="Network\ServerEvents\Tests\PluginEventTrackerTests.cs" />
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ShortEncoding.cs">
       <Link>IO\ShortEncoding.cs</Link>
     </Compile>

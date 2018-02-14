@@ -1,4 +1,4 @@
-#if UNITY_5 && (!UNITY_5_0 && !UNITY_5_1)
+#if (UNITY_5 && (!UNITY_5_0 && !UNITY_5_1)) || UNITY_5_3_OR_NEWER
 #define UNITY_5_2_AND_GREATER
 #endif
 
@@ -372,7 +372,11 @@ public class BuildSettings : BaseScreen
 		}
 		else if (IsShowingWebGlSettings)
 		{
-			DrawSetting("WebGL optimization level:", UnityBuildSettingsUtility.GetReadableWebGLOptimizationLevel(settings.WebGLOptimizationLevel));
+			DrawSetting("WebGL Template used:", settings.WebGLTemplatePath);
+			DrawSetting("WebGL optimization level:", UnityBuildSettingsUtility.GetReadableWebGLOptimizationLevel(settings.WebGLOptimizationLevel), false);
+			
+			DrawSetting("Compression format:", settings.WebGLCompressionFormat);
+			
 			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
 		}
 		else if (IsShowingiOSSettings)
@@ -639,6 +643,13 @@ public class BuildSettings : BaseScreen
 
 			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
 		}
+		else if (IsShowingWebGlSettings)
+		{
+			DrawSetting("Automatically cache WebGL assets data:", settings.WebGLAutoCacheAssetsData);
+			DrawSetting("WebGL Memory Size:", settings.WebGLMemorySize);
+			
+			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
+		}
 
 
 		if (!IsShowingiOSSettings && !IsShowingAndroidSettings && IsShowingMobileSettings) // any mobile except iOS, Android
@@ -678,31 +689,58 @@ public class BuildSettings : BaseScreen
 	}
 
 	void DrawDebugSettings(BuildInfo buildReportToDisplay, UnityBuildSettings settings)
-		{
+	{
 		DrawSettingsGroupTitle("Debug Settings");
 
 		DrawSetting("Is development build:", settings.EnableDevelopmentBuild);
 		DrawSetting("Debug Log enabled:", settings.EnableDebugLog);
-		DrawSetting("Auto-connect to Unity profiler:", settings.ConnectProfiler);
-		DrawSetting("Enable internal profiler:", settings.EnableInternalProfiler);
-		DrawSetting("Allow debugger:", settings.EnableSourceDebugging);
-		DrawSetting("Enable explicit null checks:", settings.EnableExplicitNullChecks);
-#if !UNITY_5_3_AND_LESSER
-		DrawSetting("Enable explicit divide-by-zero checks:", settings.EnableExplicitDivideByZeroChecks);
-#endif
+		
+		GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
+		
+		DrawSetting("Stack trace for regular logs:", UnityBuildSettingsUtility.GetReadableStackTraceType(settings.StackTraceForLog), false);
+		DrawSetting("Stack trace for warning logs:", UnityBuildSettingsUtility.GetReadableStackTraceType(settings.StackTraceForWarning), false);
+		DrawSetting("Stack trace for error logs:", UnityBuildSettingsUtility.GetReadableStackTraceType(settings.StackTraceForError), false);
+		DrawSetting("Stack trace for assert logs:", UnityBuildSettingsUtility.GetReadableStackTraceType(settings.StackTraceForAssert), false);
+		DrawSetting("Stack trace for exception logs:", UnityBuildSettingsUtility.GetReadableStackTraceType(settings.StackTraceForException), false);
 
-		DrawSetting("Action on .NET unhandled exception:", settings.ActionOnDotNetUnhandledException);
-		DrawSetting("Enable CrashReport API:", settings.EnableCrashReportApi);
-		DrawSetting("Force script optimization on debug builds:", settings.ForceOptimizeScriptCompilation);
+		GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
 
 		if (IsShowingPS3Settings)
 		{
 			DrawSetting("Enable verbose memory stats:", settings.PS3EnableVerboseMemoryStats);
+			
+			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
 		}
 		else if (IsShowingiOSSettings)
 		{
 			DrawSetting("Log Objective-C uncaught exceptions:", settings.iOSLogObjCUncaughtExceptions);
+			
+			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
 		}
+		else if (IsShowingWebGlSettings)
+		{
+			DrawSetting("Use pre-built WebGL Unity engine:", settings.WebGLUsePreBuiltUnityEngine);
+			DrawSetting("Create WebGL debug symbols file:", settings.WebGLCreateDebugSymbolsFile);
+			DrawSetting("WebGL exception support:", settings.WebGLExceptionSupportType);
+			
+			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
+		}
+		
+		DrawSetting("Enable explicit null checks:", settings.EnableExplicitNullChecks);
+#if !UNITY_5_3_AND_LESSER
+		DrawSetting("Enable explicit divide-by-zero checks:", settings.EnableExplicitDivideByZeroChecks);
+#endif
+		DrawSetting("Action on unhandled .NET exception:", settings.ActionOnDotNetUnhandledException);
+		
+		GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
+
+		DrawSetting("Auto-connect to Unity profiler:", settings.ConnectProfiler);
+		DrawSetting("Enable internal profiler:", settings.EnableInternalProfiler);
+
+		DrawSetting("Allow debugger:", settings.EnableSourceDebugging);
+		
+		DrawSetting("Enable CrashReport API:", settings.EnableCrashReportApi);
+		DrawSetting("Force script optimization on debug builds:", settings.ForceOptimizeScriptCompilation);
 	}
 
 	void DrawCodeSettings(BuildInfo buildReportToDisplay, UnityBuildSettings settings)
@@ -736,6 +774,8 @@ public class BuildSettings : BaseScreen
 		DrawSetting("Rendering path:", settings.RenderingPathUsed);
 		DrawSetting("Color space:", settings.ColorSpaceUsed);
 		DrawSetting("Use multi-threaded rendering:", settings.UseMultithreadedRendering);
+		DrawSetting("Use graphics jobs:", settings.UseGraphicsJobs);
+		DrawSetting("Graphics jobs mode:", settings.GraphicsJobsType);
 		DrawSetting("Use GPU skinning:", settings.UseGPUSkinning);
 		DrawSetting("Enable Virtual Reality Support:", settings.EnableVirtualRealitySupport);
 #if UNITY_5_2_AND_GREATER
@@ -790,12 +830,6 @@ public class BuildSettings : BaseScreen
 		}
 
 		if (IsShowingWebPlayerSettings)
-		{
-			string webScreenSize = settings.WebPlayerDefaultScreenWidth + " x " + settings.WebPlayerDefaultScreenHeight;
-			DrawSetting("Screen size:", webScreenSize);
-			GUILayout.Space(SETTINGS_GROUP_MINOR_SPACING);
-		}
-		else if (IsShowingWebGlSettings)
 		{
 			string webScreenSize = settings.WebPlayerDefaultScreenWidth + " x " + settings.WebPlayerDefaultScreenHeight;
 			DrawSetting("Screen size:", webScreenSize);

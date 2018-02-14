@@ -91,16 +91,23 @@ namespace SocialPoint.Pooling
 
         static IEnumerator HidePrefab(GameObject prefab, bool active, Vector3 position)
         {
-            Camera camera = Camera.main ?? Camera.allCameras[0];
+            Camera camera = Camera.main;
+
+            if(camera == null && Camera.allCameras.Length > 0)
+            {
+                camera = Camera.allCameras[0];
+            }
 
             // We force to upload a model to GPU in order to prevent performance
             // spikes when a model is first visible. We place it in middle of the
             // camera frustum to avoid culling.
-            float frustumMidPoint = (camera.farClipPlane - camera.nearClipPlane) * 0.5f;
-            prefab.transform.position = camera.transform.position + camera.transform.forward * frustumMidPoint;
-            prefab.SetActive(true);
-
-            yield return 0;
+            if(camera != null)
+            {
+                float frustumMidPoint = (camera.farClipPlane - camera.nearClipPlane) * 0.5f;
+                prefab.transform.position = camera.transform.position + camera.transform.forward * frustumMidPoint;
+                prefab.SetActive(true);
+                yield return 0;
+            }
 
             // We set back the previous values.
             prefab.transform.position = position;

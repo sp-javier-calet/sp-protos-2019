@@ -98,6 +98,22 @@ public class BuildInfo
 	// ==================================================================================
 
 	public string[] ScenesIncludedInProject;
+
+	/// <summary>
+	/// Temporary variable to hold all scenes in build.
+	/// Needed for report generation but is not saved to the build report.
+	/// </summary>
+	private EditorBuildSettingsScene[] scenes;
+
+	public EditorBuildSettingsScene[] GetScenes()
+	{
+		return scenes;
+	}
+	public void SetScenes(EditorBuildSettingsScene[] newScenes)
+	{
+		scenes = newScenes;
+	}
+
 	public string[] PrefabsUsedInScenes;
 
 	public bool AndroidUseAPKExpansionFiles;
@@ -192,7 +208,7 @@ public class BuildInfo
 		}
 #else
 		
-		var totalSizePart = BuildSizes.FirstOrDefault(part => part.IsTotal);
+		var totalSizePart = BuildSizes != null && BuildSizes.Length > 0 ? BuildSizes.FirstOrDefault(part => part.IsTotal) : null;
 		if (totalSizePart != null && totalSizePart.DerivedSize == 0)
 		{
 			var totalSize = GetTotalSize();
@@ -208,10 +224,15 @@ public class BuildInfo
 
 	double GetTotalSize()
 	{
+		if (BuildSizes == null)
+		{
+			return 0;
+		}
+
 		double totalSize = 0;
 		
 		// first try getting total size from the build sizes
-		var totalSizePart = BuildSizes.FirstOrDefault(part => part.IsTotal);
+		var totalSizePart = BuildSizes != null && BuildSizes.Length > 0 ? BuildSizes.FirstOrDefault(part => part.IsTotal) : null;
 		if (totalSizePart != null)
 		{
 			totalSize = totalSizePart.DerivedSize;
@@ -390,9 +411,16 @@ public class BuildInfo
 
 	// file entries
 	// ==================================================================================
-
+	
 	public BuildReportTool.SizePart[] MonoDLLs;
 	public BuildReportTool.SizePart[] ScriptDLLs;
+
+	// Since Unity 5, the UnityEngine.dll
+	// is now separated into smaller DLLs
+	// (even more so in Unity 2017).
+	// So we need a list for them.
+	public BuildReportTool.SizePart[] UnityEngineDLLs;
+
 
 	public FileFilterGroup FileFilters = null;
 
@@ -501,8 +529,7 @@ public class BuildInfo
 		get
 		{
 			// build sizes can't be empty (they are always there when you build)
-			// script dlls can't be empty (the project is sure to have some scripts in it)
-			return !string.IsNullOrEmpty(ProjectName) && (BuildSizes != null && BuildSizes.Length > 0) && (ScriptDLLs != null && ScriptDLLs.Length > 0);
+			return !string.IsNullOrEmpty(ProjectName) && (BuildSizes != null && BuildSizes.Length > 0);
 		}
 	}
 
@@ -557,6 +584,50 @@ public class BuildInfo
 			
 			UnusedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUnusedAssetsToShow);
 		}
+	}
+	
+	public void RecategorizeUsedAssets()
+	{
+		if (UsedAssets == null)
+		{
+			return;
+		}
+
+		FileFilterGroup fileFiltersToUse = FileFilters;
+
+		if (BuildReportTool.Options.ShouldUseConfiguredFileFilters())
+		{
+			fileFiltersToUse = BuildReportTool.FiltersUsed.GetProperFileFilterGroupToUse();
+			//Debug.Log("going to use configured file filters instead... loaded: " + (fileFiltersToUse != null));
+		}
+
+		UsedAssets.AssignPerCategoryList( BuildReportTool.ReportGenerator.SegregateAssetSizesPerCategory(UsedAssets.All, fileFiltersToUse) );
+
+		UsedAssets.RefreshFilterLabels(fileFiltersToUse);
+
+		UsedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUsedAssetsToShow);
+	}
+	
+	public void RecategorizeUnusedAssets()
+	{
+		if (UnusedAssets == null)
+		{
+			return;
+		}
+
+		FileFilterGroup fileFiltersToUse = FileFilters;
+
+		if (BuildReportTool.Options.ShouldUseConfiguredFileFilters())
+		{
+			fileFiltersToUse = BuildReportTool.FiltersUsed.GetProperFileFilterGroupToUse();
+			//Debug.Log("going to use configured file filters instead... loaded: " + (fileFiltersToUse != null));
+		}
+
+		UnusedAssets.AssignPerCategoryList( BuildReportTool.ReportGenerator.SegregateAssetSizesPerCategory(UnusedAssets.All, fileFiltersToUse) );
+
+		UnusedAssets.RefreshFilterLabels(fileFiltersToUse);
+			
+		UnusedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUnusedAssetsToShow);
 	}
 
 	void CalculateUsedAssetsDerivedSizes()

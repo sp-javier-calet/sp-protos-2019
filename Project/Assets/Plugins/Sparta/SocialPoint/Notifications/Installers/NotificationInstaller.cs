@@ -14,6 +14,7 @@ namespace SocialPoint.Notifications
         public class SettingsData
         {
             public bool AutoRegisterForRemote = true;
+            public NotificationChannel[] channels;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -78,6 +79,7 @@ namespace SocialPoint.Notifications
             {
                 services.RequestPermissions();
             }
+            services.SetupChannels(Settings.channels);
         }
     }
 }

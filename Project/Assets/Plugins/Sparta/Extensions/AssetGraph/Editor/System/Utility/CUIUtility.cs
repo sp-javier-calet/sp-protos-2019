@@ -77,7 +77,8 @@ namespace AssetBundleGraph
 
                     if(newTarget != target)
                     {
-                        EditorUserBuildSettings.SwitchActiveBuildTarget(newTarget);
+                        var group = BuildPipeline.GetBuildTargetGroup(newTarget);
+                        EditorUserBuildSettings.SwitchActiveBuildTarget(group, newTarget);
                         target = newTarget;
                     }
                 }

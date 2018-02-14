@@ -159,7 +159,7 @@ namespace SocialPoint.AssetBundlesClient
             content.AppendLine();
             content.AppendLine("Local Asset Bundles Path: " + _localAssetBundlesPath);
             content.AppendLine();
-            content.AppendLine("Caching.expirationDelay: " + Caching.expirationDelay * _secondsToDays);
+            content.AppendLine("Caching.expirationDelay: " + Caching.currentCacheForWriting.expirationDelay * _secondsToDays);
             content.AppendLine();
 
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());

@@ -14,3 +14,8 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     MultiplayerParentTag: MultiplayerParent
+    ServerBufferSize: 0
+    SyncGroupsSettings:
+    - SyncInterval: 0.3
+    - SyncInterval: 0.1
+    - SyncInterval: 0.05

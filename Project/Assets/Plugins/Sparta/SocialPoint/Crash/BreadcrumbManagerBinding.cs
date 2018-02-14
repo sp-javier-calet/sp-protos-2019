@@ -18,7 +18,7 @@ namespace SocialPoint.Crash
         #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
-        const string PluginModuleName = "sp_unity_crash_reporter";
+        const string PluginModuleName = "sp_unity_crash";
         #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif

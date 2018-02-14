@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 using SocialPoint.IO;
 using SocialPoint.Utils;
@@ -335,11 +335,11 @@ namespace SocialPoint.Multiplayer
         }
 
         bool RemoveObject(NetworkGameObject go)
-        {
-            if(go == null)
             {
+            if(go == null)
+                {
                 return false;
-            }
+                }
 
             if(!_objects.Remove(go.Id))
             {
@@ -656,10 +656,10 @@ namespace SocialPoint.Multiplayer
             writer.Write(objectsToUpdateNew.Count);
             var i = 0;
             foreach(var go in objectsToUpdateNew)
-            {
+                {
                 writer.Write(go.Id);
                 _objectSerializer.Serialize(go, objectsToUpdateOld[i++], writer);
-            }
+                }
 
             writer.Write(objectsToRemove.Count);
             foreach(var go in objectsToRemove)
@@ -667,10 +667,10 @@ namespace SocialPoint.Multiplayer
                 writer.Write(go.Id);
             }
 
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToCreate);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateNew);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToUpdateOld);
-            newScene.Context.Pool.Return<List<NetworkGameObject>>(objectsToRemove);
+            newScene.Context.Pool.Return(objectsToCreate);
+            newScene.Context.Pool.Return(objectsToUpdateNew);
+            newScene.Context.Pool.Return(objectsToUpdateOld);
+            newScene.Context.Pool.Return(objectsToRemove);
 
             _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
@@ -776,8 +776,8 @@ namespace SocialPoint.Multiplayer
                     _objectParser.Parse(_fakeGameObject, reader);
                     continue;
                 }
-                _objectParser.Parse(go, reader);
-            }
+                    _objectParser.Parse(go, reader);
+                }
 
             var objectsToRemoveCount = reader.ReadInt32();
             for(var i = 0; i < objectsToRemoveCount; i++)

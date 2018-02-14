@@ -12,7 +12,8 @@ public class SizePart
 	/// The filename with path, but relative to project's Assets folder
 	/// </summary>
 	public string Name;
-
+	
+	// -----------------------------------
 	
 	/// <summary>
 	/// How much the asset takes up space in the final build, in percentage.
@@ -20,16 +21,51 @@ public class SizePart
 	/// </summary>
 	public double Percentage = 0;
 
+	// -----------------------------------
+
 	/// <summary>
-	/// The raw file size as existing in the assets folder, expressed in human-readable format
+	/// For Unused Assets, this is the raw file size as existing in the assets folder, expressed in human-readable format
+	/// For Used Assets, this is the size upon being built, as found in the Editor log.
 	/// </summary>
 	public string Size;
 
 	/// <summary>
-	/// The raw file size in bytes
+	/// The <see cref="Size"/> converted into bytes.
 	/// </summary>
 	public long SizeBytes = -1;
+	
+	// same as getting the `Size` but since we now have two size types,
+	// for consistency, we now refer to the size as either RawSize and ImportedSize
+	public string RawSize { get{ return Size; } set{ Size = value; } }
+	public long RawSizeBytes { get{ return SizeBytes; } set{ SizeBytes = value; } }
+	
+	// -----------------------------------
+	
+	/// <summary>
+	/// The file size as imported into Unity, expressed in human-readable format.
+	/// If this SizePart is for an asset that has no imported size (e.g. built-in asset)
+	/// this will be empty.
+	/// </summary>
+	public string ImportedSize;
 
+	/// <summary>
+	/// The imported file size, expressed in bytes.
+	/// </summary>
+	public long ImportedSizeBytes;
+	
+	// -----------------------------------
+	
+	/// <summary>
+	/// For Used Assets, this is the file size as existing in the assets folder, expressed in human-readable format.
+	/// </summary>
+	public string SizeInAssetsFolder;
+
+	/// <summary>
+	/// The <see cref="SizeInAssetsFolder"/> in bytes
+	/// </summary>
+	public long SizeInAssetsFolderBytes = -1;
+
+	// -----------------------------------
 	
 	/// <summary>
 	/// In cases where we don't have exact values of file size (we just got it from
@@ -40,7 +76,8 @@ public class SizePart
 	/// This applies to the "Used Assets" list
 	/// </summary>
 	public double DerivedSize = 0;
-
+	
+	// -----------------------------------
 	
 	/// <summary>
 	/// Helper function to get the proper raw file size
@@ -78,28 +115,8 @@ public class SizePart
 			return 0;
 		}
 	}
-
-
-	// same as getting the `Size` but since we now have two size types,
-	// for consistency, we now refer to the size as either RawSize and ImportedSize
-	public string RawSize { get{ return Size; } set{ Size = value; } }
-	public long RawSizeBytes { get{ return SizeBytes; } set{ SizeBytes = value; } }
-
 	
-	/// <summary>
-	/// The file size as imported into Unity, expressed in human-readable format.
-	/// If this SizePart is for an asset that has no imported size (e.g. built-in asset)
-	/// this will be empty.
-	/// </summary>
-	public string ImportedSize;
-
-	/// <summary>
-	/// The imported file size, expressed in bytes.
-	/// </summary>
-	public long ImportedSizeBytes;
-
-
-
+	// -----------------------------------
 
 	public bool IsTotal { get{ return Name == "Complete size"; } }
 

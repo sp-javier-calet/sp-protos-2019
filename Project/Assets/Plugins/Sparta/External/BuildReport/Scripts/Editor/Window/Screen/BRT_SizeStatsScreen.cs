@@ -15,8 +15,36 @@ public class SizeStats : BaseScreen
 
 	Vector2 _assetListScrollPos;
 
+	
+	bool _hasTotalBuildSize;
+	bool _hasUsedAssetsTotalSize;
+	bool _hasBuildSizes;
+	bool _hasCompressedBuildSize;
+	bool _hasMonoDLLsToDisplay;
+	bool _hasUnityEngineDLLsToDisplay;
+	bool _hasScriptDLLsToDisplay;
+
+
 	public override void DrawGUI(Rect position, BuildInfo buildReportToDisplay)
 	{
+		if (Event.current.type == EventType.Layout)
+		{
+			_hasTotalBuildSize = !string.IsNullOrEmpty(buildReportToDisplay.TotalBuildSize) &&
+			                     !string.IsNullOrEmpty(buildReportToDisplay.BuildFilePath);
+
+			_hasUsedAssetsTotalSize = !string.IsNullOrEmpty(buildReportToDisplay.UsedTotalSize);
+			_hasCompressedBuildSize = !string.IsNullOrEmpty(buildReportToDisplay.CompressedBuildSize);
+			_hasBuildSizes = buildReportToDisplay.BuildSizes != null;
+			_hasMonoDLLsToDisplay = buildReportToDisplay.MonoDLLs != null && buildReportToDisplay.MonoDLLs.Length > 0;
+
+			_hasUnityEngineDLLsToDisplay = buildReportToDisplay.UnityEngineDLLs != null &&
+			                               buildReportToDisplay.UnityEngineDLLs.Length > 0;
+			
+			_hasScriptDLLsToDisplay = buildReportToDisplay.ScriptDLLs != null && buildReportToDisplay.ScriptDLLs.Length > 0;
+		}
+
+
+
 		GUILayout.Space(2); // top padding for scrollbar
 
 		_assetListScrollPos = GUILayout.BeginScrollView(_assetListScrollPos);
@@ -63,10 +91,13 @@ public class SizeStats : BaseScreen
 		else
 		{
 			// Total Build Size
-			if (!string.IsNullOrEmpty(buildReportToDisplay.TotalBuildSize) && !string.IsNullOrEmpty(buildReportToDisplay.BuildFilePath))
+			if (_hasTotalBuildSize)
 			{
 				GUILayout.BeginVertical();
-					GUILayout.Label(Labels.BUILD_TOTAL_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+				
+					var buildPlatform = BuildReportTool.ReportGenerator.GetBuildPlatformFromString(buildReportToDisplay.BuildType, buildReportToDisplay.BuildTargetUsed);
+
+					GUILayout.Label(buildPlatform == BuildPlatform.iOS ? Labels.BUILD_XCODE_SIZE_LABEL : Labels.BUILD_TOTAL_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 					
 					GUILayout.Label(BuildReportTool.Util.GetBuildSizePathDescription(buildReportToDisplay), BuildReportTool.Window.Settings.TINY_HELP_STYLE_NAME);
 
@@ -79,7 +110,7 @@ public class SizeStats : BaseScreen
 
 
 			// Used Assets
-			if (!string.IsNullOrEmpty(buildReportToDisplay.UsedTotalSize))
+			if (_hasUsedAssetsTotalSize)
 			{
 				BuildReportTool.Window.Utility.DrawLargeSizeDisplay(Labels.USED_TOTAL_SIZE_LABEL, Labels.USED_TOTAL_SIZE_DESC, buildReportToDisplay.UsedTotalSize);
 				GUILayout.Space(40);
@@ -156,14 +187,14 @@ public class SizeStats : BaseScreen
 
 	void DrawBuildSizes(BuildInfo buildReportToDisplay)
 	{
-		if (!string.IsNullOrEmpty(buildReportToDisplay.CompressedBuildSize))
+		if (_hasCompressedBuildSize)
 		{
 			GUILayout.BeginVertical();
 		}
 
 		GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
-		if (!string.IsNullOrEmpty(buildReportToDisplay.CompressedBuildSize))
+		if (_hasCompressedBuildSize)
 		{
 			GUILayout.BeginHorizontal();
 				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_PRE_BOLD, BuildReportTool.Window.Settings.INFO_SUBTITLE_STYLE_NAME);
@@ -175,7 +206,7 @@ public class SizeStats : BaseScreen
 			GUILayout.EndVertical();
 		}
 
-		if (buildReportToDisplay.BuildSizes != null)
+		if (_hasBuildSizes)
 		{
 			GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
 
@@ -187,40 +218,72 @@ public class SizeStats : BaseScreen
 		}
 	}
 
-
 	void DrawDLLList(BuildInfo buildReportToDisplay)
 	{
 		BuildReportTool.BuildPlatform buildPlatform = BuildReportTool.ReportGenerator.GetBuildPlatformFromString(buildReportToDisplay.BuildType, buildReportToDisplay.BuildTargetUsed);
-
+		
 		GUILayout.BeginHorizontal();
 
+			// column 1
 			GUILayout.BeginVertical();
-				GUILayout.Label(Labels.MONO_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+				if (_hasMonoDLLsToDisplay)
 				{
-					GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
+					GUILayout.Label(Labels.MONO_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+					{
+						GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
 						DrawNames(buildReportToDisplay.MonoDLLs);
 						DrawReadableSizes(buildReportToDisplay.MonoDLLs);
-					GUILayout.EndHorizontal();
+						GUILayout.EndHorizontal();
+					}
+
+					GUILayout.Space(20);
 				}
+
+				if (_hasUnityEngineDLLsToDisplay)
+				{
+					DrawScriptDLLsList(buildReportToDisplay, buildPlatform);
+				}
+
 			GUILayout.EndVertical();
 
 			GUILayout.Space(15);
 
+			// column 2
 			GUILayout.BeginVertical();
-				GUILayout.Label(Labels.SCRIPT_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+				if (_hasUnityEngineDLLsToDisplay)
 				{
-					GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
-						DrawNames(buildReportToDisplay.ScriptDLLs);
-
-						if (buildPlatform != BuildPlatform.WebGL)
-						{
-							DrawReadableSizes(buildReportToDisplay.ScriptDLLs);
-						}
-					GUILayout.EndHorizontal();
+					GUILayout.Label(Labels.UNITY_ENGINE_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+					{
+						GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
+							DrawNames(buildReportToDisplay.UnityEngineDLLs);
+							DrawReadableSizes(buildReportToDisplay.UnityEngineDLLs);
+						GUILayout.EndHorizontal();
+					}
 				}
+				else
+				{
+					DrawScriptDLLsList(buildReportToDisplay, buildPlatform);
+				}
+			GUILayout.Space(20);
 			GUILayout.EndVertical();
-
+			
 		GUILayout.EndHorizontal();
+	}
+
+	void DrawScriptDLLsList(BuildInfo buildReportToDisplay, BuildReportTool.BuildPlatform buildPlatform)
+	{
+		if (!_hasScriptDLLsToDisplay)
+		{
+			return;
+		}
+
+		GUILayout.Label(Labels.SCRIPT_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+		{
+			GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
+				DrawNames(buildReportToDisplay.ScriptDLLs);
+				DrawReadableSizes(buildReportToDisplay.ScriptDLLs);
+			GUILayout.EndHorizontal();
+		}
 	}
 
 

@@ -425,7 +425,7 @@ namespace SocialPoint.QualityStats
 
         static void AddSizeCacheDir(AttrDic dict)
         {
-            dict.SetValue("size_cache_dir", Caching.spaceOccupied);
+            dict.SetValue("size_cache_dir", Caching.currentCacheForWriting.spaceOccupied);
         }
 
         void AddTimeToMap(AttrDic dict)
