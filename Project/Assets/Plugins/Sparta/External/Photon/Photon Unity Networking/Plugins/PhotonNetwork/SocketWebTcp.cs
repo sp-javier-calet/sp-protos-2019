@@ -17,25 +17,24 @@ using SupportClassPun = ExitGames.Client.Photon.SupportClass;
 
 namespace ExitGames.Client.Photon
 {
-    #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-    /// <summary>
-    /// Yield Instruction to Wait for real seconds. Very important to keep connection working if Time.TimeScale is altered, we still want accurate network events
-    /// </summary>
-    public sealed class WaitForRealSeconds : CustomYieldInstruction
-    {
-        private readonly float _endTime;
 
-        public override bool keepWaiting
-        {
-            get { return _endTime > Time.realtimeSinceStartup; }
-        }
+	/// <summary>
+	/// Yield Instruction to Wait for real seconds. Very important to keep connection working if Time.TimeScale is altered, we still want accurate network events
+	/// </summary>
+	public sealed class WaitForRealSeconds : CustomYieldInstruction
+	{
+		private readonly float _endTime;
 
-        public WaitForRealSeconds(float seconds)
-        {
-            _endTime = Time.realtimeSinceStartup + seconds;
-        }
-    }
-    #endif
+		public override bool keepWaiting
+		{
+			get { return _endTime > Time.realtimeSinceStartup; }
+		}
+
+		public WaitForRealSeconds(float seconds)
+		{
+			_endTime = Time.realtimeSinceStartup + seconds;
+		}
+	}
 
     /// <summary>
     /// Internal class to encapsulate the network i/o functionality for the realtime libary.
@@ -158,11 +157,7 @@ namespace ExitGames.Client.Photon
                 {
                     this.Listener.DebugReturn(DebugLevel.ALL, "Sending: " + SupportClassPun.ByteArrayToString(data));
                 }
-
-                if (this.sock != null)
-                {
-                    this.sock.Send(data);
-                }
+                this.sock.Send(data);
             }
             catch (Exception e)
             {
@@ -189,94 +184,74 @@ namespace ExitGames.Client.Photon
         public IEnumerator ReceiveLoop()
         {
             this.Listener.DebugReturn(DebugLevel.INFO, "ReceiveLoop()");
-            if (this.sock != null)
+            while (!this.sock.Connected && this.sock.Error == null)
             {
-                while (this.sock != null && !this.sock.Connected && this.sock.Error == null)
-                {
-                    #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-                    yield return new WaitForRealSeconds(0.1f);
-                    #else
-                    float waittime = Time.realtimeSinceStartup + 0.1f;
-                    while (Time.realtimeSinceStartup < waittime) yield return 0;
-                    #endif
-                }
+				yield return new WaitForRealSeconds(0.1f); // while connecting
+            }
 
-                if (this.sock != null)
+            if (this.sock.Error != null)
+            {
+                this.Listener.DebugReturn(DebugLevel.ERROR, "Exiting receive thread. Server: " + this.ServerAddress + ":" + this.ServerPort + " Error: " + this.sock.Error);
+				this.HandleException(StatusCode.ExceptionOnConnect);
+            }
+            else
+            {
+                // connected
+                if (this.ReportDebugOfLevel(DebugLevel.ALL))
                 {
-                    if (this.sock.Error != null)
-                    {
-                        this.Listener.DebugReturn(DebugLevel.ERROR, "Exiting receive thread. Server: " + this.ServerAddress + ":" + this.ServerPort + " Error: " + this.sock.Error);
-                        this.HandleException(StatusCode.ExceptionOnConnect);
-                    }
-                    else
-                    {
-                        // connected
-                        if (this.ReportDebugOfLevel(DebugLevel.ALL))
-                        {
-                            this.Listener.DebugReturn(DebugLevel.ALL, "Receiving by websocket. this.State: " + State);
-                        }
-                        State = PhotonSocketState.Connected;
-                        while (State == PhotonSocketState.Connected)
-                        {
-                            if (this.sock != null)
-                            {
-                                if (this.sock.Error != null)
+                    this.Listener.DebugReturn(DebugLevel.ALL, "Receiving by websocket. this.State: " + State);
+                }
+                State = PhotonSocketState.Connected;
+				while (State == PhotonSocketState.Connected)
+				{
+					if (this.sock.Error != null)
+					{
+						this.Listener.DebugReturn(DebugLevel.ERROR, "Exiting receive thread (inside loop). Server: "+this.ServerAddress+":"+this.ServerPort+" Error: " + this.sock.Error);
+						this.HandleException(StatusCode.ExceptionOnReceive);
+						break;
+					}
+					else
+					{
+						byte[] inBuff = this.sock.Recv();
+						if (inBuff == null || inBuff.Length == 0)
+						{
+							yield return new WaitForRealSeconds(0.02f); // nothing received. wait a bit, try again
+							continue;
+						}
+
+						if (this.ReportDebugOfLevel(DebugLevel.ALL))
+						{
+							this.Listener.DebugReturn(DebugLevel.ALL, "TCP << " + inBuff.Length + " = " + SupportClassPun.ByteArrayToString(inBuff));
+						}
+
+						if (inBuff.Length > 0)
+						{
+							try
+							{
+								HandleReceivedDatagram(inBuff, inBuff.Length, false);
+							}
+							catch (Exception e)
+							{
+                                if (this.State != PhotonSocketState.Disconnecting && this.State != PhotonSocketState.Disconnected)
                                 {
-                                    this.Listener.DebugReturn(DebugLevel.ERROR, "Exiting receive thread (inside loop). Server: " + this.ServerAddress + ":" + this.ServerPort + " Error: " + this.sock.Error);
+                                    if (this.ReportDebugOfLevel(DebugLevel.ERROR))
+                                    {
+                                        this.EnqueueDebugReturn(DebugLevel.ERROR, "Receive issue. State: " + this.State + ". Server: '" + this.ServerAddress + "' Exception: " + e);
+                                    }
+
                                     this.HandleException(StatusCode.ExceptionOnReceive);
-                                    break;
                                 }
-                                else
-                                {
-                                    byte[] inBuff = this.sock.Recv();
-                                    if (inBuff == null || inBuff.Length == 0)
-                                    {
-                                        // nothing received. wait a bit, try again
-                                        #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-                                        yield return new WaitForRealSeconds(0.02f);
-                                        #else
-                                        float waittime = Time.realtimeSinceStartup + 0.02f;
-                                        while (Time.realtimeSinceStartup < waittime) yield return 0;
-                                        #endif
-                                        continue;
-                                    }
-
-                                    if (this.ReportDebugOfLevel(DebugLevel.ALL))
-                                    {
-                                        this.Listener.DebugReturn(DebugLevel.ALL, "TCP << " + inBuff.Length + " = " + SupportClassPun.ByteArrayToString(inBuff));
-                                    }
-
-                                    if (inBuff.Length > 0)
-                                    {
-                                        try
-                                        {
-                                            HandleReceivedDatagram(inBuff, inBuff.Length, false);
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            if (this.State != PhotonSocketState.Disconnecting && this.State != PhotonSocketState.Disconnected)
-                                            {
-                                                if (this.ReportDebugOfLevel(DebugLevel.ERROR))
-                                                {
-                                                    this.EnqueueDebugReturn(DebugLevel.ERROR, "Receive issue. State: " + this.State + ". Server: '" + this.ServerAddress + "' Exception: " + e);
-                                                }
-
-                                                this.HandleException(StatusCode.ExceptionOnReceive);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+							}
+						}
+					}
+				}
             }
 
             this.Disconnect();
         }
     }
 
-    internal class MonoBehaviourExt : MonoBehaviour { }
+	internal class MonoBehaviourExt : MonoBehaviour {}
 }
 
 #endif

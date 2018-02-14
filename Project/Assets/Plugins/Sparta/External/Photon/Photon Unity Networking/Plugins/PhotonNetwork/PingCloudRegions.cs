@@ -1,7 +1,8 @@
 using System;
-using System.Net;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using ExitGames.Client.Photon;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -11,7 +12,6 @@ using SupportClassPun = ExitGames.Client.Photon.SupportClass;
 #if UNITY_EDITOR || (!UNITY_ANDROID && !UNITY_IPHONE && !UNITY_PS3 && !UNITY_WINRT)
 
 using System.Net.Sockets;
-
 
 /// <summary>Uses C# Socket class from System.Net.Sockets (as Unity usually does).</summary>
 /// <remarks>Incompatible with Windows 8 Store/Phone API.</remarks>
@@ -91,42 +91,8 @@ public class PingMonoEditor : PhotonPing
     }
 
 }
-
 #endif
 
-
-#if UNITY_WEBGL
-
-public class PingHttp : PhotonPing
-{
-    private WWW webRequest;
-
-    public override bool StartPing(string address)
-    {
-        address = "https://" + address + "/photon/m/?ping&r=" + UnityEngine.Random.Range(0, 10000);
-        Debug.Log("StartPing: " + address);
-        this.webRequest = new WWW(address);
-        return true;
-    }
-
-    public override bool Done()
-    {
-        if (this.webRequest.isDone)
-        {
-            Successful = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    public override void Dispose()
-    {
-        this.webRequest.Dispose();
-    }
-}
-
-#endif
 
 
 public class PhotonPingManager
@@ -134,9 +100,8 @@ public class PhotonPingManager
     public bool UseNative;
     public static int Attempts = 5;
     public static bool IgnoreInitialAttempt = true;
-    public static int MaxMilliseconsPerPing = 800; // enter a value you're sure some server can beat (have a lower rtt)
+    public static int MaxMilliseconsPerPing = 800;  // enter a value you're sure some server can beat (have a lower rtt)
 
-	private const string wssProtocolString = "wss://";
 
     public Region BestRegion
     {
@@ -158,11 +123,7 @@ public class PhotonPingManager
         }
     }
 
-    public bool Done
-    {
-        get { return this.PingsRunning == 0; }
-    }
-
+    public bool Done { get { return this.PingsRunning == 0; } }
     private int PingsRunning;
 
 
@@ -173,56 +134,39 @@ public class PhotonPingManager
     {
         region.Ping = Attempts*MaxMilliseconsPerPing;
 
-        this.PingsRunning++; // TODO: Add try-catch to make sure the PingsRunning are reduced at the end and that the lib does not crash the app
+        this.PingsRunning++;        // TODO: Add try-catch to make sure the PingsRunning are reduced at the end and that the lib does not crash the app
         PhotonPing ping;
+        //Debug.Log("PhotonHandler.PingImplementation " + PhotonHandler.PingImplementation);
         if (PhotonHandler.PingImplementation == typeof(PingNativeDynamic))
         {
-            Debug.Log("Using constructor for new PingNativeDynamic()"); // it seems on Android, the Activator can't find the default Constructor
+            Debug.Log("Using constructor for new PingNativeDynamic()"); // it seems on android, the Activator can't find the default Constructor
             ping = new PingNativeDynamic();
-        }
-        else if(PhotonHandler.PingImplementation == typeof(PingNativeStatic))
-        {
-            Debug.Log("Using constructor for new PingNativeStatic()"); // it seems on Switch, the Activator can't find the default Constructor
-            ping = new PingNativeStatic();
         }
         else if (PhotonHandler.PingImplementation == typeof(PingMono))
         {
-            ping = new PingMono(); // using this type explicitly saves it from IL2CPP bytecode stripping
+            ping = new PingMono();  // using this type explicitly saves it from IL2CPP bytecode stripping
         }
-        #if UNITY_WEBGL
-        else if (PhotonHandler.PingImplementation == typeof(PingHttp))
-        {
-            ping = new PingHttp();
-        }
-        #endif
         else
         {
-            ping = (PhotonPing)Activator.CreateInstance(PhotonHandler.PingImplementation);
+            ping = (PhotonPing) Activator.CreateInstance(PhotonHandler.PingImplementation);
         }
 
-        //Debug.Log(region);
+        //Debug.Log("Ping is: " + ping + " type " + ping.GetType());
 
         float rttSum = 0.0f;
         int replyCount = 0;
 
-        // all addresses for Photon region servers will contain a :port ending. this needs to be removed first.
-        // PhotonPing.StartPing() requires a plain (IP) address without port or protocol-prefix (on all but Windows 8.1 and WebGL platforms).
 
-        string regionAddress = region.HostAndPort;
-        int indexOfColon = regionAddress.LastIndexOf(':');
+        // PhotonPing.StartPing() requires a plain IP address without port (on all but Windows 8 platforms).
+        // So: remove port and do the DNS-resolving if needed
+        string cleanIpOfRegion = region.HostAndPort;
+        int indexOfColon = cleanIpOfRegion.LastIndexOf(':');
         if (indexOfColon > 1)
         {
-            regionAddress = regionAddress.Substring(0, indexOfColon);
+            cleanIpOfRegion = cleanIpOfRegion.Substring(0, indexOfColon);
         }
-
-		// we also need to remove the protocol or Dns.GetHostAddresses(hostName) will throw an exception
-		// This is for xBox One for example.
-		int indexOfProtocol = regionAddress.IndexOf(PhotonPingManager.wssProtocolString);
-		if (indexOfProtocol > -1)
-		{
-			regionAddress = regionAddress.Substring(indexOfProtocol+PhotonPingManager.wssProtocolString.Length);
-		}
-        regionAddress = ResolveHost(regionAddress);
+        cleanIpOfRegion = ResolveHost(cleanIpOfRegion);
+        //Debug.Log("Resolved and port-less IP is: " + cleanIpOfRegion);
 
 
         for (int i = 0; i < Attempts; i++)
@@ -233,7 +177,7 @@ public class PhotonPingManager
 
             try
             {
-                ping.StartPing(regionAddress);
+                ping.StartPing(cleanIpOfRegion);
             }
             catch (Exception e)
             {
@@ -269,7 +213,6 @@ public class PhotonPingManager
 
             yield return new WaitForSeconds(0.1f);
         }
-        ping.Dispose();
 
         this.PingsRunning--;
 
@@ -277,21 +220,10 @@ public class PhotonPingManager
         yield return null;
     }
 
-#if (UNITY_WINRT && !UNITY_EDITOR) || UNITY_WEBGL
+#if UNITY_WINRT && !UNITY_EDITOR
 
     public static string ResolveHost(string hostName)
     {
-        #if UNITY_WEBGL
-        if (hostName.StartsWith("wss://"))
-        {
-            hostName = hostName.Substring(6);
-        }
-        if (hostName.StartsWith("ws://"))
-        {
-            hostName = hostName.Substring(5);
-        }
-        #endif
-
         return hostName;
     }
 

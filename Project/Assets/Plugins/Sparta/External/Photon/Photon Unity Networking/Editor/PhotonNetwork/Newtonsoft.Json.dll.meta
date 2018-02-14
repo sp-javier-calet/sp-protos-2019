@@ -1,13 +1,15 @@
 fileFormatVersion: 2
 guid: 0268f98d7c649564a818b0768fc68d4b
-timeCreated: 1500902716
-licenseType: Pro
+labels:
+- ExitGames
+- PUN
+- Photon
+- Networking
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
   executionOrder: {}
   isPreloaded: 0
-  isOverridable: 0
   platformData:
     Any:
       enabled: 0

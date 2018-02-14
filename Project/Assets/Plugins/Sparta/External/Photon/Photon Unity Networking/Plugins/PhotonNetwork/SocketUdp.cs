@@ -145,26 +145,24 @@ namespace ExitGames.Client.Photon
             IPAddress ipAddress = null;
             try
             {
-                ipAddress = IPhotonSocket.GetIpAddress(this.ServerAddress);
-                if (ipAddress == null)
-                {
-                    // this covers cases of failed DNS lookup and bad addresses.
-                    throw new ArgumentException("Invalid IPAddress. Address: " + this.ServerAddress);
-                }
-
                 lock (this.syncer)
                 {
-                    if (this.State == PhotonSocketState.Disconnecting || this.State == PhotonSocketState.Disconnected)
+                    ipAddress = IPhotonSocket.GetIpAddress(this.ServerAddress);
+                    if (ipAddress == null)
                     {
-                        return;
+                        throw new ArgumentException("Invalid IPAddress. Address: " + this.ServerAddress);
+                    }
+                    if (ipAddress.AddressFamily != AddressFamily.InterNetwork && ipAddress.AddressFamily != AddressFamily.InterNetworkV6)
+                    {
+                        throw new ArgumentException("AddressFamily '" + ipAddress.AddressFamily + "' not supported. Address: " + this.ServerAddress);
                     }
 
                     this.sock = new Socket(ipAddress.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
                     this.sock.Connect(ipAddress, this.ServerPort);
 
-                    this.AddressResolvedAsIpv6 = this.IsIpv6SimpleCheck(ipAddress);
+                    this.AddressResolvedAsIpv6 = (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6);
                     this.State = PhotonSocketState.Connected;
-
+                    
                     this.peerBase.OnConnect();
                 }
             }

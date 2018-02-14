@@ -1,8 +1,7 @@
 fileFormatVersion: 2
 guid: f226ce9e7a33bc24c95f34dd9f583516
-timeCreated: 1500902716
-licenseType: Pro
-DefaultImporter:
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- ExitGames
+- PUN
+- Photon
+- Networking
