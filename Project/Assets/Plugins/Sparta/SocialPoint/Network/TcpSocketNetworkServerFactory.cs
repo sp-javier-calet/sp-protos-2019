@@ -3,7 +3,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class TcpSocketNetworkServerFactory : BaseNetworkServerFactory, INetworkServerFactory
+    public class TcpSocketNetworkServerFactory : BaseNetworkServerFactory<TcpSocketNetworkServer>
     {
         readonly TcpSocketNetworkInstaller.SettingsData _settings;
         readonly IUpdateScheduler _updateScheduler;
@@ -17,20 +17,12 @@ namespace SocialPoint.Network
             _updateScheduler = updateScheduler;
         }
 
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
+        protected override TcpSocketNetworkServer DoCreate()
         {
-            return Create();
-        }
+            var server = new TcpSocketNetworkServer(_updateScheduler,
+                _settings.Config.ServerAddress, _settings.Config.ServerPort);
 
-        #endregion
-
-        public TcpSocketNetworkServer Create()
-        {
-            return Create<TcpSocketNetworkServer>(new TcpSocketNetworkServer(_updateScheduler,
-                _settings.Config.ServerAddress, _settings.Config.ServerPort));
+            return server;
         }
     }
 }
-

@@ -2,7 +2,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
-    class LocalBridgeNetworkServer : ILocalNetworkServer
+    public class LocalBridgeNetworkServer : ILocalNetworkServer
     {
         readonly INetworkServer _netServer;
         readonly ILocalNetworkServer _localServer;

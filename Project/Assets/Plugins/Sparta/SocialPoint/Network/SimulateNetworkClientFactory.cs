@@ -3,7 +3,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class SimulateNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class SimulateNetworkClientFactory : BaseNetworkClientFactory<SimulateNetworkClient>
     {
         readonly INetworkClientFactory _clientFactory;
         readonly LocalNetworkInstaller.ClientSettingsData _settings;
@@ -20,18 +20,9 @@ namespace SocialPoint.Network
             _updateScheduler = updateScheduler;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
+        protected override SimulateNetworkClient DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public SimulateNetworkClient Create()
-        {
-            var client = Create<SimulateNetworkClient>(new SimulateNetworkClient(_clientFactory.Create(), _updateScheduler));
+            var client = new SimulateNetworkClient(_clientFactory.Create(), _updateScheduler);
             SetupClient(client);
 
             return client;

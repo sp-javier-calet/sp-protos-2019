@@ -1,30 +1,17 @@
 ﻿namespace SocialPoint.Network
 {
-    public class LocalNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class LocalNetworkClientFactory : BaseNetworkClientFactory<LocalNetworkClient>
     {
-        readonly ILocalNetworkServerFactory _serverFactory;
+        readonly LocalNetworkServerFactory _serverFactory;
 
-        public LocalNetworkClientFactory(ILocalNetworkServerFactory serverFactory)
+        public LocalNetworkClientFactory(LocalNetworkServerFactory serverFactory)
         {
             _serverFactory = serverFactory;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
+        protected override LocalNetworkClient DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public LocalNetworkClient Create()
-        {
-            if(_serverFactory.Server == null)
-            {
-                _serverFactory.Create();
-            }
-            return Create<LocalNetworkClient>(new LocalNetworkClient(_serverFactory.Server));
+            return new LocalNetworkClient(_serverFactory.Create());
         }
     }
 }

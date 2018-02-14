@@ -3,7 +3,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkServerFactory : BaseNetworkServerFactory, INetworkServerFactory
+    public class UnetNetworkServerFactory : BaseNetworkServerFactory<UnetNetworkServer>
     {
         readonly UnetNetworkInstaller.SettingsData _settings;
         readonly IUpdateScheduler _updateScheduler;
@@ -17,18 +17,9 @@ namespace SocialPoint.Network
             _updateScheduler = updateScheduler;
         }
 
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
+        protected override UnetNetworkServer DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public UnetNetworkServer Create()
-        {
-            return Create<UnetNetworkServer>(new UnetNetworkServer(_updateScheduler, _settings.Config.ServerPort));
+            return new UnetNetworkServer(_updateScheduler, _settings.Config.ServerPort);;
         }
     }
 }

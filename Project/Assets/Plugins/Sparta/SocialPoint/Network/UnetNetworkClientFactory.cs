@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class UnetNetworkClientFactory : BaseNetworkClientFactory<UnetNetworkClient>
     {
         readonly UnetNetworkInstaller.SettingsData _settings;
 
@@ -13,18 +13,9 @@ namespace SocialPoint.Network
             _settings = settings;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
+        protected override UnetNetworkClient DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public UnetNetworkClient Create()
-        {
-            return Create<UnetNetworkClient>(new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort));
+            return new UnetNetworkClient(_settings.Config.ServerAddress, _settings.Config.ServerPort);
         }
     }
 }

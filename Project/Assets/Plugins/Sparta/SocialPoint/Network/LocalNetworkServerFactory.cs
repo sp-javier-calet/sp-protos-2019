@@ -1,22 +1,16 @@
 ﻿namespace SocialPoint.Network
 {
-    public interface ILocalNetworkServerFactory : INetworkServerFactory
+    public class LocalNetworkServerFactory : BaseNetworkServerFactory<LocalNetworkServer>
     {
-        ILocalNetworkServer Server { get; }
-    }
+        LocalNetworkServer _server;
 
-    public class LocalNetworkServerFactory : ILocalNetworkServerFactory
-    {
-        #region INetworkServerFactory implementation
-
-        public ILocalNetworkServer Server { get; private set; }
-
-        INetworkServer INetworkServerFactory.Create()
+        protected override LocalNetworkServer DoCreate()
         {
-            Server = new LocalNetworkServer();
-            return Server;
+            if(_server == null)
+            {
+                _server = new LocalNetworkServer();
+            }
+            return _server;
         }
-
-        #endregion
     }
 }

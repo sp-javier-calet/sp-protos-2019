@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
-    public class PhotonNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class PhotonNetworkClientFactory : BaseNetworkClientFactory<PhotonNetworkClient>
     {
         readonly PhotonNetworkInstaller.SettingsData _settings;
         readonly UnityEngine.Transform _transform;
@@ -17,16 +17,7 @@ namespace SocialPoint.Network
             _transform = transform;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
-        {
-            return Create();
-        }
-
-        #endregion
-
-        public PhotonNetworkClient Create()
+        protected override PhotonNetworkClient DoCreate()
         {
             var photon = _transform.GetComponent<PhotonNetworkBase>();
             if(photon != null)
@@ -34,7 +25,7 @@ namespace SocialPoint.Network
                 throw new Exception("There is already a Photon network object instantiated. Photon cannot have more than one connection!");
             }
 
-            var client = Create<PhotonNetworkClient>(_transform.gameObject.AddComponent<PhotonNetworkClient>());
+            var client = _transform.gameObject.AddComponent<PhotonNetworkClient>();
             client.Config = _settings.Config;
 
             return client;

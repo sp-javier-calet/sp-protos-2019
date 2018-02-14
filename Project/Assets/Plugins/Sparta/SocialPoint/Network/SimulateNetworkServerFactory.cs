@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Network
 {
-    public class SimulateNetworkServerFactory : BaseNetworkServerFactory, INetworkServerFactory
+    public class SimulateNetworkServerFactory : BaseNetworkServerFactory<SimulateNetworkServer>
     {
         readonly INetworkServerFactory _serverFactory;
         readonly LocalNetworkInstaller.ServerSettingsData _settings;
@@ -16,19 +16,9 @@ namespace SocialPoint.Network
             _settings = settings;
         }
 
-        #region INetworkServerFactory implementation
-
-        INetworkServer INetworkServerFactory.Create()
+        protected override SimulateNetworkServer DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public SimulateNetworkServer Create()
-        {
-            var server = Create<SimulateNetworkServer>(new SimulateNetworkServer(_serverFactory.Create()));
-
+            var server = new SimulateNetworkServer(_serverFactory.Create());
             SetupServer(server);
 
             return server;
@@ -41,4 +31,5 @@ namespace SocialPoint.Network
             server.EmissionDelay = _settings.EmissionDelay.Average;
             server.EmissionDelayVariance = _settings.EmissionDelay.Variance;
         }
-    }}
+    }
+}

@@ -2,34 +2,38 @@
 
 namespace SocialPoint.Network
 {
-    public class BaseNetworkClientFactory
+    public abstract class BaseNetworkClientFactory<T> : INetworkClientFactory where T : INetworkClient
     {
         readonly List<INetworkClientDelegate> _delegates;
-        protected INetworkClient _client;
 
         public BaseNetworkClientFactory(List<INetworkClientDelegate> delegates = null)
         {
             _delegates = delegates;
         }
 
-        protected T Create<T>(T client) where T : INetworkClient
-        {
-            _client = client;
-            SetupDelegates();
+        protected abstract T DoCreate();
 
+        public T Create()
+        {
+            var client = DoCreate();
+            SetupDelegates(client);
             return client;
         }
 
-        void SetupDelegates()
+        INetworkClient INetworkClientFactory.Create()
+        {
+            return Create();
+        }
+
+        protected void SetupDelegates(INetworkClient client)
         {
             if(_delegates != null)
             {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _client.AddDelegate(_delegates[i]);
+                    client.AddDelegate(_delegates[i]);
                 }
             }
         }
     }
 }
-

@@ -14,7 +14,6 @@ namespace SocialPoint.Network
             Container.Rebind<LocalBridgeNetworkServerFactory>().ToMethod<LocalBridgeNetworkServerFactory>(CreateLocalBridgeNetworkServerFactory);
             Container.Rebind<INetworkServerFactory>("internal").ToLookup<LocalBridgeNetworkServerFactory>();
             Container.Rebind<INetworkServerFactory>().ToLookup<LocalBridgeNetworkServerFactory>();
-            Container.Rebind<ILocalNetworkServerFactory>().ToLookup<LocalBridgeNetworkServerFactory>();
 
             // Client
             Container.Rebind<LocalNetworkClientFactory>().ToMethod<LocalNetworkClientFactory>(CreateLocalClientFactory);
@@ -43,7 +42,7 @@ namespace SocialPoint.Network
 
         LocalNetworkClientFactory CreateLocalClientFactory()
         {
-            return new LocalNetworkClientFactory(Container.Resolve<ILocalNetworkServerFactory>());
+            return new LocalNetworkClientFactory(Container.Resolve<LocalNetworkServerFactory>());
         }
 
     }

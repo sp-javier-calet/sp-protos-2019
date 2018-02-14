@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Network
 {
-    public class NetworkStatsClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class NetworkStatsClientFactory : BaseNetworkClientFactory<NetworkStatsClient>
     {
         readonly INetworkClientFactory _clientFactory;
         readonly NetworkStatsInstaller.SettingsData _settings;
@@ -15,22 +15,12 @@ namespace SocialPoint.Network
             _updateScheduler = updateScheduler;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
+        protected override NetworkStatsClient DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public NetworkStatsClient Create()
-        {
-            var client = Create<NetworkStatsClient>(new NetworkStatsClient(_clientFactory.Create(), _updateScheduler));
+            var client = new NetworkStatsClient(_clientFactory.Create(), _updateScheduler);
             client.PingInterval = _settings.PingInterval;
 
             return client;
         }
     }
 }
-

@@ -3,7 +3,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class UdpSocketNetworkClientFactory : BaseNetworkClientFactory, INetworkClientFactory
+    public class UdpSocketNetworkClientFactory : BaseNetworkClientFactory<UdpSocketNetworkClient>
     {
         readonly UdpSocketNetworkInstaller.SettingsData _settings;
         readonly IUpdateScheduler _updateScheduler;
@@ -17,23 +17,12 @@ namespace SocialPoint.Network
             _updateScheduler = updateScheduler;
         }
 
-        #region INetworkClientFactory implementation
-
-        INetworkClient INetworkClientFactory.Create()
+        protected override UdpSocketNetworkClient DoCreate()
         {
-            return Create();
-        }
-
-        #endregion
-
-        public UdpSocketNetworkClient Create()
-        {
-            return Create<UdpSocketNetworkClient>(
-                new UdpSocketNetworkClient(
-                    _updateScheduler,
-                    _settings.Config.ConnectionKey, 
-                    _settings.Config.UpdateTime
-                )
+            return new UdpSocketNetworkClient(
+                _updateScheduler,
+                _settings.Config.ConnectionKey, 
+                _settings.Config.UpdateTime
             );
         }
     }
