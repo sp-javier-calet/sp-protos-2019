@@ -705,5 +705,32 @@ namespace SocialPoint.Dependency
 
             setupCallback.Received(1).Invoke(service, disposable);
         }
+
+        [Test]
+        public void DoubleListenerWithSame()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, TestService>>();
+            container.Listen<TestService, TestService>().Then(setupCallback);
+
+            var service = container.Resolve<TestService>();
+            setupCallback.Received(1).Invoke(service, service);
+        }
+
+        [Test]
+        public void DoubleListenerWithSameLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable, IDisposable>>();
+            container.Listen<TestDisposable, IDisposable>().Then(setupCallback);
+
+            var service = container.Resolve<TestDisposable>();
+            setupCallback.Received(1).Invoke(service, service);
+        }
     }
 }

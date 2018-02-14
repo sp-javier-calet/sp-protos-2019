@@ -94,7 +94,10 @@ namespace SocialPoint.Dependency
                     list = new List<IListener>();
                     _listeners.Add(key, list);
                 }
-                list.Add(listener);
+                if(!list.Contains(listener))
+                {
+                    list.Add(listener);
+                }
                 Log.v(Tag, string.Format("Added listener <{0}> for binding `{1}`", listener, key));
             }
         }
