@@ -1,9 +1,0 @@
-!*.dll
-!*.exe
-!*.sln
-!*.csproj
-log/
-bin/
-obj/
-archive.zip
-*.FileListAbsolute.txt
