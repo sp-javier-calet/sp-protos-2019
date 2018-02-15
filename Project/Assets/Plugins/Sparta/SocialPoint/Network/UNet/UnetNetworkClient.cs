@@ -1,9 +1,8 @@
 ﻿using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
-using System;
 
 namespace SocialPoint.Network
 {

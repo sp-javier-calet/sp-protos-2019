@@ -7,7 +7,6 @@ namespace SocialPoint.Network
 {
     public class NetworkStatsServer : NetworkStatsBase, INetworkServer, INetworkServerDelegate, IUpdateable
     {
-
         INetworkServer _server;
         List<INetworkServerDelegate> _delegates;
         List<byte> _clients;
@@ -29,6 +28,10 @@ namespace SocialPoint.Network
 
         public void Start()
         {
+            if(Running)
+            {
+                return;
+            }
             if(_scheduler != null && !_server.LatencySupported)
             {
                 _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendStatusMessageInterval);
@@ -51,6 +54,10 @@ namespace SocialPoint.Network
 
         public void Stop()
         {
+            if(!Running)
+            {
+                return;
+            }
             if(_scheduler != null)
             {
                 _scheduler.Remove(this);
@@ -161,6 +168,17 @@ namespace SocialPoint.Network
                 _delegates[i].OnMessageReceived(data);
             }
         }
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+            _server.RemoveDelegate(this);
+            _server.Dispose();
+            _delegates.Clear();
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
+            }
+        }
     }
 }
-

@@ -1,7 +1,7 @@
 ﻿using System;
-using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -24,46 +24,26 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.Rebind<UnetNetworkServer>().ToMethod<UnetNetworkServer>(CreateUnetServer, SetupServer);
-            Container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
-            Container.Rebind<INetworkServer>("internal").ToLookup<UnetNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<UnetNetworkServer>();
+            Container.Rebind<UnetNetworkServerFactory>().ToMethod<UnetNetworkServerFactory>(CreateUnetServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<UnetNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<UnetNetworkServerFactory>();
 
-            Container.Rebind<UnetNetworkClient>().ToMethod<UnetNetworkClient>(CreateUnetClient, SetupClient);
-            Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
-            Container.Rebind<INetworkClient>("internal").ToLookup<UnetNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
+            Container.Rebind<UnetNetworkClientFactory>().ToMethod<UnetNetworkClientFactory>(CreateUnetClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<UnetNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<UnetNetworkClientFactory>();
         }
 
-        UnetNetworkClient CreateUnetClient()
+        UnetNetworkServerFactory CreateUnetServerFactory()
         {
-            return new UnetNetworkClient(
-                Settings.Config.ServerAddress, Settings.Config.ServerPort);
-        }
-
-        UnetNetworkServer CreateUnetServer()
-        {
-            return new UnetNetworkServer(
+            return new UnetNetworkServerFactory(Settings,
                 Container.Resolve<IUpdateScheduler>(),
-                Settings.Config.ServerPort);
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
-        void SetupServer(INetworkServer server)
+        UnetNetworkClientFactory CreateUnetClientFactory()
         {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            var dlgs = Container.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
+            return new UnetNetworkClientFactory(Settings,
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

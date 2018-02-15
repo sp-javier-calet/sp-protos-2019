@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Base;
-using System.Collections.Generic;
-using System;
-using System.IO;
 using SocialPoint.IO;
+using SocialPoint.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
@@ -11,8 +11,8 @@ namespace SocialPoint.Network
         INetworkClient _client;
         List<INetworkClientDelegate> _delegates;
 
-        public SimulateNetworkClient(INetworkClient client) :
-            base(client)
+        public SimulateNetworkClient(INetworkClient client, IUpdateScheduler scheduler = null) :
+            base(client, scheduler)
         {
             _delegates = new List<INetworkClientDelegate>();
             _client = client;
@@ -20,8 +20,8 @@ namespace SocialPoint.Network
             _client.AddDelegate(this);
         }
 
-        public SimulateNetworkClient(LocalNetworkServer server) :
-            this(new LocalNetworkClient(server))
+        public SimulateNetworkClient(LocalNetworkServer server, IUpdateScheduler scheduler = null) :
+            this(new LocalNetworkClient(server), scheduler)
         {
         }
 

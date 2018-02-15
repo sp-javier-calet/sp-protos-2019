@@ -1,7 +1,7 @@
-﻿using SocialPoint.Base;
-using SocialPoint.Utils;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -217,6 +217,14 @@ namespace SocialPoint.Network
             {
                 return false;
             }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Stop();
+            _delegates.Clear();
+            _clients.Clear();
+            _clientList.Clear();
         }
     }
 }

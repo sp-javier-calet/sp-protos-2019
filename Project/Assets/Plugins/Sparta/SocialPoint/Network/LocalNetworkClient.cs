@@ -1,10 +1,9 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
-
     public sealed class LocalNetworkClient : INetworkClient
     {
         INetworkMessageReceiver _receiver;
@@ -141,6 +140,12 @@ namespace SocialPoint.Network
                 DebugUtils.Assert(LatencySupported);
                 return -1;
             }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Disconnect();
+            _delegates.Clear();
         }
     }
 }

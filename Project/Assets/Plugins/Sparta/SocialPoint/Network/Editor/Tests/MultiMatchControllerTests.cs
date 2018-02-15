@@ -116,6 +116,23 @@ namespace SocialPoint.Network
                 dlg.OnMessageReceived(data);
             }
         }
+
+        void System.IDisposable.Dispose()
+        {
+            _delegates.Clear();
+        }
+    }
+
+    class TestNetworkServerFactory : INetworkServerFactory
+    {
+        #region INetworkServerFactory implementation
+
+        INetworkServer INetworkServerFactory.Create()
+        {
+            return new TestNetworkServer();
+        }
+
+        #endregion
     }
 
     public interface INetworkMatchDelegate : INetworkServerDelegate, INetworkMessageReceiver

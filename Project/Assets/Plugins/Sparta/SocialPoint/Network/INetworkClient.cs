@@ -1,4 +1,5 @@
-﻿using SocialPoint.Base;
+﻿using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
@@ -13,7 +14,12 @@ namespace SocialPoint.Network
         void OnNetworkError(Error err);
     }
 
-    public interface INetworkClient : INetworkMessageSender
+    public interface INetworkClientFactory
+    {
+        INetworkClient Create();
+    }
+
+    public interface INetworkClient : INetworkMessageSender, IDisposable
     {
         bool Connected{ get; }
 

@@ -1,5 +1,4 @@
-﻿using SocialPoint.Base;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.IO;
 using SocialPoint.IO;
@@ -7,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class SimulateNetworkBase : INetworkMessageReceiver, IMemoryNetworkMessageReceiver, INetworkMessageSender, IDeltaUpdateable
+    public class SimulateNetworkBase : INetworkMessageReceiver, IMemoryNetworkMessageReceiver, INetworkMessageSender, IDeltaUpdateable, IDisposable
     {
         class MessageInfo
         {
@@ -56,15 +55,21 @@ namespace SocialPoint.Network
         Queue<MessageInfo> _sentMessages;
         INetworkMessageSender _sender;
         INetworkMessageReceiver _receiver;
+        IUpdateScheduler _scheduler;
         float _timestamp;
         float _lastReliableEmissionTimestamp;
         float _lastReliableReceptionTimestamp;
 
-        public SimulateNetworkBase(INetworkMessageSender sender)
+        public SimulateNetworkBase(INetworkMessageSender sender, IUpdateScheduler scheduler = null)
         {
             _sender = sender;
             _receivedMessages = new Queue<MessageInfo>();
             _sentMessages = new Queue<MessageInfo>();
+            _scheduler = scheduler;
+            if(_scheduler != null)
+            {
+                _scheduler.Add(this);
+            }
         }
 
         public void ClearSimulationData()
@@ -238,5 +243,12 @@ namespace SocialPoint.Network
             return true;
         }
 
+        public virtual void Dispose()
+        {
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
+            }
+        }
     }
 }

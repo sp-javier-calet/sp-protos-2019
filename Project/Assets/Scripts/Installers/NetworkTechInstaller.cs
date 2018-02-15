@@ -7,6 +7,7 @@ public class NetworkTechInstaller : Installer
     public enum NetworkTech
     {
         Local,
+        LocalBridge,
         Unet,
         Photon,
         TcpSocket,
@@ -18,6 +19,7 @@ public class NetworkTechInstaller : Installer
     {
         public NetworkTech Tech = NetworkTech.Local;
         public LocalNetworkInstaller.SettingsData Local = new LocalNetworkInstaller.SettingsData();
+        public PhotonNetworkInstaller.SettingsData LocalBridge = new PhotonNetworkInstaller.SettingsData();
         public UnetNetworkInstaller.SettingsData Unet = new UnetNetworkInstaller.SettingsData();
         public PhotonNetworkInstaller.SettingsData Photon = new PhotonNetworkInstaller.SettingsData();
         public TcpSocketNetworkInstaller.SettingsData TcpSocket = new TcpSocketNetworkInstaller.SettingsData();
@@ -50,6 +52,11 @@ public class NetworkTechInstaller : Installer
                 var udpSocket = new UdpSocketNetworkInstaller();
                 udpSocket.Settings = Settings.UdpSocket;
                 techInstaller = udpSocket;
+                break;
+            case NetworkTech.LocalBridge:
+                var localBridge = new LocalBridgeNetworkInstaller();
+                localBridge.Settings = Settings.LocalBridge;
+                techInstaller = localBridge;
                 break;
             default:
                 var local = new LocalNetworkInstaller();

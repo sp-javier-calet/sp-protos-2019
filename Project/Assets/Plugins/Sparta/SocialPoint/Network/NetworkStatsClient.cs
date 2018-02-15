@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Utils;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -196,6 +196,16 @@ namespace SocialPoint.Network
         {
             base.RestartStats();
             _latencies = new List<int>();
+        }
+
+        void IDisposable.Dispose()
+        {
+            Disconnect();
+            _scheduler.Remove(this);
+            _client.RemoveDelegate(this);
+            _client.Dispose();
+            _latencies.Clear();
+            _delegates.Clear();
         }
     }
 }

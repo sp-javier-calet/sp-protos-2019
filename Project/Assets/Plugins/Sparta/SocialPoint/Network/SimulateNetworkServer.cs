@@ -1,7 +1,6 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using System.IO;
+using SocialPoint.Base;
 using SocialPoint.IO;
 
 namespace SocialPoint.Network
@@ -136,5 +135,13 @@ namespace SocialPoint.Network
         }
 
         #endregion
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Stop();
+            _server.RemoveDelegate(this);
+            _delegates.Clear();
+        }
     }
 }

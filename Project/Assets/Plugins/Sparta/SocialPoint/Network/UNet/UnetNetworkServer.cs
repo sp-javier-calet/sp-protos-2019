@@ -1,7 +1,7 @@
 ﻿using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 

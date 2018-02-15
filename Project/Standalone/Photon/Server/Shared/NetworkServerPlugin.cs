@@ -640,5 +640,9 @@ namespace SocialPoint.Network
                 }
             }
         }
+
+        void IDisposable.Dispose()
+        {
+        }
     }
 }

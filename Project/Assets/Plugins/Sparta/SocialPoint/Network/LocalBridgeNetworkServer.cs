@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
-    class LocalBridgeNetworkServer : ILocalNetworkServer
+    public class LocalBridgeNetworkServer : ILocalNetworkServer
     {
-        INetworkServer _netServer;
-        ILocalNetworkServer _localServer;
+        readonly INetworkServer _netServer;
+        readonly ILocalNetworkServer _localServer;
 
         public bool Running
         {
@@ -32,12 +31,12 @@ namespace SocialPoint.Network
 
         public void Start()
         {
-            if (!_netServer.Running)
+            if(!_netServer.Running)
             {
                 _netServer.Start();
             }
 
-            if (!_localServer.Running)
+            if(!_localServer.Running)
             {
                 _localServer.Start();
             }
@@ -45,12 +44,12 @@ namespace SocialPoint.Network
 
         public void Stop()
         {
-            if (_netServer.Running)
+            if(_netServer.Running)
             {
                 _netServer.Stop();
             }
 
-            if (_localServer.Running)
+            if(_localServer.Running)
             {
                 _localServer.Stop();
             }
@@ -121,6 +120,13 @@ namespace SocialPoint.Network
             {
                 return _netServer.LatencySupported;
             }
+        }
+
+        void System.IDisposable.Dispose()
+        {
+            Stop();
+            _netServer.Dispose();
+            _localServer.Dispose();
         }
     }
 }

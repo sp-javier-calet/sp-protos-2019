@@ -15,42 +15,27 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
-            Container.Rebind<INetworkServer>("internal").ToLookup<PhotonNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
-            Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkClient>(SetupPhotonClient);
-            Container.Rebind<INetworkClient>("internal").ToLookup<PhotonNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
+            Container.Rebind<PhotonNetworkServerFactory>().ToMethod<PhotonNetworkServerFactory>(CreatePhotonServerFactory);
+            Container.Rebind<INetworkServerFactory>("internal").ToLookup<PhotonNetworkServerFactory>();
+            Container.Rebind<INetworkServerFactory>().ToLookup<PhotonNetworkServerFactory>();
+
+            Container.Rebind<PhotonNetworkClientFactory>().ToMethod<PhotonNetworkClientFactory>(CreatePhotonClientFactory);
+            Container.Rebind<INetworkClientFactory>("internal").ToLookup<PhotonNetworkClientFactory>();
+            Container.Rebind<INetworkClientFactory>().ToLookup<PhotonNetworkClientFactory>();
         }
 
-        void SetupPhotonServer(PhotonNetworkServer server)
+        PhotonNetworkServerFactory CreatePhotonServerFactory()
         {
-            server.Config = new PhotonNetworkConfig(Settings.Config);
-            SetupServer(server);
+            return new PhotonNetworkServerFactory(Settings,
+                Container.Resolve<UnityEngine.Transform>(),
+                Container.ResolveList<INetworkServerDelegate>());
         }
 
-        void SetupPhotonClient(PhotonNetworkClient client)
+        PhotonNetworkClientFactory CreatePhotonClientFactory()
         {
-            client.Config = new PhotonNetworkConfig(Settings.Config);
-            SetupClient(client);
-        }
-
-        void SetupServer(INetworkServer server)
-        {
-            var dlgs = Container.ResolveList<INetworkServerDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                server.AddDelegate(dlgs[i]);
-            }
-        }
-
-        void SetupClient(INetworkClient client)
-        {
-            var dlgs = Container.ResolveList<INetworkClientDelegate>();
-            for(var i = 0; i < dlgs.Count; i++)
-            {
-                client.AddDelegate(dlgs[i]);
-            }
+            return new PhotonNetworkClientFactory(Settings,
+                Container.Resolve<UnityEngine.Transform>(),
+                Container.ResolveList<INetworkClientDelegate>());
         }
     }
 }

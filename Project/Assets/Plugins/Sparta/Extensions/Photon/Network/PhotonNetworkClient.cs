@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using SocialPoint.Base;
 using SocialPoint.IO;
-using System.IO;
 
 namespace SocialPoint.Network
 {
