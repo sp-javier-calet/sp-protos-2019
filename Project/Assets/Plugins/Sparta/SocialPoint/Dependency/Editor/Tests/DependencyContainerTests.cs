@@ -33,6 +33,10 @@ namespace SocialPoint.Dependency
         }
     }
 
+    class DerivedTestService : TestService
+    {
+    }
+
     struct TestStruct
     {
         public int Value;
@@ -567,6 +571,21 @@ namespace SocialPoint.Dependency
             container.Resolve<TestDisposable>();
 
             setupCallback.Received().Invoke(Arg.Any<IDisposable>());
+        }
+
+        [Test]
+        public void AddListenerWithDoubleLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<DerivedTestService>().ToSingle<DerivedTestService>();
+            container.Bind<TestService>().ToLookup<DerivedTestService>();
+            container.Bind<ITestService>().ToLookup<TestService>();
+
+            var setupCallback = Substitute.For<Action<ITestService>>();
+            container.Listen<ITestService>().Then(setupCallback);
+            container.Resolve<DerivedTestService>();
+
+            setupCallback.Received().Invoke(Arg.Any<ITestService>());
         }
 
         [Test]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Dependency.Graph;
@@ -321,18 +322,22 @@ namespace SocialPoint.Dependency
             }
 
             // Look for lookup bindings
-            List<IBinding> list;
-            if(_lookups.TryGetValue(binding.Key, out list))
+            var bindings = new Dictionary<BindingKey, List<IBinding>>();
+            FindLookups(binding, bindings);
+            var itr = bindings.GetEnumerator();
+            while(itr.MoveNext())
             {
-                for(var i=0; i<list.Count; i++)
+                var keyBindings = itr.Current.Value;
+                for(var i = 0; i < keyBindings.Count; i++)
                 {
-                    var lookup = list[i];
-                    if(!listeners.ContainsKey(lookup) && _listeners.TryGetValue(lookup.Key, out keyListeners) && keyListeners.Count > 0)
+                    var keyBinding = keyBindings[i];
+                    if(!listeners.ContainsKey(keyBinding) && _listeners.TryGetValue(keyBinding.Key, out keyListeners) && keyListeners.Count > 0)
                     {
-                        listeners.Add(lookup, keyListeners);
+                        listeners.Add(keyBinding, keyListeners);
                     }
                 }
             }
+            itr.Dispose();
             return listeners;
         }
 
@@ -371,6 +376,23 @@ namespace SocialPoint.Dependency
                 }
             }
             return false;
+        }
+
+        void FindLookups(IBinding binding, Dictionary<BindingKey, List<IBinding>> bindings)
+        {
+            if(bindings.ContainsKey(binding.Key))
+            {
+                return;
+            }
+            List<IBinding> list;
+            if(_lookups.TryGetValue(binding.Key, out list))
+            {
+                bindings.Add(binding.Key, list);
+                for(var i = 0; i < list.Count; i++)
+                {
+                    FindLookups(list[i], bindings);
+                }
+            }
         }
 
         HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove = false)
