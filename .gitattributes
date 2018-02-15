@@ -1,6 +1,7 @@
 *.cs diff=csharp
 *.unity -diff
 *.prefab -diff
+*.playable -diff
 *.anim -diff
 *.controller -diff
 *.meta -diff

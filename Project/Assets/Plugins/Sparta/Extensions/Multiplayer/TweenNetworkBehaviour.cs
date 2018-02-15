@@ -71,7 +71,7 @@ namespace SocialPoint.Multiplayer
 
         public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration)
         {
-            ctrl.Tween(id, dest, duration, Easing.Linear);
+            ctrl.Tween(id, dest, duration, Easing.LinearEase);
         }
     }
 }
