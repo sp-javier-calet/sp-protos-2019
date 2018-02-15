@@ -17,9 +17,9 @@ namespace SocialPoint.Base
             Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
             Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
             Container.Bind<NativeCallsHandler>().ToMethod<NativeCallsHandler>(CreateNativeCallsHandler);
-            Container.Listen<IUpdateable>().WhenResolved(OnUpdateableResolved);
-            Container.Listen<IDeltaUpdateable>().WhenResolved(OnUpdateableResolved);
-            Container.Listen<IDeltaUpdateable<int>>().WhenResolved(OnUpdateableResolved);
+            Container.Listen<IUpdateable>().Then(OnUpdateableResolved);
+            Container.Listen<IDeltaUpdateable>().Then(OnUpdateableResolved);
+            Container.Listen<IDeltaUpdateable<int>>().Then(OnUpdateableResolved);
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNativeCallsHandler>(CreateAdminPanel);
