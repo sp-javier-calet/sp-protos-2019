@@ -295,6 +295,7 @@ namespace SocialPoint.Multiplayer
 
         public INetworkBehaviour AddBehaviour(INetworkBehaviour behaviour, Type type)
         {
+            behaviour.GameObject = this;
             TypedBehaviours.Add(behaviour, type);
             return behaviour;
         }

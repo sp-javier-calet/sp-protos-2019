@@ -37,6 +37,11 @@ namespace SocialPoint.Multiplayer
         void InstantiateGameObject(string prefabName)
         {
             _view = SpawnPrefab(prefabName);
+            DebugUtils.Assert(_view != null, "Unable to spawn view: " + prefabName);
+            if(_view == null)
+            {
+                return;
+            }
 
             var networkMonoBehaviour = _view.GetComponent<NetworkMonoBehaviour>();
             if(networkMonoBehaviour == null)

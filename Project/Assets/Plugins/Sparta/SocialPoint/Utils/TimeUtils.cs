@@ -36,6 +36,8 @@ namespace SocialPoint.Utils
 
         static TimeSpan _offset;
 
+        public const int SecondsInADay = 86400;
+
         static public TimeSpan Offset
         {
             get
@@ -315,6 +317,17 @@ namespace SocialPoint.Utils
         static public DateTime ToUtcDateTime(long ts)
         {
             return Epoch.AddSeconds((double)ts);
+        }
+
+        public static int GetSecondsUntilDay(DateTime currentDay, int amountOfDays)
+        {
+            int secondsUntilMidnight = (24 - currentDay.Hour) * 3600;
+            secondsUntilMidnight += (60 - currentDay.Minute) * 60;
+            secondsUntilMidnight += 60 - currentDay.Second;
+            --amountOfDays;
+            int totalSecondsUntilNextDay = SecondsInADay * amountOfDays;
+            totalSecondsUntilNextDay += secondsUntilMidnight;
+            return totalSecondsUntilNextDay;
         }
     }
 }

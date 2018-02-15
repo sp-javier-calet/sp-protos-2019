@@ -21,7 +21,7 @@ namespace SocialPoint.Multiplayer
         {
             var parents = ExportConfiguration.FindObjects(_tags);
             log.Log(string.Format("Saving {0} transforms...", parents.Length));
-            var fh = files.Write(ExportName);
+            var fh = files.Write(GetPathExportName(ExportName));
             fh.Writer.Write(parents.Length);
             for(var i=0; i<parents.Length; i++)
             {

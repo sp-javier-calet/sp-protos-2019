@@ -13,13 +13,7 @@ namespace SocialPoint.Multiplayer
 
         public float TimeSinceLastSync { get; private set; }
 
-        public bool CanSync
-        { 
-            get
-            {
-                return TimeSinceLastSync >= Settings.SyncInterval;
-            }
-        }
+        public bool CanSync { get { return TimeSinceLastSync >= Settings.SyncInterval; } }
 
         public void AddObject(NetworkGameObject obj)
         {
@@ -56,40 +50,25 @@ namespace SocialPoint.Multiplayer
                 SocialPoint.Base.DebugUtils.Assert(_context != null);
                 return _context;
             }
-            set
-            {
-                _context = value;
-            }
+            set { _context = value; }
         }
 
         public Dictionary<int, NetworkGameObject> SyncObjects = new Dictionary<int, NetworkGameObject>();
 
         Dictionary<int, NetworkGameObject> _objects = new Dictionary<int, NetworkGameObject>();
 
-        public int FreeObjectId{ get; private set; }
+        public int FreeObjectId { get; private set; }
 
         public Action<NetworkGameObject> OnObjectAdded;
         public Action<NetworkGameObject> OnObjectRemoved;
 
-        public int ObjectsCount
-        {
-            get
-            {
-                return _objects.Count;
-            }
-        }
+        public int ObjectsCount { get { return _objects.Count; } }
 
-        public int SyncObjectsCount
-        {
-            get
-            {
-                return SyncObjects.Count;
-            }
-        }
+        public int SyncObjectsCount { get { return SyncObjects.Count; } }
 
-        public INetworkBehaviourContainer Behaviours{ get; protected set; }
+        public INetworkBehaviourContainer Behaviours { get; protected set; }
 
-        public NetworkBehaviourContainer<INetworkSceneBehaviour> TypedBehaviours{ get; protected set; }
+        public NetworkBehaviourContainer<INetworkSceneBehaviour> TypedBehaviours { get; protected set; }
 
         protected NetworkBehaviourContainerObserver<INetworkSceneBehaviour> _behaviourObserver;
 
@@ -121,7 +100,7 @@ namespace SocialPoint.Multiplayer
                     if(myGo == null)
                     {
                         //New object
-                        var myNewGo = (NetworkGameObject)go.Clone();
+                        var myNewGo = (NetworkGameObject) go.Clone();
                         AddObject(myNewGo);
                         if(newObjectCopy != null)
                         {
@@ -141,9 +120,11 @@ namespace SocialPoint.Multiplayer
                         }
                     }
                 }
+
                 itr.Dispose();
                 Context.Pool.Return(tmp);
             }
+
             {
                 // remove objects that are not present
                 var tmp = Context.Pool.Get<List<NetworkGameObject>>();
@@ -156,6 +137,7 @@ namespace SocialPoint.Multiplayer
                         RemoveObject(id);
                     }
                 }
+
                 itr.Dispose();
                 Context.Pool.Return(tmp);
             }
@@ -175,16 +157,18 @@ namespace SocialPoint.Multiplayer
                     if(myGo == null)
                     {
                         //New object
-                        AddObject((NetworkGameObject)go.DeepClone());
+                        AddObject((NetworkGameObject) go.DeepClone());
                     }
                     else
                     {
                         myGo.DeepCopy(go);
                     }
                 }
+
                 itr.Dispose();
                 Context.Pool.Return(tmp);
             }
+
             {
                 // remove objects that are not present
                 var tmp = Context.Pool.Get<List<NetworkGameObject>>();
@@ -197,6 +181,7 @@ namespace SocialPoint.Multiplayer
                         RemoveObject(id);
                     }
                 }
+
                 itr.Dispose();
                 Context.Pool.Return(tmp);
             }
@@ -210,8 +195,9 @@ namespace SocialPoint.Multiplayer
             var itr = other.GetObjectEnumerator(tmp);
             while(itr.MoveNext())
             {
-                AddObject((NetworkGameObject)itr.Current.Clone());
+                AddObject((NetworkGameObject) itr.Current.Clone());
             }
+
             itr.Dispose();
             Context.Pool.Return(tmp);
         }
@@ -232,8 +218,9 @@ namespace SocialPoint.Multiplayer
             var itr = other.GetObjectEnumerator(tmp);
             while(itr.MoveNext())
             {
-                AddObject((NetworkGameObject)itr.Current.DeepClone());
+                AddObject((NetworkGameObject) itr.Current.DeepClone());
             }
+
             itr.Dispose();
             Context.Pool.Return(tmp);
         }
@@ -243,7 +230,7 @@ namespace SocialPoint.Multiplayer
             var scene = new NetworkScene(Context);
             scene.Context = Context;
             scene.AddDeeplyClonedObjectsFromScene(this);
-            scene.TypedBehaviours = (NetworkBehaviourContainer<INetworkSceneBehaviour>)TypedBehaviours.Clone();
+            scene.TypedBehaviours = (NetworkBehaviourContainer<INetworkSceneBehaviour>) TypedBehaviours.Clone();
             scene.Behaviours = scene.TypedBehaviours;
             return scene;
         }
@@ -257,8 +244,10 @@ namespace SocialPoint.Multiplayer
                 {
                     continue;
                 }
+
                 objectsEnum.Current.Value.Dispose();
             }
+
             objectsEnum.Dispose();
 
             if(TypedBehaviours != null)
@@ -284,7 +273,7 @@ namespace SocialPoint.Multiplayer
         }
 
         public void Clear()
-        {            
+        {
             _objects.Clear();
             SyncObjects.Clear();
             FreeObjectId = InitialObjectId;
@@ -298,14 +287,17 @@ namespace SocialPoint.Multiplayer
         public virtual void AddObject(NetworkGameObject obj)
         {
             _objects.Add(obj.Id, obj);
+
             if(!obj.Local)
             {
                 SyncObjects.Add(obj.Id, obj);
             }
+
             if(FreeObjectId <= obj.UniqueId)
             {
                 FreeObjectId = obj.UniqueId + 1;
             }
+
             if(OnObjectAdded != null)
             {
                 OnObjectAdded(obj);
@@ -323,7 +315,9 @@ namespace SocialPoint.Multiplayer
 
                 current.OnInstantiateObject(obj);
             }
+
             Context.Pool.Return(tmp);
+
             itr.Dispose();
         }
 
@@ -361,8 +355,10 @@ namespace SocialPoint.Multiplayer
                 {
                     continue;
                 }
+
                 current.OnDestroyObject(go.Id);
             }
+
             itr.Dispose();
             Context.Pool.Return(tmp);
 
@@ -404,18 +400,20 @@ namespace SocialPoint.Multiplayer
             return CompareObjects(a._objects, b._objects);
         }
 
-        static bool CompareObjects(Dictionary<int,NetworkGameObject> a, Dictionary<int,NetworkGameObject> b)
+        static bool CompareObjects(Dictionary<int, NetworkGameObject> a, Dictionary<int, NetworkGameObject> b)
         {
-            var na = (object)a == null;
-            var nb = (object)b == null;
+            var na = (object) a == null;
+            var nb = (object) b == null;
             if(na && nb)
             {
                 return true;
             }
+
             if(na || nb || a.Count != b.Count)
             {
                 return false;
             }
+
             var itr = a.GetEnumerator();
             bool diff = false;
             while(itr.MoveNext())
@@ -426,6 +424,7 @@ namespace SocialPoint.Multiplayer
                     diff = true;
                     break;
                 }
+
                 var ago = itr.Current.Value;
                 if(!ago.Equals(bgo))
                 {
@@ -433,6 +432,7 @@ namespace SocialPoint.Multiplayer
                     break;
                 }
             }
+
             itr.Dispose();
             return !diff;
         }
@@ -444,10 +444,11 @@ namespace SocialPoint.Multiplayer
 
         public bool Equals(NetworkScene scene)
         {
-            if((object)scene == null)
+            if((object) scene == null)
             {
                 return false;
             }
+
             return Compare(this, scene);
         }
 
@@ -459,14 +460,15 @@ namespace SocialPoint.Multiplayer
             {
                 hash = CryptographyUtils.HashCombine(hash, itr.Current.Value.GetHashCode());
             }
+
             itr.Dispose();
             return hash;
         }
 
         public static bool operator ==(NetworkScene a, NetworkScene b)
         {
-            var na = (object)a == null;
-            var nb = (object)b == null;
+            var na = (object) a == null;
+            var nb = (object) b == null;
             if(na && nb)
             {
                 return true;
@@ -475,6 +477,7 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
+
             return Compare(a, b);
         }
 
@@ -508,8 +511,10 @@ namespace SocialPoint.Multiplayer
                 {
                     continue;
                 }
+
                 itr.Current.Update(dt);
             }
+
             Context.Pool.Return(tmp);
             itr.Dispose();
         }
@@ -520,14 +525,17 @@ namespace SocialPoint.Multiplayer
             {
                 _behaviourObserver.Added[i].Scene = this;
             }
+
             for(var i = 0; i < _behaviourObserver.Added.Count; i++)
             {
                 OnBehaviourAdded(_behaviourObserver.Added[i]);
             }
+
             for(var i = 0; i < _behaviourObserver.Removed.Count; i++)
             {
                 OnBehaviourRemoved(_behaviourObserver.Removed[i]);
             }
+
             _behaviourObserver.Clear();
         }
 
@@ -566,10 +574,7 @@ namespace SocialPoint.Multiplayer
                 SocialPoint.Base.DebugUtils.Assert(_context != null);
                 return _context;
             }
-            set
-            {
-                _context = value;
-            }
+            set { _context = value; }
         }
 
         readonly NetworkBehaviourContainerSerializer<INetworkSceneBehaviour> _behaviourSerializer;
@@ -606,6 +611,7 @@ namespace SocialPoint.Multiplayer
                 var go = itr.Current;
                 _objectSerializer.Serialize(go, writer);
             }
+
             itr.Dispose();
             newScene.Context.Pool.Return(tmp);
 
@@ -637,6 +643,7 @@ namespace SocialPoint.Multiplayer
                     objectsToUpdateOld.Add(oldGo);
                 }
             }
+
             foreach(var oldGo in oldScene.SyncObjects.Values)
             {
                 if(!objectsToUpdateNew.Exists(go => go.Id == oldGo.Id))
@@ -673,7 +680,7 @@ namespace SocialPoint.Multiplayer
             _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
     }
-        
+
     public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
         NetworkSceneContext _context = null;
@@ -687,12 +694,9 @@ namespace SocialPoint.Multiplayer
                 SocialPoint.Base.DebugUtils.Assert(_context != null);
                 return _context;
             }
-            set
-            {
-                _context = value;
-            }
+            set { _context = value; }
         }
-            
+
         readonly NetworkBehaviourContainerParser<INetworkSceneBehaviour> _behaviourParser;
         readonly NetworkGameObjectParser _objectParser;
 
@@ -703,7 +707,7 @@ namespace SocialPoint.Multiplayer
             _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>(handleException);
             _fakeGameObject = CreateObject(1, 0);
         }
-    
+
         public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
         {
             _behaviourParser.Register(type, parser);
@@ -759,6 +763,7 @@ namespace SocialPoint.Multiplayer
                     Base.Log.w("Trying to add game object " + go.Id + " which was already in the scene. Replacing the old game object by the new one.");
                     scene.RemoveObject(oldGo.Id);
                 }
+
                 scene.AddObject(go);
             }
 
@@ -774,6 +779,7 @@ namespace SocialPoint.Multiplayer
                     _objectParser.Parse(_fakeGameObject, reader);
                     continue;
                 }
+
                 _objectParser.Parse(go, reader);
             }
 

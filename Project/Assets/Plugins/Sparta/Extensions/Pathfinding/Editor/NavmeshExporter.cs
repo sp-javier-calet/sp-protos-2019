@@ -27,7 +27,7 @@ namespace SocialPoint.Pathfinding
 
         protected override void ExportScene(IFileManager files, Log.ILogger log)
         {
-            if(string.IsNullOrEmpty(ExportName))
+            if(string.IsNullOrEmpty(GetPathExportName(ExportName)))
             {
                 throw new InvalidOperationException("Export Name is not configured");
             }
@@ -55,7 +55,7 @@ namespace SocialPoint.Pathfinding
 
             var navMesh = PathfindingUnityUtils.CreateNavMesh(gos, settings, convexVolumes, _areaSettings.ExportFlags);
 
-            var fh = files.Write(ExportName);
+            var fh = files.Write(GetPathExportName(ExportName));
             NavMeshSerializer.Instance.Serialize(navMesh, fh.Writer);
             NavmeshAreaSettingsSerializer.Instance.Serialize(_areaSettings, fh.Writer);
             fh.CloseStream();

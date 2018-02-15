@@ -7,7 +7,7 @@ using UnityEditor;
 
 using System;
 
-namespace Photon.Pun
+namespace Rotorz.ReorderableList.Internal
 {
 
     /// <summary>

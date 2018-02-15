@@ -324,8 +324,11 @@ namespace SocialPoint.Pooling
         public static void Recycle(GameObject obj, bool keepWorldScale)
         {
             if(!Instance || obj == null)
-            {           
-                DebugUtils.Assert(obj != null, "ObjectPool: Trying to recycle null object");
+            {
+                if(obj == null)
+                {
+                    Log.e("ObjectPool: Trying to recycle null object");
+                }
                 return;
             }
 

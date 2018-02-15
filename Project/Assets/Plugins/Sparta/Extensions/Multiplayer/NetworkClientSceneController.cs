@@ -21,7 +21,6 @@ namespace SocialPoint.Multiplayer
         Dictionary<int, object> _pendingActions;
         int _lastAppliedAction;
         float _serverTimestamp;
-        List<NetworkGameObject> _pendingGameObjectAdded;
 
         public event Action ServerUpdated;
 
@@ -114,7 +113,7 @@ namespace SocialPoint.Multiplayer
             _scene = (NetworkScene)_clientScene.Clone();
             _parser = new NetworkSceneParser(Context, null, HandleException);
             _pendingActions = new Dictionary<int, object>();
-            _pendingGameObjectAdded = new List<NetworkGameObject>();
+            _pendingGameObjectAdded.Clear();
 
             Init(_clientScene);
 
@@ -127,6 +126,8 @@ namespace SocialPoint.Multiplayer
 
             _clientScene.OnObjectRemoved -= OnObjectRemovedFromScene;
             _clientScene.OnObjectRemoved += OnObjectRemovedFromScene;
+
+            OnAfterSceneUpdated.Clear();
         }
 
         public bool Equals(NetworkScene scene)
@@ -265,11 +266,9 @@ namespace SocialPoint.Multiplayer
                 _pendingActions.Clear();
                 _pendingActions = null;
             }
-            if(_pendingGameObjectAdded != null)
-            {
-                _pendingGameObjectAdded.Clear();
-                _pendingGameObjectAdded = null;
-            }
+
+            _pendingGameObjectAdded.Clear();
+
             if(Context != null)
             {
                 Context.Clear();
@@ -287,7 +286,7 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-
+            OnAfterSceneUpdated.Call();
             AddPendingGameObjects();
             UpdatePendingLogic();
             UpdateObjects(dt);

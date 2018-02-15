@@ -73,6 +73,7 @@ namespace Jitter.Collision.Shapes
         /// <param name="box">The resulting axis aligned bounding box.</param>
         public override void GetBoundingBox(ref JMatrix orientation, out JBBox box)
         {
+            box = new JBBox();
             box.Min.X = -radius;
             box.Min.Y = -radius;
             box.Min.Z = -radius;

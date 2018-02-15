@@ -76,7 +76,7 @@ namespace SocialPoint.WAMP
 
         public class StartRequest : Request<Action>
         {
-            internal StartRequest(Action action) : base(action)
+            public StartRequest(Action action) : base(action)
             {
 
             }
@@ -84,7 +84,7 @@ namespace SocialPoint.WAMP
 
         public class StopRequest : Request<Action>
         {
-            internal StopRequest(Action action) : base(action)
+            public StopRequest(Action action) : base(action)
             {
 
             }

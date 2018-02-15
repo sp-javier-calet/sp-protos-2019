@@ -11,30 +11,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f3758f8f58fdef43803eb9be1df0608, type: 3}
   m_Name: PhotonServerSettings
   m_EditorClassIdentifier: 
-  AppID: 08c96718-8933-49c7-90e5-3d3ae27dd429
+  HostType: 4
+  Protocol: 1
+  ServerAddress: 192.168.84.171
+  ServerPort: 4530
+  AppID: de80125b-5e81-429f-89be-8a830b496a80
   VoiceAppID: 
-  ChatAppID: 
-  HostType: 1
   PreferredRegion: 0
   EnabledRegions: -1
-  Protocol: 0
-  ServerAddress: 
-  ServerPort: 5055
-  VoiceServerPort: 5055
-  JoinLobby: 0
-  EnableLobbyStatistics: 0
-  PunLogging: 0
-  NetworkLogging: 1
-  RunInBackground: 1
+  JoinLobby: 1
+  EnableLobbyStatistics: 1
   RpcList:
   - Chat
   - DestroyRpc
   - InstantiateRpc
+  - OnAwakeRPC
   - PickupItemInit
   - PunPickup
   - PunPickupSimple
   - PunRespawn
-  - RequestForPickupItems
   - RequestForPickupTimes
+  - RequestForPickupItems
+  - AddDamageOverTimeRPC
+  - ApplyBufferToChampionRPC
+  - ApplyBuffRPC
+  - ApplyPickupRPC
+  - ApplyStunRPC
   - ChampionDeadhRPC
+  - DoDistanceShootRPC
+  - FinishBuffRPC
+  - IncreaseHealthOnClientRPC
+  - IncreaseHealthOnMasterRPC
+  - OnDestroyRPC
+  - OnDieByUnitHitRPC
+  - ReceiveDamageRPC
+  - RemoveBuffsToCurrChampionRPC
+  - RemovePermanentBuffRPC
+  - RestartValuesRPC
+  - SetBuffRPC
+  - SetNewOwner
+  - SetTargetRPC
+  - ShootTargetRPC
+  - StartTotemDeathRPC
+  - TeamWonRPC
+  - TimeoutPlayerWonRPC
+  - UpdateGameplayStatValuesRPC
   DisableAutoOpenWizard: 1

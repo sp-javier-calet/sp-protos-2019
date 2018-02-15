@@ -239,6 +239,8 @@ namespace Jitter.Collision.Shapes
 
             JVector vec = JVector.Zero;
 
+            box = new JBBox();
+
             vec.Set(orientation.M11, orientation.M21, orientation.M31);
             SupportMapping(ref vec, out vec);
             box.Max.X = orientation.M11 * vec.X + orientation.M21 * vec.Y + orientation.M31 * vec.Z;

@@ -470,5 +470,18 @@ namespace Jitter.LinearMath
             JQuaternion.CreateFromYawPitchRoll(yRotation, 0f, 0f, out result);
             return result;
         }
+
+        public static JQuaternion Inverse(JQuaternion quaternion)
+        {
+            JQuaternion quaternion2;
+            float num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
+            float num = 1f / num2;
+            quaternion2.X = -quaternion.X * num;
+            quaternion2.Y = -quaternion.Y * num;
+            quaternion2.Z = -quaternion.Z * num;
+            quaternion2.W = quaternion.W * num;
+            return quaternion2;
+
+        }
     }
 }

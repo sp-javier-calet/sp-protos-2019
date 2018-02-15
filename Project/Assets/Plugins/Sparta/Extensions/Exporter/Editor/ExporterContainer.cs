@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using UnityEditor;
 
 namespace SocialPoint.Exporter
 {
@@ -36,6 +37,7 @@ namespace SocialPoint.Exporter
                 {
                     var files = new FileManagerObserver(new FileManagerWrapper(new UnityFileManager(), ExportPath));
                     exporter.Export(files, log);
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
                     log.Log(exporter + " finished OK:");
                     filesCount = files.WriteFiles.Count;
                     for(var i=0; i<filesCount; i++)

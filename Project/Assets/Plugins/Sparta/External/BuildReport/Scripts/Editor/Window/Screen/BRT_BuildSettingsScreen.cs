@@ -809,7 +809,7 @@ public class BuildSettings : BaseScreen
 				DrawSetting("Use Direct3D11 if available:", settings.WinUseDirect3D11IfAvailable);
 #endif
 				DrawSetting("Direct3D9 Fullscreen Mode:", settings.WinDirect3D9FullscreenModeUsed);
-#if UNITY_5
+#if UNITY_5 || UNITY_2017_1_OR_NEWER
 				DrawSetting("Direct3D11 Fullscreen Mode:", settings.WinDirect3D11FullscreenModeUsed);
 #endif
 				DrawSetting("Visible in background (for Fullscreen Windowed mode):", settings.VisibleInBackground);

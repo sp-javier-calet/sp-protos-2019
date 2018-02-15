@@ -28,8 +28,9 @@ namespace SocialPoint.Multiplayer
         Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>> _behaviourPrototypes = new Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>>();
         List<INetworkBehaviour> _genericBehaviourPrototypes = new List<INetworkBehaviour>();
         List<Type> _genericBehaviourPrototypesTypes = new List<Type>();
-
+        protected readonly List<NetworkGameObject> _pendingGameObjectAdded = new List<NetworkGameObject>();
         Action<float> _lateUpdateCallback;
+        public EventActionWrapper OnAfterSceneUpdated;
 
         abstract public INetworkMessage CreateMessage(NetworkMessageData data);
 
@@ -77,6 +78,9 @@ namespace SocialPoint.Multiplayer
             _actions = null;
 
             _lateUpdateCallback = null;
+            OnAfterSceneUpdated.Clear();
+
+            _pendingGameObjectAdded.Clear();
         }
 
         protected void UnregisterAllBehaviours()
@@ -152,7 +156,19 @@ namespace SocialPoint.Multiplayer
 
         protected void SetupObjectToDestroy(int id)
         {
-            SetupObjectToDestroy(FindObject(id));
+            var obj = FindObject(id);
+            if(obj != null)
+            {
+                SetupObjectToDestroy(obj);
+            }
+            else
+            {
+                var index = _pendingGameObjectAdded.FindIndex((test) => test.Id == id);
+                if(index >= 0)
+                {
+                    _pendingGameObjectAdded.RemoveAt(index);
+                }
+            }
         }
 
         protected void SetupObjectToDestroy(GameObject go)

@@ -22,16 +22,16 @@ using SupportClassPun = ExitGames.Client.Photon.SupportClass;
 public static class Extensions
 {
 
-    public static Dictionary<MethodInfo, ParameterInfo[]> ParametersOfMethods = new Dictionary<MethodInfo, ParameterInfo[]>();
+    public static Dictionary<MethodInfo, ParameterInfo[]> parametersOfMethods = new Dictionary<MethodInfo, ParameterInfo[]>();
     public static ParameterInfo[] GetCachedParemeters(this MethodInfo mo)
     {
         ParameterInfo[] result;
-        bool cached= ParametersOfMethods.TryGetValue(mo, out result);
+        bool cached= parametersOfMethods.TryGetValue(mo, out result);
 
         if (!cached)
         {
             result =  mo.GetParameters();
-            ParametersOfMethods[mo] = result;
+            parametersOfMethods[mo] = result;
         }
 
         return result;

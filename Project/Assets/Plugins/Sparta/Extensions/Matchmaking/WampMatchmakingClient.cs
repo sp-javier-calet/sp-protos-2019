@@ -421,12 +421,27 @@ namespace SocialPoint.Matchmaking
 
         public void AddDelegate(IMatchmakingClientDelegate dlg)
         {
-            _delegatesToAdd.Add(dlg);
+            if(!_delegatesToRemove.Contains(dlg))
+            {
+                _delegatesToAdd.Add(dlg);
+            }
+            else
+            {
+                _delegatesToRemove.Remove(dlg);
+            }
         }
 
         public void RemoveDelegate(IMatchmakingClientDelegate dlg)
         {
-            _delegatesToRemove.Add(dlg);
+            if(!_delegatesToAdd.Contains(dlg))
+            {
+                _delegatesToRemove.Add(dlg);
+            }
+            else
+            {
+                _delegatesToAdd.Remove(dlg);
+            }
+
         }
     }
 }
