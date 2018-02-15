@@ -8,8 +8,12 @@ android {
         }
     }
 }
+
+def dirPattern = "Sparta/External/AppsFlyer/Plugins/Android"
+def copyDst = getFirstDirectoryMatching(gitFolder, dirPattern)
+
 dependencies {
-    compile 'com.android.support:support-v4:24.0.0'
-    provided files("../../../../Assets/Sparta/External/AppsFlyer/Plugins/Android/AppsFlyerAndroidPlugin.jar")
-    provided files("../../../../Assets/Sparta/External/AppsFlyer/Plugins/Android/AF-Android-SDK.jar")
+    compile 'com.android.support:support-v4:27.0.2'
+    provided files("$copyDst/AppsFlyerAndroidPlugin.jar")
+    provided files("$copyDst/AF-Android-SDK.jar")
 }

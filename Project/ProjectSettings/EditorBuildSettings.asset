@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity
+    path: Assets/Plugins/Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity
   - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
   - enabled: 1
@@ -17,3 +17,11 @@ EditorBuildSettings:
     path: Assets/Scenes/BaseMainScene.unity
   - enabled: 1
     path: Assets/Examples/Lockstep/LockstepScene.unity
+  - enabled: 1
+    path: Assets/Prototypes/Scenes/PrototypeMainScene.unity
+  - enabled: 1
+    path: Assets/Examples/FullUI/UIScene.unity
+  - enabled: 1
+    path: Assets/Examples/CubeMainScene.unity
+  - enabled: 1
+    path: Assets/Examples/FullUI/UIScrollViewScene.unity

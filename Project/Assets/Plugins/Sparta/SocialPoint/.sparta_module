@@ -1,0 +1,11 @@
+name Sparta Core
+desc Sparta Core Libraries
+type core
+depends_on Assets/Fyber
+depends_on {SPARTA_EXTERNAL_PATH}/AppsFlyer
+depends_on {SPARTA_EXTERNAL_PATH}/fastJSON
+depends_on {SPARTA_EXTERNAL_PATH}/Helpshift
+depends_on {SPARTA_EXTERNAL_PATH}/Ionic/Zlib
+depends_on {SPARTA_EXTERNAL_PATH}/LitJson
+depends_on {SPARTA_EXTERNAL_PATH}/Spine
+depends_on {SPARTA_EXTERNAL_PATH}/FixedMathNet

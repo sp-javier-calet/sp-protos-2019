@@ -2,11 +2,13 @@ package es.socialpoint.unity.notification;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -17,11 +19,17 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.unity3d.player.UnityPlayer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import es.socialpoint.unity.configuration.Metadata;
 
 public class NotificationBridge {
     private static final String TAG = "NotificationBridge";
     private static final String SENDER_ID_KEY = "GOOGLE_API_PROJECT_NUMBER";
+    public static final String DEFAULT_CHANNEL_ID = "default";
 
     private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static AsyncTask<Void, Void, Void> mRegisterTask;
@@ -30,7 +38,7 @@ public class NotificationBridge {
     private static String mSenderId;
     private static int mAlarmIdCounter = 0;
 
-    public static void schedule(int id, long delay, String title, String text) {
+    public static void schedule(int id, long delay, String title, String text, String channelId) {
         Activity currentActivity = UnityPlayer.currentActivity;
         int alarmId = ++mAlarmIdCounter;
 
@@ -39,8 +47,9 @@ public class NotificationBridge {
         intent.putExtra(IntentParameters.EXTRA_ALARM_ID, alarmId);
         intent.putExtra(IntentParameters.EXTRA_TITLE, title);
         intent.putExtra(IntentParameters.EXTRA_TEXT, text);
+        intent.putExtra(IntentParameters.EXTRA_CHANNEL_ID, channelId);
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        Log.d(TAG, "Scheduling alarm " + alarmId + " [ " + id + " - " + title + " : " + text + "] with delay " + delay);
+        Log.d(TAG, "Scheduling alarm " + alarmId + " [ " + id + " - " + title + " : " + text + "] with delay " + delay + " on channel '" + channelId + "'");
 
         // Use FLAG_UPDATE_CURRENT to override PendingIntent for current alarmId - even if it is currently cancelled -.
         PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -162,5 +171,66 @@ public class NotificationBridge {
 
     public static synchronized String getNotificationTokenError() {
         return mPushNotificationTokenError;
+    }
+
+    private static NotificationChannel createChannelConfiguration(String channelId, String name, String description)
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+        {
+            return null;
+        }
+
+        NotificationChannel channel = new NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_HIGH);
+        if (description != null)
+        {
+            channel.setDescription(description);
+        }
+        return channel;
+    }
+
+    private static void addChannelConfiguration(List<NotificationChannel> channels, Set<String> channelIds,
+                                                String channelId, String name, String description)
+    {
+        channels.add(createChannelConfiguration(channelId, name, description));
+        channelIds.add(channelId);
+    }
+
+    private static void addConfiguredChannels(List<NotificationChannel> channels, Set<String> channelIds,
+                                              String[] ids, String[] names, String[] descriptions)
+    {
+        addChannelConfiguration(channels, channelIds, DEFAULT_CHANNEL_ID, "Default", null);
+
+        for (int i = 0; i < ids.length; i++)
+        {
+            addChannelConfiguration(channels, channelIds, ids[i], names[i], descriptions[i]);
+        }
+    }
+
+    public static synchronized void setupChannels(String[] ids, String[] names, String[] descriptions)
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+        {
+            return;
+        }
+
+        List<NotificationChannel> channels = new ArrayList<>();
+        Set<String> channelIds = new HashSet<>();
+        addConfiguredChannels(channels, channelIds, ids, names, descriptions);
+
+        Activity currentActivity = UnityPlayer.currentActivity;
+        NotificationManager notificationManager = (NotificationManager) currentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Remove the obsolete channels
+        for (NotificationChannel channel : notificationManager.getNotificationChannels())
+        {
+            String channelId = channel.getId();
+            if (!channelIds.contains(channelId))
+            {
+                notificationManager.deleteNotificationChannel(channelId);
+            }
+        }
+
+        // Create and update the configured channels
+        notificationManager.createNotificationChannels(channels);
     }
 }

@@ -1,49 +1,95 @@
 ﻿using System;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+using System.Text;
+using SocialPoint.Base;
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+using SocialPoint.Attributes;
+using SocialPoint.Hardware;
 
-public class GUIInstaller : Installer, IDisposable
+
+public class GUIInstaller : Installer, IDisposable, IInitializable
 {
-    const string UIViewControllerSuffix = "Controller";
-    const string GUIRootPrefab = "GUI_Root";
+    const string kUIViewUnitySuffix = "Unity";
+    const string kUIViewControllerSuffix = "Controller";
+    const string kGUIRootPrefab = "GUI_Root";
+    const string kUIViewControllerExamplePrefix = "GUI_";
+    const string kPersistentTag = "persistent";
+
+    const float DefaultAnimationTime = 1.0f;
 
     [Serializable]
     public class SettingsData
     {
-        public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
+        public float PopupAnimationTime = DefaultAnimationTime;
+        public float TooltipAnimationTime = DefaultAnimationTime;
+        public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
     }
 
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
+    UIStackController _stackController;
+    UITooltipController _uiTooltipController;
+    IDeviceInfo _deviceInfo;
+    IAppEvents _appEvents;
+
+    #region IInitializable implementation
+
+    public void Initialize()
+    {
+        _appEvents = Container.Resolve<IAppEvents>();
+        if(_stackController != null)
+        {
+            _stackController.AppEvents = _appEvents;
+        }
+        _deviceInfo = Container.Resolve<IDeviceInfo>();
+        if(_uiTooltipController != null)
+        {
+            _uiTooltipController.DeviceInfo = _deviceInfo;
+        }
+              
+#if ADMIN_PANEL
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
+#endif
+    }
+
+    #endregion
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToInstance(this);
+
         Container.Add<IDisposable, GUIInstaller>(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
+        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
+        Container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
 
         _root = CreateRoot();
-        var AppEvents = Container.Resolve<IAppEvents>();
-        var popups = _root.GetComponentInChildren<PopupsController>();
-        if(popups != null)
+
+        _stackController = _root.GetComponentInChildren<ScreensController>();
+        if(_stackController != null)
         {
-            popups.AppEvents = AppEvents;
-            Container.Rebind<PopupsController>().ToInstance(popups);
-            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
+            _stackController.CloseAppShow = ShowCloseAppAlertView;
+            Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
-        var screens = _root.GetComponentInChildren<ScreensController>();
-        if(screens != null)
+            
+        _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
+        if(_uiTooltipController != null)
         {
-            screens.AppEvents = AppEvents;
-            Container.Rebind<ScreensController>().ToInstance(screens);
+            _uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+            Container.Rebind<UITooltipController>().ToInstance(_uiTooltipController);
         }
+
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -57,17 +103,57 @@ public class GUIInstaller : Installer, IDisposable
             Container.Rebind<HUDNotificationsController>().ToInstance(notifications);
         }
 
-        Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
-
-    GameObject CreateRoot()
+        
+#if ADMIN_PANEL
+    AdminPanelUI CreateAdminPanel()
     {
-        var root = Resources.Load<GameObject>(GUIRootPrefab);
+        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+
+        return new AdminPanelUI(_deviceInfo, storage);
+    }
+#endif
+
+    void ShowCloseAppAlertView()
+    {
+        try
+        {  
+            var alert = Container.Resolve<IAlertView>();
+            if(alert == null)
+            {
+                throw new InvalidOperationException("Could not resolve Alert View");
+            }
+
+            var _closeAppPopup = (IAlertView)alert.Clone();
+            _closeAppPopup.Title = "CLOSE APP";
+            _closeAppPopup.Message = "Do you want to close this app?";
+            _closeAppPopup.Input = false;
+            _closeAppPopup.Buttons = new []{ "YES", "NO" };
+            _closeAppPopup.Show(result => 
+            {
+                if(result == 0)
+                {
+                    _appEvents.KillGame();
+                }
+
+                _closeAppPopup = null;
+            });
+        }
+        catch(Exception e)
+        {
+            Log.e("Exception while creating Alert View - " + e.Message);
+        }
+    }
+
+    static GameObject CreateRoot()
+    {
+        var root = Resources.Load<GameObject>(kGUIRootPrefab);
         if(root == null)
         {
             throw new InvalidOperationException("Could not load GUI root prefab.");
         }
+
         var rname = root.name;
         root = Instantiate<GameObject>(root);
         root.name = rname;
@@ -75,14 +161,16 @@ public class GUIInstaller : Installer, IDisposable
         return root;
     }
 
-    string GetControllerFactoryPrefabName(Type type)
+    static string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
-        {
-            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
-        }
-        return string.Format("GUI_{0}", name);
+        name = name.Replace(kUIViewUnitySuffix, string.Empty);
+        name = name.Replace(kUIViewControllerSuffix, string.Empty);
+
+        StringBuilder stringBuilder = StringUtils.StartBuilder();
+        stringBuilder.Append(kUIViewControllerExamplePrefix);
+        stringBuilder.Append(name);
+        return StringUtils.FinishBuilder(stringBuilder);
     }
 
     public void Dispose()

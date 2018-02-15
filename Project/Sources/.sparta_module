@@ -1,6 +1,3 @@
 name Sparta Sources
 desc Native plugins projects and sources
 type core
-exclude_path Android/sp_unity_plugins/sp_unity_base/build
-exclude_path Android/sp_unity_plugins/sp_unity_notifications/build
-exclude_path Android/sp_unity_plugins/sp_unity_purchase/build

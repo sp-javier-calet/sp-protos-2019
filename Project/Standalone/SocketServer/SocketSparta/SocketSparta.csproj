@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{60E5B229-FC40-4E60-8F89-38083E1E7807}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SocketSparta</RootNamespace>
+    <AssemblyName>SocketSparta</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants>SPARTA_LOG_VERBOSE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkServer.cs">
+      <Link>INetworkServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\TCP\TcpSocketMessageReader.cs">
+      <Link>Sockets\TCP\TcpSocketMessageReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\TCP\TcpSocketNetworkClient.cs">
+      <Link>Sockets\TCP\TcpSocketNetworkClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\TCP\TcpSocketNetworkMessage.cs">
+      <Link>Sockets\TCP\TcpSocketNetworkMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\TCP\TcpSocketNetworkServer.cs">
+      <Link>Sockets\TCP\TcpSocketNetworkServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\UDP\UdpSocketMessageReader.cs">
+      <Link>Sockets\UDP\UdpSocketMessageReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\UDP\UdpSocketNetworkClient.cs">
+      <Link>Sockets\UDP\UdpSocketNetworkClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\UDP\UdpSocketNetworkMessage.cs">
+      <Link>Sockets\UDP\UdpSocketNetworkMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\Sockets\UDP\UdpSocketNetworkServer.cs">
+      <Link>Sockets\UDP\UdpSocketNetworkServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkClient.cs">
+      <Link>INetworkClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkMessage.cs">
+      <Link>INetworkMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\MultiMatchController.cs">
+      <Link>MultiMatchController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Error.cs">
+      <Link>Base\Error.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReader.cs">
+      <Link>IO\IReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriter.cs">
+      <Link>IO\IWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
+      <Link>Utils\CryptographyUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\INetworkShareable.cs">
+      <Link>IO\INetworkShareable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
+      <Link>Sockets\IO\SystemBinaryReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
+      <Link>Sockets\IO\SystemBinaryWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\INetEventListener.cs">
+      <Link>LiteNetLib\INetEventListener.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NatPunchModule.cs">
+      <Link>LiteNetLib\NatPunchModule.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetConstants.cs">
+      <Link>LiteNetLib\NetConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetDebug.cs">
+      <Link>LiteNetLib\NetDebug.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetEndPoint.cs">
+      <Link>LiteNetLib\NetEndPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetManager.cs">
+      <Link>LiteNetLib\NetManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPacket.cs">
+      <Link>LiteNetLib\NetPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPacketPool.cs">
+      <Link>LiteNetLib\NetPacketPool.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPeer.cs">
+      <Link>LiteNetLib\NetPeer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPeerCollection.cs">
+      <Link>LiteNetLib\NetPeerCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetSocket.cs">
+      <Link>LiteNetLib\NetSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetStatistics.cs">
+      <Link>LiteNetLib\NetStatistics.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetThread.cs">
+      <Link>LiteNetLib\NetThread.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetUtils.cs">
+      <Link>LiteNetLib\NetUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\ReliableChannel.cs">
+      <Link>LiteNetLib\ReliableChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\SequencedChannel.cs">
+      <Link>LiteNetLib\SequencedChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\SimpleChannel.cs">
+      <Link>LiteNetLib\SimpleChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Properties\AssemblyInfo.cs">
+      <Link>LiteNetLib\Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\FastBitConverter.cs">
+      <Link>LiteNetLib\Utils\FastBitConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetDataReader.cs">
+      <Link>LiteNetLib\Utils\NetDataReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetDataWriter.cs">
+      <Link>LiteNetLib\Utils\NetDataWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetSerializer.cs">
+      <Link>LiteNetLib\Utils\NetSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\UpdateRunner.cs">
+      <Link>UpdateRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReadParser.cs">
+      <Link>IO\IReadParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriteSerializer.cs">
+      <Link>IO\IWriteSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\Bitset.cs">
+      <Link>IO\Bitset.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\DebugUtils.cs">
+      <Link>Base\DebugUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\TimeUtils.cs">
+      <Link>Utils\TimeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ShortEncoding.cs">
+      <Link>IO\ShortEncoding.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompoundException.cs">
+      <Link>Utils\CompoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\StringUtils.cs">
+      <Link>Utils\StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Log.cs">
+      <Link>Base\Log.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Sockets\Scripts\Shared\DefaultMessage.cs">
+      <Link>DefaultMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Sockets\Scripts\Shared\NetworkMatchDelegateFactory.cs">
+      <Link>NetworkMatchDelegateFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Sockets\Scripts\Shared\NetworkServerMatchHandler.cs">
+      <Link>NetworkServerMatchHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Sockets\Scripts\Shared\TypeMessages.cs">
+      <Link>TypeMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleApplication.cs">
+      <Link>Console\ConsoleApplication.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleCommand.cs">
+      <Link>Console\ConsoleCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleCommandOption.cs">
+      <Link>Console\ConsoleCommandOption.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleHelpCommand.cs">
+      <Link>Console\ConsoleHelpCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleException.cs">
+      <Link>Console\ConsoleException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Console\ConsoleUtils.cs">
+      <Link>Console\ConsoleUtils.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\INetEventListener.cs.meta">
+      <Link>LiteNetLib\INetEventListener.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\LiteNetLib.csproj">
+      <Link>LiteNetLib\LiteNetLib.csproj</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\LiteNetLib.csproj.meta">
+      <Link>LiteNetLib\LiteNetLib.csproj.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NatPunchModule.cs.meta">
+      <Link>LiteNetLib\NatPunchModule.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetConstants.cs.meta">
+      <Link>LiteNetLib\NetConstants.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetDebug.cs.meta">
+      <Link>LiteNetLib\NetDebug.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetEndPoint.cs.meta">
+      <Link>LiteNetLib\NetEndPoint.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetManager.cs.meta">
+      <Link>LiteNetLib\NetManager.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPacket.cs.meta">
+      <Link>LiteNetLib\NetPacket.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPacketPool.cs.meta">
+      <Link>LiteNetLib\NetPacketPool.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPeer.cs.meta">
+      <Link>LiteNetLib\NetPeer.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetPeerCollection.cs.meta">
+      <Link>LiteNetLib\NetPeerCollection.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetSocket.cs.meta">
+      <Link>LiteNetLib\NetSocket.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetStatistics.cs.meta">
+      <Link>LiteNetLib\NetStatistics.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetThread.cs.meta">
+      <Link>LiteNetLib\NetThread.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\NetUtils.cs.meta">
+      <Link>LiteNetLib\NetUtils.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Properties.meta">
+      <Link>LiteNetLib\Properties.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\ReliableChannel.cs.meta">
+      <Link>LiteNetLib\ReliableChannel.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\SequencedChannel.cs.meta">
+      <Link>LiteNetLib\SequencedChannel.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\SimpleChannel.cs.meta">
+      <Link>LiteNetLib\SimpleChannel.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils.meta">
+      <Link>LiteNetLib\Utils.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Properties\AssemblyInfo.cs.meta">
+      <Link>LiteNetLib\Properties\AssemblyInfo.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\FastBitConverter.cs.meta">
+      <Link>LiteNetLib\Utils\FastBitConverter.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetDataReader.cs.meta">
+      <Link>LiteNetLib\Utils\NetDataReader.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetDataWriter.cs.meta">
+      <Link>LiteNetLib\Utils\NetDataWriter.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\Assets\Plugins\Sparta\External\LiteNetLib\Utils\NetSerializer.cs.meta">
+      <Link>LiteNetLib\Utils\NetSerializer.cs.meta</Link>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

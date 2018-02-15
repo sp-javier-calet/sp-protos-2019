@@ -7,25 +7,46 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
-PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
-PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
+REPO_PATH=$(git rev-parse --show-toplevel)
+
+# Remove merge conflict files
+find $REPO_PATH -name '*~HEAD*' -type f -delete
+find $REPO_PATH -name '*.orig*' -type f -delete
 
 # Remove empty directories
-ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
-find $ASSETS_DIR -name '*.DS_Store' -type f -delete
-find $ASSETS_DIR -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
+find $REPO_PATH -name '*.DS_Store' -type f -delete
+find $REPO_PATH -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
 
-# Reorder XCode project
-export PATH=/usr/local/bin:$PATH
-XCODE_PROJECT_DIR=$(cd "$PROJECT_DIR/Sources/Apple/sp_unity_plugins" && pwd)
-python -B "$XCODE_PROJECT_DIR/tools/reorder_xcode_project_pre_commit.py"
-
+# Check files with conflicts
+python -B $REPO_PATH/scripts/hooks/check-merge-conflicts.py
 if [ $? -ne 0 ]
 then
-  echo "Could not reorder Xcode project!"
+  echo "Commit files contain merge conflicts!"
   exit 1
 fi
+
+OS="`uname`"
+if [ $OS == "Darwin" ];
+then
+
+	# Reorder XCode project
+	export PATH=/usr/local/bin:$PATH
+
+	XCODE_PROJECT_DIR_NAME=$(find . -type d -wholename '*Sources/Apple/sp_unity_plugins')
+	XCODE_PROJECT_DIR=$(cd "$XCODE_PROJECT_DIR_NAME" && pwd)
+
+	python -B "$XCODE_PROJECT_DIR/tools/reorder_xcode_project_pre_commit.py"
+
+	if [ $? -ne 0 ]
+	then
+	echo "Could not reorder Xcode project!"
+	exit 1
+	fi
+
+fi
+
+ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
+PROJECT_NAME=$(basename $(dirname "$ASSETS_DIR_NAME"))
 
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
@@ -43,8 +64,19 @@ git diff --cached --name-only --diff-filter=A -z $against -- "$PROJECT_NAME/Asse
 	file="${f##*/}"
 	base="${f%.*}"
 
-	if [[ "$file" =~ ^\. ]]; then
+	hidden_folder_mark="~"
+	if echo "$base" | grep -q "$hidden_folder_mark"
+	then
 		continue
+	fi
+
+	if [ $OS == "Darwin" ];
+	then
+		if [[ "$file" =~ ^\. ]]; then
+			continue
+		fi
+	else
+		[ $(echo $file | grep "^\.") ] && continue || echo nomatch
 	fi
 
 	if [ "$ext" = "meta" ]; then
@@ -84,6 +116,12 @@ fi
 git diff --cached --name-only --diff-filter=D -z $against -- "$PROJECT_NAME/Assets" | while read -d $'\0' f; do
 	ext="${f##*.}"
 	base="${f%.*}"
+
+	hidden_folder_mark="~"
+	if echo "$base" | grep -q "$hidden_folder_mark"
+	then
+		continue
+	fi
 
 	if [ "$ext" = "meta" ]; then
 		if [ $(git ls-files --cached -- "$base" | wc -l) != 0 ]; then

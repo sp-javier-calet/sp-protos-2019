@@ -22,7 +22,7 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
       PingEnabled: 1
     Login:
-      UseEmpty: 0
+      TypeLogin: 0
       Timeout: 120
       ActivityTimeout: 15
       AutoupdateFriends: 1
@@ -33,12 +33,23 @@ MonoBehaviour:
       UserMappingsBlock: 50
     Events:
       UseEmpty: 0
+      AutoStart: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
       Timeout: 30
       BackoffMultiplier: 1.1
     Notifications:
       AutoRegisterForRemote: 1
+      channels:
+      - Identifier: social
+        Name: Social
+        Description: Social interactions
+      - Identifier: offers
+        Name: Offers
+        Description: Shop offers
+      - Identifier: misc
+        Name: Miscellaneous
+        Description: 
     Crashes:
       UseEmpty: 0
       SendInterval: 20

@@ -41,7 +41,9 @@ public class ConfigParser : IAttrObjParser<ConfigModel>
 
     Dictionary<string, Attr> ParseGlobals(Attr data)
     {
-        var globalsDict = data.AsDic[AttrKeyGlobals];
+        //In Config Manager the first "globals" is the tab and the second "globals" is the Page
+        //Ex: -> {"globals": {"globals": [{"key":"cube_speed","value":2}]}}
+        var globalsDict = data.AsDic[AttrKeyGlobals].AsDic[AttrKeyGlobals];
         var globals = new Dictionary<string, Attr>();
 
         if(globalsDict.AttrType == AttrType.DICTIONARY)

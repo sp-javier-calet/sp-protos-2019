@@ -12,6 +12,7 @@
 			buildConfigurationList = 069170361C760B4100C6B0B6 /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_macOS" */;
 			buildPhases = (
 				069170341C760B4100C6B0B6 /* CopyFiles */,
+				46A3DFAA1F2658BF00D10EC9 /* ShellScript */,
 			);
 			dependencies = (
 				FE58A4641C87055100F9BA0D /* PBXTargetDependency */,
@@ -24,6 +25,7 @@
 			buildConfigurationList = 468E003B1C3E762200CA07AF /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_tvOS" */;
 			buildPhases = (
 				468E00381C3E762200CA07AF /* CopyFiles */,
+				46A3DFA91F2658B100D10EC9 /* ShellScript */,
 			);
 			dependencies = (
 				FE58A4661C87056500F9BA0D /* PBXTargetDependency */,
@@ -36,6 +38,7 @@
 			buildConfigurationList = FEE5C1B01C2163BA0020C4DB /* Build configuration list for PBXAggregateTarget "generateUnityPlugin" */;
 			buildPhases = (
 				FEE5C1B31C2163C40020C4DB /* CopyFiles */,
+				46A3DFA81F2655E800D10EC9 /* ShellScript */,
 			);
 			dependencies = (
 				FE58A4681C87056D00F9BA0D /* PBXTargetDependency */,
@@ -46,7 +49,30 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		06566235200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		06566236200D1345006C44CA /* SPAppControllerDelegator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566232200D1344006C44CA /* SPAppControllerDelegator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		06566237200D1345006C44CA /* SPAppControllerDelegator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06566233200D1345006C44CA /* SPAppControllerDelegator.m */; };
+		06566238200D1345006C44CA /* SPAppControllerDelegator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06566233200D1345006C44CA /* SPAppControllerDelegator.m */; };
+		06566239200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0656623A200D1345006C44CA /* SPAppControllerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 06566234200D1345006C44CA /* SPAppControllerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
+		067823F32008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */; };
+		067823F42008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */; };
+		067823F52008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */; };
+		067823F62008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823EF2008B0B00067E9EE /* BreadcrumbManager.cpp */; };
+		067823F72008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823EF2008B0B00067E9EE /* BreadcrumbManager.cpp */; };
+		067823F82008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823EF2008B0B00067E9EE /* BreadcrumbManager.cpp */; };
+		067823F92008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823F02008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h */; };
+		067823FA2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823F02008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h */; };
+		067823FB2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 067823F02008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h */; };
+		067823FC2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 067823F12008B0B00067E9EE /* BreadcrumbManager.hpp */; };
+		067823FD2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 067823F12008B0B00067E9EE /* BreadcrumbManager.hpp */; };
+		067823FE2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 067823F12008B0B00067E9EE /* BreadcrumbManager.hpp */; };
+		067823FF2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823F22008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		067824002008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823F22008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		067824012008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 067823F22008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		067824032008B10A0067E9EE /* SPUnityCrashReporterFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067824022008B10A0067E9EE /* SPUnityCrashReporterFacade.mm */; };
+		067824042008B10A0067E9EE /* SPUnityCrashReporterFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067824022008B10A0067E9EE /* SPUnityCrashReporterFacade.mm */; };
 		069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
 		069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */ = {isa = PBXBuildFile; fileRef = 069170531C760D5D00C6B0B6 /* SPUnityCurlFacadeMacos.mm */; };
 		0691705E1C762BED00C6B0B6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0691705D1C762BED00C6B0B6 /* AppDelegate.mm */; };
@@ -54,9 +80,9 @@
 		069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 069170621C762BED00C6B0B6 /* Assets.xcassets */; };
 		069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 069170641C762BED00C6B0B6 /* MainMenu.xib */; };
 		06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
-		06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
 		06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
-		06A2492F1D5C853F00499252 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		06D359B12008A07F00C8C223 /* SPUnityGameCenterFacade.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D359AF2008A07F00C8C223 /* SPUnityGameCenterFacade.h */; };
+		06D359B22008A07F00C8C223 /* SPUnityGameCenterFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D359B02008A07F00C8C223 /* SPUnityGameCenterFacade.mm */; };
 		460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */; };
 		460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */; };
 		460B35D01C3EAE80003E0D9D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 460B35CF1C3EAE80003E0D9D /* main.m */; };
@@ -70,15 +96,12 @@
 		460B361D1C3EB1B8003E0D9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 460B361B1C3EB1B8003E0D9D /* Main.storyboard */; };
 		460B36241C3EB1EE003E0D9D /* SPUnityPlugins_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */; };
 		460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
-		460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
-		460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
 		465659181DD61C3200CA646A /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 465657C71DD61C1600CA646A /* libcurl.a */; };
 		465659191DD61C3200CA646A /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 465657D61DD61C1600CA646A /* libz.a */; };
 		4656591A1DD61C3200CA646A /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 465657DC1DD61C1600CA646A /* libnghttp2.a */; };
 		4656591B1DD61C3200CA646A /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4656582C1DD61C1600CA646A /* libcrypto.a */; };
 		4656591C1DD61C3200CA646A /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4656582D1DD61C1600CA646A /* libssl.a */; };
-		465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
 		467F0F261D23EC4B00D0CD11 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 467F0F251D23EC4B00D0CD11 /* libz.tbd */; };
 		467F619F1DB8D4F0008CA7D2 /* CurlTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467F619D1DB8D4F0008CA7D2 /* CurlTestClient.cpp */; };
@@ -164,29 +187,18 @@
 		46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
 		46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
 		46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
-		7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7B1524321E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7B1524331E5F3EA200B42780 /* SPUnityApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */; };
-		7B1524341E5F3EA200B42780 /* SPUnityApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */; };
-		7B1524351E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7B1524361E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7B1524371E5F3EA200B42780 /* SPUnitySubController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */; };
-		7B1524381E5F3EA200B42780 /* SPUnitySubController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */; };
 		B3524A6D1DD9BBCE008AE6FF /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
 		B3524A6E1DD9BBD1008AE6FF /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
 		B3524A6F1DD9BBDA008AE6FF /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
 		B37E5D161DD4A70500A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
 		B37E5D181DD4A70700A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
 		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
-		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
-		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4490261C1F11D900A10FEA /* KeychainItemWrapper.m */; };
 		FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490281C1F11D900A10FEA /* SPUnityKeychainFacade.mm */; };
 		FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
-		FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
 		FE49342B1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */; };
 		FE49342C1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */; };
@@ -212,7 +224,6 @@
 		FE7056891DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
 		FE70568B1DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
-		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
 /* End PBXBuildFile section */
 
@@ -265,7 +276,7 @@
 		069170341C760B4100C6B0B6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Osx";
+			dstPath = "$(PROJECT_DIR)/build/macOS";
 			dstSubfolderSpec = 0;
 			files = (
 				066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */,
@@ -275,7 +286,7 @@
 		468E00381C3E762200CA07AF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/tvOS";
+			dstPath = "$(PROJECT_DIR)/build/tvOS";
 			dstSubfolderSpec = 0;
 			files = (
 				460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */,
@@ -285,7 +296,7 @@
 		FEE5C1B31C2163C40020C4DB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Ios";
+			dstPath = "$(PROJECT_DIR)/build/iOS";
 			dstSubfolderSpec = 0;
 			files = (
 				460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */,
@@ -295,6 +306,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		06566232200D1344006C44CA /* SPAppControllerDelegator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPAppControllerDelegator.h; sourceTree = "<group>"; };
+		06566233200D1345006C44CA /* SPAppControllerDelegator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPAppControllerDelegator.m; sourceTree = "<group>"; };
+		06566234200D1345006C44CA /* SPAppControllerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPAppControllerDelegate.h; sourceTree = "<group>"; };
+		067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCrashReporterFacade.h; sourceTree = "<group>"; };
+		067823EF2008B0B00067E9EE /* BreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BreadcrumbManager.cpp; sourceTree = "<group>"; };
+		067823F02008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityBreadcrumbManagerFacade.h; sourceTree = "<group>"; };
+		067823F12008B0B00067E9EE /* BreadcrumbManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BreadcrumbManager.hpp; sourceTree = "<group>"; };
+		067823F22008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManagerFacade.cpp; sourceTree = "<group>"; };
+		067824022008B10A0067E9EE /* SPUnityCrashReporterFacade.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCrashReporterFacade.mm; sourceTree = "<group>"; };
 		069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityUtils.cpp; sourceTree = "<group>"; };
 		069170221C75CADE00C6B0B6 /* SPUnityUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPUnityUtils.h; path = ../../Common/sp_unity_utils/SPUnityUtils.h; sourceTree = "<group>"; };
 		069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SPUnityPlugins.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -307,6 +327,9 @@
 		069170651C762BED00C6B0B6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		069170671C762BEE00C6B0B6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0691706E1C762C9000C6B0B6 /* Info_macOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info_macOS.plist; sourceTree = "<group>"; };
+		06D359AF2008A07F00C8C223 /* SPUnityGameCenterFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityGameCenterFacade.h; sourceTree = "<group>"; };
+		06D359B02008A07F00C8C223 /* SPUnityGameCenterFacade.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityGameCenterFacade.mm; sourceTree = "<group>"; };
+		06D359B32008A08E00C8C223 /* SPUnityDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPUnityDefines.h; sourceTree = "<group>"; };
 		06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityNativeUtils.h; sourceTree = "<group>"; };
 		06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityNativeUtils.mm; sourceTree = "<group>"; };
 		460B35CC1C3EAE80003E0D9D /* LinkerValidator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinkerValidator.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -676,25 +699,17 @@
 		46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportSystemInfo.h; sourceTree = "<group>"; };
 		46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportTextFormatter.h; sourceTree = "<group>"; };
 		46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportThreadInfo.h; sourceTree = "<group>"; };
-		7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityApplication.h; sourceTree = "<group>"; };
-		7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityApplication.mm; sourceTree = "<group>"; };
-		7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnitySubController.h; sourceTree = "<group>"; };
-		7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnitySubController.mm; sourceTree = "<group>"; };
 		B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LibWebsocketTestClient.cpp; sourceTree = "<group>"; };
 		B37E5D131DD4A6FA00A59279 /* LibWebsocketTestClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LibWebsocketTestClient.hpp; sourceTree = "<group>"; };
 		B387E3341DD5C65000E1ADD3 /* WebSocketConnection.fwd.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WebSocketConnection.fwd.hpp; sourceTree = "<group>"; };
 		F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityFileUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.cpp; sourceTree = "<group>"; };
 		F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SPUnityFileUtils.hpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.hpp; sourceTree = "<group>"; };
-		F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManager.cpp; sourceTree = "<group>"; };
-		F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SPUnityBreadcrumbManager.hpp; sourceTree = "<group>"; };
-		F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManagerFacade.cpp; sourceTree = "<group>"; };
 		F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseNativeServices.mm; path = sp_unity_purchase/SPPurchaseNativeServices.mm; sourceTree = "<group>"; };
 		F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseNativeServices.h; path = sp_unity_purchase/SPPurchaseNativeServices.h; sourceTree = "<group>"; };
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
 		F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseStore.h; path = sp_unity_purchase/SPPurchaseStore.h; sourceTree = "<group>"; };
 		F542C2211CC4EEF80045B8A9 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
-		FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCrashReporter.mm; sourceTree = "<group>"; };
 		FE4490121C1EF36200A10FEA /* SPUnityHardwareFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityHardwareFacade.h; sourceTree = "<group>"; };
 		FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityHardwareFacade.mm; sourceTree = "<group>"; };
 		FE4490221C1F11D900A10FEA /* SPUnityAlertViewFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityAlertViewFacade.h; sourceTree = "<group>"; };
@@ -726,7 +741,6 @@
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
-		FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityGameCenter.mm; sourceTree = "<group>"; };
 		FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPNativeCallsSender.h; sourceTree = "<group>"; };
 		FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPNativeCallsSender.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -802,6 +816,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		067823ED2008B0B00067E9EE /* sp_unity_crash */ = {
+			isa = PBXGroup;
+			children = (
+				067823EE2008B0B00067E9EE /* SPUnityCrashReporterFacade.h */,
+				067823EF2008B0B00067E9EE /* BreadcrumbManager.cpp */,
+				067823F02008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h */,
+				067823F12008B0B00067E9EE /* BreadcrumbManager.hpp */,
+				067823F22008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp */,
+			);
+			path = sp_unity_crash;
+			sourceTree = "<group>";
+		};
 		069170201C75CAC500C6B0B6 /* sp_unity_utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -1659,16 +1685,6 @@
 			path = headers;
 			sourceTree = "<group>";
 		};
-		F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */ = {
-			isa = PBXGroup;
-			children = (
-				F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */,
-				F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */,
-				F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */,
-			);
-			path = sp_unity_crash_reporter;
-			sourceTree = "<group>";
-		};
 		F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */ = {
 			isa = PBXGroup;
 			children = (
@@ -1741,10 +1757,12 @@
 		FE448F311C1EEAD800A10FEA /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
+				06D359B32008A08E00C8C223 /* SPUnityDefines.h */,
+				067823ED2008B0B00067E9EE /* sp_unity_crash */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
 				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 				FE5A76AA1DC7789700EB3DC6 /* sp_unity_websockets */,
+				06D359B32008A08E00C8C223 /* SPUnityDefines.h */,
 			);
 			name = Common;
 			path = ../../Common;
@@ -1768,8 +1786,8 @@
 		FE44900F1C1EF36200A10FEA /* sp_unity_crash */ = {
 			isa = PBXGroup;
 			children = (
+				067824022008B10A0067E9EE /* SPUnityCrashReporterFacade.mm */,
 				FE4490171C1EF40700A10FEA /* libs */,
-				FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */,
 			);
 			path = sp_unity_crash;
 			sourceTree = "<group>";
@@ -1820,14 +1838,13 @@
 				460B36251C3EB3E6003E0D9D /* Info_tvOS.plist */,
 				FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */,
 				FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */,
-				7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */,
-				7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */,
 				FE4490461C1F205800A10FEA /* SPUnityPlugins.h */,
 				46E208D21D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h */,
-				7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */,
-				7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */,
 				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
 				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
+				06566234200D1345006C44CA /* SPAppControllerDelegate.h */,
+				06566232200D1344006C44CA /* SPAppControllerDelegator.h */,
+				06566233200D1345006C44CA /* SPAppControllerDelegator.m */,
 			);
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
@@ -1904,7 +1921,8 @@
 		FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */ = {
 			isa = PBXGroup;
 			children = (
-				FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */,
+				06D359AF2008A07F00C8C223 /* SPUnityGameCenterFacade.h */,
+				06D359B02008A07F00C8C223 /* SPUnityGameCenterFacade.mm */,
 			);
 			path = sp_unity_gamecenter;
 			sourceTree = "<group>";
@@ -1916,6 +1934,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				067823FB2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */,
+				067823FE2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */,
+				067823F52008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1927,15 +1948,18 @@
 				46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46D2D9E71D086FD400051221 /* PLCrashFeatureConfig.h in Headers */,
 				46D2D9E81D086FD400051221 /* PLCrashNamespace.h in Headers */,
+				067823FD2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */,
 				46D2D9E91D086FD400051221 /* PLCrashReport.h in Headers */,
 				46D2D9EA1D086FD400051221 /* PLCrashReportApplicationInfo.h in Headers */,
 				46D2D9EB1D086FD400051221 /* PLCrashReportBinaryImageInfo.h in Headers */,
 				46D2D9EC1D086FD400051221 /* PLCrashReporter.h in Headers */,
 				46D2D9ED1D086FD400051221 /* PLCrashReporterConfig.h in Headers */,
+				067823F42008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */,
 				46D2D9EE1D086FD400051221 /* PLCrashReportExceptionInfo.h in Headers */,
 				46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */,
 				46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */,
 				46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */,
+				06566236200D1345006C44CA /* SPAppControllerDelegator.h in Headers */,
 				46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */,
 				46D2D9F31D086FD400051221 /* PLCrashReportProcessorInfo.h in Headers */,
 				46D2D9F41D086FD400051221 /* PLCrashReportRegisterInfo.h in Headers */,
@@ -1946,10 +1970,10 @@
 				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
 				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
 				FE49342C1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */,
-				7B1524321E5F3EA200B42780 /* SPUnityApplication.h in Headers */,
+				067823FA2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */,
 				468F9D7D1D9BB56E00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D31D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h in Headers */,
-				7B1524361E5F3EA200B42780 /* SPUnitySubController.h in Headers */,
+				0656623A200D1345006C44CA /* SPAppControllerDelegate.h in Headers */,
 				468F9D7B1D9BB52500EF4AE7 /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1961,12 +1985,14 @@
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
+				06566239200D1345006C44CA /* SPAppControllerDelegate.h in Headers */,
 				46F7490D1C60AE77000DB6B1 /* PLCrashNamespace.h in Headers */,
 				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
 				46F7490F1C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h in Headers */,
 				46F749101C60AE77000DB6B1 /* PLCrashReportBinaryImageInfo.h in Headers */,
 				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
 				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
+				067823F92008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.h in Headers */,
 				46F749131C60AE77000DB6B1 /* PLCrashReportExceptionInfo.h in Headers */,
 				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
 				46F749151C60AE77000DB6B1 /* PLCrashReportMachExceptionInfo.h in Headers */,
@@ -1981,10 +2007,12 @@
 				46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */,
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
 				FE49342B1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */,
-				7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */,
+				06566235200D1345006C44CA /* SPAppControllerDelegator.h in Headers */,
+				06D359B12008A07F00C8C223 /* SPUnityGameCenterFacade.h in Headers */,
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
+				067823F32008B0B00067E9EE /* SPUnityCrashReporterFacade.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
-				7B1524351E5F3EA200B42780 /* SPUnitySubController.h in Headers */,
+				067823FC2008B0B00067E9EE /* BreadcrumbManager.hpp in Headers */,
 				468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2106,7 +2134,7 @@
 		FE448F0E1C1EE83100A10FEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0830;
 				TargetAttributes = {
 					069170281C75F79B00C6B0B6 = {
 						CreatedOnToolsVersion = 7.2.1;
@@ -2206,17 +2234,59 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		46A3DFA81F2655E800D10EC9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "chmod u+x $PROJECT_DIR/tools/find_binaries_path.sh\n$PROJECT_DIR/tools/find_binaries_path.sh iOS";
+		};
+		46A3DFA91F2658B100D10EC9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "chmod u+x $PROJECT_DIR/tools/find_binaries_path.sh\n$PROJECT_DIR/tools/find_binaries_path.sh tvOS";
+		};
+		46A3DFAA1F2658BF00D10EC9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "chmod u+x $PROJECT_DIR/tools/find_binaries_path.sh\n$PROJECT_DIR/tools/find_binaries_path.sh macOS";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		069170251C75F79B00C6B0B6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				FE6072561DAFC31D00323426 /* Certificate.cpp in Sources */,
+				067824012008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				FE6072551DAFC31A00323426 /* ConnectionManager.cpp in Sources */,
 				FE6072541DAFC31800323426 /* CurlClient.cpp in Sources */,
-				06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */,
-				06A2492F1D5C853F00499252 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				FE6072531DAFC31500323426 /* SPUnityCurl.cpp in Sources */,
+				067823F82008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */,
 				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
 				06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */,
 				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
@@ -2267,6 +2337,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */,
+				067824002008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				FE6072291DAFBF6D00323426 /* ConnectionManager.cpp in Sources */,
 				FE60722D1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
 				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
@@ -2274,17 +2345,15 @@
 				46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */,
 				46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */,
 				FE49342E1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */,
-				7B1524341E5F3EA200B42780 /* SPUnityApplication.mm in Sources */,
-				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
-				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
-				465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */,
+				067824042008B10A0067E9EE /* SPUnityCrashReporterFacade.mm in Sources */,
 				FE6072331DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */,
 				465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */,
 				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
+				06566238200D1345006C44CA /* SPAppControllerDelegator.m in Sources */,
+				067823F72008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */,
 				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
 				468F9DA11D9BE6BA00EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
-				7B1524381E5F3EA200B42780 /* SPUnitySubController.mm in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
 				B3524A6F1DD9BBDA008AE6FF /* SPUnityWebSockets.cpp in Sources */,
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
@@ -2304,21 +2373,20 @@
 				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
 				F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */,
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
+				06566237200D1345006C44CA /* SPAppControllerDelegator.m in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
+				067824032008B10A0067E9EE /* SPUnityCrashReporterFacade.mm in Sources */,
 				FE49342D1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */,
-				7B1524331E5F3EA200B42780 /* SPUnityApplication.mm in Sources */,
-				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
-				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
-				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
+				067823FF2008B0B00067E9EE /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
+				067823F62008B0B00067E9EE /* BreadcrumbManager.cpp in Sources */,
 				FE6072321DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
-				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
+				06D359B22008A07F00C8C223 /* SPUnityGameCenterFacade.mm in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
 				468F9DA01D9BE6B900EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
 				468F9D081D995ABF00EF4AE7 /* SPUnityNotifications.mm in Sources */,
-				7B1524371E5F3EA200B42780 /* SPUnitySubController.mm in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
 				FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
@@ -2670,7 +2738,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
 				);
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -2719,7 +2787,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
 				);
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2849,6 +2917,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -2880,7 +2949,7 @@
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_tvOs.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2926,6 +2995,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2955,7 +3025,7 @@
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_tvOs.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3008,11 +3078,28 @@
 		FE448F121C1EE83100A10FEA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACH_O_TYPE = staticlib;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
@@ -3021,9 +3108,26 @@
 		FE448F131C1EE83100A10FEA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACH_O_TYPE = staticlib;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -3047,7 +3151,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
@@ -3077,7 +3181,7 @@
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3123,7 +3227,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -3151,7 +3255,7 @@
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

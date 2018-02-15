@@ -1,9 +1,0 @@
-name Extension/Google
-desc IGoogle implementation for Google Play Games Services 
-type extension
-depends_on Assets/GooglePlayGames
-depends_on Assets/Plugins/Android/MainLibProj
-depends_on Assets/Plugins/Android/libs/armeabi-v7a/libgpg.so
-depends_on Assets/Plugins/Android/libs/x86/libgpg.so
-depends_on Assets/Plugins/Ios/GPGSAppController.h
-depends_on Assets/Plugins/Ios/GPGSAppController.mm

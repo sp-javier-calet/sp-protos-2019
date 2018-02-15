@@ -1,0 +1,14 @@
+{
+  "infoPlist": {
+    "LSApplicationQueriesSchemes": [
+        "dragoncity",
+        "monsterlegends",
+        "dragonland",
+        "restaurantcity",
+        "dragonstadium",
+        "leagueofdragons",
+        "championsarena",
+        "tastytown"
+      ]
+  }
+}

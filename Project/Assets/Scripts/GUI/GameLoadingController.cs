@@ -25,9 +25,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     #endif
 
     [SerializeField]
-    string _sceneToLoad = "Main";
-
-    public string SceneToLoad { set { _sceneToLoad = value; } }
+    string _sceneToLoad = "MainScene";
 
     LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
@@ -44,6 +42,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         CrashReporter = Services.Instance.Resolve<ICrashReporter>();
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
+        NativeUtils = Services.Instance.Resolve<INativeUtils>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
         _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
         _socialManager = Services.Instance.Resolve<SocialManager>();
@@ -55,6 +54,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         #endif
 
         base.OnLoad();
+    }
+
+    public override bool OnBeforeClose()
+    {
+        return false;
     }
 
     override protected void OnAppeared()
@@ -79,15 +83,18 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        _coroutineRunner.LoadSceneAsyncProgress(_sceneToLoad, op => {
-            _loadSceneOperation.Progress = op.progress;
-            if(op.isDone)
-            {
-                Hide();
-                op.allowSceneActivation = true;
-                _loadSceneOperation.Finish("main scene loaded");
-            }
-        });
+        if(!string.IsNullOrEmpty(_sceneToLoad))
+        {
+            _coroutineRunner.LoadSceneAsyncProgress(_sceneToLoad, op => {
+                _loadSceneOperation.Progress = op.progress;
+                if(op.isDone)
+                {
+                    HideImmediate(true);
+                    op.allowSceneActivation = true;
+                    _loadSceneOperation.Finish("main scene loaded");
+                }
+            });
+        }
     }
 
     #if ADMIN_PANEL
@@ -105,8 +112,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         var data = reader.ParseElement();
         _gameLoader.Load(data);
 
-        ParseSFLocalPlayerData(data);
-//        ParseAssetBundlesData(data);
+        if(data != null)
+        {
+            ParseSFLocalPlayerData(data);
+            ParseAssetBundlesData(data);
+        }
 
         _loadModelOperation.Finish("game model loaded");
         return true;

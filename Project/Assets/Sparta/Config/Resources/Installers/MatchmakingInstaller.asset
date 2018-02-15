@@ -8,7 +8,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 858d96fbc1983486786e4658bc86920f, type: 3}
+  m_Script: {fileID: 11500000, guid: 9deed8f1c8c9d45c6b37c040f3d84bf8, type: 3}
   m_Name: MatchmakingInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1

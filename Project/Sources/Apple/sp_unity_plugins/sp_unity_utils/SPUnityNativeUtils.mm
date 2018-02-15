@@ -1,6 +1,8 @@
 #include "SPUnityNativeUtils.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <StoreKit/StoreKit.h>
+
 #include <queue>
 #include "UnityGameObject.h"
 
@@ -168,10 +170,13 @@ NSString* const kAppSourceKey = @"SourceApplicationKey";
 // AppReady flag defined in UnityAppController
 extern bool _unityAppReady;
 
-static std::string _gameObjectName = "";
+namespace {
 
-// Queue of events waiting to be notified
-std::queue<std::string> _pendingEvents;
+    static std::string _gameObjectName = "";
+
+    // Queue of events waiting to be notified
+    std::queue<std::string> _pendingEvents;
+}
 
 
 + (void)notifyStatus:(std::string)status
@@ -259,7 +264,44 @@ EXPORT_API char* SPUnityNotificationsDeviceToken()
 {
     return SPUnityNativeUtils::createString(_deviceToken.c_str());
 }
+
 EXPORT_API char* SPUnityNotificationsRegistrationError()
 {
     return SPUnityNativeUtils::createString(_registrationError.c_str());
+}
+
+EXPORT_API bool SPUnityNativeUtilsSupportsReviewDialog()
+{
+#if !UNITY_TVOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
+    if(NSStringFromClass([SKStoreReviewController class]) != nil)
+    {
+        return true;
+    }
+#endif
+    return false;
+}
+
+EXPORT_API void SPUnityNativeUtilsDisplayReviewDialog()
+{
+#if !UNITY_TVOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
+    if(NSStringFromClass([SKStoreReviewController class]) != nil)
+    {
+        [SKStoreReviewController requestReview];
+    }
+#endif
+}
+
+void clearUserDefaults()
+{
+    NSString* appDomain = [[NSBundle mainBundle] bundleIdentifier];
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+EXPORT_API void SPUnityNativeUtilsClearDataAndKillApp()
+{
+#if !UNITY_TVOS
+    clearUserDefaults();
+    exit(0);
+#endif
 }

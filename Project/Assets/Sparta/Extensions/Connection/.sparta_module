@@ -1,4 +1,0 @@
-name Extension/Connection
-desc Connection manager
-type extension
-depends_on Assets/Sparta/External/Photon/Plugins/WebSocket/websocket-sharp.dll

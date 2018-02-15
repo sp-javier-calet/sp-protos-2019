@@ -81,7 +81,8 @@ namespace SocialPoint.Network
 
         public void Send(byte code, byte[] data)
         {
-            var wrap = new Dictionary<byte, object> { { LiteOpKey.Data, data }, { LiteOpKey.Code, code } };
+            var encodedData = HttpEncoding.Encode(data, HttpEncoding.LZ4);
+            var wrap = new Dictionary<byte, object> { { LiteOpKey.Data, encodedData }, { LiteOpKey.Code, code } };
             _clientConnection.Peer.SendOperationRequest(new OperationRequest(LiteOpCode.RaiseEvent, wrap), new SendParameters() { Unreliable = !SendReliable, Encrypted = UseEncryption, ChannelId = ChannelId });
         }
 
@@ -91,9 +92,11 @@ namespace SocialPoint.Network
 
             if(eventData.Parameters.ContainsKey(LiteOpKey.Data))
             {
-                var stream = new MemoryStream((byte[])eventData.Parameters[LiteOpKey.Data]);
-                if(_receiver != null)
+                var data = eventData.Parameters[LiteOpKey.Data] as byte[];
+                if (data != null && _receiver != null)
                 {
+                    var decoded = HttpEncoding.Decode(data, HttpEncoding.LZ4);
+                    var stream = new MemoryStream(decoded);
                     _receiver.OnMessageReceived(new NetworkMessageData { MessageType = eventData.Code }, new SystemBinaryReader(stream));
                 }
             }

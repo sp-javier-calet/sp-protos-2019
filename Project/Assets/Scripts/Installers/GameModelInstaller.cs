@@ -55,7 +55,7 @@ public class GameModelInstaller : SubInstaller
         return new PlayerParser(
             Container.Resolve<PlayerModel>(),
             Container.Resolve<ConfigModel>(),
-            Container.Resolve<IScriptEventDispatcher>());
+            Container.Resolve<IScriptEventProcessor>());
     }
 
     GameModel CreateGameModel()

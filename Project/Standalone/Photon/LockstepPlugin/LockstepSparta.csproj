@@ -32,277 +32,282 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ionic.Zlib.CF">
-      <HintPath>..\..\..\Assets\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
-    </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\..\..\Assets\Sparta\External\UnityTestTools\UnitTesting\Editor\NSubstitute\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\Server\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\Assets\Plugins\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
+    <Reference Include="LZ4">
+      <HintPath>..\..\..\Assets\Plugins\Sparta\External\LZ4\LZ4.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\ClientCommandData.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\ClientCommandData.cs">
       <Link>Lockstep\ClientCommandData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\ClientTurnData.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\ClientTurnData.cs">
       <Link>Lockstep\ClientTurnData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\LockstepClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\LockstepClient.cs">
       <Link>Lockstep\LockstepClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\LockstepServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\LockstepServer.cs">
       <Link>Lockstep\LockstepServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\AttrMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\AttrMessage.cs">
       <Link>Lockstep\Network\AttrMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientChangedConnectionStatusMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\ClientChangedConnectionStatusMessage.cs">
       <Link>Lockstep\Network\ClientChangedConnectionStatusMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientStartMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\ClientStartMessage.cs">
       <Link>Lockstep\Network\ClientStartMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\EmptyTurnsMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\EmptyTurnsMessage.cs">
       <Link>Lockstep\Network\EmptyTurnsMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\INetworkClientGameFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\INetworkClientGameFactory.cs">
       <Link>Lockstep\Network\INetworkClientGameFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\INetworkServerGameFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\INetworkServerGameFactory.cs">
       <Link>Lockstep\Network\INetworkServerGameFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\LockstepNetworkServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\LockstepNetworkServer.cs">
       <Link>Lockstep\Network\LockstepNetworkServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\PlayerReadyMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\PlayerReadyMessage.cs">
       <Link>Lockstep\Network\PlayerReadyMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\ServerCommandData.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\ServerCommandData.cs">
       <Link>Lockstep\ServerCommandData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\ServerTurnData.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\ServerTurnData.cs">
       <Link>Lockstep\ServerTurnData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\HttpMatchmakingServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\HttpMatchmakingServer.cs">
       <Link>Matchmaking\HttpMatchmakingServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
       <Link>Matchmaking\IMatchmakingServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
       <Link>Network\ServerEvents\HttpServerEventTracker.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
       <Link>Network\ServerEvents\IServerEventTracker.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Log.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\Log.cs">
       <Link>Network\ServerEvents\Log.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Metric.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\Metric.cs">
       <Link>Network\ServerEvents\Metric.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\dynamic.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\dynamic.cs">
       <Link>External\FastJson\dynamic.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Formatter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Formatter.cs">
       <Link>External\FastJson\Formatter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Getters.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Getters.cs">
       <Link>External\FastJson\Getters.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JSON.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JSON.cs">
       <Link>External\FastJson\JSON.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JsonParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JsonParser.cs">
       <Link>External\FastJson\JsonParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JsonSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JsonSerializer.cs">
       <Link>External\FastJson\JsonSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Reflection.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Reflection.cs">
       <Link>External\FastJson\Reflection.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\SafeDictionary.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\SafeDictionary.cs">
       <Link>External\FastJson\SafeDictionary.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\FixedMathNet\Fix64.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\FixedMathNet\Fix64.cs">
       <Link>External\MathNet\Fix64.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\FixedMathNet\Fix64SinLut.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\FixedMathNet\Fix64SinLut.cs">
       <Link>External\MathNet\Fix64SinLut.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\FixedMathNet\Fix64TanLut.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\FixedMathNet\Fix64TanLut.cs">
       <Link>External\MathNet\Fix64TanLut.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonException.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonException.cs">
       <Link>External\LitJson\JsonException.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonWriter.cs">
       <Link>External\LitJson\JsonWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\ParserToken.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\ParserToken.cs">
       <Link>External\LitJson\ParserToken.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\Attr.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\Attr.cs">
       <Link>Attributes\Attr.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\FastJsonAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\FastJsonAttrParser.cs">
       <Link>Attributes\FastJsonAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\FastJsonStreamReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\FastJsonStreamReader.cs">
       <Link>Attributes\FastJsonStreamReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IAttrParser.cs">
       <Link>Attributes\IAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IAttrSerializer.cs">
       <Link>Attributes\IAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IStreamReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IStreamReader.cs">
       <Link>Attributes\IStreamReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\JsonAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\JsonAttrParser.cs">
       <Link>Attributes\JsonAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\JsonAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\JsonAttrSerializer.cs">
       <Link>Attributes\JsonAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\LitJsonAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\LitJsonAttrSerializer.cs">
       <Link>Attributes\LitJsonAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\StreamReaderAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\StreamReaderAttrParser.cs">
       <Link>Attributes\StreamReaderAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\UrlQueryAttrParser.cs">
       <Link>Attributes\UrlQueryAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\UrlQueryAttrSerializer.cs">
       <Link>Attributes\UrlQueryAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\DebugUtils.cs">
       <Link>Base\DebugUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\Error.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Error.cs">
       <Link>Base\Error.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\Log.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Log.cs">
       <Link>Base\Log.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\Bitset.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\Bitset.cs">
       <Link>IO\Bitset.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileManager.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\FileManager.cs">
       <Link>IO\FileManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\FileUtils.cs">
       <Link>IO\FileUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\INetworkShareable.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\INetworkShareable.cs">
       <Link>IO\INetworkShareable.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReader.cs">
       <Link>IO\IReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IReadParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReadParser.cs">
       <Link>IO\IReadParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriter.cs">
       <Link>IO\IWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IWriteSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriteSerializer.cs">
       <Link>IO\IWriteSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
       <Link>IO\SystemBinaryReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
       <Link>IO\SystemBinaryWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\LockstepCommand.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\LockstepCommand.cs">
       <Link>Lockstep\LockstepCommand.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\LockstepCommandFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\LockstepCommandFactory.cs">
       <Link>Lockstep\LockstepCommandFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientSetupMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\ClientSetupMessage.cs">
       <Link>Lockstep\Network\ClientSetupMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\BaseYieldHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\BaseYieldHttpClient.cs">
       <Link>Network\BaseYieldHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\EditorProxy.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\EditorProxy.cs">
       <Link>Network\EditorProxy.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpEncoding.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpEncoding.cs">
       <Link>Network\HttpEncoding.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpRequest.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpRequest.cs">
       <Link>Network\HttpRequest.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpResponse.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpResponse.cs">
       <Link>Network\HttpResponse.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\IHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\IHttpClient.cs">
       <Link>Network\IHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
       <Link>Network\ImmediateWebRequestHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Network\INetworkClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkMessage.cs">
       <Link>Network\INetworkMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Network\INetworkServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
       <Link>Network\NetworkStatsBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
       <Link>Network\NetworkStatsClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsWriter.cs">
+      <Link>Network\NetworkStatsWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompoundException.cs">
+      <Link>Utils\CompoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Utils\CompareUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
       <Link>Utils\CryptographyUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\PriorityQueue.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\PriorityQueue.cs">
       <Link>Utils\PriorityQueue.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\RandomUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\RandomUtils.cs">
       <Link>Utils\RandomUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\StringUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\StringUtils.cs">
       <Link>Utils\StringUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\TimeUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\TimeUtils.cs">
       <Link>Utils\TimeUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\UpdateRunner.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\UpdateRunner.cs">
       <Link>Utils\UpdateRunner.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\XRandom.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\XRandom.cs">
       <Link>Utils\XRandom.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\LockstepNetworkClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lockstep\Network\LockstepNetworkClient.cs">
       <Link>Lockstep\Network\LockstepNetworkClient.cs</Link>
     </Compile>
-    <Compile Include="Network\ServerEvents\Tests\PluginEventTrackerTests.cs" />
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ShortEncoding.cs">
+      <Link>IO\ShortEncoding.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

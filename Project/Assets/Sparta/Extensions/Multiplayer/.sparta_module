@@ -1,7 +1,0 @@
-type extension
-desc Authoritative multiplayer server implementation for sparta
-name Extension/Multiplayer
-depends_on Assets/Sparta/External/JitterPhysics
-depends_on Assets/Sparta/External/SharpNav
-depends_on Assets/Sparta/Extensions/Physics
-depends_on Assets/Sparta/Extensions/Pathfinding

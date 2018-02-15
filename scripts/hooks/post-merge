@@ -1,10 +1,11 @@
 #!/bin/sh
 
-ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
-PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
-PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
+REPO_PATH=$(git rev-parse --show-toplevel)
+
+# Remove merge conflict files
+find $REPO_PATH -name '*~HEAD*' -type f -delete
+find $REPO_PATH -name '*.orig*' -type f -delete
 
 # Remove empty directories
-ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
-find $ASSETS_DIR -name '*.DS_Store' -type f -delete
-find $ASSETS_DIR -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
+find $REPO_PATH -name '*.DS_Store' -type f -delete
+find $REPO_PATH -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
