@@ -25,12 +25,13 @@ namespace SocialPoint.Dependency
         public DependencyContainer()
         {
             _installed = new List<IInstaller>();
-            _bindings = new Dictionary<BindingKey, List<IBinding>>();
             _resolving = new HashSet<IBinding>();
             _resolved = new List<IBinding>();
             _instances = new Dictionary<IBinding, HashSet<object>>();
-            _lookups = new Dictionary<BindingKey, List<IBinding>>();
-            _listeners = new Dictionary<BindingKey, List<IListener>>();
+            var keyComparer = new BindingKeyComparer();
+            _bindings = new Dictionary<BindingKey, List<IBinding>>(keyComparer);
+            _lookups = new Dictionary<BindingKey, List<IBinding>>(keyComparer);
+            _listeners = new Dictionary<BindingKey, List<IListener>>(keyComparer);
         }
 
         public void AddBindingWithInstance<T>(IBinding binding, Type type, T instance, string tag = null)

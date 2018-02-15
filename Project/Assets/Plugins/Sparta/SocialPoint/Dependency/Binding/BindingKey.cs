@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
@@ -32,6 +33,19 @@ namespace SocialPoint.Dependency
             var hash = Type == null ? 0 : Type.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, Tag == null ? 0 : Tag.GetHashCode());
             return hash;
+        }
+    }
+
+    public class BindingKeyComparer : IEqualityComparer<BindingKey>
+    {
+        public bool Equals(BindingKey x, BindingKey y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(BindingKey obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }
