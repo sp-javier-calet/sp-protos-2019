@@ -28,7 +28,7 @@ namespace SocialPoint.Multiplayer
         Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>> _behaviourPrototypes = new Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>>();
         List<INetworkBehaviour> _genericBehaviourPrototypes = new List<INetworkBehaviour>();
         List<Type> _genericBehaviourPrototypesTypes = new List<Type>();
-        protected List<NetworkGameObject> _pendingGameObjectAdded = new List<NetworkGameObject>();
+        protected readonly List<NetworkGameObject> _pendingGameObjectAdded = new List<NetworkGameObject>();
         Action<float> _lateUpdateCallback;
         public EventActionWrapper OnAfterSceneUpdated;
 

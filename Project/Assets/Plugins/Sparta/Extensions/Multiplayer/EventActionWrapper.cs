@@ -1,29 +1,32 @@
 ﻿using System;
 
-public struct EventActionWrapper
+namespace SocialPoint.Multiplayer
 {
-    event Action _event;
-
-    public void Add(Action action)
+    public struct EventActionWrapper
     {
-        _event += action;
-    }
+        event Action _event;
 
-    public void Remove(Action action)
-    {
-        _event -= action;
-    }
-
-    public void Clear()
-    {
-        _event = null;
-    }
-
-    public void Call()
-    {
-        if(_event != null)
+        public void Add(Action action)
         {
-            _event();
+            _event += action;
+        }
+
+        public void Remove(Action action)
+        {
+            _event -= action;
+        }
+
+        public void Clear()
+        {
+            _event = null;
+        }
+
+        public void Call()
+        {
+            if(_event != null)
+            {
+                _event();
+            }
         }
     }
 }

@@ -267,10 +267,7 @@ namespace SocialPoint.Multiplayer
                 _pendingActions = null;
             }
 
-            if(_pendingGameObjectAdded != null)
-            {
-                _pendingGameObjectAdded.Clear();
-            }
+            _pendingGameObjectAdded.Clear();
 
             if(Context != null)
             {

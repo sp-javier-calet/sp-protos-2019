@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Exporter
 {
     public class SceneExporterGroup : MonoBehaviour 
     {
