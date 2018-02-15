@@ -1,5 +1,0 @@
-<linker>
-	<assembly fullname="FyberPlugin">
-		<namespace fullname="FyberPlugin" preserve="all"/>
-	</assembly>
-</linker>

@@ -1,3 +1,0 @@
-Current Spine Version in Sparta:
-- spine-runtimes-3.4.02
-- link: https://github.com/EsotericSoftware/spine-runtimes/releases/tag/3.4.02

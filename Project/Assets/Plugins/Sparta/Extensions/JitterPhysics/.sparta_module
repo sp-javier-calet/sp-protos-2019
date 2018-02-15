@@ -1,4 +1,0 @@
-type extension
-desc Jitter physics extension for Sparta
-name Extension/JitterPhysics
-depends_on {SPARTA_EXTERNAL_PATH}/JitterPhysics

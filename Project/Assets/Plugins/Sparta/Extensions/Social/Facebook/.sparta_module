@@ -1,4 +1,0 @@
-name Extension/Facebook
-desc IFacebook implementation
-type extension
-depends_on {SPARTA_EXTERNAL_PATH}/FacebookSDK

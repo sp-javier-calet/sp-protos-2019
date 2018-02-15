@@ -1,5 +1,0 @@
-name Extension/SocialFramework
-desc SocialFramework implementation
-type extension
-depends_on {SPARTA_EXTENSIONS_PATH}/Connection
-depends_on {SPARTA_EXTERNAL_PATH}/Photon/Plugins/WebSocket/websocket-sharp.dll

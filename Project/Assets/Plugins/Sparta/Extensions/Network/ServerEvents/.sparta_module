@@ -1,3 +1,0 @@
-type extension
-desc Server Events implementation for Lockstep and Authoritative servers
-name Extension/ServerEvents

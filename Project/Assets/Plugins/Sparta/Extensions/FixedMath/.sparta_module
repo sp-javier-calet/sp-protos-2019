@@ -1,4 +1,0 @@
-type extension
-desc Math classes to operate with fixed point
-name Extension/FixedMath
-depends_on {SPARTA_EXTERNAL_PATH}/FixedMathNet
