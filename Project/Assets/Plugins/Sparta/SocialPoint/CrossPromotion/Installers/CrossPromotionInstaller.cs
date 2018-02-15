@@ -20,7 +20,7 @@ namespace SocialPoint.CrossPromotion
 
         public override void InstallBindings()
         {
-            Container.Listen<CrossPromotionManager>().WhenResolved(SetupManager);
+            Container.Listen<CrossPromotionManager>().Then(SetupManager);
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrossPromotion>(CreateAdminPanel);

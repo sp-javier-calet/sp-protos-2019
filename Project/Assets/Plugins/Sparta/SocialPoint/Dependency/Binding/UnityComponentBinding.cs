@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {

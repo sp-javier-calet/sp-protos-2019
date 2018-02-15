@@ -1,30 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
+    public struct BindingKey : IEquatable<BindingKey>
+    {
+        public readonly Type Type;
+        public readonly string Tag;
+
+        public BindingKey(Type type, string tag = null)
+        {
+            Type = type;
+            Tag = tag;
+        }
+
+        public bool Equals(BindingKey other)
+        {
+            return Type.Equals(Type, other.Type) && string.Equals(Tag, other.Tag);
+        }
+
+        public override bool Equals(object obj){
+            if(!(obj is BindingKey))
+            {
+                return false;
+            }
+            return Equals((BindingKey)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = Type == null ? 0 : Type.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, Tag == null ? 0 : Tag.GetHashCode());
+            return hash;
+        }
+    }
+
     public class BindingKeyComparer : IEqualityComparer<BindingKey>
     {
-        public bool Equals(BindingKey a, BindingKey b)
+        public bool Equals(BindingKey x, BindingKey y)
         {
-            return a.Type == b.Type && a.Tag == b.Tag;
+            return x.Equals(y);
         }
 
         public int GetHashCode(BindingKey obj)
         {
-            return obj.Tag != null ? obj.Type.GetHashCode() ^ obj.Tag.GetHashCode() : obj.Type.GetHashCode();
-        }
-    }
-
-    public struct BindingKey
-    {
-        public Type Type;
-        public string Tag;
-
-        public BindingKey(Type type, string tag)
-        {
-            Type = type;
-            Tag = tag;
+            return obj.GetHashCode();
         }
     }
 }

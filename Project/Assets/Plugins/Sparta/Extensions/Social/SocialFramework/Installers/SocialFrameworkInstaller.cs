@@ -42,7 +42,7 @@ namespace SocialPoint.Social
             {
                 Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
                 Container.Bind<IDisposable>().ToLookup<ChatManager>();
-                Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
+                Container.Listen<IChatRoom>().Then(SetupChatRoom);
             }
             if(Settings.EnableAlliances)
             {
@@ -144,7 +144,7 @@ namespace SocialPoint.Social
 
         void SetupAlliancesDataFactory(AllianceDataFactory factory)
         {
-            factory.Ranks = Container.Resolve<IRankManager>(); 
+            factory.Ranks = Container.Resolve<IRankManager>();
         }
 
         IRankManager CreateRankManager()

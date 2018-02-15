@@ -199,10 +199,21 @@ namespace SocialPoint.Dependency
             return bind;
         }
 
-        public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
+        public static SingleListener<T> Listen<T>(this DependencyContainer container, string tag = null)
         {
-            var listener = new Listener<T>();
-            container.AddListener(listener, typeof(T), tag);
+            var listener = new SingleListener<T>(container);
+            container.AddListener(listener, new []{
+                new BindingKey(typeof(T), tag),
+            });
+            return listener;
+        }
+
+        public static DoubleListener<F, T> Listen<F, T>(this DependencyContainer container, string fromTag = null, string toTag = null)
+        {
+            var fromKey = new BindingKey(typeof(F), fromTag);
+            var toKey = new BindingKey(typeof(T), toTag);
+            var listener = new DoubleListener<F, T>(container, fromKey, toKey);
+            container.AddListener(listener, new []{ fromKey, toKey });
             return listener;
         }
 
@@ -212,11 +223,6 @@ namespace SocialPoint.Dependency
             {
                 container.Install(installers[i]);
             }
-        }
-
-        public static T Resolve<T>(this DependencyContainer container, string tag = null, T def = default(T))
-        {
-            return (T)container.Resolve(typeof(T), tag, def);
         }
     }
 }

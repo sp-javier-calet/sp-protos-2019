@@ -33,6 +33,10 @@ namespace SocialPoint.Dependency
         }
     }
 
+    class DerivedTestService : TestService
+    {
+    }
+
     struct TestStruct
     {
         public int Value;
@@ -72,7 +76,7 @@ namespace SocialPoint.Dependency
         {
         }
     }
-        
+
     class TestBinding<T> : IBinding where T : new()
     {
         public int Priority { get; private set; }
@@ -118,13 +122,35 @@ namespace SocialPoint.Dependency
         }
     }
 
+    class TestInstanceService
+    {
+        public static bool Instantiated;
+
+        public TestInstanceService()
+        {
+            Instantiated = true;
+        }
+    }
+
     [TestFixture]
     [Category("SocialPoint.Dependency")]
     class DependencyContainerTests
     {
         [Test]
+        public void CompareBindingKeys()
+        {
+            Assert.AreEqual(new BindingKey(typeof(TestService)), new BindingKey(typeof(TestService)));
+            Assert.AreEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService), "tag"));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService)), new BindingKey(typeof(AnotherTestService)));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService)));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(TestService), "tag2"));
+            Assert.AreNotEqual(new BindingKey(typeof(TestService), "tag"), new BindingKey(typeof(AnotherTestService), "tag"));
+        }
+
+
+        [Test]
         public void SingleResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<ITestService>().ToSingle<TestService>();
             var service = container.Resolve<ITestService>();
@@ -135,7 +161,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void TagResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<string>("tag1").ToInstance<string>("value1");
             container.Bind<string>("tag2").ToInstance<string>("value2");
@@ -147,7 +173,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void SingleMethodResolveTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<ITestService>().ToSingle<TestService>();
             container.Bind<DependentService>().ToMethod<DependentService>(() => new DependentService(container.Resolve<ITestService>()));
@@ -247,7 +273,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveSingleTest()
-        {       
+        {
             var container = new DependencyContainer();
             container.Bind<TestStruct>().ToSingle<TestStruct>();
             var resolved = container.Resolve<TestStruct>();
@@ -256,7 +282,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveInstanceTest()
-        {       
+        {
             var container = new DependencyContainer();
             const int value = 10;
             var instance = new TestStruct();
@@ -283,7 +309,7 @@ namespace SocialPoint.Dependency
 
         [Test]
         public void ValueTypeResolveGetterTest()
-        {       
+        {
             var container = new DependencyContainer();
             const int value = 10;
             var instance = new TestStruct();
@@ -527,7 +553,7 @@ namespace SocialPoint.Dependency
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
 
             var setupCallback = Substitute.For<Action<TestDisposable>>();
-            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Listen<TestDisposable>().Then(setupCallback);
             container.Resolve<TestDisposable>();
 
             setupCallback.Received().Invoke(Arg.Any<TestDisposable>());
@@ -541,10 +567,25 @@ namespace SocialPoint.Dependency
             container.Bind<IDisposable>().ToLookup<TestDisposable>();
 
             var setupCallback = Substitute.For<Action<IDisposable>>();
-            container.Listen<IDisposable>().WhenResolved(setupCallback);
+            container.Listen<IDisposable>().Then(setupCallback);
             container.Resolve<TestDisposable>();
 
             setupCallback.Received().Invoke(Arg.Any<IDisposable>());
+        }
+
+        [Test]
+        public void AddListenerWithDoubleLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<DerivedTestService>().ToSingle<DerivedTestService>();
+            container.Bind<TestService>().ToLookup<DerivedTestService>();
+            container.Bind<ITestService>().ToLookup<TestService>();
+
+            var setupCallback = Substitute.For<Action<ITestService>>();
+            container.Listen<ITestService>().Then(setupCallback);
+            container.Resolve<DerivedTestService>();
+
+            setupCallback.Received().Invoke(Arg.Any<ITestService>());
         }
 
         [Test]
@@ -554,11 +595,161 @@ namespace SocialPoint.Dependency
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
 
             var setupCallback = Substitute.For<Action<TestDisposable>>();
-            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Listen<TestDisposable>().Then(setupCallback);
             container.Resolve<TestDisposable>();
             container.Resolve<TestDisposable>();
 
             setupCallback.Received(1).Invoke(Arg.Any<TestDisposable>());
+        }
+
+        [Test]
+        public void ListenerThenResolve()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestInstanceService>().ToSingle<TestInstanceService>();
+            container.Listen<TestService>().ThenResolve<TestInstanceService>();
+
+            container.Resolve<TestService>();
+            Assert.IsTrue(TestInstanceService.Instantiated);
+        }
+
+        [Test]
+        public void SimpleDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().Then(setupCallback);
+
+            var service1 = container.Resolve<TestService>();
+            setupCallback.DidNotReceive().Invoke(Arg.Any<TestService>(), Arg.Any<AnotherTestService>());
+
+            var aservice1 = container.Resolve<AnotherTestService>();
+            setupCallback.Received(1).Invoke(service1, aservice1);
+            setupCallback.ClearReceivedCalls();
+
+            container.Resolve<TestService>();
+            container.Resolve<AnotherTestService>();
+
+            setupCallback.DidNotReceive().Invoke(Arg.Any<TestService>(), Arg.Any<AnotherTestService>());
+        }
+
+        [Test]
+        public void ToListDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().Then(setupCallback);
+
+            var service1 = container.Resolve<TestService>();
+            var aservices = container.ResolveList<AnotherTestService>();
+
+            setupCallback.Received(1).Invoke(service1, aservices[0]);
+            setupCallback.Received(1).Invoke(service1, aservices[1]);
+
+        }
+
+        [Test]
+        public void FromListDoubleListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, AnotherTestService>>();
+            container.Listen<TestService, AnotherTestService>().Then(setupCallback);
+
+            var services = container.ResolveList<TestService>();
+            var aservice = container.Resolve<AnotherTestService>();
+
+            setupCallback.Received(1).Invoke(services[0], aservice);
+            setupCallback.Received(1).Invoke(services[1], aservice);
+
+        }
+
+        [Test]
+        public void DoubleListenerThenResolve()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<AnotherTestService>().ToSingle<AnotherTestService>();
+            container.Bind<TestInstanceService>().ToSingle<TestInstanceService>();
+            container.Listen<TestService, AnotherTestService>().ThenResolve<TestInstanceService>();
+
+            TestInstanceService.Instantiated = false;
+
+            container.Resolve<TestService>();
+            Assert.IsFalse(TestInstanceService.Instantiated);
+
+            container.Resolve<AnotherTestService>();
+            Assert.IsTrue(TestInstanceService.Instantiated);
+        }
+
+        [Test]
+        public void ListenerLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<IDisposable>>();
+            container.Listen<IDisposable>().Then(setupCallback);
+
+            var disposable = container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(disposable);
+        }
+
+        [Test]
+        public void DoubleListenerLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestService, IDisposable>>();
+            container.Listen<TestService, IDisposable>().Then(setupCallback);
+
+            var service = container.Resolve<TestService>();
+            var disposable = container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(service, disposable);
+        }
+
+        [Test]
+        public void DoubleListenerWithSame()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+
+            var setupCallback = Substitute.For<Action<TestService, TestService>>();
+            container.Listen<TestService, TestService>().Then(setupCallback);
+
+            var service = container.Resolve<TestService>();
+            setupCallback.Received(1).Invoke(service, service);
+        }
+
+        [Test]
+        public void DoubleListenerWithSameLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable, IDisposable>>();
+            container.Listen<TestDisposable, IDisposable>().Then(setupCallback);
+
+            var service = container.Resolve<TestDisposable>();
+            setupCallback.Received(1).Invoke(service, service);
         }
     }
 }

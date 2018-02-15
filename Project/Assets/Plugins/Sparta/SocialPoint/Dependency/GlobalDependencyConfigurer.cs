@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace SocialPoint.Dependency
@@ -40,7 +39,7 @@ namespace SocialPoint.Dependency
                 {
                     continue;
                 }
-                
+
                 if(installer.IsGlobal)
                 {
                     Container.Install(installer);
