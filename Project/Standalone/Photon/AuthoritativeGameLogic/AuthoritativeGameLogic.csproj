@@ -36,10 +36,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q /S "$(SolutionDir)..\..\..\Assets\Resources\Server\*.*" "$(TargetDir)data\"
-xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"
-xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\AuthoritativeBot\bin\"</PostBuildEvent>
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\AuthoritativePlugin\bin\"
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\AuthoritativeBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
-    <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
+    <StartProgram>..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
     <StartArguments>/run LoadBalancing /configPath ..\..\Server\deploy\bin_Win32</StartArguments>
