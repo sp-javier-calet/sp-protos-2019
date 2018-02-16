@@ -62,12 +62,12 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\LockstepBot\bin\"</PostBuildEvent>
+xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\LockstepBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
-    <StartArguments>/run LoadBalancing /configPath ..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32</StartArguments>
+    <StartArguments>/run LoadBalancing /configPath ..\..\Server\deploy\bin_Win32</StartArguments>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
