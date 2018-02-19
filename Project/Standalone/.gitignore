@@ -3,7 +3,7 @@
 !*.sln
 !*.csproj
 log/
-/bin/
+bin/
 obj/
 archive.zip
 *.FileListAbsolute.txt
