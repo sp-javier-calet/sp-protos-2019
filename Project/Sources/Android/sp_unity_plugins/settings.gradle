@@ -1,3 +1,0 @@
-include ':sp_unity_base'
-include ':sp_unity_purchase'
-include ':sp_unity_notifications'

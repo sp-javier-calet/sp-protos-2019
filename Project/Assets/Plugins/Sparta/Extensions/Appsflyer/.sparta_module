@@ -1,4 +1,0 @@
-type extension
-desc AppsFlyer SDK support for sparta
-name Extension/AppsFlyer
-depends_on {SPARTA_EXTERNAL_PATH}/AppsFlyer

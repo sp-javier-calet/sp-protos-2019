@@ -31,19 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\ClickCommand.cs">
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\ClickCommand.cs">
       <Link>ClickCommand.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\CommandType.cs">
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\CommandType.cs">
       <Link>CommandType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\Model.cs">
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\Model.cs">
       <Link>Model.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\NetworkServerFactory.cs">
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkServerFactory.cs">
       <Link>NetworkServerFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\ServerBehaviour.cs">
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\ServerBehaviour.cs">
       <Link>ServerBehaviour.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkClientFactory.cs">
@@ -54,20 +54,20 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LockstepPlugin\LockstepSparta.csproj">
+    <ProjectReference Include="..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\LockstepPlugin\LockstepSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>LockstepSparta</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\LockstepPlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\LockstepBot\bin\"</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"
+xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\LockstepBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
-    <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
+    <StartProgram>..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
-    <StartArguments>/run LoadBalancing /configPath ..\..\Server\deploy\bin_Win32</StartArguments>
+    <StartArguments>/run LoadBalancing /configPath $(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32</StartArguments>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

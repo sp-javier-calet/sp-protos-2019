@@ -1,6 +1,0 @@
-type extension
-desc Photon implementations of sparta interfaces
-name Extension/Photon
-depends_on {SPARTA_EXTERNAL_PATH}/Photon
-depends_on {SPARTA_EXTENSIONS_PATH}/Matchmaking
-depends_on {SPARTA_EXTENSIONS_PATH}/Connection

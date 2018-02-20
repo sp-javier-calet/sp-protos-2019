@@ -1,0 +1,3 @@
+[submodule "Project/Assets/Plugins/Sparta"]
+	path = Project/Assets/Plugins/Sparta
+	url = git@gitlab.socialpoint.es:mobile-platform/sp-unity-sparta.git

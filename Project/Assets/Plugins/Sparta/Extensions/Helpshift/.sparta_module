@@ -1,4 +1,0 @@
-type extension
-desc Helpshift SDK support for sparta
-name Extension/Helpshift
-depends_on {SPARTA_EXTERNAL_PATH}/Helpshift

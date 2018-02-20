@@ -33,16 +33,22 @@
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\AuthoritativePlugin\AuthoritativeSparta.csproj">
+      <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
+      <Name>AuthoritativeSparta</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q /S "$(SolutionDir)..\..\..\Assets\Resources\Server\*.*" "$(TargetDir)data\"
-xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"
-xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\AuthoritativeBot\bin\"</PostBuildEvent>
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\AuthoritativePlugin\bin\"
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\AuthoritativeBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
-    <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
+    <StartProgram>..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
-    <StartArguments>/run LoadBalancing /configPath ..\..\Server\deploy\bin_Win32</StartArguments>
+    <StartArguments>/run LoadBalancing /configPath $(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32</StartArguments>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
