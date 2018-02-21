@@ -55,7 +55,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         {
             _uiTooltipController.DeviceInfo = _deviceInfo;
         }
-              
+
 #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
 #endif
@@ -67,7 +67,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     {
         Container.Bind<IInitializable>().ToInstance(this);
 
-        Container.Add<IDisposable, GUIInstaller>(this);
+        Container.Bind<IDisposable>().ToInstance(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
@@ -82,7 +82,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
-            
+
         _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
         if(_uiTooltipController != null)
         {
@@ -105,7 +105,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
-        
+
 #if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
@@ -118,7 +118,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     void ShowCloseAppAlertView()
     {
         try
-        {  
+        {
             var alert = Container.Resolve<IAlertView>();
             if(alert == null)
             {
@@ -130,7 +130,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _closeAppPopup.Message = "Do you want to close this app?";
             _closeAppPopup.Input = false;
             _closeAppPopup.Buttons = new []{ "YES", "NO" };
-            _closeAppPopup.Show(result => 
+            _closeAppPopup.Show(result =>
             {
                 if(result == 0)
                 {
