@@ -32,7 +32,8 @@ namespace SocialPoint.Examples.Sockets
         void InitServer()
         {
             OnPrintLog("Create INetworkServer");
-            _netServer = Services.Instance.Resolve<INetworkServer>();
+            var factory = Services.Instance.Resolve<INetworkServerFactory>();
+            _netServer = factory.Create();
         }
 
         void InitMatches()
