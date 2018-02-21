@@ -319,6 +319,10 @@ namespace Examples.Lockstep
 
         #region INetworkClientDelegate implementation
 
+        void INetworkClientDelegate.OnClientRegistered(INetworkClient client)
+        {
+        }
+
         void INetworkClientDelegate.OnClientConnected()
         {
         }
