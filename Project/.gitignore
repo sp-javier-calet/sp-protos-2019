@@ -32,6 +32,8 @@ sysinfo.txt
 /Assets/Resources/user.json
 /Assets/StreamingAssets/localization
 /Assets/StreamingAssets/localization.meta
+/Assets/BuildReport/
+/Assets/BuildReport.meta
 
 # Artists
 TEMP_*
