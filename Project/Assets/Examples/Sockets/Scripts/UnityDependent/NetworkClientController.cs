@@ -128,6 +128,9 @@ namespace SocialPoint.Examples.Sockets
             Log.d(message + "\n");
         }
 
+        void INetworkClientDelegate.OnClientRegistered(INetworkClient client)
+        {
+        }
 
         void INetworkClientDelegate.OnClientConnected()
         {
