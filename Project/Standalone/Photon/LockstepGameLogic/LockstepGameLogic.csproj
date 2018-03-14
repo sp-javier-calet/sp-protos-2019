@@ -61,7 +61,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">
+     xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"
 xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\LockstepBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\..\Assets\Plugins\Sparta\Hidden~\Standalone\Photon\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
