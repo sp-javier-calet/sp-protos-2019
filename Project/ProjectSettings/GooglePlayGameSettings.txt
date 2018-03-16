@@ -1,4 +1,4 @@
-lastUpgrade=00936
+lastUpgrade=00950
 proj.AppId=942387780338
 and.BundleId=es.socialpoint.basegame
 proj.classDir=Assets
@@ -7,4 +7,4 @@ and.ResourceData=%3c%3fxml+version%3d%221.0%22+encoding%3d%22utf-8%22%3f%3e%0a%3
 and.ClientId=942387780338-6vpmllld59f29un5qktkubgcdv5eleah.apps.googleusercontent.com
 proj.requireGPlus=false
 android.SetupDone=true
-proj.pluginVersion=0.9.36
+proj.pluginVersion=0.9.50
