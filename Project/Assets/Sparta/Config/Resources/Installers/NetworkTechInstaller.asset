@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Tech: 1
+    Tech: 2
     Local:
       Client:
         EmissionDelay:
@@ -29,37 +29,6 @@ MonoBehaviour:
         ReceptionDelay:
           Average: 0
           Variance: 0
-    LocalBridge:
-      Config:
-        GameVersion: 
-        RoomName: BaseRoom
-        CreateRoom: 1
-        CustomPhotonConfig:
-          Enabled: 0
-          UpdateInterval: 100000
-          UpdateIntervalOnSerialize: 100000
-          MaximumTransferUnit: 1500
-          SentCountAllowance: 10
-          QuickResendAttempts: 0
-        RoomOptions:
-          IsVisible: 1
-          IsOpen: 1
-          MaxPlayers: 2
-          PlayerTtl: 0
-          EmptyRoomTtl: 0
-          CleanupCache: 1
-          PublishUserId: 0
-          CustomLobbyProperties: []
-          Plugins: []
-          ForcedPlugins: []
-        ForceRegion: 4
-        ForceAppId: 
-        ForceServer: 
-        Protocol: 0
-        TroubleshootingConfig:
-          MaxReconnectAttempts: 6
-          ReconnectInterval: 3
-          ReconnectMidGameEnabled: 1
     Unet:
       Config:
         ServerAddress: localhost
@@ -88,7 +57,7 @@ MonoBehaviour:
           Plugins: []
           ForcedPlugins: []
         ForceRegion: 4
-        ForceAppId: 
+        ForceAppId: 08c96718-8933-49c7-90e5-3d3ae27dd429
         ForceServer: 
         Protocol: 0
         TroubleshootingConfig:
