@@ -80,27 +80,27 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         if(_stackController != null)
         {
             _stackController.CloseAppShow = ShowCloseAppAlertView;
-            Container.Rebind<UIStackController>().ToInstance(_stackController);
+            Container.Bind<UIStackController>().ToInstance(_stackController);
         }
 
         _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
         if(_uiTooltipController != null)
         {
             _uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
-            Container.Rebind<UITooltipController>().ToInstance(_uiTooltipController);
+            Container.Bind<UITooltipController>().ToInstance(_uiTooltipController);
         }
 
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
-            Container.Rebind<UILayersController>().ToInstance(layers);
+            Container.Bind<UILayersController>().ToInstance(layers);
             UIViewController.DefaultLayersController = layers;
         }
 
         var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
         if(notifications != null)
         {
-            Container.Rebind<HUDNotificationsController>().ToInstance(notifications);
+            Container.Bind<HUDNotificationsController>().ToInstance(notifications);
         }
 
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
