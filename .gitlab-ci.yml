@@ -19,7 +19,8 @@ Copy_New_Branch_Cache:
   - triggers
   script:
   - python %PYTHON_CI_REPO_PATH%\GenericJobs\CopyCache.py -s master
-  stage: compile
+  stage: check
+
 Create_UnityCache_Android:
   artifacts:
     paths:
