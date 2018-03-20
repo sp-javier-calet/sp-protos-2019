@@ -36,6 +36,8 @@ Create_UnityCache_Android:
   - python %PYTHON_CI_REPO_PATH%\UnityGenericCall\UnityImportProject.py -buildTarget
     android
   stage: compile
+  tags:
+  - android
 Create_UnityCache_iOS:
   artifacts:
     paths:
@@ -52,6 +54,8 @@ Create_UnityCache_iOS:
   - python %PYTHON_CI_REPO_PATH%\UnityGenericCall\UnityImportProject.py -buildTarget
     ios
   stage: compile
+  tags:
+  - ios
 
 Authoritative_Server_Compile:
   only:
@@ -93,6 +97,8 @@ Android_Unity_Tests:
   - python %PYTHON_CI_REPO_PATH%\UnityGenericCall\UnityTestsCall.py -buildTarget
     android
   stage: test
+  tags:
+  - android
 iOS_Unity_Tests:
   artifacts:
     paths:
@@ -109,4 +115,6 @@ iOS_Unity_Tests:
   - python %PYTHON_CI_REPO_PATH%\UnityGenericCall\UnityTestsCall.py -buildTarget
     ios
   stage: test
+  tags:
+  - ios
 ...
