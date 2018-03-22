@@ -1,6 +1,6 @@
 [common]
 # Build system version to use for this build. If a branch matches this value, the branch is used, otherwise if a tag match this value the tag is used.
-SP_BUILD_SYSTEM_VERSION = v2.13
+SP_BUILD_SYSTEM_VERSION = v2.14
 
 # Unity project path relative to the Jenkins Workspace
 SP_PROJECT_LEAD = daniel.garcia@socialpoint.es
@@ -45,7 +45,7 @@ SP_TEXTURE_FORMATS = pvr
 
 SP_DEFAULT_ENVIRONMENT =
 
-SP_XCODE_VERSION = 9-GM
+SP_XCODE_VERSION = 9.2.0
 
 SP_PROCESS_SYMBOLS = True
 
