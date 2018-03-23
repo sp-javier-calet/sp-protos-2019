@@ -49,6 +49,7 @@
     <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkClientFactory.cs">
       <Link>NetworkClientFactory.cs</Link>
     </Compile>
+    <Compile Include="HttpMatchmakingServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
