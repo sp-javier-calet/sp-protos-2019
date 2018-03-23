@@ -39,16 +39,18 @@ public class GameInstaller : Installer, IInitializable
 #endif
         Container.Install<GameModelInstaller>();
 
-        Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
+        Container.Bind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader, SetupGameLoader);
+        Container.Bind<GameLoader>().ToMethod<GameLoader>(CreateGameLoader);
+        Container.Bind<IGameLoader>().ToLookup<GameLoader>();
+        Container.Listen<GameLoader>().Then(SetupGameLoader);
 
         #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
         #endif
 
-        Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
+        Container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
         Container.Install<EconomyInstaller>();
     }

@@ -15,7 +15,7 @@ public class GameServicesInstaller : Installer
     [Serializable]
     public class SettingsData
     {
-        
+
         public CrossPromotionSettings CrossPromotion;
     }
 
@@ -32,21 +32,26 @@ public class GameServicesInstaller : Installer
     public override void InstallBindings()
     {
         // CrossPromotion
-        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager, SetupManager);
+        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
+        Container.Listen<GameCrossPromotionManager>().Then(SetupManager);
         Container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
         Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
 
         // Notifications
-        Container.Rebind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
-        Container.Rebind<NotificationManager>().ToLookup<GameNotificationManager>();
+        Container.Bind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
+        Container.Bind<NotificationManager>().ToLookup<GameNotificationManager>();
         Container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
 
         // Purchase store
         Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
         // Social Framework - Game chat rooms
-        Container.Bind<IChatRoom>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom, SetupPublicChatRoom);
-        Container.Bind<IChatRoom>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom, SetupAllianceChatRoom);
+        Container.Bind<ChatRoom<PublicChatMessage>>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom);
+        Container.Bind<IChatRoom>().ToLookup<ChatRoom<PublicChatMessage>>();
+        Container.Listen<ChatRoom<PublicChatMessage>>().Then(SetupPublicChatRoom);
+        Container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom);
+        Container.Bind<IChatRoom>().ToLookup<ChatRoom<AllianceChatMessage>>();
+        Container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
     }
 
     GameCrossPromotionManager CreateManager()
