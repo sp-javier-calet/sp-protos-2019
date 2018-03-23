@@ -23,6 +23,11 @@ namespace Examples.Multiplayer.Lockstep
 
         IErrorHandler IErrorDispatcher.Handler { get; set; }
 
+        void INetworkClientDelegate.OnClientRegistered(INetworkClient client)
+        {
+            Log.i("NetworkClientLifecycleComponent - INetworkClientDelegate.OnClientRegistered");
+        }
+
         void INetworkClientDelegate.OnClientConnected()
         {
             Log.i("NetworkClientLifecycleComponent - INetworkClientDelegate.OnClientConnected");

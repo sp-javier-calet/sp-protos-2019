@@ -220,7 +220,7 @@ namespace Examples.Lockstep
             _fullscreenText.text = string.Format("match result {0}", result);
             if(_matchClient != null)
             {
-                _matchClient.Clear();
+                _matchClient.Stop();
             }
         }
 
@@ -278,7 +278,7 @@ namespace Examples.Lockstep
             _matchClient = new EmptyMatchmakingClient();
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
-            _matchClient.Start(null, false, string.Empty);
+            _matchClient.Start();
         }
 
         #region IMatchmakingClientDelegate implementation
@@ -286,11 +286,6 @@ namespace Examples.Lockstep
         void IMatchmakingClientDelegate.OnStart()
         {
             _fullscreenText.text = string.Format("matchmaking start");
-        }
-
-        void IMatchmakingClientDelegate.OnSearchOpponent()
-        {
-            _fullscreenText.text = string.Format("searching for opponent");
         }
 
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
