@@ -8,28 +8,28 @@ public class GameModelInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Rebind<IAttrObjParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
-        Container.Rebind<IAttrObjParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
-        Container.Rebind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
-        Container.Rebind<IAttrObjParser<PlayerModel>>().ToLookup<PlayerParser>();
-        Container.Rebind<IAttrObjSerializer<PlayerModel>>().ToLookup<PlayerParser>();
-        Container.Rebind<IAttrObjParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
+        Container.Bind<IAttrObjParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
+        Container.Bind<IAttrObjParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
+        Container.Bind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
+        Container.Bind<IAttrObjParser<PlayerModel>>().ToLookup<PlayerParser>();
+        Container.Bind<IAttrObjSerializer<PlayerModel>>().ToLookup<PlayerParser>();
+        Container.Bind<IAttrObjParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
 
-        Container.Rebind<GameModel>().ToMethod<GameModel>(CreateGameModel);
-        Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
-        Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
+        Container.Bind<GameModel>().ToMethod<GameModel>(CreateGameModel);
+        Container.Bind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
+        Container.Bind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
-        Container.Rebind<IAttrObjParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
+        Container.Bind<IAttrObjParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
 
-        Container.Rebind<IAttrObjParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
+        Container.Bind<IAttrObjParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
 
-        Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
-        Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
-       
+        Container.Bind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
+        Container.Bind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
+
         Container.Bind<IChildParser<IModelCondition>>().ToSingle<AndConditionTypeModelParser>();
         Container.Bind<IChildParser<IModelCondition>>().ToSingle<OrConditionTypeModelParser>();
-        Container.Rebind<IAttrObjParser<IModelCondition>>().ToMethod<FamilyParser<IModelCondition>>(CreateModelConditionParser);
-        Container.Rebind<IAttrObjParser<GoalsTypeModel>>().ToMethod<GoalsTypeModelParser>(CreateGoalsParser);
+        Container.Bind<IAttrObjParser<IModelCondition>>().ToMethod<FamilyParser<IModelCondition>>(CreateModelConditionParser);
+        Container.Bind<IAttrObjParser<GoalsTypeModel>>().ToMethod<GoalsTypeModelParser>(CreateGoalsParser);
     }
 
     GameParser CreateGameParser()
@@ -78,7 +78,7 @@ public class GameModelInstaller : SubInstaller
 
     void OnGameModelInitialized(GameModel game)
     {
-        
+
     }
 
     PurchaseRewardsParser CreatePurchaseRewardsParser()
