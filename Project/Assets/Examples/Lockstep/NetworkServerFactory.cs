@@ -108,7 +108,7 @@ namespace Examples.Lockstep
             SetupRetryClient(mmHttpClient);
             mmHttpClient.RetryFailed += HttpRetryFailed;
 
-            return new HttpMatchmakingServer(mmHttpClient, () => { return _baseBackendUrl; });
+            return new EmptyMatchmakingServer();
         }
 
         public HttpServerEventTracker CreateHttpServerEventTracker()
