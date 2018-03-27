@@ -3,7 +3,7 @@ using FixMath.NET;
 using SocialPoint.Lockstep;
 using SocialPoint.Attributes;
 
-namespace Examples.Multiplayer.Lockstep
+namespace Examples.Lockstep
 {
     public class NetworkClientFactory : INetworkClientGameFactory
     {
@@ -17,20 +17,18 @@ namespace Examples.Multiplayer.Lockstep
 
     public class ClientBot
     {
-        PlayerNetworkSceneBehaviour _player;
+        Model _model;
         bool _clicked = false;
         LockstepNetworkClient _client;
-        SocialPoint.NetworkModel.NetworkScene _scene;
 
         public ClientBot(LockstepNetworkClient client)
         {
             var config = new Config();
-            _player = new PlayerNetworkSceneBehaviour(0, config);
-            _scene = new SocialPoint.NetworkModel.NetworkScene();
+            _model = new Model(config);
             _model.OnDurationEnd += OnDurationEnd;
             client.EndReceived += OnClientEndReceived;
             client.Lockstep.Simulate += OnSimulate;
-            client.Lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_scene));
+            client.Lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
             client.CommandFactory.Register<ClickCommand>(1);
 
             _client = client;
@@ -50,10 +48,10 @@ namespace Examples.Multiplayer.Lockstep
 
         void OnSimulate(int dt)
         {
-            _player.Update(dt);
+            _model.Simulate(dt);
             if (!_clicked)
             {
-                if (_player.Mana > 0.7f)
+                if (_model.ManaView > 0.7f)
                 {
                     var cmd = new ClickCommand((Fix64)1, (Fix64)0, (Fix64)1);
                     _clicked = true;

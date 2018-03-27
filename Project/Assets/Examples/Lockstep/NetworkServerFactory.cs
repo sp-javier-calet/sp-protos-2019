@@ -26,7 +26,8 @@ namespace Examples.Lockstep
         const int RetryLogHttpRequestBodyMaxLength = 1024;
 
         int _httpTimeout;
-        string _baseBackendUrl;
+        // This is needed for a proper IMatchmakingServer implementation
+        //string _baseBackendUrl;
         Dictionary<string, string> _config;
         IUpdateScheduler _updateScheduler;
         UpdateCoroutineRunner _coroutineRunner;
@@ -97,7 +98,8 @@ namespace Examples.Lockstep
             gameConfig.UnitCost = GetConfig(_config, "UnitCost", gameConfig.UnitCost);
 
             _httpTimeout = GetConfig(_config, HttpTimeoutConfig, 0);
-            _baseBackendUrl = _config[BaseBackendUrl];
+            // This is needed for a proper IMatchmakingServer implementation
+            //_baseBackendUrl = _config[BaseBackendUrl];
 
             return new ServerBehaviour(server, gameConfig);
         }
