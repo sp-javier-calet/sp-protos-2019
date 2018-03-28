@@ -67,7 +67,7 @@ namespace Examples.Multiplayer.Lockstep
     {
         void IEventHandler<ClickInputEvent>.Handle(ClickInputEvent ev)
         {
-            throw new System.Exception("Not enough mana");
+            SocialPoint.Base.Log.e("Not enough mana");
         }
     }
 }

@@ -20,11 +20,7 @@ namespace Examples.Multiplayer.Lockstep
                 SceneController = new GameNetworkSceneController(config, new LockstepClient());
             }
 
-            if(SceneController != null)
-            {
-                _server.RegisterLocalClient(SceneController.Client, SceneController.CommandFactory);
-            }
-
+            _server.RegisterLocalClient(SceneController.Client, SceneController.CommandFactory);
             _server.CommandFailed += OnCommandFailed;
             _server.ErrorProduced += OnError;
             _server.MatchStarted += OnMatchStarted;

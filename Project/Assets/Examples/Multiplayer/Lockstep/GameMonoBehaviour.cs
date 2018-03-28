@@ -8,10 +8,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-#if ADMIN_PANEL
-
-#endif
-
 namespace Examples.Multiplayer.Lockstep
 {
     public class GameMonoBehaviour : MonoBehaviour, IPointerClickHandler, IErrorHandler, ICleanupComponent, ITeardownComponent
