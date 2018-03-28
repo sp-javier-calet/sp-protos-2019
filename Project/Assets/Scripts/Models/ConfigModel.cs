@@ -50,7 +50,7 @@ public class ConfigModel : IDisposable
         _store = new StoreModel();
     }
 
-    public ConfigModel Init(IDictionary<string, Attr> globals, 
+    public ConfigModel Init(IDictionary<string, Attr> globals,
                             IList<ScriptModel> scripts,
                             IDictionary<string, ResourceType> resourceTypes,
                             GoalsTypeModel goals)
@@ -76,7 +76,9 @@ public class ConfigModel : IDisposable
     public override string ToString()
     {
         return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}, Goals={4}]",
-            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString(), _goals.ToString());
+            _globals == null ? 0 : _globals.Count,
+            _scripts == null ? 0 : _scripts.Count,
+            _resourceTypes == null ? 0 : _resourceTypes.Count, _store, _goals);
     }
 
     public void Dispose()

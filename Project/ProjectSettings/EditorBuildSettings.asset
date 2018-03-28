@@ -35,3 +35,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Examples/FullUI/UITimelineScene.unity
     guid: e0ede4a810f5e4154b9bbc703f07c4fa
+  - enabled: 1
+    path: Assets/Examples/Multiplayer/Lockstep/MultiplayerLockstep.unity
+    guid: ba7390e593e974321829f1d0abf9a3ba
