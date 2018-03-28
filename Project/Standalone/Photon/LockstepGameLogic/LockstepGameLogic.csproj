@@ -31,23 +31,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\ClickCommand.cs">
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\ClickCommand.cs">
       <Link>ClickCommand.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\CommandType.cs">
-      <Link>CommandType.cs</Link>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\Config.cs">
+      <Link>Config.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\Model.cs">
-      <Link>Model.cs</Link>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\GameNetworkSceneController.cs">
+      <Link>GameNetworkSceneController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkServerFactory.cs">
-      <Link>NetworkServerFactory.cs</Link>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\GameServerBehaviour.cs">
+      <Link>GameServerBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\ServerBehaviour.cs">
-      <Link>ServerBehaviour.cs</Link>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\GameTypes.cs">
+      <Link>GameTypes.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkClientFactory.cs">
-      <Link>NetworkClientFactory.cs</Link>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\NetworkModel\DurationNetworkSceneBehaviour.cs">
+      <Link>NetworkModel\DurationNetworkSceneBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\NetworkModel\OwnerNetworkBehavior.cs">
+      <Link>NetworkModel\OwnerNetworkBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\NetworkModel\PlayerNetworkSceneBehaviour.cs">
+      <Link>NetworkModel\PlayerNetworkSceneBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Multiplayer\Lockstep\NetworkModel\ResultsNetworkSceneBehaviour.cs">
+      <Link>NetworkModel\ResultsNetworkSceneBehaviour.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

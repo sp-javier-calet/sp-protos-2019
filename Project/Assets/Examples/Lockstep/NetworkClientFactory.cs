@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using FixMath.NET;
 using SocialPoint.Lockstep;
