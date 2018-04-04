@@ -6,73 +6,73 @@ using System.Collections.Generic;
 
 public class GameModelInstaller : SubInstaller
 {
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
-        Container.Bind<IAttrObjParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
-        Container.Bind<IAttrObjParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
-        Container.Bind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
-        Container.Bind<IAttrObjParser<PlayerModel>>().ToLookup<PlayerParser>();
-        Container.Bind<IAttrObjSerializer<PlayerModel>>().ToLookup<PlayerParser>();
-        Container.Bind<IAttrObjParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
+        container.Bind<IAttrObjParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
+        container.Bind<IAttrObjParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
+        container.Bind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
+        container.Bind<IAttrObjParser<PlayerModel>>().ToLookup<PlayerParser>();
+        container.Bind<IAttrObjSerializer<PlayerModel>>().ToLookup<PlayerParser>();
+        container.Bind<IAttrObjParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
 
-        Container.Bind<GameModel>().ToMethod<GameModel>(CreateGameModel);
-        Container.Bind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
-        Container.Bind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
+        container.Bind<GameModel>().ToMethod<GameModel>(CreateGameModel);
+        container.Bind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
+        container.Bind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
-        Container.Bind<IAttrObjParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
+        container.Bind<IAttrObjParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
 
-        Container.Bind<IAttrObjParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
+        container.Bind<IAttrObjParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
 
-        Container.Bind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
-        Container.Bind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
+        container.Bind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
+        container.Bind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
 
-        Container.Bind<IChildParser<IModelCondition>>().ToSingle<AndConditionTypeModelParser>();
-        Container.Bind<IChildParser<IModelCondition>>().ToSingle<OrConditionTypeModelParser>();
-        Container.Bind<IAttrObjParser<IModelCondition>>().ToMethod<FamilyParser<IModelCondition>>(CreateModelConditionParser);
-        Container.Bind<IAttrObjParser<GoalsTypeModel>>().ToMethod<GoalsTypeModelParser>(CreateGoalsParser);
+        container.Bind<IChildParser<IModelCondition>>().ToSingle<AndConditionTypeModelParser>();
+        container.Bind<IChildParser<IModelCondition>>().ToSingle<OrConditionTypeModelParser>();
+        container.Bind<IAttrObjParser<IModelCondition>>().ToMethod<FamilyParser<IModelCondition>>(CreateModelConditionParser);
+        container.Bind<IAttrObjParser<GoalsTypeModel>>().ToMethod<GoalsTypeModelParser>(CreateGoalsParser);
     }
 
-    GameParser CreateGameParser()
+    GameParser CreateGameParser(IResolutionContainer container)
     {
         return new GameParser(
-            Container.Resolve<GameModel>(),
-            Container.Resolve<IAttrObjParser<ConfigModel>>(),
-            Container.Resolve<IAttrObjParser<PlayerModel>>(),
-            Container.Resolve<IAttrObjParser<ConfigPatch>>());
+            container.Resolve<GameModel>(),
+            container.Resolve<IAttrObjParser<ConfigModel>>(),
+            container.Resolve<IAttrObjParser<PlayerModel>>(),
+            container.Resolve<IAttrObjParser<ConfigPatch>>());
     }
 
-    ConfigParser CreateConfigParser()
+    ConfigParser CreateConfigParser(IResolutionContainer container)
     {
         return new ConfigParser(
-            Container.Resolve<ConfigModel>(),
-            Container.Resolve<IAttrObjParser<StoreModel>>(),
-            Container.Resolve<IAttrObjParser<GoalsTypeModel>>(),
-            Container.Resolve<IAttrObjParser<ScriptModel>>());
+            container.Resolve<ConfigModel>(),
+            container.Resolve<IAttrObjParser<StoreModel>>(),
+            container.Resolve<IAttrObjParser<GoalsTypeModel>>(),
+            container.Resolve<IAttrObjParser<ScriptModel>>());
     }
 
-    PlayerParser CreatePlayerParser()
+    PlayerParser CreatePlayerParser(IResolutionContainer container)
     {
         return new PlayerParser(
-            Container.Resolve<PlayerModel>(),
-            Container.Resolve<ConfigModel>(),
-            Container.Resolve<IScriptEventProcessor>());
+            container.Resolve<PlayerModel>(),
+            container.Resolve<ConfigModel>(),
+            container.Resolve<IScriptEventProcessor>());
     }
 
-    GameModel CreateGameModel()
+    GameModel CreateGameModel(IResolutionContainer container)
     {
         var gameModel = new GameModel();
         gameModel.Initialized += OnGameModelInitialized;
         return gameModel;
     }
 
-    GoalsTypeModelParser CreateGoalsParser()
+    GoalsTypeModelParser CreateGoalsParser(IResolutionContainer container)
     {
-        return new GoalsTypeModelParser(Container.Resolve<IAttrObjParser<IModelCondition>>(), Container.Resolve<IAttrObjParser<IReward>>());
+        return new GoalsTypeModelParser(container.Resolve<IAttrObjParser<IModelCondition>>(), container.Resolve<IAttrObjParser<IReward>>());
     }
 
-    FamilyParser<IModelCondition> CreateModelConditionParser()
+    FamilyParser<IModelCondition> CreateModelConditionParser(IResolutionContainer container)
     {
-        var children = Container.ResolveList<IChildParser<IModelCondition>>();
+        var children = container.ResolveList<IChildParser<IModelCondition>>();
         return new FamilyParser<IModelCondition>(children);
     }
 
@@ -81,19 +81,19 @@ public class GameModelInstaller : SubInstaller
 
     }
 
-    PurchaseRewardsParser CreatePurchaseRewardsParser()
+    PurchaseRewardsParser CreatePurchaseRewardsParser(IResolutionContainer container)
     {
         return new PurchaseRewardsParser(
-            Container.Resolve<IAttrObjParser<IReward>>());
+            container.Resolve<IAttrObjParser<IReward>>());
     }
 
-    StoreParser CreateStoreParser()
+    StoreParser CreateStoreParser(IResolutionContainer container)
     {
-        var storeModel = Container.Resolve<StoreModel>();
-        storeModel.PurchaseStore = Container.Resolve<IGamePurchaseStore>();
+        var storeModel = container.Resolve<StoreModel>();
+        storeModel.PurchaseStore = container.Resolve<IGamePurchaseStore>();
         return new StoreParser(
-            Container.Resolve<PlayerModel>(),
+            container.Resolve<PlayerModel>(),
             storeModel,
-            Container.Resolve<IAttrObjParser<IDictionary<string, IReward>>>());
+            container.Resolve<IAttrObjParser<IDictionary<string, IReward>>>());
     }
 }

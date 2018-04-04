@@ -29,63 +29,63 @@ public class GameServicesInstaller : Installer
     public SettingsData Settings = new SettingsData();
 
 
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
         // CrossPromotion
-        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
-        Container.Listen<GameCrossPromotionManager>().Then(SetupManager);
-        Container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
-        Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
+        container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
+        container.Listen<GameCrossPromotionManager>().Then(SetupManager);
+        container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
+        container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
 
         // Notifications
-        Container.Bind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
-        Container.Bind<NotificationManager>().ToLookup<GameNotificationManager>();
-        Container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
+        container.Bind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
+        container.Bind<NotificationManager>().ToLookup<GameNotificationManager>();
+        container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
 
         // Purchase store
-        Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
+        container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
         // Social Framework - Game chat rooms
-        Container.Bind<ChatRoom<PublicChatMessage>>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom);
-        Container.Bind<IChatRoom>().ToLookup<ChatRoom<PublicChatMessage>>();
-        Container.Listen<ChatRoom<PublicChatMessage>>().Then(SetupPublicChatRoom);
-        Container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom);
-        Container.Bind<IChatRoom>().ToLookup<ChatRoom<AllianceChatMessage>>();
-        Container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
+        container.Bind<ChatRoom<PublicChatMessage>>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom);
+        container.Bind<IChatRoom>().ToLookup<ChatRoom<PublicChatMessage>>();
+        container.Listen<ChatRoom<PublicChatMessage>>().Then(SetupPublicChatRoom);
+        container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom);
+        container.Bind<IChatRoom>().ToLookup<ChatRoom<AllianceChatMessage>>();
+        container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
     }
 
-    GameCrossPromotionManager CreateManager()
+    GameCrossPromotionManager CreateManager(IResolutionContainer container)
     {
         return new GameCrossPromotionManager(
-            Container.Resolve<ICoroutineRunner>(),
-            Container.Resolve<INativeUtils>(),
-            Container.Resolve<PopupsController>());
+            container.Resolve<ICoroutineRunner>(),
+            container.Resolve<INativeUtils>(),
+            container.Resolve<PopupsController>());
     }
 
-    void SetupManager(GameCrossPromotionManager manager)
+    void SetupManager(IResolutionContainer container, GameCrossPromotionManager manager)
     {
         manager.ButtonPrefab = Settings.CrossPromotion.ButtonPrefab;
         manager.PopupPrefab = Settings.CrossPromotion.PopupPrefab;
     }
 
-    GameNotificationManager CreateNotificationManager()
+    GameNotificationManager CreateNotificationManager(IResolutionContainer container)
     {
         return new GameNotificationManager(
-            Container.Resolve<INotificationServices>(),
-            Container.Resolve<IAppEvents>(),
-            Container.Resolve<ICommandQueue>()
+            container.Resolve<INotificationServices>(),
+            container.Resolve<IAppEvents>(),
+            container.Resolve<ICommandQueue>()
         );
     }
 
-    ChatRoom<PublicChatMessage> CreatePublicChatRoom()
+    ChatRoom<PublicChatMessage> CreatePublicChatRoom(IResolutionContainer container)
     {
         return new ChatRoom<PublicChatMessage>("public");
     }
 
-    void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
+    void SetupPublicChatRoom(IResolutionContainer container, ChatRoom<PublicChatMessage> room)
     {
-        room.ChatManager = Container.Resolve<ChatManager>();
-        room.Localization = Container.Resolve<Localization>();
+        room.ChatManager = container.Resolve<ChatManager>();
+        room.Localization = container.Resolve<Localization>();
 
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
@@ -93,12 +93,12 @@ public class GameServicesInstaller : Installer
         room.SerializeExtraInfo = PublicChatMessage.SerializeExtraInfo;
     }
 
-    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
+    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom(IResolutionContainer container)
     {
         return new ChatRoom<AllianceChatMessage>("alliance");
     }
 
-    void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
+    void SetupAllianceChatRoom(IResolutionContainer container, ChatRoom<AllianceChatMessage> room)
     {
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
