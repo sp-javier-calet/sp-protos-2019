@@ -26,7 +26,7 @@ public class NetworkTechInstaller : Installer
 
     public SettingsData Settings = new SettingsData();
 
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
         SubInstaller techInstaller;
         switch(Settings.Tech)
@@ -58,7 +58,7 @@ public class NetworkTechInstaller : Installer
                 break;
         }
 
-        Container.Install(techInstaller);
-        Container.Install(new NetworkInstaller());
+        container.Install(techInstaller);
+        container.Install(new NetworkInstaller());
     }
 }

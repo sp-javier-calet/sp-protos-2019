@@ -5,40 +5,47 @@ using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Purchase;
 
-public class EconomyInstaller : SubInstaller
+public class EconomyInstaller : SubInstaller, IInitializable
 {
-    public override void InstallBindings()
+    IResolutionContainer _container;
+    
+    public override void InstallBindings(IBindingContainer container)
     {
-        Container.Bind<PurchaseCostFactory>().ToMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
+        container.Bind<PurchaseCostFactory>().ToMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
 
-        Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
+        container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
-        Container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
-        Container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
+        container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
+        container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
-        Container.Bind<IAttrObjParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
-        Container.Bind<IAttrObjParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
+        container.Bind<IAttrObjParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
+        container.Bind<IAttrObjParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
+    }
+    
+    public void Initialize(IResolutionContainer container)
+    {
+        _container = container;
     }
 
-    PurchaseCostParser CreatePurchaseCostParser()
+    PurchaseCostParser CreatePurchaseCostParser(IResolutionContainer container)
     {
         return new PurchaseCostParser(
-            Container.Resolve<PurchaseCostFactory>());
+            container.Resolve<PurchaseCostFactory>());
     }
 
-    FamilyParser<IReward> CreateRewardParser()
+    FamilyParser<IReward> CreateRewardParser(IResolutionContainer container)
     {
-        var children = Container.ResolveList<IChildParser<IReward>>();
+        var children = container.ResolveList<IChildParser<IReward>>();
         return new FamilyParser<IReward>(children);
     }
 
-    FamilyParser<ICost> CreateCostParser()
+    FamilyParser<ICost> CreateCostParser(IResolutionContainer container)
     {
-        var children = Container.ResolveList<IChildParser<ICost>>();
+        var children = container.ResolveList<IChildParser<ICost>>();
         return new FamilyParser<ICost>(children);
     }
 
-    PurchaseCostFactory CreatePurchaseCostFactory()
+    PurchaseCostFactory CreatePurchaseCostFactory(IResolutionContainer container)
     {
         return new PurchaseCostFactory(Purchase);
     }
@@ -57,6 +64,6 @@ public class EconomyInstaller : SubInstaller
                 finished(error);
             };
         }
-        Container.Resolve<IGamePurchaseStore>().Purchase(productId, callback);
+        _container.Resolve<IGamePurchaseStore>().Purchase(productId, callback);
     }
 }

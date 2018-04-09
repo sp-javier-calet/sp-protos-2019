@@ -43,36 +43,32 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
     #region IInitializable implementation
 
-    public void Initialize()
+    public void Initialize(IResolutionContainer container)
     {
-        _appEvents = Container.Resolve<IAppEvents>();
+        _appEvents = container.Resolve<IAppEvents>();
         if(_stackController != null)
         {
             _stackController.AppEvents = _appEvents;
         }
-        _deviceInfo = Container.Resolve<IDeviceInfo>();
+        _deviceInfo = container.Resolve<IDeviceInfo>();
         if(_uiTooltipController != null)
         {
             _uiTooltipController.DeviceInfo = _deviceInfo;
         }
-
-#if ADMIN_PANEL
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-#endif
     }
 
     #endregion
 
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
-        Container.Bind<IInitializable>().ToInstance(this);
+        container.Bind<IInitializable>().ToInstance(this);
 
-        Container.Bind<IDisposable>().ToInstance(this);
+        container.Bind<IDisposable>().ToInstance(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
-        Container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
+        container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
+        container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
 
         _root = CreateRoot();
 
@@ -80,36 +76,40 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         if(_stackController != null)
         {
             _stackController.CloseAppShow = ShowCloseAppAlertView;
-            Container.Bind<UIStackController>().ToInstance(_stackController);
+            container.Bind<UIStackController>().ToInstance(_stackController);
         }
 
         _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
         if(_uiTooltipController != null)
         {
             _uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
-            Container.Bind<UITooltipController>().ToInstance(_uiTooltipController);
+            container.Bind<UITooltipController>().ToInstance(_uiTooltipController);
         }
 
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
-            Container.Bind<UILayersController>().ToInstance(layers);
+            container.Bind<UILayersController>().ToInstance(layers);
             UIViewController.DefaultLayersController = layers;
         }
 
         var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
         if(notifications != null)
         {
-            Container.Bind<HUDNotificationsController>().ToInstance(notifications);
+            container.Bind<HUDNotificationsController>().ToInstance(notifications);
         }
 
-        Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+        container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+
+#if ADMIN_PANEL
+        container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
+#endif
     }
 
 #if ADMIN_PANEL
-    AdminPanelUI CreateAdminPanel()
+    AdminPanelUI CreateAdminPanel(IResolutionContainer container)
     {
-        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+        var storage = container.Resolve<IAttrStorage>(kPersistentTag);
 
         return new AdminPanelUI(_deviceInfo, storage);
     }
@@ -119,7 +119,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     {
         try
         {
-            var alert = Container.Resolve<IAlertView>();
+            var alert = Services.Instance.Resolve<IAlertView>();
             if(alert == null)
             {
                 throw new InvalidOperationException("Could not resolve Alert View");

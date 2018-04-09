@@ -18,19 +18,19 @@ public class GUISceneInstaller : Installer, IInitializable
     {
     }
 
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
-        Container.Bind<IInitializable>().ToInstance(this);
+        container.Bind<IInitializable>().ToInstance(this);
     }
 
-    public void Initialize()
+    public void Initialize(IResolutionContainer container)
     {
         if(Settings.InitialScreenPrefab == null)
         {
             return;
         }
 
-        var stackController = Container.Resolve<UIStackController>();
+        var stackController = container.Resolve<UIStackController>();
         if(stackController == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");

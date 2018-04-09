@@ -28,38 +28,38 @@ public class GameInstaller : Installer, IInitializable
 
     public SettingsData Settings = new SettingsData();
 
-    public override void InstallBindings()
+    public override void InstallBindings(IBindingContainer container)
     {
-        Container.Bind<IInitializable>().ToInstance(this);
+        container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
-        Container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
+        container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
 #else
-        Container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
+        container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
-        Container.Install<GameModelInstaller>();
+        container.Install<GameModelInstaller>();
 
-        Container.Bind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
-        Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
+        container.Bind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
+        container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Bind<GameLoader>().ToMethod<GameLoader>(CreateGameLoader);
-        Container.Bind<IGameLoader>().ToLookup<GameLoader>();
-        Container.Listen<GameLoader>().Then(SetupGameLoader);
+        container.Bind<GameLoader>().ToMethod<GameLoader>(CreateGameLoader);
+        container.Bind<IGameLoader>().ToLookup<GameLoader>();
+        container.Listen<GameLoader>().Then(SetupGameLoader);
 
         #if ADMIN_PANEL
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
+        container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
         #endif
 
-        Container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
+        container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
-        Container.Install<EconomyInstaller>();
+        container.Install<EconomyInstaller>();
     }
 
-    public void Initialize()
+    public void Initialize(IResolutionContainer container)
     {
         if(Settings.LoadLocalJson)
         {
-            var loader = Container.Resolve<IGameLoader>();
+            var loader = container.Resolve<IGameLoader>();
             if(loader != null)
             {
                 loader.Load(null);
@@ -68,55 +68,55 @@ public class GameInstaller : Installer, IInitializable
     }
 
     #if ADMIN_PANEL
-    AdminPanelGame CreateAdminPanel()
+    AdminPanelGame CreateAdminPanel(IResolutionContainer container)
     {
         return new AdminPanelGame(
-            Container.Resolve<IAppEvents>(),
-            Container.Resolve<IGameLoader>(),
-            Container.Resolve<GameModel>());
+            container.Resolve<IAppEvents>(),
+            container.Resolve<IGameLoader>(),
+            container.Resolve<GameModel>());
     }
     #endif
 
-    GameLoader CreateGameLoader()
+    GameLoader CreateGameLoader(IResolutionContainer container)
     {
         return new GameLoader(
             Settings.InitialJsonGameResource,
             Settings.InitialJsonPlayerResource,
-            Container.Resolve<IAttrObjParser<GameModel>>(),
-            Container.Resolve<IAttrObjParser<ConfigModel>>(),
-            Container.Resolve<IAttrObjParser<PlayerModel>>(),
-            Container.Resolve<IAttrObjParser<ConfigPatch>>(),
-            Container.Resolve<IAttrObjSerializer<PlayerModel>>(),
-            Container.Resolve<GameModel>(),
-            Container.Resolve<ILogin>());
+            container.Resolve<IAttrObjParser<GameModel>>(),
+            container.Resolve<IAttrObjParser<ConfigModel>>(),
+            container.Resolve<IAttrObjParser<PlayerModel>>(),
+            container.Resolve<IAttrObjParser<ConfigPatch>>(),
+            container.Resolve<IAttrObjSerializer<PlayerModel>>(),
+            container.Resolve<GameModel>(),
+            container.Resolve<ILogin>());
     }
 
-    void SetupGameLoader(GameLoader loader)
+    void SetupGameLoader(IResolutionContainer container, GameLoader loader)
     {
-        var commandQueue = Container.Resolve<ICommandQueue>();
+        var commandQueue = container.Resolve<ICommandQueue>();
         if(commandQueue != null)
         {
             commandQueue.AutoSync = loader.OnAutoSync;
         }
     }
 
-    GameErrorHandler CreateErrorHandler()
+    GameErrorHandler CreateErrorHandler(IResolutionContainer container)
     {
         return new GameErrorHandler(
-            Container.Resolve<IAlertView>(),
-            Container.Resolve<Localization>(),
-            Container.Resolve<IAppEvents>(),
-            Container.Resolve<IRestarter>(),
-            Container.Resolve<IHelpshift>(),
-            Container.Resolve<bool>("game_debug"));
+            container.Resolve<IAlertView>(),
+            container.Resolve<Localization>(),
+            container.Resolve<IAppEvents>(),
+            container.Resolve<IRestarter>(),
+            container.Resolve<IHelpshift>(),
+            container.Resolve<bool>("game_debug"));
 
     }
 
-    PlayerDataProvider CreatePlayerData()
+    PlayerDataProvider CreatePlayerData(IResolutionContainer container)
     {
         return new PlayerDataProvider(
-            Container.Resolve<ILoginData>(),
-            Container.Resolve<PlayerModel>());
+            container.Resolve<ILoginData>(),
+            container.Resolve<PlayerModel>());
     }
 
 
