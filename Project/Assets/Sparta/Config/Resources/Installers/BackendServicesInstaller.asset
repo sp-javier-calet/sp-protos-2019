@@ -61,3 +61,7 @@ MonoBehaviour:
       UseEmpty: 0
     MessageCenter:
       UseEmpty: 0
+    UserAgreementService:
+      Enable: 1
+      PopupPrefab: {fileID: 1284587319342268, guid: 680537790e7bc4957bfa185f57a71e79,
+        type: 2}

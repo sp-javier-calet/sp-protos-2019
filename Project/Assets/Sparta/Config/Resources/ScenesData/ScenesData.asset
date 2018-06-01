@@ -17,9 +17,9 @@ MonoBehaviour:
   - BaseLoadingScene
   - MainScene
   - BaseMainScene
-  - LockstepScene
   - PrototypeMainScene
   - UIScene
   - CubeMainScene
   - UIScrollViewScene
   - UITimelineScene
+  - MultiplayerLockstep
