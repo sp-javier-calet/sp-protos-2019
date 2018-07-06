@@ -8,9 +8,6 @@ using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
-#if ADMIN_PANEL
-using SocialPoint.AdminPanel;
-#endif
 using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 
@@ -101,19 +98,9 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
 
-#if ADMIN_PANEL
-        container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-#endif
     }
 
-#if ADMIN_PANEL
-    AdminPanelUI CreateAdminPanel(IResolutionContainer container)
-    {
-        var storage = container.Resolve<IAttrStorage>(kPersistentTag);
 
-        return new AdminPanelUI(_deviceInfo, storage);
-    }
-#endif
 
     void ShowCloseAppAlertView()
     {
