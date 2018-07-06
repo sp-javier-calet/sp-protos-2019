@@ -33,6 +33,9 @@ MonoBehaviour:
     XcodeModSchemes: debug
     UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
+    Exports:
+    - {fileID: 11400000, guid: c0bac4fdf11124f0e9171da318b322ea, type: 2}
+    - {fileID: 11400000, guid: fc173a84b54d647bc99f93a6e55473c5, type: 2}
   Android:
     BundleIdentifier: 
     Flags: 

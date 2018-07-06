@@ -33,6 +33,7 @@ MonoBehaviour:
     XcodeModSchemes: debug
     UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
+    Exports: []
   Android:
     BundleIdentifier: 
     Flags: 
