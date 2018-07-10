@@ -11,7 +11,6 @@ using UnityEngine.EventSystems;
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     AdminPanel _adminPanel;
-    List<IAdminPanelConfigurer> _configurers;
 
     public float WaitTime = 1.0f;
     bool _down;
@@ -32,10 +31,8 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     void Start()
     {
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
-        _configurers = Services.Instance.ResolveList<IAdminPanelConfigurer>();
         if(_adminPanel != null)
         {
-            _adminPanel.RegisterConfigurers(_configurers);
             _adminPanel.ChangedVisibility += OnAdminPanelChangedVisibility;
         }
         else
