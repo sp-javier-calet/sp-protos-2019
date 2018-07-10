@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Name: Ios-Distribution
   m_EditorClassIdentifier: 
   Options:
-    Alias: Release Push Notifications
     Name: Distribution
-    ProvisioningProfile: ../proj.ios/provisioning/Release_Push_Notifications.mobileprovision
+    ProvisioningProfile: ../proj/xcode/ios/provisioning/Unity_Base_Game_Dist.mobileprovision
     Method: ad-hoc
     TeamId: PD2V9367QH
     CodesignIdentity: 

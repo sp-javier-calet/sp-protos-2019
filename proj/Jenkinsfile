@@ -1,0 +1,67 @@
+pipeline {
+    agent {
+        label "platform_${env.PLATFORM}"
+    }
+
+    environment {
+        AUTH_MAD = credentials('auth_mad')
+        AUTH_CRASHINATOR = credentials('auth_crashinator')
+        KEYCHAIN_PASSWORD = credentials('keychain_password')
+        PROJ_PATH = "proj/build/${env.PLATFORM}"
+        MOBILEPKGTOOLS_LOGFILE = "proj/build/${env.PLATFORM}/buildlog.txt"
+        MOBILEPKGBUILD_CONFIG = "${env.CONFIG}"
+        MOBILEPKGBUILD_FLAVOR = "${env.FLAVOR}"
+
+        UNITY_PROJ_NAME = "Project"
+        UNITY_VERSION = "~=2017.2.0"
+    }
+
+    stages {
+        stage("Generate project") {
+            steps {
+                script {
+                    def params = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
+                    sh "mobilepkgunity  ${params}"
+                }
+            }
+        }
+
+        stage("Build project") {
+            steps {
+                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
+                sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
+                sh "mobilepkgbuild ${env.PROJ_PATH}"
+            }
+        }
+
+        stage("Submission Checks") {
+            steps {
+                sh "mobilepkgcheck ${env.PROJ_PATH} -v"
+            }
+        }
+
+        stage("Upload to Crashinator") {
+            steps {
+                sh "mobilepkgdeploy crash run ${env.PROJ_PATH}"
+            }
+        }
+
+        stage("Upload to MAD") {
+            steps {
+                sh "mobilepkgdeploy mad run ${env.PROJ_PATH}"
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: "${env.MOBILEPKGTOOLS_LOGFILE}", allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/outputs/apk/${env.FLAVOR}/*/*.apk", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/cmake/${env.FLAVOR}/*/obj/*/*.so", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/${env.FLAVOR}/*/*.ipa", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/${env.FLAVOR}/*/*.app.zip", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/${env.FLAVOR}/*.xcarchive/dSYMs/*.app.dSYM", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", fingerprint: true, allowEmptyArchive: true
+        }
+    }
+}

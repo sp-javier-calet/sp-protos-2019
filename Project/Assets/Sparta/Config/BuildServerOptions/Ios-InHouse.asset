@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Name: Ios-InHouse
   m_EditorClassIdentifier: 
   Options:
-    Alias: Release
     Name: InHouse
-    ProvisioningProfile: ../proj.ios/provisioning/Release.mobileprovision
+    ProvisioningProfile: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/provisioning/InHouse.mobileprovision
     Method: enterprise
     TeamId: SQ7J6VAFAL
     CodesignIdentity: A45321C654A477E2D8559572DAE017AE647307F0
-    CodesignEntitlements: ../proj.ios/provisioning/InHouse.entitlements
+    CodesignEntitlements: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/InHouse.entitlements

@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Name: Ios-Development
   m_EditorClassIdentifier: 
   Options:
-    Alias: Debug
     Name: Development
-    ProvisioningProfile: ../proj.ios/provisioning/Debug.mobileprovision
+    ProvisioningProfile: ../proj/xcode/ios/provisioning/Unity_Base_Game_Dev.mobileprovision
     Method: development
     TeamId: PD2V9367QH
     CodesignIdentity: 

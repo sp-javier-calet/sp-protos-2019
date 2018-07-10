@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Name: Ios-AppStore
   m_EditorClassIdentifier: 
   Options:
-    Alias: Shipping
     Name: AppStore
-    ProvisioningProfile: ../proj.ios/provisioning/Shipping.mobileprovision
+    ProvisioningProfile: ../proj/xcode/ios/provisioning/App_Store_Unity_Base_Game.mobileprovision
     Method: app-store
     TeamId: PD2V9367QH
     CodesignIdentity: 
