@@ -1,14 +1,14 @@
 pipeline {
     agent {
-        label "platform_${env.PLATFORM}"
+        label "platform_${env.PLATFORM} && unity"
     }
 
     environment {
         AUTH_MAD = credentials('auth_mad')
         AUTH_CRASHINATOR = credentials('auth_crashinator')
         KEYCHAIN_PASSWORD = credentials('keychain_password')
-        PROJ_PATH = "proj/build/${env.PLATFORM}"
-        MOBILEPKGTOOLS_LOGFILE = "proj/build/${env.PLATFORM}/buildlog.txt"
+        PROJ_PATH = "Build"
+        MOBILEPKGTOOLS_LOGFILE = "buildlog.txt"
         MOBILEPKGBUILD_CONFIG = "${env.CONFIG}"
         MOBILEPKGBUILD_FLAVOR = "${env.FLAVOR}"
 
