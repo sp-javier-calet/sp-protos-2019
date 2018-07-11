@@ -1,11 +1,12 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Notifications;
 using SocialPoint.ServerSync;
+using SocialPoint.Login;
 
 public class GameNotificationManager : NotificationManager
 {
-    public GameNotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue) :
-        base(services, appEvents, commandQueue)
+    public GameNotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue, ILoginData loginData) :
+        base(services, appEvents, commandQueue, loginData)
     {
     }
 

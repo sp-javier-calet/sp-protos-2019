@@ -1,4 +1,11 @@
-{
-  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "0"},
-  "infoPlist": {"UIFileSharingEnabled": true}
+{  
+   "buildSettings":{  
+      "GCC_OPTIMIZATION_LEVEL":"0"
+   },
+   "infoPlist":{  
+      "UIFileSharingEnabled":true
+   },
+   "pushNotificationsEnvironment":{  
+      "isProduction":false
+   }
 }
