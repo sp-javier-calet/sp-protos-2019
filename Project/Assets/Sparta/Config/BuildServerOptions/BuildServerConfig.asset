@@ -16,6 +16,8 @@ MonoBehaviour:
       Checks: ../proj/submissionchecks.json
       Variants:
       - AppStore
+      Configs:
+      - Shipping
     DeployOptions:
       Crash:
         Project: Unity Base Game
