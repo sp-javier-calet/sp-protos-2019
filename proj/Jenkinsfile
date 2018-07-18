@@ -18,9 +18,8 @@ pipeline {
 
     stages {
 
-        stage("Prepare project") {
+        stage("Prepare MAD project") {
             steps {
-                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
                 sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
             }
         }
@@ -29,7 +28,7 @@ pipeline {
             steps {
                 script {
                     def params = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
-                    sh "mobilepkgunity  ${params}"
+                    sh "mobilepkgunity ${params}"
                 }
             }
         }
