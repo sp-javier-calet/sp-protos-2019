@@ -18,6 +18,15 @@ pipeline {
 
     stages {
 
+        stage("Generate Build Server Settings") {
+            steps {
+                script {
+                    def params = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
+                    sh "mobilepkgunity ${params} --builder=SpartaTools.Editor.Build.AutoBuilder.GenerateBuildServerSettings"
+                }
+            }
+        }
+
         stage("Prepare MAD project") {
             steps {
                 sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
