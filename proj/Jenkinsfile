@@ -13,17 +13,18 @@ pipeline {
         MOBILEPKGBUILD_FLAVOR = "${env.FLAVOR}"
 
         UNITY_PROJ_NAME = "Project"
-        UNITY_VERSION = "~=2017.2.0"
+        MOBILEPKGUNITY_VERSION = "~=2017.2.0"
+        MOBILEPKGUNITY_CONFIG = "${env.CONFIG}"
+        MOBILEPKGUNITY_PLATFORM = "${env.PLATFORM}"
     }
 
     stages {
 
-        def unityParams = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
 
         stage("Generate Build Server Settings") {
             steps {
                 script {
-                    sh "mobilepkgunity ${unityParams} --prepare"
+                    sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --prepare"
                 }
             }
         }
@@ -37,7 +38,7 @@ pipeline {
         stage("Generate project") {
             steps {
                 script {
-                    sh "mobilepkgunity ${unityParams}"
+                    sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH}"
                 }
             }
         }
