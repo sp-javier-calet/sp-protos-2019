@@ -18,11 +18,12 @@ pipeline {
 
     stages {
 
+        def unityParams = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
+
         stage("Generate Build Server Settings") {
             steps {
                 script {
-                    def params = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
-                    sh "mobilepkgunity ${params} --builder=SpartaTools.Editor.Build.AutoBuilder.GenerateBuildServerSettings"
+                    sh "mobilepkgunity ${unityParams} --prepare"
                 }
             }
         }
@@ -36,8 +37,7 @@ pipeline {
         stage("Generate project") {
             steps {
                 script {
-                    def params = "${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --config ${env.CONFIG} --platform ${env.PLATFORM} --unityver ${env.UNITY_VERSION}"
-                    sh "mobilepkgunity ${params}"
+                    sh "mobilepkgunity ${unityParams}"
                 }
             }
         }
