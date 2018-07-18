@@ -17,6 +17,14 @@ pipeline {
     }
 
     stages {
+
+        stage("Prepare project") {
+            steps {
+                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
+                sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
+            }
+        }
+
         stage("Generate project") {
             steps {
                 script {
@@ -28,8 +36,6 @@ pipeline {
 
         stage("Build project") {
             steps {
-                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
-                sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
                 sh "mobilepkgbuild ${env.PROJ_PATH}"
             }
         }
