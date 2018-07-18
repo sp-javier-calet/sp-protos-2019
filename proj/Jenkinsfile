@@ -71,11 +71,15 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: "${env.MOBILEPKGTOOLS_LOGFILE}", allowEmptyArchive: true
+            // android
             archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/outputs/apk/*.apk", fingerprint: true, allowEmptyArchive: true
             archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/jniLibs/*/*/*.so", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/*/*/*.ipa", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/*/*/*.app.zip", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/${env.CONFIG}/*/*.xcarchive/dSYMs/*.app.dSYM", fingerprint: true, allowEmptyArchive: true
+            // ios
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.ipa", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM", fingerprint: true, allowEmptyArchive: true
+            // macos
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.app.zip", fingerprint: true, allowEmptyArchive: true
+            // windows
             archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", fingerprint: true, allowEmptyArchive: true
         }
     }
