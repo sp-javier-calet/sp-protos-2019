@@ -46,7 +46,8 @@
             "error": 110,
             "warning": 90
         },
-        "disabled_checks": [ "debuggable" ]
+        "disabled_checks": [ "debuggable" ],
+        "main_activity": "es.socialpoint.unity.base.SPUnityActivity"
     },
     "android_google": {
     },
