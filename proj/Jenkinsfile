@@ -20,7 +20,6 @@ pipeline {
 
     stages {
 
-
         stage("Generate Build Server Settings") {
             steps {
                 script {
@@ -76,7 +75,7 @@ pipeline {
             archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/jniLibs/*/*/*.so", fingerprint: true, allowEmptyArchive: true
             // ios
             archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.ipa", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM.zip", fingerprint: true, allowEmptyArchive: true
             // macos
             archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.app.zip", fingerprint: true, allowEmptyArchive: true
             // windows
