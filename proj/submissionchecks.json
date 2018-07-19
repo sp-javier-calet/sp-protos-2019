@@ -7,10 +7,6 @@
         "min_ios_version": "8.0",
         "min_sdk_version": "11.2",
         "architectures": ["armv7", "arm64"],
-        "permissions": {
-            "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
-            "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
-        },
         "provisioning_profile": "",
         "orientations": {
             "iphone": ["landscape_right", "landscape_left"],
@@ -32,6 +28,10 @@
             "min": 16,
             "target": 27
         },
+        "permissions": {
+            "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
+            "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
+        },
         "architectures": ["armeabi-v7a"],
         "orientation": "sensorLandscape",
         "icons": {
@@ -46,7 +46,6 @@
             "error": 110,
             "warning": 90
         },
-        "disabled_checks": [ "debuggable" ],
         "main_activity": "es.socialpoint.unity.base.SPUnityActivity"
     },
     "android_google": {

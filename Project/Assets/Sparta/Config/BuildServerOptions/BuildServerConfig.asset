@@ -16,9 +16,12 @@ MonoBehaviour:
       Checks: ../proj/submissionchecks.json
       Variants:
       - AppStore
+      Configs:
+      - Shipping
     DeployOptions:
       Crash:
         Project: Unity Base Game
       Mad:
-        HipchatRoom: 3829934
+        HipchatRoom: 439918
         Project: Unity Base Game
+    XcodeVersion: ~=9.2
