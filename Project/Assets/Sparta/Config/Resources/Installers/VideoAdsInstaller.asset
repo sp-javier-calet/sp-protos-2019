@@ -41,6 +41,7 @@ MonoBehaviour:
       - AdColony
       - UnityAds
       - Chartboost
+      - Vungle
     InterstitialSegments:
       Parameter: IA_Adapter
       DefaultSegment: All
@@ -48,5 +49,6 @@ MonoBehaviour:
       - All
       - UnityAds
       - Chartboost
+      - Vungle
   ExtraSettings:
     UsersAreAnonymousByDefault: 0
