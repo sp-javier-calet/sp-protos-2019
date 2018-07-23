@@ -1,3 +1,8 @@
-{
-  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "s"}
+{  
+   "buildSettings":{  
+      "GCC_OPTIMIZATION_LEVEL":"s"
+   },
+   "pushNotificationsEnvironment":{  
+      "isProduction":false
+   }
 }

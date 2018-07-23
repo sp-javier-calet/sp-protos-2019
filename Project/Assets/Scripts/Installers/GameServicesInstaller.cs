@@ -3,6 +3,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.Locale;
+using SocialPoint.Login;
 using SocialPoint.Notifications;
 using SocialPoint.Purchase;
 using SocialPoint.ServerSync;
@@ -73,7 +74,8 @@ public class GameServicesInstaller : Installer
         return new GameNotificationManager(
             container.Resolve<INotificationServices>(),
             container.Resolve<IAppEvents>(),
-            container.Resolve<ICommandQueue>()
+            container.Resolve<ICommandQueue>(),
+            container.Resolve<ILoginData>()
         );
     }
 
