@@ -33,7 +33,6 @@ MonoBehaviour:
     XcodeModSchemes: 
     UseEnvironmentProvisioningUuid: 0
     RemovedResources: StreamingAssets/android_etc
-    Exports: []
   Android:
     BundleIdentifier: es.socialpoint.basegame
     Flags: 
