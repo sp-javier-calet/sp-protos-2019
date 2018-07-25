@@ -81,5 +81,21 @@ pipeline {
             // windows
             archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", fingerprint: true, allowEmptyArchive: true
         }
+
+        failure {
+            script {
+                if (env.SP_BUILD_ENVIRONMENT == 'production') {
+                    sh "mobilepkgdeploy result run --failure ${env.PROJ_PATH}"
+                }
+            }
+        }
+
+        success {
+            script {
+                if (env.SP_BUILD_ENVIRONMENT == 'production') {
+                    sh "mobilepkgdeploy result run --success ${env.PROJ_PATH}"
+                }
+            }
+        }
     }
 }
