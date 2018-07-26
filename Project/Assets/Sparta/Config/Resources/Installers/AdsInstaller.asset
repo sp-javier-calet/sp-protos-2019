@@ -13,16 +13,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   iOSSettings:
-    AppID: 
-    SecurityToken: 
+    AppID: 44750
+    SecurityToken: 5737bde09f69b1d7eadac4aae5f38880
     VideoAdsSegments:
-      Parameter: 
-      DefaultSegment: 
-      Segments: []
+      Parameter: VA_Installer
+      DefaultSegment: All
+      Segments:
+      - All
     InterstitialSegments:
-      Parameter: 
-      DefaultSegment: 
-      Segments: []
+      Parameter: IA_Installer
+      DefaultSegment: All
+      Segments:
+      - All
   AndroidSettings:
     AppID: 44745
     SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
