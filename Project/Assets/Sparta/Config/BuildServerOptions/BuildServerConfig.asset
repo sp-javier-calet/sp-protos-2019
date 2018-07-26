@@ -19,8 +19,13 @@ MonoBehaviour:
       Configs:
       - Shipping
     DeployOptions:
-      Crash:
-        Project: Unity Base Game
+      Common:
+        HipchatRoomId: 3799352
       Mad:
-        HipchatRoom: 3829934
-        Project: Unity Base Game
+        ProjectName: Unity Base Game
+        HipchatRoomId: 439918
+        ReportMessage: 
+      Result:
+        HipchatRoomId: 
+        Message: 
+    XcodeVersion: ~=9.2

@@ -27,8 +27,6 @@ MonoBehaviour:
     LogLevel: 3
     EnableAdminPanel: 1
     EnableDependencyInspection: 1
-    BuildServerConfig: {fileID: 11400000, guid: eeffef5ad96724641b7b63cfc1c38078,
-      type: 2}
   Ios:
     BundleIdentifier: 
     Flags: 
