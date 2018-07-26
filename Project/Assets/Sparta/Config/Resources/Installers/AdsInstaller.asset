@@ -20,11 +20,17 @@ MonoBehaviour:
       DefaultSegment: All
       Segments:
       - All
+      - UnityAds
+      - AdColony
+      - Chartboost
     InterstitialSegments:
       Parameter: IA_Installer
       DefaultSegment: All
       Segments:
       - All
+      - Chartboost
+      - UnityAds
+      - AdColony
   AndroidSettings:
     AppID: 44745
     SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
@@ -34,11 +40,15 @@ MonoBehaviour:
       Segments:
       - All
       - Chartboost
+      - AdColony
+      - UnityAds
     InterstitialSegments:
       Parameter: IA_Installer
       DefaultSegment: All
       Segments:
       - All
-      - Vungle
+      - UnityAds
+      - Chartboost
+      - AdColony
   ExtraSettings:
     UsersAreAnonymousByDefault: 0
