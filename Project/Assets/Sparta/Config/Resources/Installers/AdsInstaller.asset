@@ -30,6 +30,7 @@ MonoBehaviour:
       - All
       - Chartboost
       - UnityAds
+      - AdColony
   AndroidSettings:
     AppID: 44745
     SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
@@ -48,5 +49,6 @@ MonoBehaviour:
       - All
       - UnityAds
       - Chartboost
+      - AdColony
   ExtraSettings:
     UsersAreAnonymousByDefault: 0
