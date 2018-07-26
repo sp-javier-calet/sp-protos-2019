@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
-
 #if ADMIN_PANEL
-
 using SocialPoint.AdminPanel;
-using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using UnityEngine.EventSystems;
@@ -12,7 +9,8 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 {
     AdminPanel _adminPanel;
 
-    public float WaitTime = 1.0f;
+    [SerializeField] float WaitTime = 1.0f;
+
     bool _down;
     float _timeSinceDown;
     AdminPanelController _adminPanelController;
@@ -71,15 +69,19 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         }
         //
 
-        if(_down)
+        if(!_down)
         {
-            _timeSinceDown += Time.deltaTime;
-            if(_timeSinceDown >= WaitTime)
-            {
-                _down = false;
-                OnActivation();
-            }
+            return;
         }
+
+        _timeSinceDown += Time.deltaTime;
+        if(!(_timeSinceDown >= WaitTime))
+        {
+            return;
+        }
+
+        _down = false;
+        OnActivation();
     }
 
     void OnActivation()
@@ -90,16 +92,18 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             _adminPanelController.AdminPanel = _adminPanel;
             _adminPanelController.transform.SetParent(transform.parent, false);
         }
+
         _adminPanelController.Show();
     }
 }
 
-
-
 #else
-
 public class AdminPanelButton : MonoBehaviour
 {
+#pragma warning disable 0414
+    [SerializeField] float WaitTime = 1.0f;
+#pragma warning restore 0414
+
     void Start()
     {
         gameObject.SetActive(false);
