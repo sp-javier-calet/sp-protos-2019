@@ -18,6 +18,12 @@ pipeline {
 
     stages {
 
+        stage("Update git submodules") {
+            steps {
+                sh "git submodule update --recursive --init"
+            }
+        }
+
         stage("Generate Build Server Settings") {
             steps {
                 script {
