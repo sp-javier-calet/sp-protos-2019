@@ -22,6 +22,8 @@ pipeline {
 
         stage("Update git submodules") {
             steps {
+                sh "git submodule foreach --recursive git clean -df"
+                sh "git submodule foreach --recursive git reset --hard"
                 sh "git submodule update --recursive --init"
             }
         }
