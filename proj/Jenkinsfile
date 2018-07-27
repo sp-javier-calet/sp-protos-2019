@@ -13,7 +13,7 @@ pipeline {
         MOBILEPKGBUILD_FLAVOR = "${env.FLAVOR}"
 
         UNITY_PROJ_NAME = "Project"
-        MOBILEPKGUNITY_VERSION = "~=2017.2.0"
+        MOBILEPKGUNITY_VERSION = "~=2018.1.6"
         MOBILEPKGUNITY_CONFIG = "${env.CONFIG}"
         MOBILEPKGUNITY_PLATFORM = "${env.PLATFORM}"
     }
