@@ -47,7 +47,7 @@ public class GameInstaller : Installer, IInitializable
         container.Listen<GameLoader>().Then(SetupGameLoader);
 
         #if ADMIN_PANEL
-        container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
+        container.BindAdminPanelConfigurer(CreateAdminPanel);
         #endif
 
         container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
