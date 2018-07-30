@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc10206e5bb3e41a185095146bc84248, type: 3}
+  m_Name: Ios-InHouse
+  m_EditorClassIdentifier: 
+  Options:
+    Name: InHouse
+    ProvisioningProfile: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/provisioning/InHouse.mobileprovision
+    Method: enterprise
+    TeamId: SQ7J6VAFAL
+    CodesignIdentity: A45321C654A477E2D8559572DAE017AE647307F0
+    CodesignEntitlements: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/InHouse.entitlements
