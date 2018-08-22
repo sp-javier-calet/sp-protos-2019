@@ -8,21 +8,24 @@ pipeline {
         AUTH_CRASHINATOR = credentials('auth_crashinator')
         KEYCHAIN_PASSWORD = credentials('keychain_password')
         PROJ_PATH = "Build"
-        MOBILEPKGTOOLS_LOGFILE = "buildlog.txt"
-        MOBILEPKGBUILD_CONFIG = "${env.CONFIG}"
-        MOBILEPKGBUILD_FLAVOR = "${env.FLAVOR}"
-
         UNITY_PROJ_NAME = "Project"
-        MOBILEPKGUNITY_VERSION = "~=2018.1.6"
+        CLEAN_PARAMS = env.CLEAN_BUILD == "true" ? "-dfx" : "-df"
+        MOBILEPKGTOOLS_LOGFILE = "buildlog.txt"
         MOBILEPKGUNITY_CONFIG = "${env.CONFIG}"
         MOBILEPKGUNITY_PLATFORM = "${env.PLATFORM}"
+        MOBILEPKGUNITY_CACHEDISABLED = env.UNITY_CACHE_ENABLED == "false"
+        MOBILEPKGBUILD_APPLEPROVISIONUPDATE = env.APPLE_PROVISION_UPDATE == "true"
+        MOBILEPKGDEPLOY_CRASH_DISABLED = env.CONFIG == 'Debug'
     }
 
     stages {
 
-        stage("Update git submodules") {
+        stage("Update git") {
             steps {
-                sh "git submodule foreach --recursive git clean -df"
+                sh "export"
+                sh "git clean ${env.CLEAN_PARAMS}"
+                sh "git reset --hard"
+                sh "git submodule foreach --recursive git clean ${env.CLEAN_PARAMS}"
                 sh "git submodule foreach --recursive git reset --hard"
                 sh "git submodule update --recursive --init"
             }
@@ -30,9 +33,7 @@ pipeline {
 
         stage("Generate Build Server Settings") {
             steps {
-                script {
-                    sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --prepare"
-                }
+                sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --prepare"
             }
         }
 
@@ -44,9 +45,7 @@ pipeline {
 
         stage("Generate project") {
             steps {
-                script {
-                    sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH}"
-                }
+                sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH}"
             }
         }
 
@@ -79,31 +78,23 @@ pipeline {
         always {
             archiveArtifacts artifacts: "${env.MOBILEPKGTOOLS_LOGFILE}", allowEmptyArchive: true
             // android
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/outputs/apk/*.apk", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/jniLibs/*/*/*.so", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/outputs/apk/*.apk", allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/jniLibs/*/*/*.so", allowEmptyArchive: true
             // ios
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.ipa", fingerprint: true, allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM.zip", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.ipa", allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM.zip", allowEmptyArchive: true
             // macos
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.app.zip", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.app.zip", allowEmptyArchive: true
             // windows
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", allowEmptyArchive: true
         }
 
         failure {
-            script {
-                if (env.SP_BUILD_ENVIRONMENT == 'production') {
-                    sh "mobilepkgdeploy result run --failure ${env.PROJ_PATH}"
-                }
-            }
+            sh "mobilepkgdeploy result run --failure ${env.PROJ_PATH}"
         }
 
         success {
-            script {
-                if (env.SP_BUILD_ENVIRONMENT == 'production') {
-                    sh "mobilepkgdeploy result run --success ${env.PROJ_PATH}"
-                }
-            }
+            sh "mobilepkgdeploy result run --success ${env.PROJ_PATH}"
         }
     }
 }
