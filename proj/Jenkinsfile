@@ -31,14 +31,10 @@ pipeline {
             }
         }
 
-        stage("Generate Build Server Settings") {
+        stage("Prepare project") {
             steps {
+                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
                 sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --prepare"
-            }
-        }
-
-        stage("Prepare MAD project") {
-            steps {
                 sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
             }
         }
