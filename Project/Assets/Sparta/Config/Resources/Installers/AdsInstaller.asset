@@ -16,7 +16,7 @@ MonoBehaviour:
     AppID: 44750
     SecurityToken: 5737bde09f69b1d7eadac4aae5f38880
     VideoAdsSegments:
-      Parameter: VA_Installer
+      Parameter: VA_Adapter
       DefaultSegment: All
       Segments:
       - All
@@ -24,7 +24,7 @@ MonoBehaviour:
       - AdColony
       - Chartboost
     InterstitialSegments:
-      Parameter: IA_Installer
+      Parameter: IA_Adapter
       DefaultSegment: All
       Segments:
       - All
@@ -35,7 +35,7 @@ MonoBehaviour:
     AppID: 44745
     SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
     VideoAdsSegments:
-      Parameter: VA_Installer
+      Parameter: VA_Adapter
       DefaultSegment: All
       Segments:
       - All
@@ -43,7 +43,7 @@ MonoBehaviour:
       - AdColony
       - UnityAds
     InterstitialSegments:
-      Parameter: IA_Installer
+      Parameter: IA_Adapter
       DefaultSegment: All
       Segments:
       - All
