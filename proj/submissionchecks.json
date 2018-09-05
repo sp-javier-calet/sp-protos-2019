@@ -4,7 +4,7 @@
     },
     "ios": {
         "url_schema": "basegame",
-        "min_ios_version": "8.0",
+        "min_ios_version": "9.0",
         "min_sdk_version": "11.2",
         "architectures": ["armv7", "arm64"],
         "device_family": ["iphone", "ipad"],
