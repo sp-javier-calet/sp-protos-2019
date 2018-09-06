@@ -1,4 +1,4 @@
-import es.socialpoint
+@Library('sptools')_
 
 pipeline {
     agent {
@@ -24,45 +24,43 @@ pipeline {
 
         stage("Update git") {
             steps {
-                updateGitStep()
+                spUpdateGit()
             }
         }
 
         stage("Prepare project") {
             steps {
-                sh "mobilepkgbuild ${env.PROJ_PATH} --clean"
-                sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH} --prepare"
-                sh "mobilepkgdeploy mad prepare ${env.PROJ_PATH}"
+                spUnityPrepare()
             }
         }
 
         stage("Generate project") {
             steps {
-                sh "mobilepkgunity ${env.UNITY_PROJ_NAME} ${env.PROJ_PATH}"
+                spUnityGenerate()
             }
         }
 
         stage("Build project") {
             steps {
-                sh "mobilepkgbuild ${env.PROJ_PATH}"
+                spBuild()
             }
         }
 
         stage("Submission Checks") {
             steps {
-                sh "mobilepkgcheck ${env.PROJ_PATH} -v"
+                spCheck()
             }
         }
 
         stage("Upload to Crashinator") {
             steps {
-                sh "mobilepkgdeploy crash run ${env.PROJ_PATH}"
+                spDeployCrashinator()
             }
         }
 
         stage("Upload to MAD") {
             steps {
-                sh "mobilepkgdeploy mad run ${env.PROJ_PATH}"
+                spDeployMad()
             }
         }
     }
