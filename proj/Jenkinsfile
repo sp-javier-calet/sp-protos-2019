@@ -1,3 +1,5 @@
+import es.socialpoint
+
 pipeline {
     agent {
         label "unity"
@@ -22,12 +24,7 @@ pipeline {
 
         stage("Update git") {
             steps {
-                sh "export"
-                sh "git clean ${env.CLEAN_PARAMS}"
-                sh "git reset --hard"
-                sh "git submodule foreach --recursive git clean ${env.CLEAN_PARAMS}"
-                sh "git submodule foreach --recursive git reset --hard"
-                sh "git submodule update --recursive --init"
+                updateGitStep()
             }
         }
 
