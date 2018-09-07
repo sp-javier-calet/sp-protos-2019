@@ -1,91 +1,22 @@
 @Library('sptools')_
 
-pipeline {
-    agent {
-        label "unity"
+spUnityPipeline {
+    agentName = "unity_base_game"
+    onUpdate = {
+        sh "export"
     }
-
-    environment {
-        AUTH_MAD = credentials('auth_mad')
-        AUTH_CRASHINATOR = credentials('auth_crashinator')
-        KEYCHAIN_PASSWORD = credentials('keychain_password')
-        PROJ_PATH = "Build"
-        UNITY_PROJ_NAME = "Project"
-        CLEAN_PARAMS = env.CLEAN_BUILD == "true" ? "-dfx" : "-df"
-        MOBILEPKGTOOLS_LOGFILE = "buildlog.txt"
-        MOBILEPKGUNITY_CONFIG = "${env.CONFIG}"
-        MOBILEPKGUNITY_PLATFORM = "${env.PLATFORM}"
-        MOBILEPKGUNITY_CACHEDISABLED = env.UNITY_CACHE_ENABLED == "false"
-        MOBILEPKGBUILD_APPLEPROVISIONUPDATE = env.APPLE_PROVISION_UPDATE == "true"
-        MOBILEPKGDEPLOY_CRASH_DISABLED = env.CONFIG == 'Debug'
+    onPrepare = {
     }
-
-    stages {
-
-        stage("Update git") {
-            steps {
-                spUpdateGit()
-            }
-        }
-
-        stage("Prepare project") {
-            steps {
-                spUnityPrepare()
-            }
-        }
-
-        stage("Generate project") {
-            steps {
-                spUnityGenerate()
-            }
-        }
-
-        stage("Build project") {
-            steps {
-                spBuild()
-            }
-        }
-
-        stage("Submission Checks") {
-            steps {
-                spCheck()
-            }
-        }
-
-        stage("Upload to Crashinator") {
-            steps {
-                spDeployCrashinator()
-            }
-        }
-
-        stage("Upload to MAD") {
-            steps {
-                spDeployMad()
-            }
-        }
+    onGenerate = {
     }
-
-    post {
-        always {
-            archiveArtifacts artifacts: "${env.MOBILEPKGTOOLS_LOGFILE}", allowEmptyArchive: true
-            // android
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/outputs/apk/*.apk", allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*/build/intermediates/jniLibs/*/*/*.so", allowEmptyArchive: true
-            // ios
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.ipa", allowEmptyArchive: true
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*.xcarchive/dSYMs/*.app.dSYM.zip", allowEmptyArchive: true
-            // macos
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/pkg/*/*/*/*.app.zip", allowEmptyArchive: true
-            // windows
-            archiveArtifacts artifacts: "${env.PROJ_PATH}/*.zip", allowEmptyArchive: true
-        }
-
-        failure {
-            sh "mobilepkgdeploy result run --failure ${env.PROJ_PATH}"
-        }
-
-        success {
-            sh "mobilepkgdeploy result run --success ${env.PROJ_PATH}"
-        }
+    onBuild = {
+    }
+    onCheck = {
+    }
+    onDeploy = {
+    }
+    onSuccess = {
+    }
+    onFailure = {
     }
 }
