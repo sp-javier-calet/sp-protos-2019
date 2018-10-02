@@ -28,4 +28,4 @@ MonoBehaviour:
       Result:
         HipchatRoomId: 
         Message: 
-    XcodeVersion: =9.4
+    XcodeVersion: == 9.4.*
