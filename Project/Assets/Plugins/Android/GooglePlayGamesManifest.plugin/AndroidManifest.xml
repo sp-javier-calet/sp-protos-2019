@@ -14,9 +14,9 @@
 
      
 
-        <!-- The space in these forces it to be interpreted as a string vs. int -->
+        <!-- The space in these forces it to be interpreted as a string vs. int, but unity 2018.2 expects an int, so remove the extra space -->
         <meta-data android:name="com.google.android.gms.games.APP_ID"
-            android:value="\ 942387780338" />
+            android:value="\942387780338" />
 
         <!-- Keep track of which plugin is being used -->
         <meta-data android:name="com.google.android.gms.games.unityVersion"
