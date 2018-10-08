@@ -18,7 +18,7 @@
             "ipad": [57, 72, 76, 114, 120, 144, 152, 167, 180]
         },
         "launch_images": [],
-        "capabilities": ["armv7"],
+        "capabilities": ["armv7", "gamekit"],
         "pkg_download_size": {
             "error": 110,
             "warning": 90
