@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -14,25 +14,19 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     PersistsSelection: 1
+    DynamicEnvironmentUrls:
+    - http://list.dev.socialpointgames.com/mp
+    - http://list.dev.socialpointgames.com/pp
+    - http://list.dev.socialpointgames.com/wt
+    - http://list.dev.socialpointgames.com/bb
+    DynamicEnvironmentEndpointPattern: http://{0}/api/v3
     Environments:
-    - Name: Production
-      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
-      Type: 0
-    - Name: Test
-      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
-      Type: 2
     - Name: Development
-      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
-      Type: 3
-    - Name: League Of Dragons
-      Url: http://int-lod.socialpointgames.com/lod3/web/index.php/api/v3
-      Type: 3
-    - Name: Docker
-      Url: http://localhost:4630/api/v3
-      Type: 3
-    - Name: Champions Arena
-      Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
+      Url: http://stable.bb.dev.socialpointgames.com/api/v3
       Type: 4
+    - Name: Production
+      Url: http://stable.bb.dev.socialpointgames.com/api/v3
+      Type: 0
   Defaults:
     IosProductionEnvironment: Production
     AndroidProductionEnvironment: Production
