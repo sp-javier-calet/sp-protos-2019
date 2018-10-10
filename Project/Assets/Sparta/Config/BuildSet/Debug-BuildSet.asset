@@ -21,6 +21,7 @@ MonoBehaviour:
   Common:
     Flags: +SPARTA_PROFILER_ENABLED
     RebuildNativePlugins: 0
+    DownloadLocalizations: 0
     IsDevelopmentBuild: 1
     AppendBuild: 0
     IncludeDebugScenes: 1
@@ -31,7 +32,6 @@ MonoBehaviour:
     BundleIdentifier: 
     Flags: 
     XcodeModSchemes: debug
-    UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
     Exports:
     - {fileID: 11400000, guid: c0bac4fdf11124f0e9171da318b322ea, type: 2}

@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -15,44 +15,42 @@ MonoBehaviour:
   Settings:
     UseAlwaysDeviceLanguage: 1
     Localization:
-      ProjectId: ca
+      ProjectId: dc
+      BundleDir: localization
+      ShowKeysOnDevMode: 1
+      Timeout: 20
+      SupportedLanguages: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000
+      ConfiguredFallbackLanguages:
+      - Selected: 13
+        Fallback: 1
+      - Selected: 12
+        Fallback: 1
+      - Selected: 11
+        Fallback: 1
+      - Selected: 6
+        Fallback: 10
+      - Selected: 15
+        Fallback: 21
+      - Selected: 18
+        Fallback: 21
+      - Selected: 16
+        Fallback: 21
+      - Selected: 19
+        Fallback: 21
+      - Selected: 14
+        Fallback: 20
+      - Selected: 17
+        Fallback: 20
       EnvironmentsData:
-      - EnvironmentType: 0
-        Id: prod
-        SecretKey: Lk00s3jrs7rj29TN
-      - EnvironmentType: 1
-        Id: prod
-        SecretKey: Lk00s3jrs7rj29TN
-      - EnvironmentType: 2
-        Id: dev
-        SecretKey: vjKcf9HIq0jN5Xf0
-      - EnvironmentType: 3
-        Id: loc
-        SecretKey: jXX4Jk5vTEjdbZbr
       - EnvironmentType: 4
         Id: dev
-        SecretKey: vjKcf9HIq0jN5Xf0
-      BundleDir: localization
-      CsvMode: 2
-      ShowKeysOnDevMode: 1
-      SupportedLanguages:
-      - en
-      - es
-      - de
-      - fr
-      - tr
-      - it
-      - pt
-      - ru
-      - ja
-      - ko
-      - br
-      - gl
-      - eu
-      - ca
-      - zh-Hans
-      - zh-Hant
-      Timeout: 20
+        SecretKey: 5TgemMFH4yj7RJ3d
+      - EnvironmentType: 0
+        Id: prod
+        SecretKey: wetd46pWuR8J5CmS
+      - EnvironmentType: 3
+        Id: loc
+        SecretKey: 59YfvdoufGeleJvZ
     TimeTextIdentifiers:
       DayIdentifier: timeUtils.Day
       DaysIdentifier: timeUtils.Days
