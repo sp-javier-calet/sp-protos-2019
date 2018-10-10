@@ -34,7 +34,7 @@
             "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
         },
         "architectures": ["armeabi-v7a"],
-        "orientation": "sensorLandscape",
+        "orientation": "fullSensor",
         "icons": {
             "ldpi": 36,
             "mdpi": 48,
