@@ -19,7 +19,23 @@ MonoBehaviour:
       BundleDir: localization
       ShowKeysOnDevMode: 1
       Timeout: 20
-      SupportedLanguages: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000
+      SupportedLanguages:
+      - Language: 0
+      - Language: 1
+      - Language: 2
+      - Language: 3
+      - Language: 4
+      - Language: 5
+      - Language: 6
+      - Language: 7
+      - Language: 8
+      - Language: 9
+      - Language: 10
+      - Language: 11
+      - Language: 12
+      - Language: 13
+      - Language: 14
+      - Language: 15
       ConfiguredFallbackLanguages:
       - Selected: 13
         Fallback: 1
