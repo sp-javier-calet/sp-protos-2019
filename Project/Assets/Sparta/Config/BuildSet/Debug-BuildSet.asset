@@ -19,7 +19,7 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: +SPARTA_PROFILER_ENABLED
+    Flags: 
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 1
     AppendBuild: 0
