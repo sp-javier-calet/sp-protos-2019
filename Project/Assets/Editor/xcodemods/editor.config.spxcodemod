@@ -1,13 +1,13 @@
 
 {
   "buildSettings": {
-    "CC": "$(SRCROOT)/clang_cache_distcc",
-    "LDPLUSPLUS": "$(DT_TOOLCHAIN_DIR)/usr/bin/clang++",
+    "CC": "$(SRCROOT)/clang++-distcc-ccache",
+    "LDPLUSPLUS": "$(SRCROOT)/clang++-distcc-ccache",
     "GCC_PRECOMPILE_PREFIX_HEADER": "NO"
   },
   "copyFiles": {
-    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang_cache" : "{XCODE_PROJECT_PATH}/../clang_cache",
-    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang_cache_distcc" : "{XCODE_PROJECT_PATH}/../clang_cache_distcc",
-    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/distcc/*" : "{XCODE_PROJECT_PATH}/../distcc"
+    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-ccache" : "{XCODE_PROJECT_PATH}/../clang++-ccache",
+    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc" : "{XCODE_PROJECT_PATH}/../clang++-distcc",
+    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc-ccache" : "{XCODE_PROJECT_PATH}/../clang++-distcc-ccache"
   }
 }
