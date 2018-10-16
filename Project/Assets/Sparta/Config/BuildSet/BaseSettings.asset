@@ -24,6 +24,7 @@ MonoBehaviour:
     DownloadLocalizations: 0
     IsDevelopmentBuild: 0
     AppendBuild: 0
+    RunAfterBuild: 0
     IncludeDebugScenes: 0
     LogLevel: 0
     EnableAdminPanel: 0
