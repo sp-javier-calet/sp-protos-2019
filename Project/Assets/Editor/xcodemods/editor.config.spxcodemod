@@ -8,6 +8,7 @@
   "copyFiles": {
     "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-ccache" : "{XCODE_PROJECT_PATH}/../clang++-ccache",
     "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc" : "{XCODE_PROJECT_PATH}/../clang++-distcc",
-    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc-ccache" : "{XCODE_PROJECT_PATH}/../clang++-distcc-ccache"
+    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc-ccache" : "{XCODE_PROJECT_PATH}/../clang++-distcc-ccache",
+    "{SPARTA_SOURCES_PATH}/Apple/sp_unity_plugins/clang++-distcc-debug" : "{XCODE_PROJECT_PATH}/../clang++-distcc-debug"
   }
 }
