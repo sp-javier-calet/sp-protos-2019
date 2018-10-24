@@ -21,8 +21,10 @@ MonoBehaviour:
   Common:
     Flags: 
     RebuildNativePlugins: 0
+    DownloadLocalizations: 0
     IsDevelopmentBuild: 0
     AppendBuild: 0
+    RunAfterBuild: 0
     IncludeDebugScenes: 0
     LogLevel: 0
     EnableAdminPanel: 0
@@ -31,7 +33,6 @@ MonoBehaviour:
     BundleIdentifier: es.socialpoint.basegame
     Flags: NO_GPGS
     XcodeModSchemes: 
-    UseEnvironmentProvisioningUuid: 0
     RemovedResources: StreamingAssets/android_etc
     Exports: []
   Android:

@@ -21,8 +21,10 @@ MonoBehaviour:
   Common:
     Flags: 
     RebuildNativePlugins: 1
+    DownloadLocalizations: 1
     IsDevelopmentBuild: 0
     AppendBuild: 0
+    RunAfterBuild: 1
     IncludeDebugScenes: 0
     LogLevel: 4
     EnableAdminPanel: 1
@@ -31,7 +33,6 @@ MonoBehaviour:
     BundleIdentifier: 
     Flags: 
     XcodeModSchemes: release
-    UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
     Exports:
     - {fileID: 11400000, guid: c0bac4fdf11124f0e9171da318b322ea, type: 2}
