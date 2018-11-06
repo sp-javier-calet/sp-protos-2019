@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5a6debec7ac34cdea2e661a31691524, type: 3}
+  m_Name: LocaleInstaller
+  m_EditorClassIdentifier: 
+  _isGlobal: 1
+  Settings:
+    UseAlwaysDeviceLanguage: 1
+    Localization:
+      ProjectId: dc
+      BundleDir: localization
+      ShowKeysOnDevMode: 1
+      Timeout: 20
+      SupportedLanguages:
+      - Language: 0
+      - Language: 1
+      - Language: 2
+      - Language: 3
+      - Language: 4
+      - Language: 5
+      - Language: 6
+      - Language: 7
+      - Language: 8
+      - Language: 9
+      - Language: 10
+      - Language: 11
+      ConfiguredFallbackLanguages:
+      - Selected: 34
+        Fallback: 1
+      - Selected: 33
+        Fallback: 1
+      - Selected: 32
+        Fallback: 1
+      - Selected: 6
+        Fallback: 31
+      - Selected: 36
+        Fallback: 11
+      - Selected: 38
+        Fallback: 11
+      - Selected: 39
+        Fallback: 11
+      - Selected: 35
+        Fallback: 10
+      - Selected: 37
+        Fallback: 10
+      EnvironmentsData:
+      - EnvironmentType: 4
+        Id: dev
+        SecretKey: 5TgemMFH4yj7RJ3d
+      - EnvironmentType: 0
+        Id: prod
+        SecretKey: wetd46pWuR8J5CmS
+      - EnvironmentType: 3
+        Id: loc
+        SecretKey: 59YfvdoufGeleJvZ
+    TimeTextIdentifiers:
+      DayIdentifier: timeUtils.Day
+      DaysIdentifier: timeUtils.Days
+      HourIdentifier: timeUtils.Hour
+      MinIdentifier: timeUtils.Min
+      SecIdentifier: timeUtils.Sec

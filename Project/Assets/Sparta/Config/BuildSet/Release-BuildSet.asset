@@ -21,7 +21,7 @@ MonoBehaviour:
   Common:
     Flags: 
     RebuildNativePlugins: 1
-    DownloadLocalizations: 1
+    DownloadLocalizations: 0
     IsDevelopmentBuild: 0
     AppendBuild: 0
     RunAfterBuild: 1

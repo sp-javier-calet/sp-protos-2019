@@ -8,12 +8,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51f7b573ebb414e3a8fed1ad65669296, type: 3}
-  m_Name: ScenesData
+  m_Script: {fileID: 11500000, guid: ba0d4fa34ebde4004bb30558f940c11e, type: 3}
+  m_Name: FacebookInstaller
   m_EditorClassIdentifier: 
-  _scenesNames:
-  - IntroAnimation
-  - LoadingScene
-  - BaseLoadingScene
-  - MainScene
-  - BaseMainScene
+  _isGlobal: 0
+  Settings:
+    UseEmpty: 0
+    LoginLink: 1
+    LoginLinkMode: 0
+    LoginWithUi: 0
