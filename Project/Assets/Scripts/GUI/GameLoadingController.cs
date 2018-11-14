@@ -38,6 +38,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnLoad()
     {
+        Application.targetFrameRate = 30;
+
         Login = Services.Instance.Resolve<ILogin>();
         CrashReporter = Services.Instance.Resolve<ICrashReporter>();
         Localization = Services.Instance.Resolve<Localization>();
@@ -61,7 +63,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         return false;
     }
 
-    override protected void OnAppeared()
+    protected override void OnAppeared()
     {
         base.OnAppeared();
         _loadModelOperation = new LoadingOperation(ExpectedLoadModelDuration);
@@ -140,10 +142,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnConfirmLinkEvent(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk)
     {
-        ErrorHandler.ShowLink(link, type, data, cbk); 
+        ErrorHandler.ShowLink(link, type, data, cbk);
     }
 
-    override protected void OnDisappearing()
+    protected override void OnDisappearing()
     {
         Login.NewUserStreamEvent -= OnLoginNewUser;
         #if ADMIN_PANEL
