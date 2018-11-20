@@ -37,7 +37,7 @@ public class GameInstaller : Installer, IInitializable
 #else
         container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
-        container.Install<GameModelInstaller>();
+        container.Install(new GameModelInstaller());
 
         container.Bind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
@@ -52,7 +52,7 @@ public class GameInstaller : Installer, IInitializable
 
         container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
-        container.Install<EconomyInstaller>();
+        container.Install(new EconomyInstaller());
     }
 
     public void Initialize(IResolutionContainer container)

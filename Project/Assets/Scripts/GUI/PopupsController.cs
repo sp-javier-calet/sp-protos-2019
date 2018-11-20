@@ -4,14 +4,11 @@ using UnityEngine;
 
 public class PopupsController : UIStackController
 {
-    public const float DefaultAnimationTime = 1.0f;
-    float AnimationTime = DefaultAnimationTime;
-
-    override protected void OnLoad()
+    protected override void OnLoad()
     {
-        AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
-        AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
-        DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
+        float animationTime = Services.Instance.Resolve<float>("popup_animation_time");
+        AppearAnimation = new FadeAnimation(animationTime, 0f, 1f);
+        DisappearAnimation = new FadeAnimation(animationTime, 1f, 0f);
 
         base.OnLoad();
     }

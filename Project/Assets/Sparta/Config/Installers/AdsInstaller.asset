@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01bd266d1570841a9af81934326e0299, type: 3}
+  m_Name: AdsInstaller
+  m_EditorClassIdentifier: 
+  _isGlobal: 0
+  iOSSettings:
+    AppID: 44750
+    SecurityToken: 5737bde09f69b1d7eadac4aae5f38880
+    VideoAdsSegments:
+      Parameter: VA_Adapter
+      DefaultSegment: All
+      Segments:
+      - All
+      - UnityAds
+      - AdColony
+      - Chartboost
+    InterstitialSegments:
+      Parameter: IA_Adapter
+      DefaultSegment: All
+      Segments:
+      - All
+      - Chartboost
+      - UnityAds
+      - AdColony
+  AndroidSettings:
+    AppID: 44745
+    SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
+    VideoAdsSegments:
+      Parameter: VA_Adapter
+      DefaultSegment: All
+      Segments:
+      - All
+      - Chartboost
+      - AdColony
+      - UnityAds
+    InterstitialSegments:
+      Parameter: IA_Adapter
+      DefaultSegment: All
+      Segments:
+      - All
+      - UnityAds
+      - Chartboost
+      - AdColony
+  ExtraSettings:
+    UsersAreAnonymousByDefault: 0
