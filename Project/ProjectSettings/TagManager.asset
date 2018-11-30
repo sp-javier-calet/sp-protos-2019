@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - MultiplayerParent
+  - TooltipTrigger
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - GUILevel6
   - GUILevel7
   - GUILevel8
-  - GUITooltip
+  - 
   - 
   - 
   - 
