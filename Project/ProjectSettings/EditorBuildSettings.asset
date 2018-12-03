@@ -20,6 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BaseMainScene.unity
     guid: 55a5cd0863a2d4ed2a760efef9580f65
+  - enabled: 1
+    path: Assets/Scenes/TutorialScene.unity
+    guid: 9f25962184b4aec41bdb196dd8f28b9e
+  - enabled: 1
+    path: Assets/Scenes/BaseTutorialScene.unity
+    guid: 3af172dfe269ee74597ea5e49e07a3cd
   - enabled: 0
     path: Assets/Prototypes/Scenes/PrototypeMainScene.unity
     guid: 3a44bb7d1f4b148dfabac8b54b55d4cc
