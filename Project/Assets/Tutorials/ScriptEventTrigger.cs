@@ -1,0 +1,81 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Dependency;
+using SocialPoint.Lifecycle;
+using SocialPoint.ScriptEvents;
+using SocialPoint.Tutorial;
+using UnityEngine;
+
+public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
+{
+    public struct TutorialTriggerEvent
+    {
+    }
+    
+    public sealed class TutorialTriggerEventSerializer : BaseScriptEventSerializer<TutorialTriggerEvent>
+    {
+        public TutorialTriggerEventSerializer() : base("tutorial_trigger")
+        {
+        }
+
+        protected override Attr SerializeEvent(TutorialTriggerEvent ev)
+        {
+            return new AttrString(Name);
+        }
+    }
+        
+    private IEventProcessor _processor;
+    private TutorialManager _tutorialManager;
+    private bool _initialised;
+    private bool _triggerTutorial;
+    
+    void Start()
+    {   
+    }
+
+    void Update()
+    {
+        if(_initialised == false)
+        {
+            Init();
+            _initialised = true;
+        }
+
+        if(_triggerTutorial)
+        {
+            _processor.Process(new TutorialTriggerEvent());
+            _triggerTutorial = false;
+        }
+    }
+
+    void Init()
+    {
+        _tutorialManager = Services.Instance.Resolve<TutorialManager>();
+        _tutorialManager.TutorialCompleted += OnTutorialCompleted;
+        
+        var processor = Services.Instance.Resolve<IScriptEventProcessor>();
+        processor.RegisterBridge(this);
+    }
+
+    public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
+    {
+        _processor = processor;
+        scriptProcessor.RegisterSerializer(new TutorialTriggerEventSerializer());
+    }
+    
+    void OnTutorialCompleted(string tutorialName)
+    {
+        if(tutorialName.Equals("Example 1"))
+        {
+            // If we trigger the event that sets the new tutorial on the next frame
+            // Maybe we should have the option to queue new tutorials?!?
+            _triggerTutorial = true;
+        }
+    }
+    
+    public void Dispose()
+    {
+        _tutorialManager.TutorialCompleted -= OnTutorialCompleted;
+    }
+}

@@ -11,4 +11,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730f48ad43d633744b65a731eb48f360, type: 3}
   m_Name: Tutorials
   m_EditorClassIdentifier: 
-  Tutorials: []
+  Tutorials:
+  - Name: Example 1
+    Enabled: 1
+    Completed: 0
+    Steps:
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"Intro","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Wait
+        the amount specified in middle step\"}"}}'
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"Middle","Condition":{"TypeName":"SocialPoint.Tutorial.TimeCondition","Content":"{\"Time\":5.0}"}}'
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"New step","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Done
+        waiting\"}"}}'
+  - Name: Example 2
+    Enabled: 0
+    Completed: 0
+    Steps:
+    - TypeName: SocialPoint.Tutorial.MultiConditionStep
+      Content: '{"Name":"Disabled","Operator":1,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Alert
+        message 1\"}"},{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Alert
+        message 2\"}"}]}'
+  - Name: Example 3
+    Enabled: 1
+    Completed: 0
+    Steps:
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"Start message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"You
+        can click but you still need to wayt\"}"}}'
+    - TypeName: SocialPoint.Tutorial.MultiConditionStep
+      Content: '{"Name":"Multiple conditions","Operator":0,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Middle
+        step\"}"},{"TypeName":"SocialPoint.Tutorial.TimeCondition","Content":"{\"Time\":10.0}"}]}'
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"End message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Done
+        waiting\"}"}}'
+  - Name: Example 4
+    Enabled: 1
+    Completed: 0
+    Steps:
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"Trigger","Condition":{"TypeName":"SocialPoint.Tutorial.SceneStartTrigger","Content":"{\"SceneName\":\"TutorialScene\"}"}}'
+    - TypeName: SocialPoint.Tutorial.SingleConditionStep
+      Content: '{"Name":"Message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"This
+        is a tutorial triggered when scene was loaded!\"}"}}'
