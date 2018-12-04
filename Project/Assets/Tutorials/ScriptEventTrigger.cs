@@ -38,8 +38,12 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
     {
         if(_initialised == false)
         {
-            Init();
-            _initialised = true;
+            try
+            {
+                Init();
+                _initialised = true;
+            }
+            catch { /* Not exactly production code but works for a sample */ }
         }
 
         if(_triggerTutorial)
