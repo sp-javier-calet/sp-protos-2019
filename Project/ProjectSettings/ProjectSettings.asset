@@ -248,7 +248,7 @@ PlayerSettings:
   AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
   AndroidKeyaliasName: android
   AndroidBuildApkPerCpuArchitecture: 0
-  AndroidTVCompatibility: 1
+  AndroidTVCompatibility: 0
   AndroidIsGame: 1
   AndroidEnableTango: 0
   androidEnableBanner: 0
