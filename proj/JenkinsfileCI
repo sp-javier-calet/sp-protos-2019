@@ -1,0 +1,9 @@
+@Library('sptools')_
+
+spUnityIntegrationPipeline {
+    agentName = "unity_base_game"
+    onUpdate = {
+        sh "export"
+    }
+    disableAnalyze = true
+}
