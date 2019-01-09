@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${applicationId}" android:installLocation="preferExternal" android:versionCode="1" android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
-  <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="27" />
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
   <permission android:name="${applicationId}.permission.C2D_MESSAGE" android:protectionLevel="signature">
   </permission>
