@@ -19,3 +19,6 @@ MonoBehaviour:
   - BaseMainScene
   - TutorialScene
   - BaseTutorialScene
+  - UIScene
+  - UIScrollViewScene
+  - UITimelineScene

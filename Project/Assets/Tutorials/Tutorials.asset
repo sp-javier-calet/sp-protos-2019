@@ -15,6 +15,7 @@ MonoBehaviour:
   - Name: Example 1
     Enabled: 1
     Completed: 0
+    LastCheckpoint: 
     Steps:
     - TypeName: SocialPoint.Tutorial.SingleConditionStep
       Content: '{"Name":"Intro","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Wait
@@ -27,6 +28,7 @@ MonoBehaviour:
   - Name: Example 2
     Enabled: 0
     Completed: 0
+    LastCheckpoint: 
     Steps:
     - TypeName: SocialPoint.Tutorial.MultiConditionStep
       Content: '{"Name":"Disabled","Operator":1,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Alert
@@ -35,10 +37,11 @@ MonoBehaviour:
   - Name: Example 3
     Enabled: 1
     Completed: 0
+    LastCheckpoint: 
     Steps:
     - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Start message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"You
-        can click but you still need to wayt\"}"}}'
+      Content: '{"Name":"Start message","Checkpoint":false,"Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"You
+        can click but you still need to wait\"}"}}'
     - TypeName: SocialPoint.Tutorial.MultiConditionStep
       Content: '{"Name":"Multiple conditions","Operator":0,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Middle
         step\"}"},{"TypeName":"SocialPoint.Tutorial.TimeCondition","Content":"{\"Time\":10.0}"}]}'
@@ -48,9 +51,8 @@ MonoBehaviour:
   - Name: Example 4
     Enabled: 1
     Completed: 0
+    LastCheckpoint: 
     Steps:
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Trigger","Condition":{"TypeName":"SocialPoint.Tutorial.SceneStartTrigger","Content":"{\"SceneName\":\"TutorialScene\"}"}}'
     - TypeName: SocialPoint.Tutorial.SingleConditionStep
       Content: '{"Name":"Message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"This
         is a tutorial triggered when scene was loaded!\"}"}}'

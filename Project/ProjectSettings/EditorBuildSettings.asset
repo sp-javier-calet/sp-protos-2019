@@ -29,16 +29,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Prototypes/Scenes/PrototypeMainScene.unity
     guid: 3a44bb7d1f4b148dfabac8b54b55d4cc
-  - enabled: 0
+  - enabled: 1
     path: Assets/Examples/FullUI/UIScene.unity
     guid: 5a364a2f22cb041a884a7e4f16acf150
   - enabled: 0
     path: Assets/Examples/CubeMainScene.unity
     guid: 5de5f859a26b2436293e453d23fc8558
-  - enabled: 0
+  - enabled: 1
     path: Assets/Examples/FullUI/UIScrollViewScene.unity
     guid: af0b165cd216048fd977c715928dd697
-  - enabled: 0
+  - enabled: 1
     path: Assets/Examples/FullUI/UITimelineScene.unity
     guid: e0ede4a810f5e4154b9bbc703f07c4fa
   - enabled: 0

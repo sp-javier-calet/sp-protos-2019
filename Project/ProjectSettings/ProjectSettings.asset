@@ -248,7 +248,7 @@ PlayerSettings:
   AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
   AndroidKeyaliasName: android
   AndroidBuildApkPerCpuArchitecture: 0
-  AndroidTVCompatibility: 1
+  AndroidTVCompatibility: 0
   AndroidIsGame: 1
   AndroidEnableTango: 0
   androidEnableBanner: 0
@@ -922,7 +922,10 @@ PlayerSettings:
   allowUnsafeCode: 0
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
-  apiCompatibilityLevelPerPlatform: {}
+  apiCompatibilityLevelPerPlatform:
+    Android: 6
+    Standalone: 6
+    iOS: 6
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Project
