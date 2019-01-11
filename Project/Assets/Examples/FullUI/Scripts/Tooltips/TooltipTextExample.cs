@@ -7,9 +7,14 @@ public class TooltipTextExample : SPTooltipViewController
     [SerializeField]
     Text _infoText;
 
-    public override void SetTooltipInfo()
+    public override void SetTooltipInfo(BaseTooltipData data)
     {
-        _infoText.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget efficitur dolor. Proin et neque nisl. Sed eget ligula lacinia, maximus velit quis, sagittis leo. Aliquam id ultricies justo, sed ornare lacus. Nunc tempor felis in orci varius semper vitae eleifend mi.";
+        var tooltipData = data as SimpleTooltipData;
+        if(tooltipData == null)
+        {
+            return;
+        }
+        
+        _infoText.text = tooltipData.Text;
     }
-
 }

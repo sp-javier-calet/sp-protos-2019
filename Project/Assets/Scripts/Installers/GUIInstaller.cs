@@ -4,21 +4,18 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
-using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
-using SocialPoint.Attributes;
 using SocialPoint.Hardware;
-
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
     const string kUIViewUnitySuffix = "Unity";
-    const string kUIViewControllerSuffix = "Controller";
+    const string kUIControllerSuffix = "Controller";
+    const string kUIViewSuffix = "View";
     const string kGUIRootPrefab = "GUI_Root";
-    const string kUIViewControllerExamplePrefix = "GUI_";
-    const string kPersistentTag = "persistent";
+    const string kUIViewControllerPrefix = "GUI_";
 
     const float DefaultAnimationTime = 1.0f;
 
@@ -38,7 +35,9 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     IDeviceInfo _deviceInfo;
     IAppEvents _appEvents;
 
-    #region IInitializable implementation
+    static StringBuilder _stringBuilder = new StringBuilder();
+
+#region IInitializable implementation
 
     public void Initialize(IResolutionContainer container)
     {
@@ -47,14 +46,9 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         {
             _stackController.AppEvents = _appEvents;
         }
-        _deviceInfo = container.Resolve<IDeviceInfo>();
-        if(_uiTooltipController != null)
-        {
-            _uiTooltipController.DeviceInfo = _deviceInfo;
-        }
     }
 
-    #endregion
+#endregion
 
     public override void InstallBindings(IBindingContainer container)
     {
@@ -69,38 +63,30 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         _root = CreateRoot();
 
-        _stackController = _root.GetComponentInChildren<ScreensController>();
+        _stackController = _root.GetComponentInChildren<ScreensController>(true);
         if(_stackController != null)
         {
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             container.Bind<UIStackController>().ToInstance(_stackController);
         }
-
-        _uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
+        
+        _uiTooltipController = _root.GetComponentInChildren<UITooltipController>(true);
         if(_uiTooltipController != null)
         {
-            _uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+            var safeArea = _uiTooltipController.RT.GetComponent<UISafeAreaView>();
+            if(safeArea != null)
+            {
+                safeArea.ForceScreenBoundsDelta = true;
+                safeArea.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+                safeArea.UpdateSafeArea();
+            }
+
             container.Bind<UITooltipController>().ToInstance(_uiTooltipController);
         }
 
-        var layers = _root.GetComponentInChildren<UILayersController>();
-        if(layers != null)
-        {
-            container.Bind<UILayersController>().ToInstance(layers);
-            UIViewController.DefaultLayersController = layers;
-        }
-
-        var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
-        if(notifications != null)
-        {
-            container.Bind<HUDNotificationsController>().ToInstance(notifications);
-        }
-
+        container.Bind<HUDNotificationsController>().ToMethod(CreateHUDNotificationsController);
         container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
-
     }
-
-
 
     void ShowCloseAppAlertView()
     {
@@ -152,17 +138,24 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     {
         var name = type.Name;
         name = name.Replace(kUIViewUnitySuffix, string.Empty);
-        name = name.Replace(kUIViewControllerSuffix, string.Empty);
+        name = name.Replace(kUIViewSuffix, string.Empty);
+        name = name.Replace(kUIControllerSuffix, string.Empty);
 
-        StringBuilder stringBuilder = StringUtils.StartBuilder();
-        stringBuilder.Append(kUIViewControllerExamplePrefix);
-        stringBuilder.Append(name);
-        return StringUtils.FinishBuilder(stringBuilder);
+        _stringBuilder.Length = 0;
+        _stringBuilder.Append(kUIViewControllerPrefix);
+        _stringBuilder.Append(name);
+
+        return _stringBuilder.ToString();
+    }
+
+    HUDNotificationsController CreateHUDNotificationsController(IResolutionContainer container)
+    {
+        return _root.GetComponentInChildren<HUDNotificationsController>(true);;
     }
 
     public void Dispose()
     {
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate) null);
         Destroy(_root);
     }
 }
