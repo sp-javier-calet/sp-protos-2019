@@ -11,48 +11,370 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730f48ad43d633744b65a731eb48f360, type: 3}
   m_Name: Tutorials
   m_EditorClassIdentifier: 
-  Tutorials:
-  - Name: Example 1
-    Enabled: 1
-    Completed: 0
-    LastCheckpoint: 
-    Steps:
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Intro","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Wait
-        the amount specified in middle step\"}"}}'
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Middle","Condition":{"TypeName":"SocialPoint.Tutorial.TimeCondition","Content":"{\"Time\":5.0}"}}'
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"New step","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Done
-        waiting\"}"}}'
-  - Name: Example 2
-    Enabled: 0
-    Completed: 0
-    LastCheckpoint: 
-    Steps:
-    - TypeName: SocialPoint.Tutorial.MultiConditionStep
-      Content: '{"Name":"Disabled","Operator":1,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Alert
-        message 1\"}"},{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Alert
-        message 2\"}"}]}'
-  - Name: Example 3
-    Enabled: 1
-    Completed: 0
-    LastCheckpoint: 
-    Steps:
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Start message","Checkpoint":false,"Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"You
-        can click but you still need to wait\"}"}}'
-    - TypeName: SocialPoint.Tutorial.MultiConditionStep
-      Content: '{"Name":"Multiple conditions","Operator":0,"Conditions":[{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Middle
-        step\"}"},{"TypeName":"SocialPoint.Tutorial.TimeCondition","Content":"{\"Time\":10.0}"}]}'
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"End message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"Done
-        waiting\"}"}}'
-  - Name: Example 4
-    Enabled: 1
-    Completed: 0
-    LastCheckpoint: 
-    Steps:
-    - TypeName: SocialPoint.Tutorial.SingleConditionStep
-      Content: '{"Name":"Message","Condition":{"TypeName":"SocialPoint.Tutorial.AlertCondition","Content":"{\"AlertMessage\":\"This
-        is a tutorial triggered when scene was loaded!\"}"}}'
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: Tutorials
+      Entry: 7
+      Data: 0|System.Collections.Generic.List`1[[SocialPoint.Tutorial.TutorialData,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: 1|SocialPoint.Tutorial.TutorialData, Assembly-CSharp-firstpass
+    - Name: Name
+      Entry: 1
+      Data: Example 1
+    - Name: Enabled
+      Entry: 5
+      Data: true
+    - Name: Completed
+      Entry: 5
+      Data: false
+    - Name: LastCheckpoint
+      Entry: 1
+      Data: 
+    - Name: Steps
+      Entry: 7
+      Data: 2|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ITutorialStep,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 3|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: Intro
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 4|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Wait the amount specified in middle step
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 5|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: Middle
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 6|SocialPoint.Tutorial.TimeCondition, Assembly-CSharp
+    - Name: Time
+      Entry: 4
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 7|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: New step
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 8|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Done waiting
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 9|SocialPoint.Tutorial.TutorialData, Assembly-CSharp-firstpass
+    - Name: Name
+      Entry: 1
+      Data: New tutorial
+    - Name: Enabled
+      Entry: 5
+      Data: false
+    - Name: Completed
+      Entry: 5
+      Data: false
+    - Name: LastCheckpoint
+      Entry: 1
+      Data: 
+    - Name: Steps
+      Entry: 7
+      Data: 10|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ITutorialStep,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 11|SocialPoint.Tutorial.MultiConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: Disabled
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condOperator
+      Entry: 3
+      Data: 1
+    - Name: conditions
+      Entry: 7
+      Data: 12|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ICondition,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 13|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Alert message 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 14|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Alert message 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 15|SocialPoint.Tutorial.TutorialData, Assembly-CSharp-firstpass
+    - Name: Name
+      Entry: 1
+      Data: Example 3
+    - Name: Enabled
+      Entry: 5
+      Data: true
+    - Name: Completed
+      Entry: 5
+      Data: false
+    - Name: LastCheckpoint
+      Entry: 1
+      Data: 
+    - Name: Steps
+      Entry: 7
+      Data: 16|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ITutorialStep,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 17|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: Start Message
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 18|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: You can click but you still need to wait
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 19|SocialPoint.Tutorial.MultiConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: Multiple Conditions
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condOperator
+      Entry: 3
+      Data: 0
+    - Name: conditions
+      Entry: 7
+      Data: 20|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ICondition,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 21|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Middle Step
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 22|SocialPoint.Tutorial.TimeCondition, Assembly-CSharp
+    - Name: Time
+      Entry: 4
+      Data: 10
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 23|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: End Message
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 24|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
+    - Name: AlertMessage
+      Entry: 1
+      Data: Done waiting
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 25|SocialPoint.Tutorial.TutorialData, Assembly-CSharp-firstpass
+    - Name: Name
+      Entry: 1
+      Data: Example 4
+    - Name: Enabled
+      Entry: 5
+      Data: true
+    - Name: Completed
+      Entry: 5
+      Data: false
+    - Name: LastCheckpoint
+      Entry: 1
+      Data: 
+    - Name: Steps
+      Entry: 7
+      Data: 26|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ITutorialStep,
+        Assembly-CSharp-firstpass]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 27|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
+    - Name: name
+      Entry: 1
+      Data: New step
+    - Name: checkpoint
+      Entry: 5
+      Data: false
+    - Name: condition
+      Entry: 7
+      Data: 28|SocialPoint.Tutorial.SceneChangedTrigger, Assembly-CSharp
+    - Name: NewSceneName
+      Entry: 1
+      Data: new_scene_name
+    - Name: OldSceneName
+      Entry: 1
+      Data: old_scene_name
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
