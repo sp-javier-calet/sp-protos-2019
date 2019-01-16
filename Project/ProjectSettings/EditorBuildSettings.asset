@@ -10,7 +10,7 @@ EditorBuildSettings:
     guid: 9150cf06fcb48449ba6c690d1dfbb921
   - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
-    guid: 3f8a84ccbb66e4123b406d5efa5f9edd
+    guid: 6db6bc6b0983b4d23b40d32f0164b9a7
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: d6cabfcfa7b384aa9b375af2bbda9ef3
@@ -19,7 +19,7 @@ EditorBuildSettings:
     guid: 55a5cd0863a2d4ed2a760efef9580f65
   - enabled: 1
     path: Assets/Scenes/TutorialScene.unity
-    guid: 3af172dfe269ee74597ea5e49e07a3cd
+    guid: c5ac369cfd8eb4fd0815033c0f87a41c
   - enabled: 0
     path: Assets/Prototypes/Scenes/PrototypeMainScene.unity
     guid: 3a44bb7d1f4b148dfabac8b54b55d4cc
