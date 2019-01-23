@@ -10,7 +10,7 @@ using SocialPoint.Login;
 using SocialPoint.Restart;
 using SocialPoint.ServerSync;
 using SocialPoint.Social;
-
+using UnityEngine;
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
 #endif
@@ -20,8 +20,8 @@ public class GameInstaller : Installer, IInitializable
     [Serializable]
     public class SettingsData
     {
-        public string InitialJsonGameResource = "game";
-        public string InitialJsonPlayerResource = "user";
+        public TextAsset InitialJsonGameConfigResource;
+        public TextAsset InitialJsonPlayerModelResource;
         public bool EditorDebug = true;
         public bool LoadLocalJson;
     }
@@ -80,8 +80,8 @@ public class GameInstaller : Installer, IInitializable
     GameLoader CreateGameLoader(IResolutionContainer container)
     {
         return new GameLoader(
-            Settings.InitialJsonGameResource,
-            Settings.InitialJsonPlayerResource,
+            Settings.InitialJsonGameConfigResource,
+            Settings.InitialJsonPlayerModelResource,
             container.Resolve<IAttrObjParser<GameModel>>(),
             container.Resolve<IAttrObjParser<ConfigModel>>(),
             container.Resolve<IAttrObjParser<PlayerModel>>(),

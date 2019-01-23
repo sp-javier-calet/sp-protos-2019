@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Name: ScriptEventsInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
+  Settings:
+    ScriptFiles:
+    - {fileID: 4900000, guid: 237c80140d07d4164b8aba50b71d6f02, type: 3}

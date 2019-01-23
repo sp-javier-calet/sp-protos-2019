@@ -1,22 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using UnityEngine;
-using System.Text;
 using SocialPoint.Base;
 using SocialPoint.Hardware;
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
-    const string kUIViewUnitySuffix = "Unity";
-    const string kUIControllerSuffix = "Controller";
-    const string kUIViewSuffix = "View";
-    const string kGUIRootPrefab = "GUI_Root";
-    const string kUIViewControllerPrefix = "GUI_";
-
     const float DefaultAnimationTime = 1.0f;
 
     [Serializable]
@@ -25,6 +19,9 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         public float PopupAnimationTime = DefaultAnimationTime;
         public float TooltipAnimationTime = DefaultAnimationTime;
         public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
+
+        public GameObject GUIRootPrefab;
+        public List<GameObject> Prefabs;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -34,8 +31,6 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     UITooltipController _uiTooltipController;
     IDeviceInfo _deviceInfo;
     IAppEvents _appEvents;
-
-    static StringBuilder _stringBuilder = new StringBuilder();
 
 #region IInitializable implementation
 
@@ -56,7 +51,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         container.Bind<IDisposable>().ToInstance(this);
 
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefab);
 
         container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
         container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
@@ -69,7 +64,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             container.Bind<UIStackController>().ToInstance(_stackController);
         }
-        
+
         _uiTooltipController = _root.GetComponentInChildren<UITooltipController>(true);
         if(_uiTooltipController != null)
         {
@@ -102,7 +97,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _closeAppPopup.Title = "CLOSE APP";
             _closeAppPopup.Message = "Do you want to close this app?";
             _closeAppPopup.Input = false;
-            _closeAppPopup.Buttons = new []{ "YES", "NO" };
+            _closeAppPopup.Buttons = new[] {"YES", "NO"};
             _closeAppPopup.Show(result =>
             {
                 if(result == 0)
@@ -119,43 +114,51 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         }
     }
 
-    static GameObject CreateRoot()
+    GameObject CreateRoot()
     {
-        var root = Resources.Load<GameObject>(kGUIRootPrefab);
+        var root = Settings.GUIRootPrefab;
         if(root == null)
         {
             throw new InvalidOperationException("Could not load GUI root prefab.");
         }
 
         var rname = root.name;
-        root = Instantiate<GameObject>(root);
+        root = Instantiate(root);
         root.name = rname;
         DontDestroyOnLoad(root);
         return root;
     }
 
-    static string GetControllerFactoryPrefabName(Type type)
+
+    GameObject GetControllerFactoryPrefab(Type type)
     {
-        var name = type.Name;
-        name = name.Replace(kUIViewUnitySuffix, string.Empty);
-        name = name.Replace(kUIViewSuffix, string.Empty);
-        name = name.Replace(kUIControllerSuffix, string.Empty);
+        foreach(var prefab in Settings.Prefabs)
+        {
+            if(prefab == null)
+            {
+                continue;
+            }
 
-        _stringBuilder.Length = 0;
-        _stringBuilder.Append(kUIViewControllerPrefix);
-        _stringBuilder.Append(name);
+            var component = prefab.GetComponent(type);
+            if(component != null)
+            {
+                return prefab;
+            }
+        }
 
-        return _stringBuilder.ToString();
+        return null;
     }
 
     HUDNotificationsController CreateHUDNotificationsController(IResolutionContainer container)
     {
-        return _root.GetComponentInChildren<HUDNotificationsController>(true);;
+        return _root.GetComponentInChildren<HUDNotificationsController>(true);
+
+        ;
     }
 
     public void Dispose()
     {
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate) null);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
         Destroy(_root);
     }
 }
