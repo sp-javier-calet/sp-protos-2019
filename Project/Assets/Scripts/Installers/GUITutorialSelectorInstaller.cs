@@ -12,13 +12,13 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
         public GameObject InitialScreenPrefab;
         public TutorialDataList Tutorials;
     }
-    
+
     public SettingsData Settings = new SettingsData();
 
     public GUITutorialSelectorInstaller() : base(ModuleType.Game)
     {
     }
-    
+
     public override void InstallBindings(IBindingContainer container)
     {
         container.Bind<IInitializable>().ToInstance(this);
@@ -30,36 +30,26 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
         {
             return;
         }
-        
+
         var stackController = container.Resolve<UIStackController>();
         if(stackController == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");
         }
-        
+
         var tutorialManager = container.Resolve<TutorialManager>();
         if(tutorialManager == null)
         {
             throw new InvalidOperationException("Could not find tutorial manager for tutorials selector");
         }
-        
+
         var tutorialsList = Settings.Tutorials;
         if(tutorialsList == null || tutorialsList.Tutorials == null)
         {
             throw new InvalidOperationException("Invalid tutorial list");
         }
-        
-        foreach(var tutorial in tutorialsList.Tutorials)
-        {
-            foreach(var step in tutorial.Steps)
-            {
-                if(step.Object == null)
-                {
-                    throw new InvalidOperationException("Could not find tutorial step object");
-                }
-            }            
-            tutorialManager.Add(tutorial); 
-        }
+
+        tutorialManager.AddTutorials(tutorialsList.Tutorials);
 
         var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
         var ctrl = go.GetComponent<SelectorTutorialsController>();

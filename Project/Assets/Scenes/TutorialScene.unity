@@ -113,43 +113,43 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &322342894
+--- !u!1 &2121643190
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 322342896}
-  - component: {fileID: 322342895}
+  - component: {fileID: 2121643192}
+  - component: {fileID: 2121643191}
   m_Layer: 0
-  m_Name: Scene Loader
+  m_Name: DependencyConfigurer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &322342895
+--- !u!114 &2121643191
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 322342894}
+  m_GameObject: {fileID: 2121643190}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86700080503e9418fbdf1fbc45c4b18e, type: 3}
+  m_Script: {fileID: 11500000, guid: 34c82a095a81d42d1ad1c2ad5d4132e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scenes:
-  - BaseTutorialScene
---- !u!4 &322342896
+  Installers:
+  - {fileID: 11400000, guid: c296f550f061c5e4ea0c00d34926c9de, type: 2}
+--- !u!4 &2121643192
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 322342894}
+  m_GameObject: {fileID: 2121643190}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10000, y: 10000, z: 10200.014}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
