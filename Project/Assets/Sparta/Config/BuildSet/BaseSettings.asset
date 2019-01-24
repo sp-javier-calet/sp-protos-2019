@@ -16,6 +16,7 @@ MonoBehaviour:
     Version: 1.0
     BuildNumber: 1611111111
     OverrideBuild: 0
+    UseIconFromPlayerSettings: 0
     IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
     OverrideIcon: 0
   Common:
@@ -35,6 +36,7 @@ MonoBehaviour:
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
     Exports: []
+    minimumTargetOsVersion: 9.0
   Android:
     BundleIdentifier: es.socialpoint.basegame
     Flags: 
