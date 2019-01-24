@@ -68,10 +68,10 @@ PlayerSettings:
   macRetinaSupport: 1
   runInBackground: 1
   captureSingleScreen: 0
-  muteOtherAudioSources: 0
+  muteOtherAudioSources: 1
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
-  deferSystemGesturesMode: 0
+  deferSystemGesturesMode: 15
   hideHomeButton: 0
   submitAnalytics: 0
   usePlayerLog: 1
@@ -164,7 +164,7 @@ PlayerSettings:
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 0
-  ForceInternetPermission: 0
+  ForceInternetPermission: 1
   ForceSDCardPermission: 0
   CreateWallpaper: 0
   APKExpansionFiles: 0
@@ -902,7 +902,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: SPARTA_LOG_INFO;ADMIN_PANEL
     4: SPARTA_LOG_INFO;ADMIN_PANEL;NO_GPGS;ODIN_INSPECTOR
-    7: SPARTA_LOG_INFO;ADMIN_PANEL
+    7: SPARTA_LOG_INFO;ADMIN_PANEL;ODIN_INSPECTOR
     13: NO_GPGS;ADMIN_PANEL;TB_DEBUG
     25: NO_GPGS;ADMIN_PANEL;TB_DEBUG
   platformArchitecture:
@@ -915,7 +915,9 @@ PlayerSettings:
     WebPlayer: 0
     iOS: 1
     tvOS: 1
-  il2cppCompilerConfiguration: {}
+  il2cppCompilerConfiguration:
+    Android: 1
+    iOS: 1
   incrementalIl2cppBuild:
     iOS: 0
     tvOS: 0
