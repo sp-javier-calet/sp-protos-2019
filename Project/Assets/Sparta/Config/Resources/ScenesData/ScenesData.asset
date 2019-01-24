@@ -17,3 +17,6 @@ MonoBehaviour:
   - BaseLoadingScene
   - MainScene
   - BaseMainScene
+  - UIScene
+  - UIScrollViewScene
+  - UITimelineScene
