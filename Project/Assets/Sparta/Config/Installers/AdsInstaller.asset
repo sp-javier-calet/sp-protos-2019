@@ -11,44 +11,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01bd266d1570841a9af81934326e0299, type: 3}
   m_Name: AdsInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
-  iOSSettings:
-    AppID: 44750
-    SecurityToken: 5737bde09f69b1d7eadac4aae5f38880
-    VideoAdsSegments:
-      Parameter: VA_Adapter
-      DefaultSegment: All
+  _isGlobal: 1
+  CurrentEnvironment: IRONSOURCE_TEST_APP
+  Environments:
+  - Name: IRONSOURCE_TEST_APP
+    iOSSettings:
+      AppKey: 7d43d435
+      DefaultSegment: all
       Segments:
-      - All
-      - UnityAds
-      - AdColony
-      - Chartboost
-    InterstitialSegments:
-      Parameter: IA_Adapter
-      DefaultSegment: All
+      - all
+      - adcolony
+      - admob
+      - facebook
+      - hyprmx
+      - ironsource
+      - tapjoy
+      - unityads
+      - vungle
+    AndroidSettings:
+      AppKey: 7d4566ed
+      DefaultSegment: all
       Segments:
-      - All
-      - Chartboost
-      - UnityAds
-      - AdColony
-  AndroidSettings:
-    AppID: 44745
-    SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
-    VideoAdsSegments:
-      Parameter: VA_Adapter
-      DefaultSegment: All
-      Segments:
-      - All
-      - Chartboost
-      - AdColony
-      - UnityAds
-    InterstitialSegments:
-      Parameter: IA_Adapter
-      DefaultSegment: All
-      Segments:
-      - All
-      - UnityAds
-      - Chartboost
-      - AdColony
+      - all
+      - adcolony
+      - admob
+      - facebook
+      - hyprmx
+      - ironsource
+      - tapjoy
+      - unityads
+      - vungle
+  - Name: IRONSOURCE_DC_APP
+    iOSSettings:
+      AppKey: 2f8037f5
+      DefaultSegment: all
+      Segments: []
+    AndroidSettings:
+      AppKey: 2f7f184d
+      DefaultSegment: all
+      Segments: []
   ExtraSettings:
+    EnableRewardedVideos: 1
+    EnableInterstitials: 1
+    EnableOfferWall: 1
+    EnableBanners: 1
     UsersAreAnonymousByDefault: 0
