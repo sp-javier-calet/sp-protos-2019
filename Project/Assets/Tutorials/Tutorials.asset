@@ -52,13 +52,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 3|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: Intro
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 4|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
     - Name: AlertMessage
@@ -73,13 +73,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 5|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: Middle
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 6|SocialPoint.Tutorial.TimeCondition, Assembly-CSharp
     - Name: Time
@@ -94,13 +94,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 7|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: New step
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 8|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
     - Name: AlertMessage
@@ -126,7 +126,7 @@ MonoBehaviour:
       Data: 9|SocialPoint.Tutorial.TutorialData, Assembly-CSharp-firstpass
     - Name: Name
       Entry: 1
-      Data: New tutorial
+      Data: Example 2
     - Name: Enabled
       Entry: 5
       Data: false
@@ -146,16 +146,16 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 11|SocialPoint.Tutorial.MultiConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: Disabled
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condOperator
+    - Name: _operator
       Entry: 3
-      Data: 1
-    - Name: conditions
+      Data: 0
+    - Name: _conditions
       Entry: 7
       Data: 12|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ICondition,
         Assembly-CSharp-firstpass]], mscorlib
@@ -223,13 +223,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 17|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: Start Message
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 18|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
     - Name: AlertMessage
@@ -244,16 +244,16 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 19|SocialPoint.Tutorial.MultiConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: Multiple Conditions
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condOperator
+    - Name: _operator
       Entry: 3
       Data: 0
-    - Name: conditions
+    - Name: _conditions
       Entry: 7
       Data: 20|System.Collections.Generic.List`1[[SocialPoint.Tutorial.ICondition,
         Assembly-CSharp-firstpass]], mscorlib
@@ -290,13 +290,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 23|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: End Message
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 24|SocialPoint.Tutorial.AlertCondition, Assembly-CSharp
     - Name: AlertMessage
@@ -342,13 +342,13 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 27|SocialPoint.Tutorial.SingleConditionStep, Assembly-CSharp-firstpass
-    - Name: name
+    - Name: _name
       Entry: 1
       Data: New step
-    - Name: checkpoint
+    - Name: _checkpoint
       Entry: 5
       Data: false
-    - Name: condition
+    - Name: _condition
       Entry: 7
       Data: 28|SocialPoint.Tutorial.SceneChangedTrigger, Assembly-CSharp
     - Name: NewSceneName
