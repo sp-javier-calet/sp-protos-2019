@@ -32,14 +32,14 @@ MonoBehaviour:
     EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: es.socialpoint.basegame
-    Flags: NO_GPGS
+    Flags: NO_GPGS;ODIN_INSPECTOR
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
     Exports: []
     minimumTargetOsVersion: 9.0
   Android:
     BundleIdentifier: es.socialpoint.basegame
-    Flags: 
+    Flags: ODIN_INSPECTOR
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
