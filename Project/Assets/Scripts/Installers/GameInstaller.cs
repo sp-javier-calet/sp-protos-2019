@@ -10,6 +10,8 @@ using SocialPoint.Login;
 using SocialPoint.Restart;
 using SocialPoint.ServerSync;
 using SocialPoint.Social;
+using SocialPoint.Tutorial;
+using SocialPoint.Utils;
 using UnityEngine;
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -51,6 +53,7 @@ public class GameInstaller : Installer, IInitializable
         #endif
 
         container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
+        container.Bind<TutorialManager>().ToMethod(CreateTutorialManager);
 
         container.Install(new EconomyInstaller());
     }
@@ -119,6 +122,10 @@ public class GameInstaller : Installer, IInitializable
             container.Resolve<PlayerModel>());
     }
 
+    TutorialManager CreateTutorialManager(IResolutionContainer container)
+    {
+        return new TutorialManager(container.Resolve<IUpdateScheduler>());
+    }
 
     /// <summary>
     /// Game must integrate data to implement an unique provider of player data

@@ -14,9 +14,9 @@ MonoBehaviour:
   _scenesNames:
   - IntroAnimation
   - LoadingScene
-  - BaseLoadingScene
   - MainScene
   - BaseMainScene
+  - TutorialScene
   - UIScene
   - UIScrollViewScene
   - UITimelineScene
