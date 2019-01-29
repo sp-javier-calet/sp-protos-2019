@@ -1,27 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using UnityEngine;
+using System.Text;
 using SocialPoint.Base;
 using SocialPoint.Hardware;
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
-    const float DefaultAnimationTime = 1.0f;
-
     [Serializable]
     public class SettingsData
     {
+        const float DefaultAnimationTime = 1.0f;
+
         public float PopupAnimationTime = DefaultAnimationTime;
         public float TooltipAnimationTime = DefaultAnimationTime;
         public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
 
         public GameObject GUIRootPrefab;
-        public List<GameObject> Prefabs;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -31,6 +30,8 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     UITooltipController _uiTooltipController;
     IDeviceInfo _deviceInfo;
     IAppEvents _appEvents;
+
+    static StringBuilder _stringBuilder = new StringBuilder();
 
 #region IInitializable implementation
 
@@ -51,7 +52,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         container.Bind<IDisposable>().ToInstance(this);
 
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefab);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
         container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
         container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
@@ -97,7 +98,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _closeAppPopup.Title = "CLOSE APP";
             _closeAppPopup.Message = "Do you want to close this app?";
             _closeAppPopup.Input = false;
-            _closeAppPopup.Buttons = new[] {"YES", "NO"};
+            _closeAppPopup.Buttons = new []{ "YES", "NO" };
             _closeAppPopup.Show(result =>
             {
                 if(result == 0)
@@ -119,46 +120,41 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         var root = Settings.GUIRootPrefab;
         if(root == null)
         {
-            throw new InvalidOperationException("Could not load GUI root prefab.");
+            throw new MissingReferenceException("Could not load GUI root prefab.");
         }
 
-        var rname = root.name;
         root = Instantiate(root);
-        root.name = rname;
         DontDestroyOnLoad(root);
         return root;
     }
 
-
-    GameObject GetControllerFactoryPrefab(Type type)
+    static string GetControllerFactoryPrefabName(Type type)
     {
-        foreach(var prefab in Settings.Prefabs)
-        {
-            if(prefab == null)
-            {
-                continue;
-            }
+        const string kUIViewUnitySuffix = "Unity";
+        const string kUIControllerSuffix = "Controller";
+        const string kUIViewSuffix = "View";
+        const string kUIViewControllerPrefix = "GUI_";
 
-            var component = prefab.GetComponent(type);
-            if(component != null)
-            {
-                return prefab;
-            }
-        }
+        var name = type.Name;
+        name = name.Replace(kUIViewUnitySuffix, string.Empty);
+        name = name.Replace(kUIViewSuffix, string.Empty);
+        name = name.Replace(kUIControllerSuffix, string.Empty);
 
-        return null;
+        _stringBuilder.Length = 0;
+        _stringBuilder.Append(kUIViewControllerPrefix);
+        _stringBuilder.Append(name);
+
+        return _stringBuilder.ToString();
     }
 
     HUDNotificationsController CreateHUDNotificationsController(IResolutionContainer container)
     {
-        return _root.GetComponentInChildren<HUDNotificationsController>(true);
-
-        ;
+        return _root.GetComponentInChildren<HUDNotificationsController>(true);;
     }
 
     public void Dispose()
     {
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate) null);
         Destroy(_root);
     }
 }
