@@ -299,7 +299,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _debugCanvases: 0
   Camera: {fileID: 2076968}
-  InitialOrderInLayer: 0
 --- !u!114 &11493638
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -927,8 +926,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2906fa00bfdc47ebb031721ea53f991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForceScreenBoundsDelta: 0
-  ScreenBoundsDelta: {x: 0, y: 0}
   ShowGizmos: 0
 --- !u!114 &114772946800073738
 MonoBehaviour:
