@@ -16,4 +16,4 @@ MonoBehaviour:
     PopupAnimationTime: 0.3
     TooltipAnimationTime: 0.2
     TooltipScreenBoundsDelta: {x: 20, y: 20}
-    GUIRootPrefab: {fileID: 111274, guid: 7e2694f53a8f841df9798bb2c995a956, type: 3}
+    GUIRootPrefab: {fileID: 111274, guid: 7e2694f53a8f841df9798bb2c995a956, type: 2}

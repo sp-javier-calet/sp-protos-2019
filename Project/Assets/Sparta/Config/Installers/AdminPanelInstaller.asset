@@ -14,6 +14,6 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     AdminPanelControllerPrefab: {fileID: 159350, guid: f4627a22ed64940a1b4baf4043ff2ab7,
-      type: 3}
+      type: 2}
     FloatingPanelControllerPrefab: {fileID: 159350, guid: 0fb7d4e6b4cf24dd59a684aa6b64253c,
-      type: 3}
+      type: 2}
