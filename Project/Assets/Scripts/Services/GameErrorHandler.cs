@@ -9,8 +9,13 @@ using UnityEngine;
 class GameErrorHandler : SocialPoint.GameLoading.GameErrorHandler
 {
     public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, IRestarter restarter, IHelpshift helpshift, bool debug) :
-    base(alert, locale, appEvents, restarter, helpshift)
+    base(alert, locale, appEvents, FindPopups, restarter, helpshift)
     {
         Debug = debug;
+    }
+
+    static UIStackController FindPopups()
+    {
+        return GameObject.FindObjectOfType<PopupsController>();
     }
 }
