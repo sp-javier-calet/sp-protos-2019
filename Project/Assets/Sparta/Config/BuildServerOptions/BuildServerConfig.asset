@@ -38,4 +38,4 @@ MonoBehaviour:
       SonarHostUrl: 
       SonarAuthToken: 
       SonarScannerPath: 
-    XcodeVersion: == 10.1
+    XcodeVersion: = 10.1
