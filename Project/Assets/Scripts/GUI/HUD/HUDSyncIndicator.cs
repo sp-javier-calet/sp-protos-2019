@@ -1,36 +1,36 @@
-﻿using UnityEngine;
+﻿using SocialPoint.Connectivity;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using SocialPoint.Dependency;
 using SocialPoint.ServerSync;
 
 public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    ICommandQueue _commandQueue;
+    ISessionConnectivity _connectivity;
 
     void Start()
     {
-        _commandQueue = Services.Instance.Resolve<ICommandQueue>();
-        if(_commandQueue != null)
+        _connectivity = Services.Instance.Resolve<ISessionConnectivity>();
+        if(_connectivity != null)
         {
-            _commandQueue.SyncChange += OnCommandQueueSyncChange;
+            _connectivity.ConnectivityChange += OnConnectivityChange;
         }
         gameObject.SetActive(false);
     }
 
     void OnDestroy()
     {
-        if(_commandQueue != null)
+        if(_connectivity != null)
         {
-            _commandQueue.SyncChange -= OnCommandQueueSyncChange;
+            _connectivity.ConnectivityChange -= OnConnectivityChange;
         }
     }
 
-    void OnCommandQueueSyncChange()
+    void OnConnectivityChange(ConnectivityStatus status)
     {
-        if(_commandQueue != null)
-        {
-            gameObject.SetActive(!_commandQueue.Synced);
-        }
+        bool enabled = (status == ConnectivityStatus.Connected);
+        gameObject.SetActive(enabled);
+
     }
 
     #region IPointerDownHandler implementation
@@ -45,9 +45,9 @@ public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if(_commandQueue != null)
+        if(_connectivity != null)
         {
-            _commandQueue.Send();
+            _connectivity.Reconnect();
         }
     }
 
