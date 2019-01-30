@@ -21,11 +21,21 @@ MonoBehaviour:
     DeployOptions:
       Common:
         HipchatRoomId: 3799352
+        SlackChannel: 
       Mad:
         ProjectName: Unity Base Game
         HipchatRoomId: 439918
+        SlackChannel: 
         ReportMessage: 
       Result:
         HipchatRoomId: 
+        SlackChannel: 
         Message: 
-    XcodeVersion: == 9.4.*
+    AnalyzeOptions:
+      SonarProjectKey: 
+      SonarProjectName: 
+      SonarProjectVersion: 
+      SonarHostUrl: 
+      SonarAuthToken: 
+      SonarScannerPath: 
+    XcodeVersion: = 10.1
