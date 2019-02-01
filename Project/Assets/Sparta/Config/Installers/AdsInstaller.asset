@@ -47,6 +47,7 @@ MonoBehaviour:
       Segments: []
   ExtraSettings:
     EnableRewardedVideos: 1
+    RewardedVideosLoadTimeout: 5
     EnableInterstitials: 1
     EnableOfferWall: 1
     EnableBanners: 1
