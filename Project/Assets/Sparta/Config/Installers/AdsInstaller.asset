@@ -12,12 +12,10 @@ MonoBehaviour:
   m_Name: AdsInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
-  CurrentEnvironment: IRONSOURCE_TEST_APP
   Environments:
   - Name: IRONSOURCE_TEST_APP
     iOSSettings:
       AppKey: 7d43d435
-      DefaultSegment: all
       Segments:
       - all
       - adcolony
@@ -30,7 +28,6 @@ MonoBehaviour:
       - vungle
     AndroidSettings:
       AppKey: 7d4566ed
-      DefaultSegment: all
       Segments:
       - all
       - adcolony
@@ -44,11 +41,9 @@ MonoBehaviour:
   - Name: IRONSOURCE_DC_APP
     iOSSettings:
       AppKey: 2f8037f5
-      DefaultSegment: all
       Segments: []
     AndroidSettings:
       AppKey: 2f7f184d
-      DefaultSegment: all
       Segments: []
   ExtraSettings:
     EnableRewardedVideos: 1
