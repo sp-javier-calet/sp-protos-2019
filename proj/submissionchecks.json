@@ -33,7 +33,7 @@
             "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
             "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
         },
-        "architectures": ["armeabi-v7a"],
+        "architectures": ["armeabi-v7a", "arm64-v8a"],
         "orientation": "fullSensor",
         "icons": {
             "ldpi": 36,
