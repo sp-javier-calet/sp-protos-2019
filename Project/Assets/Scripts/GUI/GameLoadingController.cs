@@ -73,7 +73,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
-        Login.NewUserStream = OnLoginNewUser;
+        Login.NewUserStreamEvent += OnLoginNewUser;
         Login.ConfirmLinkEvent += OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
@@ -147,7 +147,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnDisappearing()
     {
-        Login.NewUserStream = null;
+        Login.NewUserStreamEvent -= OnLoginNewUser;
         #if ADMIN_PANEL
         if(_adminPanel != null)
         {
