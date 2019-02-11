@@ -6,27 +6,27 @@ using SocialPoint.ServerSync;
 
 public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    ISessionConnectivity _connectivity;
+    IConnectivityWatcher _watcher;
 
     void Start()
     {
-        _connectivity = Services.Instance.Resolve<ISessionConnectivity>();
-        if(_connectivity != null)
+        _watcher = Services.Instance.Resolve<IConnectivityWatcher>();
+        if(_watcher != null)
         {
-            _connectivity.ConnectivityChange += OnConnectivityChange;
+            _watcher.ConnectivityChange += OnWatcherChange;
         }
         gameObject.SetActive(false);
     }
 
     void OnDestroy()
     {
-        if(_connectivity != null)
+        if(_watcher != null)
         {
-            _connectivity.ConnectivityChange -= OnConnectivityChange;
+            _watcher.ConnectivityChange -= OnWatcherChange;
         }
     }
 
-    void OnConnectivityChange(ConnectivityStatus status)
+    void OnWatcherChange(ConnectivityStatus status)
     {
         bool enabled = (status == ConnectivityStatus.Connected);
         gameObject.SetActive(enabled);
@@ -45,10 +45,7 @@ public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if(_connectivity != null)
-        {
-            _connectivity.Reconnect();
-        }
+        _watcher?.Reconnect();
     }
 
     #endregion
