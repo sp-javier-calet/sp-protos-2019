@@ -11,20 +11,16 @@ using SocialPoint.Hardware;
 
 public class GUIInstaller : Installer, IDisposable, IInitializable
 {
-    const string kUIViewUnitySuffix = "Unity";
-    const string kUIControllerSuffix = "Controller";
-    const string kUIViewSuffix = "View";
-    const string kGUIRootPrefab = "GUI_Root";
-    const string kUIViewControllerPrefix = "GUI_";
-
-    const float DefaultAnimationTime = 1.0f;
-
     [Serializable]
     public class SettingsData
     {
+        const float DefaultAnimationTime = 1.0f;
+
         public float PopupAnimationTime = DefaultAnimationTime;
         public float TooltipAnimationTime = DefaultAnimationTime;
         public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
+
+        public GameObject GUIRootPrefab;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -69,7 +65,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             container.Bind<UIStackController>().ToInstance(_stackController);
         }
-        
+
         _uiTooltipController = _root.GetComponentInChildren<UITooltipController>(true);
         if(_uiTooltipController != null)
         {
@@ -119,23 +115,26 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         }
     }
 
-    static GameObject CreateRoot()
+    GameObject CreateRoot()
     {
-        var root = Resources.Load<GameObject>(kGUIRootPrefab);
+        var root = Settings.GUIRootPrefab;
         if(root == null)
         {
-            throw new InvalidOperationException("Could not load GUI root prefab.");
+            throw new MissingReferenceException("Could not load GUI root prefab.");
         }
 
-        var rname = root.name;
-        root = Instantiate<GameObject>(root);
-        root.name = rname;
+        root = Instantiate(root);
         DontDestroyOnLoad(root);
         return root;
     }
 
     static string GetControllerFactoryPrefabName(Type type)
     {
+        const string kUIViewUnitySuffix = "Unity";
+        const string kUIControllerSuffix = "Controller";
+        const string kUIViewSuffix = "View";
+        const string kUIViewControllerPrefix = "GUI_";
+
         var name = type.Name;
         name = name.Replace(kUIViewUnitySuffix, string.Empty);
         name = name.Replace(kUIViewSuffix, string.Empty);
