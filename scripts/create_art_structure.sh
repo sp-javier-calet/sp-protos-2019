@@ -16,7 +16,6 @@ function create_3d_asset_type_folders
 	create_folder "Gfx3D/$1/Textures"
 	create_folder "Gfx3D/$1/Animations"
 	create_folder "Gfx3D/$1/Prefabs"
-	create_folder "Gfx3D/$1/Resources"
 }
 
 create_folder "Audio/Music"

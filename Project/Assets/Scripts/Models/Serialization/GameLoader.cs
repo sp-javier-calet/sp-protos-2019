@@ -3,6 +3,7 @@ using SocialPoint.IO;
 using SocialPoint.Login;
 using SocialPoint.Dependency;
 using System;
+using UnityEngine;
 
 public interface IGameLoader
 {
@@ -17,8 +18,8 @@ public interface IGameLoader
 
 public class GameLoader : IGameLoader
 {
-    readonly string _jsonGameResource;
-    readonly string _jsonPlayerResource;
+    readonly TextAsset _jsonGameConfigResource;
+    readonly TextAsset _jsonPlayerModelResource;
 
     readonly IAttrObjParser<GameModel> _gameParser;
     readonly IAttrObjParser<PlayerModel> _playerParser;
@@ -32,7 +33,7 @@ public class GameLoader : IGameLoader
     {
         get
         {
-            return string.Format("{0}/{1}.json", PathsManager.AppPersistentDataPath, _jsonPlayerResource);
+            return string.Format("{0}/{1}.json", PathsManager.AppPersistentDataPath, _jsonPlayerModelResource ? _jsonPlayerModelResource.name : string.Empty);
         }
     }
 
@@ -44,11 +45,11 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader(string jsonGameResource, string jsonPlayerResource, IAttrObjParser<GameModel> gameParser, IAttrObjParser<ConfigModel> configParser,
+    public GameLoader(TextAsset jsonGameConfigResource, TextAsset jsonPlayerModelResource, IAttrObjParser<GameModel> gameParser, IAttrObjParser<ConfigModel> configParser,
         IAttrObjParser<PlayerModel> playerParser, IAttrObjParser<ConfigPatch> configPatchParser, IAttrObjSerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
     {
-        _jsonGameResource = jsonGameResource;
-        _jsonPlayerResource = jsonPlayerResource;
+        _jsonGameConfigResource = jsonGameConfigResource;
+        _jsonPlayerModelResource = jsonPlayerModelResource;
         _gameParser = gameParser;
         _configParser = configParser;
         _playerParser = playerParser;
@@ -60,14 +61,24 @@ public class GameLoader : IGameLoader
 
     GameModel LoadInitialGame()
     {
-        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        if(_jsonGameConfigResource == null)
+        {
+            return null;
+        }
+
+        var json = _jsonGameConfigResource.text;
         var gameData = new JsonAttrParser().ParseString(json);
         return _gameParser.Parse(gameData);
     }
 
     ConfigModel LoadConfigModel()
     {
-        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        if(_jsonGameConfigResource == null)
+        {
+            return null;
+        }
+
+        var json = _jsonGameConfigResource.text;
         var gameData = new JsonAttrParser().ParseString(json);
 
         var configPatch = _configPatchParser.Parse(gameData.AsDic[GameParser.AttrKeyConfigPatch]);

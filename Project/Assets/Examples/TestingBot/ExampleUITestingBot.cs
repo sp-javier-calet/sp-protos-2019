@@ -1,19 +1,15 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using UnityEngine;
 using SocialPoint.TestingBot;
-using SocialPoint.EventSystems;
-using SocialPoint.Base;
-using UnityEngine.EventSystems;
-using System.Collections.Generic;
-using SocialPoint.Utils;
+using Random = UnityEngine.Random;
 
 public class ExampleUITestingBot : BaseTestingBot
 {
     const float _waitTime = 1.5f;
 
-    float _remainingWaitTime = 0f;
+    float _remainingWaitTime;
 
-    const string _testingBotView = "TestingBotView";
+    [SerializeField] GameObject _testingBotView;
 
     protected override void OnAwake()
     {
@@ -27,10 +23,21 @@ public class ExampleUITestingBot : BaseTestingBot
     {
         if(_view != null)
         {
-            GameObject.Destroy(_view);
+            Destroy(_view);
         }
-        var testingBotViewPrefab = Resources.Load<GameObject>(_testingBotView);
-        _view = GameObject.Instantiate<GameObject>(testingBotViewPrefab).GetComponent<TestingBotView>();
+
+        if(_testingBotView == null)
+        {
+            throw new ArgumentNullException("_testingBotView");
+        }
+
+        _view = Instantiate(_testingBotView).GetComponent<TestingBotView>();
+
+        if(_view == null)
+        {
+            throw new MissingComponentException("TestingBotView");
+        }
+
         _view.InputModule = inputModule;
     }
 
@@ -51,6 +58,7 @@ public class ExampleUITestingBot : BaseTestingBot
             var randomGO = clickableElements[Random.Range(0, clickableElements.Count)];
             ClickOnUIGameObject(randomGO);
         }
+
         _remainingWaitTime = _waitTime;
     }
 }
