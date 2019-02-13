@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b8c50d2082d645c3aceb27e81ea7913, type: 3}
   m_Name: RatingInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     UsesUntilPrompt: 20
     EventsUntilPrompt: -1

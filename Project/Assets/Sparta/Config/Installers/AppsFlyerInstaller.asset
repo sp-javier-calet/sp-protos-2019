@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4c585cd51404879a3a8eb9199dcf0a, type: 3}
   m_Name: AppsFlyerInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     ActiveOnIOS: 1
     IosAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3
