@@ -10,8 +10,8 @@
         "device_family": ["iphone", "ipad"],
         "provisioning_profile": "",
         "orientations": {
-            "iphone": ["landscape_right", "landscape_left"],
-            "ipad": ["landscape_right", "landscape_left"]
+            "iphone": ["portrait", "landscape_right", "landscape_left"],
+            "ipad": ["portrait", "landscape_right", "landscape_left"]
         },
         "icons": {
             "iphone": [40, 60, 20, 29, 58, 87, 120, 80, 180],
