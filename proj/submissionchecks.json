@@ -14,8 +14,8 @@
             "ipad": ["landscape_right", "landscape_left"]
         },
         "icons": {
-            "iphone": [57, 114, 120, 180],
-            "ipad": [57, 72, 76, 114, 120, 144, 152, 167, 180]
+            "iphone": [40, 60, 20, 29, 58, 87, 120, 80, 180],
+            "ipad": [20, 29, 40, 58, 60, 76, 80, 87, 120, 152, 167, 180]
         },
         "launch_images": [],
         "capabilities": ["armv7", "gamekit"],
