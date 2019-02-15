@@ -75,7 +75,7 @@ public class GameServicesInstaller : Installer
             container.Resolve<INotificationServices>(),
             container.Resolve<IAppEvents>(),
             container.Resolve<ICommandQueue>(),
-            container.Resolve<ILoginData>()
+            container.Resolve<IUserService>()
         );
     }
 

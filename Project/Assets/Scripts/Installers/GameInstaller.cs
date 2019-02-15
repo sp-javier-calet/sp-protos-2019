@@ -63,10 +63,7 @@ public class GameInstaller : Installer, IInitializable
         if(Settings.LoadLocalJson)
         {
             var loader = container.Resolve<IGameLoader>();
-            if(loader != null)
-            {
-                loader.Load(null);
-            }
+            loader?.Load(null);
         }
     }
 
@@ -91,7 +88,7 @@ public class GameInstaller : Installer, IInitializable
             container.Resolve<IAttrObjParser<ConfigPatch>>(),
             container.Resolve<IAttrObjSerializer<PlayerModel>>(),
             container.Resolve<GameModel>(),
-            container.Resolve<ILogin>());
+            container.Resolve<ILoginService>());
     }
 
     void SetupGameLoader(IResolutionContainer container, GameLoader loader)
@@ -118,7 +115,7 @@ public class GameInstaller : Installer, IInitializable
     PlayerDataProvider CreatePlayerData(IResolutionContainer container)
     {
         return new PlayerDataProvider(
-            container.Resolve<ILoginData>(),
+            container.Resolve<IUserService>(),
             container.Resolve<PlayerModel>());
     }
 
@@ -132,41 +129,23 @@ public class GameInstaller : Installer, IInitializable
     /// </summary>
     class PlayerDataProvider : IPlayerData
     {
-        ILoginData _loginData;
+        readonly IUserService _userService;
         readonly PlayerModel _playerModel;
 
-        public PlayerDataProvider(ILoginData loginData, PlayerModel playerModel)
+        public PlayerDataProvider(IUserService userService, PlayerModel playerModel)
         {
-            _loginData = loginData;
+            _userService = userService;
             _playerModel = playerModel;
         }
 
         #region IPlayerData implementation
 
-        public string Id
-        {
-            get
-            {
-                return _loginData.UserId.ToString();
-            }
-        }
+        public string Id => _userService.UserId.ToString();
 
-        public string Name
-        {
-            get
-            {
-                return "Player Name";
-            }
-        }
+        public string Name => "Player Name";
 
-        public int Level
-        {
-            get
-            {
-                return _playerModel.Level;
-            }
-        }
+        public int Level => _playerModel.Level;
 
-        #endregion
+#endregion
     }
 }

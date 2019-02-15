@@ -40,7 +40,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     {
         Application.targetFrameRate = 30;
 
-        Login = Services.Instance.Resolve<ILogin>();
+        LoginService = Services.Instance.Resolve<ILoginService>();
+        LinkingService = Services.Instance.Resolve<ILinkingService>();
         CrashReporter = Services.Instance.Resolve<ICrashReporter>();
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
@@ -73,8 +74,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
-        Login.NewUserStreamEvent += OnLoginNewUser;
-        Login.ConfirmLinkEvent += OnConfirmLinkEvent;
+        LoginService.NewUserStreamEvent += OnLoginNewUser;
+        LinkingService.ConfirmLinkEvent += OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
         {
@@ -147,7 +148,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnDisappearing()
     {
-        Login.NewUserStreamEvent -= OnLoginNewUser;
+        LoginService.NewUserStreamEvent -= OnLoginNewUser;
+        LinkingService.ConfirmLinkEvent -= OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
         {

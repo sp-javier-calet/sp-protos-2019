@@ -27,26 +27,15 @@ public class GameLoader : IGameLoader
     readonly IAttrObjParser<ConfigPatch> _configPatchParser;
     readonly IAttrObjSerializer<PlayerModel> _playerSerializer;
     readonly GameModel _gameModel;
-    readonly ILoginData _loginData;
+    readonly ILoginService _loginService;
 
-    public string PlayerJsonPath
-    {
-        get
-        {
-            return string.Format("{0}/{1}.json", PathsManager.AppPersistentDataPath, _jsonPlayerModelResource ? _jsonPlayerModelResource.name : string.Empty);
-        }
-    }
+    public string PlayerJsonPath =>
+        $"{PathsManager.AppPersistentDataPath}/{(_jsonPlayerModelResource ? _jsonPlayerModelResource.name : string.Empty)}.json";
 
-    public bool IsLocalGame
-    {
-        get
-        {
-            return _loginData == null || string.IsNullOrEmpty(_loginData.BaseUrl);
-        }
-    }
+    public bool IsLocalGame => _loginService == null || string.IsNullOrEmpty(_loginService.BaseUrl);
 
     public GameLoader(TextAsset jsonGameConfigResource, TextAsset jsonPlayerModelResource, IAttrObjParser<GameModel> gameParser, IAttrObjParser<ConfigModel> configParser,
-        IAttrObjParser<PlayerModel> playerParser, IAttrObjParser<ConfigPatch> configPatchParser, IAttrObjSerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
+        IAttrObjParser<PlayerModel> playerParser, IAttrObjParser<ConfigPatch> configPatchParser, IAttrObjSerializer<PlayerModel> playerSerializer, GameModel game, ILoginService loginService)
     {
         _jsonGameConfigResource = jsonGameConfigResource;
         _jsonPlayerModelResource = jsonPlayerModelResource;
@@ -56,7 +45,7 @@ public class GameLoader : IGameLoader
         _configPatchParser = configPatchParser;
         _playerSerializer = playerSerializer;
         _gameModel = game;
-        _loginData = loginData;
+        _loginService = loginService;
     }
 
     GameModel LoadInitialGame()
@@ -132,10 +121,8 @@ public class GameLoader : IGameLoader
         {
             throw new InvalidOperationException("Could not load the game.");
         }
-        else
-        {
-            _gameModel.Init();
-        }
+
+        _gameModel.Init();
 
         return _gameModel;
     }
@@ -164,7 +151,7 @@ public class GameLoader : IGameLoader
             SaveLocalGame();
             return null;
         }
-        if(_gameModel == null || _gameModel.Player == null)
+        if(_gameModel?.Player == null)
         {
             return null;
         }

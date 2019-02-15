@@ -5,8 +5,8 @@ using SocialPoint.Login;
 
 public class GameNotificationManager : NotificationManager
 {
-    public GameNotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue, ILoginData loginData) :
-        base(services, appEvents, commandQueue, loginData)
+    public GameNotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue, IUserService userService) :
+        base(services, appEvents, commandQueue, userService)
     {
     }
 
