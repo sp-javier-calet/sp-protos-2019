@@ -71,3 +71,6 @@ MonoBehaviour:
       Enable: 1
       PopupPrefab: {fileID: 1284587319342268, guid: 680537790e7bc4957bfa185f57a71e79,
         type: 2}
+    SessionConnectivity:
+      AllowOfflineSessions: 1
+      OfflineSessionTimeout: 120
