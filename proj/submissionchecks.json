@@ -33,7 +33,6 @@
             "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
             "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
         },
-        "architectures": ["armeabi-v7a"],
         "orientation": "fullSensor",
         "icons": {
             "ldpi": 36,
@@ -48,6 +47,12 @@
             "warning": 90
         },
         "main_activity": "es.socialpoint.unity.base.SPUnityActivity"
+    },
+    "android_arm64-v8a": {
+        "architectures": ["arm64-v8a"]
+    },
+    "android_armeabi-v7a": {
+        "architectures": ["armeabi-v7a"]
     },
     "android_google": {
     },
