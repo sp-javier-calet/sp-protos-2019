@@ -74,7 +74,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
-        LoginService.NewUserStreamEvent += OnLoginNewUser;
+        LoginService.NewGameDataStreamEvent += OnLoginNewGameData;
         LinkingService.ConfirmLinkEvent += OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
@@ -110,7 +110,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     }
     #endif
 
-    bool OnLoginNewUser(IStreamReader reader)
+    bool OnLoginNewGameData(IStreamReader reader)
     {
         var data = reader.ParseElement();
         _gameLoader.Load(data);
@@ -148,7 +148,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnDisappearing()
     {
-        LoginService.NewUserStreamEvent -= OnLoginNewUser;
+        LoginService.NewGameDataStreamEvent -= OnLoginNewGameData;
         LinkingService.ConfirmLinkEvent -= OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
