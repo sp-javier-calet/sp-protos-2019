@@ -51,3 +51,4 @@ MonoBehaviour:
       Alias: 
       Password: 
     UseAPKExpansionFile: 0
+    Add64BitsSupport: 1
