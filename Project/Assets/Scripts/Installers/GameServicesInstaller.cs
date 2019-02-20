@@ -5,16 +5,10 @@ using SocialPoint.Locale;
 using SocialPoint.Notifications;
 using SocialPoint.Social;
 
-public class GameServicesInstaller : Installer
+public class GameServicesInstaller : Installer, IInitializable
 {
     public override void InstallBindings(IBindingContainer container)
     {
-        // Notifications
-        container.Listen<INotificationManager>().Then(SetupNotificationsProvider);
-
-        // CrossPromotion
-        container.Listen<ICrossPromotionManager>().Then(SetupCrossPromotionManager);
-
         // Purchase store // TODO IVAN
         //container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
@@ -27,8 +21,20 @@ public class GameServicesInstaller : Installer
         container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
     }
 
-    static void SetupNotificationsProvider(IResolutionContainer container, INotificationManager manager)
+    public void Initialize(IResolutionContainer container)
     {
+        SetupNotificationsProvider(container);
+        SetupCrossPromotionManager(container);
+    }
+
+    static void SetupNotificationsProvider(IResolutionContainer container)
+    {
+        var manager = container.Resolve<INotificationManager>();
+        if(manager == null)
+        {
+            return;
+        }
+
         manager.NotificationsProvider += () =>
         {
             var notify = new Notification(10, Notification.OffsetType.None)
@@ -43,8 +49,14 @@ public class GameServicesInstaller : Installer
         };
     }
 
-    static void SetupCrossPromotionManager(IResolutionContainer container, ICrossPromotionManager manager)
+    static void SetupCrossPromotionManager(IResolutionContainer container)
     {
+        var manager = container.Resolve<ICrossPromotionManager>();
+        if(manager == null)
+        {
+            return;
+        }
+
         manager.PopupController = container.Resolve<PopupsController>();
     }
 
