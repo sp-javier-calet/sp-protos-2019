@@ -15,8 +15,4 @@ MonoBehaviour:
   - IntroAnimation
   - LoadingScene
   - MainScene
-  - BaseMainScene
   - TutorialScene
-  - UIScene
-  - UIScrollViewScene
-  - UITimelineScene

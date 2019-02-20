@@ -13,9 +13,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    InitialJsonGameConfigResource: {fileID: 4900000, guid: 2e2558fa59c4f44b8b783b2caeea5ebc,
-      type: 3}
-    InitialJsonPlayerModelResource: {fileID: 4900000, guid: 37d1cec55522c448bbf1bf72ff18abce,
-      type: 3}
     EditorDebug: 1
-    LoadLocalJson: 0

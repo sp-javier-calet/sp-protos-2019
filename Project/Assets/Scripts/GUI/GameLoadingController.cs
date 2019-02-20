@@ -16,7 +16,6 @@ using SocialPoint.AdminPanel;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
-    IGameLoader _gameLoader;
     ICoroutineRunner _coroutineRunner;
 
     #if ADMIN_PANEL
@@ -27,10 +26,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [SerializeField]
     string _sceneToLoad = "MainScene";
 
-    LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
 
-    const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
 
     AssetBundleManager _assetBundleManager;
@@ -49,7 +46,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
         _socialManager = Services.Instance.Resolve<SocialManager>();
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
-        _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
         #if ADMIN_PANEL
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
@@ -66,14 +62,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     protected override void OnAppeared()
     {
         base.OnAppeared();
-        _loadModelOperation = new LoadingOperation(ExpectedLoadModelDuration);
-        _loadModelOperation.Message = "loading game model...";
-        RegisterOperation(_loadModelOperation);
         _loadSceneOperation = new LoadingOperation(ExpectedLoadSceneDuration, OnLoadSceneStart);
         _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
-        Login.NewUserStreamEvent += OnLoginNewUser;
         Login.ConfirmLinkEvent += OnConfirmLinkEvent;
         #if ADMIN_PANEL
         if(_adminPanel != null)
@@ -109,23 +101,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     }
     #endif
 
-    bool OnLoginNewUser(IStreamReader reader)
-    {
-        var data = reader.ParseElement();
-        _gameLoader.Load(data);
-
-        if(data != null)
-        {
-            ParseSFLocalPlayerData(data);
-            ParseAssetBundlesData(data);
-        }
-
-        _loadModelOperation.Finish("game model loaded");
-        return true;
-    }
-
     void ParseSFLocalPlayerData(Attr data)
     {
+        // TODO IVAN move to installer...
         if(_socialManager != null)
         {
             _socialManager.SetLocalPlayerData(data.AsDic, Services.Instance.Resolve<IPlayerData>());
@@ -134,6 +112,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void ParseAssetBundlesData(Attr data)
     {
+        // TODO IVAN move to installer...
         if(_assetBundleManager != null)
         {
             _assetBundleManager.Init(data);
@@ -147,7 +126,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnDisappearing()
     {
-        Login.NewUserStreamEvent -= OnLoginNewUser;
         #if ADMIN_PANEL
         if(_adminPanel != null)
         {

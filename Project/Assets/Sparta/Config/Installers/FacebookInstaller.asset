@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0d4fa34ebde4004bb30558f940c11e, type: 3}
   m_Name: FacebookInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     UseEmpty: 0
     LoginLink: 1
