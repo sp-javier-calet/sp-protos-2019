@@ -6,4 +6,7 @@ spUnityIntegrationPipeline {
         sh "export"
     }
     disableAnalyze = true
+    environment = [
+        CONFIG: "Shipping"
+    ]
 }
