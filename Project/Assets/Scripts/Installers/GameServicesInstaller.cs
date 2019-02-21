@@ -43,8 +43,8 @@ public class GameServicesInstaller : Installer
         container.Bind<NotificationManager>().ToLookup<GameNotificationManager>();
         container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
 
-        // Purchase store
-        container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
+        // Purchase store // TODO IVAN
+        //container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
         // Social Framework - Game chat rooms
         container.Bind<ChatRoom<PublicChatMessage>>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom);

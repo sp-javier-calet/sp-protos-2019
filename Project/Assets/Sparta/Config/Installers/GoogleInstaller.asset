@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ec12ffd5e2df445c9db0ab4e8144342, type: 3}
   m_Name: GoogleInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     UseEmpty: 0
     LoginLink: 1

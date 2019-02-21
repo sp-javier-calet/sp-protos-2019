@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d07f792391e114ddb90ffcb907ce3eba, type: 3}
   m_Name: GameCenterInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     UseEmpty: 0
     LoginLink: 1
