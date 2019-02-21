@@ -48,3 +48,4 @@ MonoBehaviour:
       Alias: android
       Password: android
     UseAPKExpansionFile: 0
+    Add64BitsSupport: 0

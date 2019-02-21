@@ -8,11 +8,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51f7b573ebb414e3a8fed1ad65669296, type: 3}
-  m_Name: ScenesData
+  m_Script: {fileID: 11500000, guid: c34e090dc6024452d89343851fe449dd, type: 3}
+  m_Name: GameConfig
   m_EditorClassIdentifier: 
-  _scenesNames:
-  - IntroAnimation
-  - LoadingScene
-  - MainScene
-  - TutorialScene

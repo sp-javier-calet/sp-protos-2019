@@ -1,0 +1,56 @@
+{
+  "byplatform": {
+    "ios": {
+      "byconfig": {
+        "Debug": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES;"
+        },
+        "Release": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL;;"
+        },
+        "Shipping": {
+          "buildvars": "ODIN_INSPECTOR;;;;"
+        }
+      }
+    },
+    "android": {
+      "byconfig": {
+        "Debug": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES;"
+        },
+        "Release": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL;;"
+        },
+        "Shipping": {
+          "buildvars": "ODIN_INSPECTOR;;;;"
+        }
+      }
+    },
+    "macos": {
+      "byconfig": {
+        "Debug": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES"
+        },
+        "Release": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL;"
+        },
+        "Shipping": {
+          "buildvars": "ODIN_INSPECTOR;;;"
+        }
+      }
+    },
+    "windows": {
+      "byconfig": {
+        "Debug": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES"
+        },
+        "Release": {
+          "buildvars": "ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL;"
+        },
+        "Shipping": {
+          "buildvars": "ODIN_INSPECTOR;;;"
+        }
+      }
+    }
+  }
+}
