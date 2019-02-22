@@ -8,12 +8,12 @@ public class HUDPlayerLevel: MonoBehaviour, IPointerClickHandler
     [SerializeField]
     Text _level;
 
-    PlayerModel _player;
+    //PlayerModel _player;  // TODO IVAN
 
     void Start()
     {
-        _player = Services.Instance.Resolve<PlayerModel>();
-        _level.text = _player.Level.ToString();
+        //_player = Services.Instance.Resolve<PlayerModel>();
+        //_level.text = _player.Level.ToString();
     }
 
     #region IPointerClickHandler implementation
