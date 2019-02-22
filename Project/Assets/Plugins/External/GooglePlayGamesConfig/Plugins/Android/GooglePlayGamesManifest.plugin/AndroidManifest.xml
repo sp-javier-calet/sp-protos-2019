@@ -6,6 +6,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-sdk android:minSdkVersion="14" />
 
      
 
@@ -13,13 +14,13 @@
 
      
 
-        <!-- The space in these forces it to be interpreted as a string vs. int, but unity 2018.2 expects an int, so remove the extra space -->
+        <!-- The space in these forces it to be interpreted as a string vs. int -->
         <meta-data android:name="com.google.android.gms.games.APP_ID"
-            android:value="\942387780338" />
+            android:value="\u003942387780338" />
 
         <!-- Keep track of which plugin is being used -->
         <meta-data android:name="com.google.android.gms.games.unityVersion"
-            android:value="\ 0.9.50" />
+            android:value="\u0030.9.61" />
 
         <activity android:name="com.google.games.bridge.NativeBridgeActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
