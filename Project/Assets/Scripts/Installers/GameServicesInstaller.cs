@@ -1,82 +1,63 @@
-﻿using System;
-using SocialPoint.AppEvents;
+﻿using System.Collections.Generic;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.Locale;
-using SocialPoint.Login;
 using SocialPoint.Notifications;
-using SocialPoint.Purchase;
-using SocialPoint.ServerSync;
 using SocialPoint.Social;
-using SocialPoint.Utils;
-using UnityEngine;
 
-public class GameServicesInstaller : Installer
+public class GameServicesInstaller : Installer, IInitializable
 {
-    [Serializable]
-    public class SettingsData
-    {
-
-        public CrossPromotionSettings CrossPromotion;
-    }
-
-    [Serializable]
-    public class CrossPromotionSettings
-    {
-        public GameObject ButtonPrefab;
-        public GameObject PopupPrefab;
-    }
-
-    public SettingsData Settings = new SettingsData();
-
-
     public override void InstallBindings(IBindingContainer container)
     {
-        // CrossPromotion
-        container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
-        container.Listen<GameCrossPromotionManager>().Then(SetupManager);
-        container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
-        container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
-
-        // Notifications
-        container.Bind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
-        container.Bind<NotificationManager>().ToLookup<GameNotificationManager>();
-        container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
-
         // Purchase store // TODO IVAN
         //container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
         // Social Framework - Game chat rooms
-        container.Bind<ChatRoom<PublicChatMessage>>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom);
+        container.Bind<ChatRoom<PublicChatMessage>>().ToMethod(CreatePublicChatRoom);
         container.Bind<IChatRoom>().ToLookup<ChatRoom<PublicChatMessage>>();
         container.Listen<ChatRoom<PublicChatMessage>>().Then(SetupPublicChatRoom);
-        container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom);
+        container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod(CreateAllianceChatRoom);
         container.Bind<IChatRoom>().ToLookup<ChatRoom<AllianceChatMessage>>();
         container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
     }
 
-    GameCrossPromotionManager CreateManager(IResolutionContainer container)
+    public void Initialize(IResolutionContainer container)
     {
-        return new GameCrossPromotionManager(
-            container.Resolve<ICoroutineRunner>(),
-            container.Resolve<INativeUtils>(),
-            container.Resolve<PopupsController>());
+        SetupNotificationsProvider(container);
+        SetupCrossPromotionManager(container);
     }
 
-    void SetupManager(IResolutionContainer container, GameCrossPromotionManager manager)
+    static void SetupNotificationsProvider(IResolutionContainer container)
     {
-        manager.ButtonPrefab = Settings.CrossPromotion.ButtonPrefab;
-        manager.PopupPrefab = Settings.CrossPromotion.PopupPrefab;
+        var manager = container.Resolve<INotificationManager>();
+        if(manager == null)
+        {
+            return;
+        }
+
+        manager.NotificationsProvider += () =>
+        {
+            var notify = new Notification(10, Notification.OffsetType.None)
+            {
+                Title = "Notification!", Message = "This is a notification manager notification."
+            };
+
+            return new List<Notification>
+            {
+                notify
+            };
+        };
     }
 
-    GameNotificationManager CreateNotificationManager(IResolutionContainer container)
+    static void SetupCrossPromotionManager(IResolutionContainer container)
     {
-        return new GameNotificationManager(
-            container.Resolve<INotificationServices>(),
-            container.Resolve<IAppEvents>(),
-            container.Resolve<ICommandQueue>(),
-            container.Resolve<ILoginData>()
-        );
+        var manager = container.Resolve<ICrossPromotionManager>();
+        if(manager == null)
+        {
+            return;
+        }
+
+        manager.PopupController = container.Resolve<PopupsController>();
     }
 
     ChatRoom<PublicChatMessage> CreatePublicChatRoom(IResolutionContainer container)
