@@ -10,12 +10,12 @@
         "device_family": ["iphone", "ipad"],
         "provisioning_profile": "",
         "orientations": {
-            "iphone": ["landscape_right", "landscape_left"],
-            "ipad": ["landscape_right", "landscape_left"]
+            "iphone": ["portrait", "landscape_right", "landscape_left"],
+            "ipad": ["portrait", "landscape_right", "landscape_left"]
         },
         "icons": {
-            "iphone": [57, 114, 120, 180],
-            "ipad": [57, 72, 76, 114, 120, 144, 152, 167, 180]
+            "iphone": [40, 60, 20, 29, 58, 87, 120, 80, 180],
+            "ipad": [20, 29, 40, 58, 60, 76, 80, 87, 120, 152, 167, 180]
         },
         "launch_images": [],
         "capabilities": ["armv7", "gamekit"],
@@ -33,7 +33,6 @@
             "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
             "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
         },
-        "architectures": ["armeabi-v7a"],
         "orientation": "fullSensor",
         "icons": {
             "ldpi": 36,
@@ -48,6 +47,12 @@
             "warning": 90
         },
         "main_activity": "es.socialpoint.unity.base.SPUnityActivity"
+    },
+    "android_arm64-v8a": {
+        "architectures": ["arm64-v8a"]
+    },
+    "android_armeabi-v7a": {
+        "architectures": ["armeabi-v7a"]
     },
     "android_google": {
     },

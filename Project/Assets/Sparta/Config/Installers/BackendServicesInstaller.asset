@@ -67,6 +67,9 @@ MonoBehaviour:
         XPromoIos: {fileID: 4900000, guid: 3345dfcefbc024b558f58e75ce62dc31, type: 3}
         XPromoTestFail: {fileID: 4900000, guid: da875ef9b79c54f49bd822969d8f1bf9,
           type: 3}
+      CrossPromotion:
+        ButtonPrefab: {fileID: 169414, guid: c708cb2176ced4497b6b8bae31a93f62, type: 2}
+        PopupPrefab: {fileID: 198162, guid: 777c79b6fceac4174bf5ede41e4c3e70, type: 2}
     UserAgreementService:
       Enable: 1
       PopupPrefab: {fileID: 1284587319342268, guid: 680537790e7bc4957bfa185f57a71e79,
