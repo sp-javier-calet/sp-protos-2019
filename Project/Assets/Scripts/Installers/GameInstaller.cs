@@ -1,104 +1,55 @@
 using System;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
-using SocialPoint.Attributes;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
 using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Restart;
-using SocialPoint.ServerSync;
 using SocialPoint.Social;
 using SocialPoint.Tutorial;
 using SocialPoint.Utils;
-using UnityEngine;
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+
 #endif
 
-public class GameInstaller : Installer, IInitializable
+public class GameInstaller : Installer
 {
     [Serializable]
     public class SettingsData
     {
-        public TextAsset InitialJsonGameConfigResource;
-        public TextAsset InitialJsonPlayerModelResource;
         public bool EditorDebug = true;
-        public bool LoadLocalJson;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings(IBindingContainer container)
     {
-        container.Bind<IInitializable>().ToInstance(this);
-
 #if UNITY_EDITOR
         container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
 #else
         container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
-        container.Install(new GameModelInstaller());
-
-        container.Bind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
+        container.Bind<IGameErrorHandler>().ToMethod(CreateErrorHandler);
         container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        container.Bind<GameLoader>().ToMethod<GameLoader>(CreateGameLoader);
-        container.Bind<IGameLoader>().ToLookup<GameLoader>();
-        container.Listen<GameLoader>().Then(SetupGameLoader);
-
-        #if ADMIN_PANEL
+#if ADMIN_PANEL
         container.BindAdminPanelConfigurer(CreateAdminPanel);
-        #endif
+#endif
 
-        container.Bind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
+        container.Bind<IPlayerData>().ToMethod(CreatePlayerData);
         container.Bind<TutorialManager>().ToMethod(CreateTutorialManager);
-
-        container.Install(new EconomyInstaller());
     }
 
-    public void Initialize(IResolutionContainer container)
-    {
-        if(Settings.LoadLocalJson)
-        {
-            var loader = container.Resolve<IGameLoader>();
-            loader?.Load(null);
-        }
-    }
-
-    #if ADMIN_PANEL
+#if ADMIN_PANEL
     AdminPanelGame CreateAdminPanel(IResolutionContainer container)
     {
         return new AdminPanelGame(
-            container.Resolve<IAppEvents>(),
-            container.Resolve<IGameLoader>(),
-            container.Resolve<GameModel>());
+            container.Resolve<IAppEvents>());
     }
-    #endif
-
-    GameLoader CreateGameLoader(IResolutionContainer container)
-    {
-        return new GameLoader(
-            Settings.InitialJsonGameConfigResource,
-            Settings.InitialJsonPlayerModelResource,
-            container.Resolve<IAttrObjParser<GameModel>>(),
-            container.Resolve<IAttrObjParser<ConfigModel>>(),
-            container.Resolve<IAttrObjParser<PlayerModel>>(),
-            container.Resolve<IAttrObjParser<ConfigPatch>>(),
-            container.Resolve<IAttrObjSerializer<PlayerModel>>(),
-            container.Resolve<GameModel>(),
-            container.Resolve<ILoginService>());
-    }
-
-    void SetupGameLoader(IResolutionContainer container, GameLoader loader)
-    {
-        var commandQueue = container.Resolve<ICommandQueue>();
-        if(commandQueue != null)
-        {
-            commandQueue.AutoSync = loader.OnAutoSync;
-        }
-    }
+#endif
 
     GameErrorHandler CreateErrorHandler(IResolutionContainer container)
     {
@@ -109,14 +60,12 @@ public class GameInstaller : Installer, IInitializable
             container.Resolve<IRestarter>(),
             container.Resolve<IHelpshift>(),
             container.Resolve<bool>("game_debug"));
-
     }
 
     PlayerDataProvider CreatePlayerData(IResolutionContainer container)
     {
         return new PlayerDataProvider(
-            container.Resolve<IUserService>(),
-            container.Resolve<PlayerModel>());
+            container.Resolve<IUserService>());
     }
 
     TutorialManager CreateTutorialManager(IResolutionContainer container)
@@ -130,21 +79,19 @@ public class GameInstaller : Installer, IInitializable
     class PlayerDataProvider : IPlayerData
     {
         readonly IUserService _userService;
-        readonly PlayerModel _playerModel;
 
-        public PlayerDataProvider(IUserService userService, PlayerModel playerModel)
+        public PlayerDataProvider(IUserService userService)
         {
             _userService = userService;
-            _playerModel = playerModel;
         }
 
-        #region IPlayerData implementation
+#region IPlayerData implementation
 
         public string Id => _userService.UserId.ToString();
 
         public string Name => "Player Name";
 
-        public int Level => _playerModel.Level;
+        public int Level => 0; // TODO IVAN
 
 #endregion
     }

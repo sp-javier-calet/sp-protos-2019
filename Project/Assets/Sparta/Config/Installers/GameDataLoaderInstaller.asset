@@ -11,6 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41918e00e5c540559167f86dc0453611, type: 3}
   m_Name: GameDataLoaderInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
-    DataLoader: {fileID: 0}
+    DataLoader: {fileID: 11400000, guid: 0061858b7045c42178e433008a37450b, type: 2}

@@ -125,6 +125,7 @@ PlayerSettings:
   m_HolographicPauseOnTrackingLoss: 1
   xboxOneDisableKinectGpuReservation: 0
   xboxOneEnable7thCore: 0
+  isWsaHolographicRemotingEnabled: 0
   vrSettings:
     cardboard:
       depthFormat: 0
@@ -247,7 +248,7 @@ PlayerSettings:
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
   AndroidKeyaliasName: android
-  AndroidBuildApkPerCpuArchitecture: 0
+  AndroidBuildApkPerCpuArchitecture: 1
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
   AndroidEnableTango: 0
@@ -754,6 +755,7 @@ PlayerSettings:
   switchAllowsVideoCapturing: 1
   switchAllowsRuntimeAddOnContentInstall: 0
   switchDataLossConfirmation: 0
+  switchUserAccountLockEnabled: 0
   switchSupportedNpadStyles: 3
   switchNativeFsCacheSize: 32
   switchIsHoldTypeHorizontal: 0
@@ -900,11 +902,9 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
   scriptingDefineSymbols:
-    1: SPARTA_LOG_INFO;ADMIN_PANEL
-    4: SPARTA_LOG_INFO;ADMIN_PANEL;NO_GPGS;ODIN_INSPECTOR
-    7: SPARTA_LOG_INFO;ADMIN_PANEL;ODIN_INSPECTOR
-    13: NO_GPGS;ADMIN_PANEL;TB_DEBUG
-    25: NO_GPGS;ADMIN_PANEL;TB_DEBUG
+    1: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
+    4: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
+    7: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
   platformArchitecture:
     iOS: 2
     tvOS: 1

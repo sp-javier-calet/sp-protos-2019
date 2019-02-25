@@ -20,7 +20,7 @@ MonoBehaviour:
     IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
     OverrideIcon: 0
   Common:
-    Flags: 
+    Flags: ODIN_INSPECTOR
     RebuildNativePlugins: 0
     DownloadLocalizations: 0
     IsDevelopmentBuild: 0
@@ -32,14 +32,14 @@ MonoBehaviour:
     EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: es.socialpoint.basegame
-    Flags: NO_GPGS;ODIN_INSPECTOR
+    Flags: 
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
     Exports: []
     minimumTargetOsVersion: 9.0
   Android:
     BundleIdentifier: es.socialpoint.basegame
-    Flags: ODIN_INSPECTOR
+    Flags: 
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
@@ -48,3 +48,4 @@ MonoBehaviour:
       Alias: android
       Password: android
     UseAPKExpansionFile: 0
+    Add64BitsSupport: 0
