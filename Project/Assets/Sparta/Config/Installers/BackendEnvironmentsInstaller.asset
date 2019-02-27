@@ -19,10 +19,10 @@ MonoBehaviour:
     DynamicEnvironmentEndpointPattern: http://{0}/api/v3
     Environments:
     - Name: Development
-      Url: http://stable.bb.dev.socialpointgames.com/api/v3
+      Url: http://stable-sparta.bb.dev.socialpointgames.com/api/v3
       Type: 4
     - Name: Production
-      Url: http://stable.bb.dev.socialpointgames.com/api/v3
+      Url: http://stable-sparta.bb.dev.socialpointgames.com/api/v3
       Type: 0
   Defaults:
     IosProductionEnvironment: Production
