@@ -77,11 +77,13 @@ def get_added_or_mod_source_files(fileStr):
     '''
     res = []
 
+    if isinstance(fileStr, bytes):
+        fileStr = fileStr.decode("utf-8")
     for line in fileStr.split('\n'):
         results = re.compile(r'^[MA]\s+(' + FILE_MATCH_RE + ')', re.M).finditer(line)
         while True:
             try:
-                result = results.next()
+                result = next(results)
             except StopIteration:
                 break
             # end try
