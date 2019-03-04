@@ -9,6 +9,8 @@ public class GameServicesInstaller : Installer, IInitializable
 {
     public override void InstallBindings(IBindingContainer container)
     {
+        container.Bind<IInitializable>().ToInstance(this);
+
         // Purchase store // TODO IVAN
         //container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
 
