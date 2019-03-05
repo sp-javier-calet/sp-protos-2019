@@ -44,19 +44,9 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
 
         _scenes = ScenesData.Instance.ScenesNames;
 
-        string entryScene = string.Empty;
 
-        var config = container.Resolve<ConfigLoginEnvironment>();
-        if(config != null && Settings.UsePrototypeConfig)
-        {
-            entryScene = config.EntryScene;
-        }
-        else
-        {
-            entryScene = Settings.EntryScene;
-        }
-
-        if(entryScene != string.Empty && _scenes.Contains<string>(entryScene))
+        var entryScene = Settings.EntryScene;
+        if(!string.IsNullOrEmpty(entryScene) && _scenes.Contains(entryScene))
         {
             GoToScene(entryScene);
             return;
