@@ -37,7 +37,7 @@ public class GameServicesInstaller : Installer, IInitializable
             return;
         }
 
-        manager.NotificationsProvider += () =>
+        manager.NotificationsProvider = () =>
         {
             var notify = new Notification(10, Notification.OffsetType.None)
             {
