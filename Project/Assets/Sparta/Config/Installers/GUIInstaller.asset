@@ -13,7 +13,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    PopupAnimationTime: 0.3
-    TooltipAnimationTime: 0.2
     TooltipScreenBoundsDelta: {x: 20, y: 20}
     GUIRootPrefab: {fileID: 111274, guid: 7e2694f53a8f841df9798bb2c995a956, type: 2}
+    HudNotificationsData:
+      NotificationPrefab: {fileID: 138668, guid: 7818676d4f01c43d2b134c715fc3ac8a,
+        type: 2}
+      NotificationDuration: 3
+      MaxConcurrentNotifications: 4
+      FirstNotificationHeight: -150
+      LastNotificationHeight: -30

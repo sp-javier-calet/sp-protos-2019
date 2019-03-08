@@ -3,6 +3,7 @@ using SocialPoint.Base;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
+using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
 using SocialPoint.Social;
