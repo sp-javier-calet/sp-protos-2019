@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
+using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
 using SocialPoint.Social;
@@ -27,6 +29,7 @@ public class GameServicesInstaller : Installer, IInitializable
     {
         SetupNotificationsProvider(container);
         SetupCrossPromotionManager(container);
+        SetupGameLoadingOperations(container);
     }
 
     static void SetupNotificationsProvider(IResolutionContainer container)
@@ -60,6 +63,35 @@ public class GameServicesInstaller : Installer, IInitializable
         }
 
         manager.PopupController = container.Resolve<PopupsController>();
+    }
+
+    LoadingOperation _gameOperation;
+
+    void SetupGameLoadingOperations(IResolutionContainer container)
+    {
+        var manager = container.Resolve<ILoadingManager>();
+
+        //Example of how to append LoadingOperations to the LoadingManager.
+        manager.GameOperationsSource = () =>
+        {
+            _gameOperation = new LoadingOperation(0.0f, DoGameOperation);
+
+            return new List<ILoadingOperation>
+            {
+                _gameOperation
+            };
+        };
+    }
+
+    void DoGameOperation()
+    {
+        //
+        // Do operation stuff here.
+        //
+
+        _gameOperation.Finish();
+
+        Log.i("GameOperation Finished");
     }
 
     ChatRoom<PublicChatMessage> CreatePublicChatRoom(IResolutionContainer container)
