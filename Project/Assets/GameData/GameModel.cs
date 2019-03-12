@@ -8,7 +8,8 @@ namespace GameLoading
     {
         public override bool IsBetterThan(BaseGameModel other)
         {
-            throw new System.NotImplementedException();
+            // No model info to compare progression, so keep first
+            return true;
         }
     }
 }
