@@ -32,7 +32,7 @@ then
 	# Reorder XCode project
 	export PATH=/usr/local/bin:$PATH
 
-	XCODE_PROJECT_DIR_NAME=$(find . -type d -wholename '*Hidden~/Sources/Apple/sp_unity_plugins')
+	XCODE_PROJECT_DIR_NAME=$(find . -type d -wholename '*Binaries/Sources~/Apple/sp_unity_plugins')
 	XCODE_PROJECT_DIR=$(cd "$XCODE_PROJECT_DIR_NAME" && pwd)
 
 	python -B "$XCODE_PROJECT_DIR/tools/reorder_xcode_project_pre_commit.py"
