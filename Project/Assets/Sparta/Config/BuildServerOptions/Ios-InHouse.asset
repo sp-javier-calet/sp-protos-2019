@@ -15,6 +15,6 @@ MonoBehaviour:
     Name: InHouse
     ProvisioningProfile: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/provisioning/InHouse.mobileprovision
     Method: enterprise
-    TeamId: SQ7J6VAFAL
+    TeamId: MS5UR3KX42
     CodesignIdentity: A45321C654A477E2D8559572DAE017AE647307F0
     CodesignEntitlements: Assets/Plugins/Sparta/Hidden~/proj/xcode/ios/InHouse.entitlements
