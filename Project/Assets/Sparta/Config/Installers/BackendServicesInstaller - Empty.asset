@@ -22,10 +22,9 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
       PingEnabled: 1
     Login:
-      TypeLogin: 2
+      TypeLogin: 1
       Timeout: 120
       ActivityTimeout: 15
-      AutoupdateFriends: 1
       AutoupdateFriendsPhotoSize: 0
       MaxSecurityTokenErrorRetries: 5
       MaxConnectivityErrorRetries: 0
@@ -37,7 +36,6 @@ MonoBehaviour:
       MaxOutOfSyncInterval: 0
       SendInterval: 5
       Timeout: 30
-      BackoffMultiplier: 1.1
     Notifications:
       AutoRegisterForRemote: 1
       channels: []
@@ -52,6 +50,17 @@ MonoBehaviour:
       UseEmpty: 1
     MessageCenter:
       UseEmpty: 1
+    CrossPromotion:
+      XPromoTests:
+        XPromoAndroid: {fileID: 0}
+        XPromoIos: {fileID: 0}
+        XPromoTestFail: {fileID: 0}
+      CrossPromotion:
+        ButtonPrefab: {fileID: 0}
+        PopupPrefab: {fileID: 0}
     UserAgreementService:
       Enable: 0
       PopupPrefab: {fileID: 0}
+    SessionConnectivity:
+      AllowOfflineSessions: 0
+      OfflineSessionTimeout: 120
