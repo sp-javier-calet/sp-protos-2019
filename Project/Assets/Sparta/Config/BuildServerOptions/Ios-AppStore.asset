@@ -17,6 +17,6 @@ MonoBehaviour:
     BundleId: 
     ProvisioningTemplate: 
     Method: app-store
-    TeamId: PD2V9367QH
+    TeamId: 
     CodesignIdentity: 
     CodesignEntitlements: 
