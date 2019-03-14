@@ -31,14 +31,14 @@ MonoBehaviour:
     EnableAdminPanel: 0
     EnableDependencyInspection: 0
   Ios:
-    BundleIdentifier: es.socialpoint.basegame
+    BundleIdentifier: game.unitybasegame
     Flags: 
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
     Exports: []
     minimumTargetOsVersion: 9.0
   Android:
-    BundleIdentifier: es.socialpoint.basegame
+    BundleIdentifier: game.unitybasegame
     Flags: 
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0

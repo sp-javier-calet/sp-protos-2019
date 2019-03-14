@@ -154,7 +154,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: es.socialpoint.basegame
     Standalone: es.socialpoint.basegame
-    iOS: es.socialpoint.basegame
+    iOS: game.unitybasegame
   buildNumber:
     iOS: 1611111111
   AndroidBundleVersionCode: 1611111111
