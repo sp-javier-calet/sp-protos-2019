@@ -17,6 +17,6 @@ MonoBehaviour:
     BundleId: 
     ProvisioningTemplate: 
     Method: ad-hoc
-    TeamId: PD2V9367QH
+    TeamId: 
     CodesignIdentity: 
     CodesignEntitlements: 
