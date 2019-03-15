@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:942387780338:android:84e556e444366d49",
         "android_client_info": {
-          "package_name": "es.socialpoint.basegame"
+          "package_name": "game.unitybasegame"
         }
       },
       "oauth_client": [
