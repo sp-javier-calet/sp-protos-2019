@@ -43,9 +43,9 @@ MonoBehaviour:
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
-      Path: Assets/Plugins/Android/socialpoint.keystore
-      FilePassword: android
-      Alias: android
-      Password: android
+      Path: Assets/Plugins/Android/unitybasegame-upload.keystore
+      FilePassword: socialpoint
+      Alias: socialpoint
+      Password: socialpoint
     UseAPKExpansionFile: 0
     Add64BitsSupport: 0

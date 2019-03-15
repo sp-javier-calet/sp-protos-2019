@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 0
   companyName: socialpoint
-  productName: Sparta BaseGame
+  productName: Unity Base Game
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -246,8 +246,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 1
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: 
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: Assets/Plugins/Android/unitybasegame-upload.keystore
+  AndroidKeyaliasName: socialpoint
   AndroidBuildApkPerCpuArchitecture: 1
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
@@ -902,9 +902,9 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
   scriptingDefineSymbols:
-    1: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
-    4: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
-    7: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    1: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
+    4: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
+    7: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
   platformArchitecture:
     iOS: 2
     tvOS: 1
