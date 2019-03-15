@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: BaseSettings
   m_EditorClassIdentifier: 
   App:
-    ProductName: Sparta BaseGame
+    ProductName: Unity Base Game
     Version: 1.0
     BuildNumber: 1611111111
     OverrideBuild: 0
