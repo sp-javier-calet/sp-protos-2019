@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -13,8 +13,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Options:
     Name: Distribution
-    ProvisioningProfile: ../proj/xcode/ios/provisioning/Unity_Base_Game_Dist.mobileprovision
+    ProvisioningProfile: 
+    BundleId: 
+    ProvisioningTemplate: 
     Method: ad-hoc
-    TeamId: PD2V9367QH
+    TeamId: 
     CodesignIdentity: 
     CodesignEntitlements: 

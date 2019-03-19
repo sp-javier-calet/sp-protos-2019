@@ -5,7 +5,8 @@ spUnityIntegrationPipeline {
     onUpdate = {
         sh "export"
     }
-    disableAnalyze = true
+    enableUnitTests = true
+    enableGenerate = true
     environment = [
         CONFIG: "Shipping"
     ]
