@@ -24,8 +24,8 @@
 
 public static class GPGSConstants
 {
-        public const string achievement_achievement_1 = "CgkI8rXB1bYbEAIQAg"; // <GPGSID>
-        public const string leaderboard_leaderboard_1 = "CgkI8rXB1bYbEAIQAw"; // <GPGSID>
+        public const string leaderboard_test = "CgkIxc7XtKQEEAIQAg"; // <GPGSID>
+        public const string achievement_test = "CgkIxc7XtKQEEAIQAQ"; // <GPGSID>
 
 }
 

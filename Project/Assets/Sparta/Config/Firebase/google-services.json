@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "942387780338",
-    "firebase_url": "https://unity-base-game-78150969.firebaseio.com",
-    "project_id": "unity-base-game-78150969",
-    "storage_bucket": "unity-base-game-78150969.appspot.com"
+    "project_number": "147213117253",
+    "firebase_url": "https://unity-base-game-94125717.firebaseio.com",
+    "project_id": "unity-base-game-94125717",
+    "storage_bucket": "unity-base-game-94125717.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:942387780338:android:84e556e444366d49",
+        "mobilesdk_app_id": "1:147213117253:android:2939643728b146a8",
         "android_client_info": {
-          "package_name": "es.socialpoint.basegame"
+          "package_name": "game.unitybasegame"
         }
       },
       "oauth_client": [
         {
-          "client_id": "942387780338-un684sv175ba1r97sdjqakjr633n94qv.apps.googleusercontent.com",
+          "client_id": "147213117253-617bu21ku0bj05j86eh55v0bc4io1ckt.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAbe28Qptih-91j4WkcQQVN40eglgfFubs"
+          "current_key": "AIzaSyA5DCP-77dP7YOEqEbF8wxlP8FeLBqusXw"
         }
       ],
       "services": {
