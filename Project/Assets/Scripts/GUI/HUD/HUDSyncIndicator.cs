@@ -1,4 +1,11 @@
-﻿using SocialPoint.Connectivity;
+﻿//-----------------------------------------------------------------------
+// HUDSyncIndicator.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Connectivity;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using SocialPoint.Dependency;

@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//-----------------------------------------------------------------------
+// ScrollViewExampleDataSource.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
 using UnityEngine;

@@ -1,4 +1,11 @@
-﻿using SocialPoint.GUIControl;
+﻿//-----------------------------------------------------------------------
+// PopupsController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.GUIControl;
 using SocialPoint.Dependency;
 using UnityEngine;
 

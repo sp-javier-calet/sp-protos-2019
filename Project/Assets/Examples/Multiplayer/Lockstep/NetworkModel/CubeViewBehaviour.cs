@@ -1,4 +1,11 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------
+// CubeViewBehaviour.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System;
 using FixMath.NET;
 using SocialPoint.NetworkModel;
 using SocialPoint.Pooling;

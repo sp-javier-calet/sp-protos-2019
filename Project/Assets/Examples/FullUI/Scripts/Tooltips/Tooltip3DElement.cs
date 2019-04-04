@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//-----------------------------------------------------------------------
+// Tooltip3DElement.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using UnityEngine;
 using SocialPoint.GUIControl;
 using System;
 using SocialPoint.Base;

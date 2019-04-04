@@ -1,4 +1,11 @@
-﻿using FixMath.NET;
+﻿//-----------------------------------------------------------------------
+// ClickCommand.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using FixMath.NET;
 using SocialPoint.FixedMath;
 using SocialPoint.IO;
 using SocialPoint.Lockstep;

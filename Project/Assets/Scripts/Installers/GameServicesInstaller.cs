@@ -1,4 +1,11 @@
-﻿using System.Collections.Generic;
+﻿//-----------------------------------------------------------------------
+// GameServicesInstaller.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;

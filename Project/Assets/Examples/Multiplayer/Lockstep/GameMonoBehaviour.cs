@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//-----------------------------------------------------------------------
+// GameMonoBehaviour.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Lifecycle;

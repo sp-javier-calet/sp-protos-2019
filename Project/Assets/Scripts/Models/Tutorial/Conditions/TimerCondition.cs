@@ -1,3 +1,10 @@
+﻿//-----------------------------------------------------------------------
+// TimerCondition.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
 using System;
 
 namespace SocialPoint.Tutorial

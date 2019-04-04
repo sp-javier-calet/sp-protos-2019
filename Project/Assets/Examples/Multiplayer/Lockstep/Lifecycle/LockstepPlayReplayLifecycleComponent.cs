@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//-----------------------------------------------------------------------
+// LockstepPlayReplayLifecycleComponent.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections;
 using System.IO;
 using SocialPoint.Base;
 using SocialPoint.IO;

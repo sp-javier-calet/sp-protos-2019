@@ -1,4 +1,11 @@
-﻿using SocialPoint.Attributes;
+﻿//-----------------------------------------------------------------------
+// AllianceChatMessage.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Attributes;
 using SocialPoint.Social;
 
 public class AllianceChatMessage : BaseChatMessage

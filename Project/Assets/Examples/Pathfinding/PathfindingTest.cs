@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//-----------------------------------------------------------------------
+// PathfindingTest.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,4 +1,11 @@
-﻿using SocialPoint.GUIControl;
+﻿//-----------------------------------------------------------------------
+// ScrollViewExampleRectExtension.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.GUIControl;
 
 public class ScrollViewExampleRectExtension : UIScrollRectExtension<ScrollViewExampleCellData, ScrollViewExampleCellItem>
 {

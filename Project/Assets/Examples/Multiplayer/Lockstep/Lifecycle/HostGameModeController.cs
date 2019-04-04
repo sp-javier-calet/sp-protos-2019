@@ -1,4 +1,11 @@
-﻿using SocialPoint.Lifecycle;
+﻿//-----------------------------------------------------------------------
+// HostGameModeController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Lifecycle;
 using SocialPoint.Utils;
 
 namespace Examples.Multiplayer.Lockstep

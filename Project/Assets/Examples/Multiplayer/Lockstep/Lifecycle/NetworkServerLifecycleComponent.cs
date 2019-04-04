@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//-----------------------------------------------------------------------
+// NetworkServerLifecycleComponent.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections;
 using SocialPoint.Base;
 using SocialPoint.Lifecycle;
 using SocialPoint.Network;
