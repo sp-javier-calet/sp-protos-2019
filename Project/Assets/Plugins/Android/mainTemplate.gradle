@@ -6,6 +6,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.google.gms:google-services:4.1.0'
     }
 }
 
@@ -64,3 +65,5 @@ android {
     }**PACKAGING_OPTIONS****SPLITS**
 **BUILT_APK_LOCATION**
 }**SPLITS_VERSION_CODE****SOURCE_BUILD_SETUP**
+
+apply plugin: 'com.google.gms.google-services'

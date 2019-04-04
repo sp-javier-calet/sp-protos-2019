@@ -65,7 +65,7 @@ public class GameInstaller : Installer
     PlayerDataProvider CreatePlayerData(IResolutionContainer container)
     {
         return new PlayerDataProvider(
-            container.Resolve<ILoginData>());
+            container.Resolve<IUserService>());
     }
 
     TutorialManager CreateTutorialManager(IResolutionContainer container)
@@ -78,16 +78,16 @@ public class GameInstaller : Installer
     /// </summary>
     class PlayerDataProvider : IPlayerData
     {
-        readonly ILoginData _loginData;
+        readonly IUserService _userService;
 
-        public PlayerDataProvider(ILoginData loginData)
+        public PlayerDataProvider(IUserService userService)
         {
-            _loginData = loginData;
+            _userService = userService;
         }
 
 #region IPlayerData implementation
 
-        public string Id => _loginData.UserId.ToString();
+        public string Id => _userService.UserId.ToString();
 
         public string Name => "Player Name";
 

@@ -9,16 +9,20 @@ namespace SocialPoint.Tutorial
     {
         public string AlertMessage;
 
-        [NonSerialized] private bool _completed;
-        [NonSerialized] private bool _shown;
-        
-        private IAlertView _alertPrototype;
+        [NonSerialized] bool _completed;
+        [NonSerialized] bool _shown;
 
-        public bool Completed { get { return _completed; } }
+        IAlertView _alertPrototype;
+
+        public void OnStartEvaluating()
+        {
+        }
+
+        public bool Completed => _completed;
 
         public AlertCondition()
         {
-            AlertMessage = "Alert message";   
+            AlertMessage = "Alert message";
         }
 
         public void Update(float elapsed)
@@ -43,17 +47,8 @@ namespace SocialPoint.Tutorial
             alertView.Input = false;
             alertView.Buttons = new []{ "Ok" };
             alertView.Show(result => { _completed = true; });
-                
-            _shown = true;
-        }
 
-        public void Dispose()
-        {
-            if(_alertPrototype != null)
-            {
-                _alertPrototype.Dispose();
-                _alertPrototype = null;
-            }
+            _shown = true;
         }
     }
 }

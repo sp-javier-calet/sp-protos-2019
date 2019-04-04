@@ -1,6 +1,4 @@
 using System;
-using SocialPoint.Attributes;
-using SocialPoint.ScriptEvents;
 
 namespace SocialPoint.Tutorial
 {
@@ -9,10 +7,14 @@ namespace SocialPoint.Tutorial
     {
         public float Time;
 
-        [NonSerialized] private bool _completed;
-        [NonSerialized] private float _counter;
-        
-        public bool Completed { get { return _completed; } }
+        [NonSerialized] bool _completed;
+        [NonSerialized] float _counter;
+
+        public void OnStartEvaluating()
+        {
+        }
+
+        public bool Completed => _completed;
 
         public TimeCondition()
         {
@@ -28,10 +30,6 @@ namespace SocialPoint.Tutorial
 
             _counter += elapsed;
             _completed = (_counter >= Time);
-        }
-
-        public void Dispose()
-        {
         }
     }
 }
