@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
   m_Name: Shipping-BuildSet
   m_EditorClassIdentifier: 
+  Type: 2
   App:
     ProductName: 
     Version: 
@@ -23,6 +24,7 @@ MonoBehaviour:
     Flags: 
     RebuildNativePlugins: 1
     DownloadLocalizations: 0
+    LocalizationEnvironment: 0
     IsDevelopmentBuild: 0
     AppendBuild: 0
     RunAfterBuild: 1
@@ -35,11 +37,8 @@ MonoBehaviour:
     Flags: 
     XcodeModSchemes: shipping
     RemovedResources: 
-    Exports:
-    - {fileID: 11400000, guid: c0bac4fdf11124f0e9171da318b322ea, type: 2}
-    - {fileID: 11400000, guid: 261ef5c315354454eb47f5ce936a67fa, type: 2}
-    - {fileID: 11400000, guid: 6a0fc2189f38e464fab4678be767dd21, type: 2}
     minimumTargetOsVersion: 
+    UseAppleDeveloperAppId: 0
   Android:
     BundleIdentifier: 
     Flags: 
