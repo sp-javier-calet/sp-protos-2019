@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f12e3d075af5f4c58a65fa4f27d764ad, type: 3}
   m_Name: BaseSettings
   m_EditorClassIdentifier: 
+  Type: 0
   App:
     ProductName: Unity Base Game
     Version: 1.0
@@ -23,6 +24,7 @@ MonoBehaviour:
     Flags: ODIN_INSPECTOR
     RebuildNativePlugins: 0
     DownloadLocalizations: 0
+    LocalizationEnvironment: 0
     IsDevelopmentBuild: 0
     AppendBuild: 0
     RunAfterBuild: 0
@@ -35,8 +37,8 @@ MonoBehaviour:
     Flags: 
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
-    Exports: []
     minimumTargetOsVersion: 9.0
+    UseAppleDeveloperAppId: 0
   Android:
     BundleIdentifier: game.unitybasegame
     Flags: 
