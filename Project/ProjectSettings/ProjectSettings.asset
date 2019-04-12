@@ -246,8 +246,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 1
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: Assets/Plugins/Android/unitybasegame-upload.keystore
-  AndroidKeyaliasName: socialpoint
+  AndroidKeystoreName: 
+  AndroidKeyaliasName: 
   AndroidBuildApkPerCpuArchitecture: 1
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
@@ -902,9 +902,9 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
   scriptingDefineSymbols:
-    1: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
-    4: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
-    7: ODIN_INSPECTOR;SPARTA_LOG_INFO;ADMIN_PANEL
+    1: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    4: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    7: ODIN_INSPECTOR;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
   platformArchitecture:
     iOS: 2
     tvOS: 1

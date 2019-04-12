@@ -32,13 +32,14 @@ MonoBehaviour:
     LogLevel: 4
     EnableAdminPanel: 1
     EnableDependencyInspection: 0
+    AutogenerateOdinAot: 0
   Ios:
     BundleIdentifier: 
     Flags: 
     XcodeModSchemes: release
     RemovedResources: 
     minimumTargetOsVersion: 
-    UseAppleDeveloperAppId: 0
+    UseAppleDeveloperAppId: 1
   Android:
     BundleIdentifier: 
     Flags: 

@@ -32,6 +32,7 @@ MonoBehaviour:
     LogLevel: 0
     EnableAdminPanel: 0
     EnableDependencyInspection: 0
+    AutogenerateOdinAot: 0
   Ios:
     BundleIdentifier: game.unitybasegame
     Flags: 
