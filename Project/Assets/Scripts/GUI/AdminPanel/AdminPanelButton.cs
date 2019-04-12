@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//-----------------------------------------------------------------------
+// AdminPanelButton.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using UnityEngine;
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;

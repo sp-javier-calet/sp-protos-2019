@@ -1,4 +1,11 @@
-﻿using SocialPoint.Utils;
+﻿//-----------------------------------------------------------------------
+// ReplayGameModeController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Utils;
 
 namespace Examples.Multiplayer.Lockstep
 {

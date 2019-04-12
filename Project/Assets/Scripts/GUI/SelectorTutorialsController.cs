@@ -1,4 +1,11 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------
+// SelectorTutorialsController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using SocialPoint.Alert;
 using UnityEngine;

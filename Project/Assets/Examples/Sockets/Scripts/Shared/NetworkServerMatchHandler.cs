@@ -1,4 +1,11 @@
-﻿using SocialPoint.Base;
+﻿//-----------------------------------------------------------------------
+// NetworkServerMatchHandler.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Base;
 using SocialPoint.Network;
 
 namespace SocialPoint.Examples.Sockets

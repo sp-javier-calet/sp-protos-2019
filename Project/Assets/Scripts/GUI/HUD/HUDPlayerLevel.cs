@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//-----------------------------------------------------------------------
+// HUDPlayerLevel.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using SocialPoint.Dependency;
