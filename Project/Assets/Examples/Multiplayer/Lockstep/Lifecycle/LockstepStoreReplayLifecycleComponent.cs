@@ -1,4 +1,11 @@
-﻿using System.IO;
+﻿//-----------------------------------------------------------------------
+// LockstepStoreReplayLifecycleComponent.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Lifecycle;
 using SocialPoint.Lockstep;

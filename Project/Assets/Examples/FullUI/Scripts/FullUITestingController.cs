@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//-----------------------------------------------------------------------
+// FullUITestingController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using UnityEngine;
 using SocialPoint.Dependency;
 using System;
 using SocialPoint.GUIControl;

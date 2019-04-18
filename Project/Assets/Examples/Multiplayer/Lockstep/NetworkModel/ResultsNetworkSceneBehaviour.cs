@@ -1,4 +1,11 @@
-﻿using System.Collections.Generic;
+﻿//-----------------------------------------------------------------------
+// ResultsNetworkSceneBehaviour.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Lockstep;
 using SocialPoint.NetworkModel;

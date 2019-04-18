@@ -1,4 +1,11 @@
-﻿using FixMath.NET;
+﻿//-----------------------------------------------------------------------
+// ClickInputEventHandler.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using FixMath.NET;
 using SocialPoint.Lifecycle;
 using SocialPoint.Lockstep;
 using SocialPoint.Pooling;

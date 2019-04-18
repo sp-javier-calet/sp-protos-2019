@@ -1,4 +1,11 @@
-﻿using SocialPoint.Utils;
+﻿//-----------------------------------------------------------------------
+// LocalGameModeController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Utils;
 
 namespace Examples.Multiplayer.Lockstep
 {

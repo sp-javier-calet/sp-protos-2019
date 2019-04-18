@@ -1,4 +1,11 @@
-﻿using SocialPoint.Lockstep;
+﻿//-----------------------------------------------------------------------
+// GameTypes.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Lockstep;
 using SocialPoint.NetworkModel;
 
 namespace Examples.Multiplayer.Lockstep

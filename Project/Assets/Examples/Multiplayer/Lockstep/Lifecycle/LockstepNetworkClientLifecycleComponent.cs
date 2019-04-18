@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//-----------------------------------------------------------------------
+// LockstepNetworkClientLifecycleComponent.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using System.Collections;
 using SocialPoint.Attributes;
 using SocialPoint.Lifecycle;
 using SocialPoint.Lockstep;

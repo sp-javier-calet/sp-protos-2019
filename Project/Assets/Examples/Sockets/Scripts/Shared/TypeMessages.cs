@@ -1,4 +1,11 @@
-﻿namespace SocialPoint.Examples.Sockets
+﻿//-----------------------------------------------------------------------
+// TypeMessages.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+namespace SocialPoint.Examples.Sockets
 {
     public sealed class TypeMessages
     {

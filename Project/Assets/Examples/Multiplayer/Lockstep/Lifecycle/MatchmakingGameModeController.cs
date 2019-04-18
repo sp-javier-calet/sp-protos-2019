@@ -1,4 +1,11 @@
-﻿using SocialPoint.Dependency;
+﻿//-----------------------------------------------------------------------
+// MatchmakingGameModeController.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+using SocialPoint.Dependency;
 using SocialPoint.Matchmaking;
 using SocialPoint.Network;
 using SocialPoint.Utils;

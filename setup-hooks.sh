@@ -1,20 +1,7 @@
-if ! [ -d ".git" ]; then
-    echo "Not in a git repository" >&2
-    exit 1
-fi
+#---------------------------------------------------------
+# This is a shortcut to the setup-hooks script in Sparta. Check there for more info.
+#---------------------------------------------------------
 
-mkdir -p .git/hooks
+SPARTA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/Project/Assets/Plugins/Sparta/" && pwd )"
 
-SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/scripts/hooks" && pwd )"
-GIT_HOOKS_DIR=$(cd ".git/hooks" && pwd)
-
-echo "SCRIPTS_DIR: " $SCRIPTS_DIR
-echo "GIT_HOOKS_DIR: " $GIT_HOOKS_DIR
-
-SCRIPTS=(pre-commit post-checkout post-merge)
-
-for SCRIPT in "${SCRIPTS[@]}"; do
-    ln -snf "$SCRIPTS_DIR/$SCRIPT" "$GIT_HOOKS_DIR/$SCRIPT"
-done
-
-echo "Installed ${SCRIPTS[*]}"
+/bin/bash $SPARTA_DIR/setup-hooks.sh

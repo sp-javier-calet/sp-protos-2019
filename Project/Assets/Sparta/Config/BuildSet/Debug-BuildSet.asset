@@ -32,6 +32,7 @@ MonoBehaviour:
     LogLevel: 3
     EnableAdminPanel: 1
     EnableDependencyInspection: 1
+    AutogenerateOdinAot: 0
   Ios:
     BundleIdentifier: 
     Flags: 

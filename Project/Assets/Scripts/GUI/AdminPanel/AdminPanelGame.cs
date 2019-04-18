@@ -1,4 +1,11 @@
-﻿#if ADMIN_PANEL
+﻿//-----------------------------------------------------------------------
+// AdminPanelGame.cs
+//
+// Copyright 2019 Social Point SL. All rights reserved.
+//
+//-----------------------------------------------------------------------
+
+#if ADMIN_PANEL
 
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
