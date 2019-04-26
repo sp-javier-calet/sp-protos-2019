@@ -14,7 +14,6 @@ public class NetworkTechInstaller : Installer
     public enum NetworkTech
     {
         Local,
-        Unet,
         Photon,
         TcpSocket,
         UdpSocket
@@ -25,7 +24,6 @@ public class NetworkTechInstaller : Installer
     {
         public NetworkTech Tech = NetworkTech.Local;
         public LocalNetworkInstaller.SettingsData Local = new LocalNetworkInstaller.SettingsData();
-        public UnetNetworkInstaller.SettingsData Unet = new UnetNetworkInstaller.SettingsData();
         public PhotonNetworkInstaller.SettingsData Photon = new PhotonNetworkInstaller.SettingsData();
         public TcpSocketNetworkInstaller.SettingsData TcpSocket = new TcpSocketNetworkInstaller.SettingsData();
         public UdpSocketNetworkInstaller.SettingsData UdpSocket = new UdpSocketNetworkInstaller.SettingsData();
@@ -38,11 +36,6 @@ public class NetworkTechInstaller : Installer
         SubInstaller techInstaller;
         switch(Settings.Tech)
         {
-            case NetworkTech.Unet:
-                var unet = new UnetNetworkInstaller();
-                unet.Settings = Settings.Unet;
-                techInstaller = unet;
-                break;
             case NetworkTech.Photon:
                 var photon = new PhotonNetworkInstaller();
                 photon.Settings = Settings.Photon;
