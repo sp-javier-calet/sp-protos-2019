@@ -12,22 +12,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
-
 using SocialPoint.Tutorial;
 
 public class SelectorTutorialsController : UIViewController
 {
-    [SerializeField]
-    private Button _prefabButton;
+    [SerializeField] Button _prefabButton;
 
-    [SerializeField]
-    private ScrollRect _scrollRect;
+    [SerializeField] ScrollRect _scrollRect;
 
     public Action<string> OnGoToTutorial { get; set; }
 
-    private TutorialManager _tutorialManager;
-    private IAlertView _alertPrototype;
-    private List<string> _tutorials;
+    TutorialManager _tutorialManager;
+    IAlertView _alertPrototype;
+    List<string> _tutorials;
 
     public SelectorTutorialsController()
     {
@@ -57,18 +54,18 @@ public class SelectorTutorialsController : UIViewController
 
     void ShowTutorialsUI()
     {
-        for(int i = 0; i < _tutorials.Count; i++)
+        foreach(string t in _tutorials)
         {
-            InstantiateScenesButton(_tutorials[i]);
+            InstantiateScenesButton(t);
         }
     }
 
     void InstantiateScenesButton(string tutorialName)
     {
-        Button button = Instantiate<Button>(_prefabButton);
-        button.transform.SetParent(_scrollRect.content);
-        button.transform.localPosition = Vector3.zero;
-        button.transform.localScale = Vector3.one;
+        Button button = Instantiate(_prefabButton, _scrollRect.content, true);
+        var transformAccess = button.transform;
+        transformAccess.localPosition = Vector3.zero;
+        transformAccess.localScale = Vector3.one;
         button.GetComponentInChildren<Text>().text = tutorialName.ToUpper();
         button.onClick.AddListener(() => OnStartTutorial(tutorialName));
     }
@@ -83,10 +80,11 @@ public class SelectorTutorialsController : UIViewController
         {
             var alertView = (IAlertView)_alertPrototype.Clone();
             alertView.Title = "Start Tutorial Error";
-            alertView.Message = string.Format("Could not start {0}. A tutorial is already running: {1}",
-                tutorialName, _tutorialManager.ActiveTutorialName);
+            alertView.Message =
+                $"Could not start {tutorialName}. A tutorial is already running: {_tutorialManager.ActiveTutorialName}";
+
             alertView.Input = false;
-            alertView.Buttons = new []{ "Ok" };
+            alertView.Buttons = new[] {"Ok"};
             alertView.Show(result => { });
         }
     }
