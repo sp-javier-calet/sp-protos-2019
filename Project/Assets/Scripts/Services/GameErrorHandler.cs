@@ -13,9 +13,8 @@ using SocialPoint.Restart;
 
 class GameErrorHandler : SocialPoint.GameLoading.GameErrorHandler
 {
-    public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, IRestarter restarter,
-        IHelpshift helpshift, bool debug) :
-        base(alert, locale, appEvents, restarter, helpshift)
+    public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, IRestarter restarter, IHelpshift helpshift, bool debug) :
+    base(alert, locale, appEvents, restarter, helpshift)
     {
         Debug = debug;
     }
