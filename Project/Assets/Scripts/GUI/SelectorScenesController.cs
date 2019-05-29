@@ -5,26 +5,21 @@
 //
 //-----------------------------------------------------------------------
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Base;
-using UnityEngine.SceneManagement;
 using SocialPoint.GUIControl;
 using System;
 
 public class SelectorScenesController : UIViewController
 {
-    [SerializeField]
-    private Button _prefabButton;
+    [SerializeField] Button _prefabButton;
 
-    [SerializeField]
-    private ScrollRect _scrollRect;
+    [SerializeField] ScrollRect _scrollRect;
 
     public Action<string> OnGoToScene { get; set; }
 
-    private string[] _scenes;
+    string[] _scenes;
 
     public SelectorScenesController()
     {
@@ -38,32 +33,28 @@ public class SelectorScenesController : UIViewController
 
         ShowScenesUI();
     }
-   
+
     void ShowScenesUI()
     {
-        for(int i = 0; i < _scenes.Length; i++)
+        foreach(string sceneName in _scenes)
         {
-            var name = _scenes[i];
-            InstantiateScenesButton(name);
+            InstantiateScenesButton(sceneName);
         }
     }
 
     void InstantiateScenesButton(string nameScene)
     {
-        Button button = Instantiate<Button>(_prefabButton);
-        button.transform.SetParent(_scrollRect.content);
-        button.transform.localPosition = Vector3.zero;
-        button.transform.localScale = Vector3.one;
+        Button button = Instantiate(_prefabButton, _scrollRect.content, true);
+        var transformAccess = button.transform;
+        transformAccess.localPosition = Vector3.zero;
+        transformAccess.localScale = Vector3.one;
         button.GetComponentInChildren<Text>().text = nameScene.ToUpper();
         button.onClick.AddListener(() => GoToScene(nameScene));
     }
 
     public void GoToScene(string nameScene)
     {
-        if(OnGoToScene != null)
-        {
-            OnGoToScene(nameScene);
-        }
+        OnGoToScene?.Invoke(nameScene);
 
         Hide();
     }
