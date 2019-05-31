@@ -19,10 +19,62 @@ allprojects {
     }
 }
 
+// Android Resolver Repos Start
+([rootProject] + (rootProject.subprojects as List)).each { project ->
+    project.repositories {
+        def unityProjectPath = "file:///" + file(rootProject.projectDir.path + "/../../").absolutePath
+        maven {
+            url "https://maven.google.com"
+        }
+        maven {
+            url "https://dl.bintray.com/ironsource-mobile/android-adapters" // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:8
+        }
+        maven {
+            url (unityProjectPath + "/Assets/Plugins/Sparta/Binaries/Android/m2repository~") // Assets/Plugins/Sparta/Binaries/Editor/PluginsDependencies.xml:8
+        }
+        maven {
+            url (unityProjectPath + "/Assets/Plugins/Sparta/External/GooglePlayGames/Editor/m2repository") // Assets/Plugins/Sparta/External/GooglePlayGames/Editor/GooglePlayGamesPluginDependencies.xml:11
+        }
+        maven {
+            url "https://adcolony.bintray.com/AdColony" // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:30
+        }
+        maven {
+            url "https://raw.githubusercontent.com/HyprMXMobile/Android-SDKs/master" // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:54
+        }
+        maven {
+            url "https://jitpack.io" // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:78
+        }
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+    }
+}
+// Android Resolver Repos End
 apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+// Android Resolver Dependencies Start
+    compile 'com.adcolony:sdk:3.3.8' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:30
+    compile 'com.android.installreferrer:installreferrer:1.0' // Assets/Plugins/Sparta/External/AppsFlyer/Editor/AppsFlyerDependencies.xml:4
+    compile 'com.android.support:appcompat-v7:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
+    compile 'com.android.support:cardview-v7:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
+    compile 'com.android.support:customtabs:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
+    compile 'com.android.support:support-v4:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
+    compile 'com.github.vungle:vungle-android-sdk:6.3.24' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:78
+    compile 'com.google.android.gms:play-services-ads:17.2.0' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:18
+    compile 'com.google.firebase:firebase-core:16.0.7' // Assets/Plugins/Sparta/Packages/FirebaseAnalytics/Editor/FirebaseAnalyticsDependencies.xml:5
+    compile 'com.google.games:gpgs-plugin-support:0.9.61' // Assets/Plugins/Sparta/External/GooglePlayGames/Editor/GooglePlayGamesPluginDependencies.xml:11
+    compile 'com.hyprmx.android:HyprMX-SDK:4.3' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:54
+    compile 'com.ironsource.adapters:adcolonyadapter:4.1.7@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:23
+    compile 'com.ironsource.adapters:admobadapter:4.3.3@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:35
+    compile 'com.ironsource.adapters:facebookadapter:4.3.2@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:40
+    compile 'com.ironsource.adapters:hyprmxadapter:4.1.1@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:47
+    compile 'com.ironsource.adapters:tapjoyadapter:4.1.4@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:62
+    compile 'com.ironsource.adapters:unityadsadapter:4.1.3@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:67
+    compile 'com.ironsource.adapters:vungleadapter:4.1.5@jar' // Assets/Plugins/Sparta/External/IronSource/Mediation/Editor/IronSourceDependencies.xml:72
+    compile 'es.socialpoint.sparta.plugins:sp_unity_plugins:stable' // Assets/Plugins/Sparta/Binaries/Editor/PluginsDependencies.xml:8
+// Android Resolver Dependencies End
 **DEPS**}
 
 android {
