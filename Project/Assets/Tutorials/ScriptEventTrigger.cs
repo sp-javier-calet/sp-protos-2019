@@ -5,8 +5,6 @@
 //
 //-----------------------------------------------------------------------
 
-using System.Collections;
-using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Dependency;
 using SocialPoint.Lifecycle;
@@ -19,7 +17,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
     public struct TutorialTriggerEvent
     {
     }
-    
+
     public sealed class TutorialTriggerEventSerializer : BaseScriptEventSerializer<TutorialTriggerEvent>
     {
         public TutorialTriggerEventSerializer() : base("tutorial_trigger")
@@ -31,15 +29,11 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
             return new AttrString(Name);
         }
     }
-        
-    private IEventProcessor _processor;
-    private TutorialManager _tutorialManager;
-    private bool _initialised;
-    private bool _triggerTutorial;
-    
-    void Start()
-    {   
-    }
+
+    IEventProcessor _processor;
+    TutorialManager _tutorialManager;
+    bool _initialised;
+    bool _triggerTutorial;
 
     void Update()
     {
@@ -50,7 +44,10 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
                 Init();
                 _initialised = true;
             }
-            catch { /* Not exactly production code but works for a sample */ }
+            catch
+            {
+                /* Not exactly production code but works for a sample */
+            }
         }
 
         if(_triggerTutorial)
@@ -64,7 +61,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
     {
         _tutorialManager = Services.Instance.Resolve<TutorialManager>();
         _tutorialManager.TutorialCompleted += OnTutorialCompleted;
-        
+
         var processor = Services.Instance.Resolve<IScriptEventProcessor>();
         processor.RegisterBridge(this);
     }
@@ -74,7 +71,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
         _processor = processor;
         scriptProcessor.RegisterSerializer(new TutorialTriggerEventSerializer());
     }
-    
+
     void OnTutorialCompleted(string tutorialName)
     {
         if(tutorialName.Equals("Example 1"))
@@ -84,7 +81,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
             _triggerTutorial = true;
         }
     }
-    
+
     public void Dispose()
     {
         _tutorialManager.TutorialCompleted -= OnTutorialCompleted;
