@@ -126,6 +126,10 @@ public class FullUITestingController : MonoBehaviour
         {
             _stackController.PopUntil(-1);
         }
+        else if(Input.GetKeyUp(KeyCode.Space))
+        {
+            Services.Instance.Resolve<HUDNotificationsController>().ShowNotification("Hello!!! This is a very long text, to test a HUDNotification...");
+        }
     }
 
     GameObject instantiatePrefab(GameObject basePrefab)
