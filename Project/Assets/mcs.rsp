@@ -1,4 +1,5 @@
 -warnaserror+
 -warnaserror-:618
 -warnaserror-:169
--warnaserror-:649
+-warnaserror-:1030
+-nowarn:649
