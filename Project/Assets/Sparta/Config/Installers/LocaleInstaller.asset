@@ -61,6 +61,11 @@ MonoBehaviour:
       - EnvironmentType: 3
         Id: loc
         SecretKey: 59YfvdoufGeleJvZ
+    LocalizationValidator:
+      FilteredGroups:
+      - game errors
+      - game loading
+      - social framework
     TimeTextIdentifiers:
       DayIdentifier: timeUtils.Day
       DaysIdentifier: timeUtils.Days

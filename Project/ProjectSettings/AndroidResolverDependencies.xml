@@ -9,7 +9,7 @@
     <package>com.github.vungle:vungle-android-sdk:6.3.24</package>
     <package>com.google.android.gms:play-services-ads:17.2.0</package>
     <package>com.google.firebase:firebase-core:16.0.7</package>
-    <package>com.google.games:gpgs-plugin-support:0.9.61</package>
+    <package>com.google.games:gpgs-plugin-support:0.9.64</package>
     <package>com.hyprmx.android:HyprMX-SDK:4.3</package>
     <package>com.ironsource.adapters:adcolonyadapter:4.1.7@jar</package>
     <package>com.ironsource.adapters:admobadapter:4.3.3@jar</package>
@@ -21,6 +21,19 @@
     <package>es.socialpoint.sparta.plugins:sp_unity_plugins:stable</package>
   </packages>
   <files>
-    <file>Assets/Plugins/Sparta/External/GooglePlayGames/Editor/m2repository/com/google/games/gpgs-plugin-support/0.9.61/gpgs-plugin-support-0.9.61.aar</file>
+    <file>Assets/Plugins/Sparta/External/GooglePlayGames/Editor/m2repository/com/google/games/gpgs-plugin-support/0.9.64/gpgs-plugin-support-0.9.64.aar</file>
   </files>
+  <settings>
+    <setting name="androidAbis" value="armeabi-v7a" />
+    <setting name="bundleId" value="game.unitybasegame" />
+    <setting name="explodeAars" value="True" />
+    <setting name="gradleBuildEnabled" value="True" />
+    <setting name="gradleTemplateEnabled" value="True" />
+    <setting name="installAndroidPackages" value="False" />
+    <setting name="packageDir" value="Assets/Plugins/Android" />
+    <setting name="patchAndroidManifest" value="False" />
+    <setting name="patchMainTemplateGradle" value="True" />
+    <setting name="projectExportEnabled" value="False" />
+    <setting name="useJetifier" value="False" />
+  </settings>
 </dependencies>
