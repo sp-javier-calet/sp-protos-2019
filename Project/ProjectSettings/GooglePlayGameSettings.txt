@@ -1,4 +1,4 @@
-lastUpgrade=00961
+lastUpgrade=00964
 proj.AppId=147213117253
 and.BundleId=game.unitybasegame
 proj.classDir=Assets
@@ -7,4 +7,4 @@ and.ResourceData=%3c%3fxml+version%3d%221.0%22+encoding%3d%22utf-8%22%3f%3e%0d%0
 and.ClientId=147213117253-hn0ugo52vdbqk31blvdlb7khp31gs1q4.apps.googleusercontent.com
 proj.requireGPlus=false
 android.SetupDone=true
-proj.pluginVersion=0.9.61
+proj.pluginVersion=0.9.64
