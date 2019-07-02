@@ -24,6 +24,8 @@
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
     "com.unity.modules.unitywebrequestwww": "1.0.0",
     "com.unity.modules.video": "1.0.0",
-    "com.unity.modules.wind": "1.0.0"
+    "com.unity.modules.wind": "1.0.0",
+    "es.socialpoint.sparta.extensions.ads": "file:../Assets/Plugins/Sparta/Packages~/Extensions/Ads",
+    "es.socialpoint.sparta.external.ironsource": "file:../Assets/Plugins/Sparta/Packages~/External/IronSource"
   }
 }
