@@ -51,8 +51,8 @@ MonoBehaviour:
       FilePassword: 
       Alias: 
       Password: 
-    UseAPKExpansionFile: 0
-    Add64BitsSupport: 0
+    UseAPKExpansionFile: 1
+    Add64BitsSupport: 1
     MinSdkVersion: 16
     TargetSdkVersion: 27
     RoundIconTexture: {fileID: 0}
