@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -33,6 +34,10 @@ MonoBehaviour:
     EnableAdminPanel: 0
     EnableDependencyInspection: 0
     AutogenerateOdinAot: 0
+    SubmissionChecks: ../proj/submissionchecks.json
+    ToolsProjectName: Unity Base Game
+    SlackChannel: 
+    XcodeVersion: = 10.1
   Ios:
     BundleIdentifier: game.unitybasegame
     Flags: 
@@ -52,3 +57,9 @@ MonoBehaviour:
       Password: socialpoint
     UseAPKExpansionFile: 0
     Add64BitsSupport: 0
+    MinSdkVersion: 16
+    TargetSdkVersion: 27
+    RoundIconTexture: {fileID: 0}
+    AdaptativeIconForegroundTexture: {fileID: 0}
+    AdaptativeIconBackgroundTexture: {fileID: 0}
+    OverrideIcon: 0

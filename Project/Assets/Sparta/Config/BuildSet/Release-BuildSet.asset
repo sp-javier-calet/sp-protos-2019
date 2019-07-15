@@ -34,6 +34,10 @@ MonoBehaviour:
     EnableAdminPanel: 1
     EnableDependencyInspection: 0
     AutogenerateOdinAot: 0
+    SubmissionChecks: 
+    ToolsProjectName: 
+    SlackChannel: 
+    XcodeVersion: 
   Ios:
     BundleIdentifier: 
     Flags: 
@@ -51,7 +55,7 @@ MonoBehaviour:
       FilePassword: 
       Alias: 
       Password: 
-    UseAPKExpansionFile: 1
+    UseAPKExpansionFile: 0
     Add64BitsSupport: 1
     MinSdkVersion: 16
     TargetSdkVersion: 27
