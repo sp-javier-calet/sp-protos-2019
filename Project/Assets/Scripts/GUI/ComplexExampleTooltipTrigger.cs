@@ -19,7 +19,7 @@ public class ComplexTooltipData : BaseTooltipData
 public class ComplexExampleTooltipTrigger : SPTooltipTrigger
 {
     [SerializeField] GameObject _modelPrefab;
-    
+
     protected override BaseTooltipData Data
     {
         get

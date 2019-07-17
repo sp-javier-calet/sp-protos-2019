@@ -10,7 +10,7 @@ using SocialPoint.GUIControl;
 using System;
 using SocialPoint.Base;
 
-public class Tooltip3DElement : SPTooltipViewController 
+public class Tooltip3DElement : SPTooltipViewController
 {
     [SerializeField] RectTransform _placeholder;
 
@@ -23,7 +23,7 @@ public class Tooltip3DElement : SPTooltipViewController
         {
             return;
         }
-        
+
         _go = UnityEngine.Object.Instantiate(tooltipData.ModelPrefab);
 
         if(_go == null)

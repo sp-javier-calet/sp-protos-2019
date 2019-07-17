@@ -20,7 +20,7 @@ public class ScreensController : UIStackController
         base.OnLoad();
     }
 
-    #if UNITY_EDITOR || UNITY_ANDROID
+#if UNITY_EDITOR || UNITY_ANDROID
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Escape))
@@ -28,5 +28,5 @@ public class ScreensController : UIStackController
             OnSpecialButtonClickedEvent();
         }
     }
-    #endif
+#endif
 }
