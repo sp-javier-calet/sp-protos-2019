@@ -34,6 +34,7 @@ MonoBehaviour:
     EnableAdminPanel: 0
     EnableDependencyInspection: 0
     AutogenerateOdinAot: 0
+  BuildServer:
     SubmissionChecks: ../proj/submissionchecks.json
     ToolsProjectName: Unity Base Game
     SlackChannel: 
