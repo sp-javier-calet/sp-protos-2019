@@ -247,8 +247,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 1
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:\Projects\sp-unity-basegame\Project\Assets/Plugins/Android/unitybasegame-upload.keystore
-  AndroidKeyaliasName: socialpoint
+  AndroidKeystoreName: 
+  AndroidKeyaliasName: 
   AndroidBuildApkPerCpuArchitecture: 0
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
