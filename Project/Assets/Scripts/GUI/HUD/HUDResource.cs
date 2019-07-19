@@ -9,7 +9,7 @@ using System;
 using UnityEngine;
 using SocialPoint.Dependency;
 
-public class HUDResource : MonoBehaviour 
+public class HUDResource : MonoBehaviour
 {
     public enum ResourceType
     {
@@ -27,7 +27,7 @@ public class HUDResource : MonoBehaviour
         {
             throw new InvalidOperationException("Could not find UI HUD NotificationsController");
         }
-            
+
         uiHUDNotificationsController.ShowNotification("Button for resource '" + _resourceType + "' pressed");
     }
 }

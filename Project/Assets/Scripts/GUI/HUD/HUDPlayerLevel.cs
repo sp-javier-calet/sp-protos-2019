@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using SocialPoint.Dependency;
 
-public class HUDPlayerLevel: MonoBehaviour, IPointerClickHandler
+public class HUDPlayerLevel : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     Text _level;
