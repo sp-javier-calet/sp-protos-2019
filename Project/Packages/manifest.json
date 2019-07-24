@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "com.unity.package-manager-ui": "2.0.7",
+    "com.unity.package-manager-ui": "2.1.2",
+    "com.unity.timeline": "1.0.0",
     "es.socialpoint.sparta.extensions.ads": "file:../Assets/Plugins/Sparta/Packages~/Extensions/Ads",
     "es.socialpoint.sparta.extensions.facebook": "file:../Assets/Plugins/Sparta/Packages~/Extensions/Facebook",
     "es.socialpoint.sparta.extensions.firebaseanalytics": "file:../Assets/Plugins/Sparta/Packages~/Extensions/FirebaseAnalytics",
@@ -28,7 +29,6 @@
     "com.unity.modules.unitywebrequestaudio": "1.0.0",
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
     "com.unity.modules.unitywebrequestwww": "1.0.0",
-    "com.unity.modules.video": "1.0.0",
-    "com.unity.modules.wind": "1.0.0"
+    "com.unity.modules.video": "1.0.0"
   }
 }
