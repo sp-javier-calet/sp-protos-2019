@@ -10,12 +10,12 @@ using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using System;
 
-public class AutoInstantiateUIScreen : MonoBehaviour 
+public class AutoInstantiateUIScreen : MonoBehaviour
 {
     [SerializeField]
     GameObject prefab;
 
-	void Start () 
+    void Start()
     {
         var stackController = Services.Instance.Resolve<UIStackController>();
         if(stackController == null)
@@ -33,5 +33,5 @@ public class AutoInstantiateUIScreen : MonoBehaviour
         {
             stackController.PushImmediate(go);
         }
-	}
+    }
 }

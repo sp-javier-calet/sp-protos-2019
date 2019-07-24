@@ -84,7 +84,7 @@ public class SelectorTutorialsController : UIViewController
                 $"Could not start {tutorialName}. A tutorial is already running: {_tutorialManager.ActiveTutorialName}";
 
             alertView.Input = false;
-            alertView.Buttons = new[] {"Ok"};
+            alertView.Buttons = new[] { "Ok" };
             alertView.Show(result => { });
         }
     }
