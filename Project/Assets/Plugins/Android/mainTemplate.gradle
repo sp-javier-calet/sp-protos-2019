@@ -62,9 +62,13 @@ dependencies {
     implementation 'com.android.support:customtabs:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
     implementation 'com.android.support:support-v4:25.3.1' // Facebook.Unity.Editor.AndroidSupportLibraryResolver.addSupportLibraryDependency
     implementation 'com.facebook.android:audience-network-sdk:5.3.1' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:46
+    implementation 'com.facebook.android:facebook-applinks:[5,6)' // Packages/es.socialpoint.sparta.external.facebook/FacebookSDK/Plugins/Editor/Dependencies.xml:6
+    implementation 'com.facebook.android:facebook-core:[5,6)' // Packages/es.socialpoint.sparta.external.facebook/FacebookSDK/Plugins/Editor/Dependencies.xml:5
+    implementation 'com.facebook.android:facebook-login:[5,6)' // Packages/es.socialpoint.sparta.external.facebook/FacebookSDK/Plugins/Editor/Dependencies.xml:7
+    implementation 'com.facebook.android:facebook-share:[5,6)' // Packages/es.socialpoint.sparta.external.facebook/FacebookSDK/Plugins/Editor/Dependencies.xml:8
     implementation 'com.github.vungle:vungle-android-sdk:6.3.24' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:84
     implementation 'com.google.android.gms:play-services-ads:17.2.0' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:18
-    implementation 'com.google.firebase:firebase-core:16.0.7' // Assets/Plugins/Sparta/Packages/FirebaseAnalytics/Editor/FirebaseAnalyticsDependencies.xml:5
+    implementation 'com.google.firebase:firebase-core:16.0.7' // Packages/es.socialpoint.sparta.extensions.firebaseanalytics/Editor/FirebaseAnalyticsDependencies.xml:5
     implementation 'com.google.games:gpgs-plugin-support:0.9.64' // Assets/Plugins/Sparta/External/GooglePlayGames/Editor/GooglePlayGamesPluginDependencies.xml:11
     implementation 'com.hyprmx.android:HyprMX-SDK:5.0' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:60
     implementation 'com.ironsource.adapters:adcolonyadapter:4.1.7@jar' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:23
@@ -75,6 +79,7 @@ dependencies {
     implementation 'com.ironsource.adapters:tapjoyadapter:4.1.5@jar' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:68
     implementation 'com.ironsource.adapters:unityadsadapter:4.1.4@jar' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:73
     implementation 'com.ironsource.adapters:vungleadapter:4.1.5@jar' // Packages/es.socialpoint.sparta.extensions.ads/Editor/IronSourceDependencies.xml:78
+    implementation 'com.parse.bolts:bolts-android:1.4.0' // Packages/es.socialpoint.sparta.external.facebook/FacebookSDK/Plugins/Editor/Dependencies.xml:4
     implementation 'es.socialpoint.sparta.plugins:sp_unity_plugins:stable' // Assets/Plugins/Sparta/Binaries/Editor/PluginsDependencies.xml:8
 // Android Resolver Dependencies End
 **DEPS**}

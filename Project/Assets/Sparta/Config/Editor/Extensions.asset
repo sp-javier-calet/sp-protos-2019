@@ -17,6 +17,8 @@ MonoBehaviour:
     Enabled: 1
   - Name: Asset Graph
     Enabled: 0
+  - Name: Facebook
+    Enabled: 1
   - Name: Firebase Analytics
     Enabled: 1
   - Name: Graybox Library
