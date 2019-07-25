@@ -8,7 +8,7 @@
 import os
 import pygithook
 from pygithook.generic import PreCommitStagedFilter, DetectUnmergedConflicts, RunGitLfs, RemoveBadBoms, \
-    IncludeFilter, ExcludeFilter, RemoveTrailingSpace, AddEndLineBreak, IndentWithSpaces
+    IncludeFilter, ExcludeFilter, RemoveTrailingSpace, AddEndLineBreak, IndentWithSpaces, FixLinebreaks
 from pygithook.coding import CommentHeader, ApplyDotnetFormat, UnityHooks, SourceCodeMatch
 from pygithook.strmatch import AndMatch, OrMatch, BaseNameMatch, NotMatch
 
@@ -52,6 +52,7 @@ def __filters(repo):
         'trailing-space: remove end of line whitespace': __srcfilter(RemoveTrailingSpace()),
         'end-linebreak: add linebreak at the end of files': __srcfilter(AddEndLineBreak()),
         'indent-spaces: replace indent tabs with spaces': __srcfilter(IndentWithSpaces()),
+        'unix-linebreaks: force unix linebreaks': __srcfilter(FixLinebreaks("\n")),
     }
 
 def load_filters(repo):
