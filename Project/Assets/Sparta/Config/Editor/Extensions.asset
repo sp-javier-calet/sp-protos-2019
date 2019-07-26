@@ -25,3 +25,5 @@ MonoBehaviour:
     Enabled: 0
   - Name: Multiplayer
     Enabled: 0
+  - Name: Transparent Bundles
+    Enabled: 0
