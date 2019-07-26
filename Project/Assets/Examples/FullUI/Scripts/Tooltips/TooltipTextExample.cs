@@ -9,7 +9,7 @@ using UnityEngine;
 using SocialPoint.GUIControl;
 using UnityEngine.UI;
 
-public class TooltipTextExample : SPTooltipViewController 
+public class TooltipTextExample : SPTooltipViewController
 {
     [SerializeField]
     Text _infoText;
@@ -21,7 +21,7 @@ public class TooltipTextExample : SPTooltipViewController
         {
             return;
         }
-        
+
         _infoText.text = tooltipData.Text;
     }
 }

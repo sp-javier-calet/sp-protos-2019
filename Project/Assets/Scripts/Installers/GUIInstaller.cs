@@ -40,7 +40,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
     static StringBuilder _stringBuilder = new StringBuilder();
 
-#region IInitializable implementation
+    #region IInitializable implementation
 
     public void Initialize(IResolutionContainer container)
     {
@@ -51,7 +51,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
         }
     }
 
-#endregion
+    #endregion
 
     public override void InstallBindings(IBindingContainer container)
     {
@@ -105,7 +105,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _closeAppPopup.Title = "CLOSE APP";
             _closeAppPopup.Message = "Do you want to close this app?";
             _closeAppPopup.Input = false;
-            _closeAppPopup.Buttons = new []{ "YES", "NO" };
+            _closeAppPopup.Buttons = new[] { "YES", "NO" };
             _closeAppPopup.Show(result =>
             {
                 if(result == 0)
@@ -156,12 +156,12 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
     HUDNotificationsController CreateHUDNotificationsController(IResolutionContainer container)
     {
-        return _root.GetComponentInChildren<HUDNotificationsController>(true);;
+        return _root.GetComponentInChildren<HUDNotificationsController>(true); ;
     }
 
     public void Dispose()
     {
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate) null);
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
         Destroy(_root);
     }
 }

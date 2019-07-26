@@ -21,7 +21,7 @@ namespace SocialPoint.Tutorial
             NewSceneName = "new_scene_name";
             OldSceneName = string.Empty;
         }
-        
+
         public override void RegisterEvents()
         {
             SceneManager.activeSceneChanged += OnActiveSceneChanged;

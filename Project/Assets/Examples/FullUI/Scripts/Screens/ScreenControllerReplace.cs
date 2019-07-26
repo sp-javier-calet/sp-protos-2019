@@ -7,7 +7,7 @@
 
 using SocialPoint.GUIControl;
 
-public class ScreenControllerReplace : UIViewController 
+public class ScreenControllerReplace : UIViewController
 {
     public ScreenControllerReplace()
     {

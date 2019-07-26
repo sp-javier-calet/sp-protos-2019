@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public class ScrollViewTestingHelper : MonoBehaviour 
+public class ScrollViewTestingHelper : MonoBehaviour
 {
     [SerializeField]
     InputField _inputScrollText;

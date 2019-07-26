@@ -7,7 +7,7 @@
 
 using SocialPoint.GUIControl;
 
-public class PopupController : UIViewController 
+public class PopupController : UIViewController
 {
     public PopupController()
     {

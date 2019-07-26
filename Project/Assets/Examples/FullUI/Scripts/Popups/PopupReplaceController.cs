@@ -7,7 +7,7 @@
 
 using SocialPoint.GUIControl;
 
-public class PopupReplaceController : UIViewController 
+public class PopupReplaceController : UIViewController
 {
     public PopupReplaceController()
     {
