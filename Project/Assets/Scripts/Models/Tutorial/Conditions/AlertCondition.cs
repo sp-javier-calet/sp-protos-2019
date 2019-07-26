@@ -52,7 +52,7 @@ namespace SocialPoint.Tutorial
             alertView.Title = "Tutorial Step";
             alertView.Message = AlertMessage;
             alertView.Input = false;
-            alertView.Buttons = new []{ "Ok" };
+            alertView.Buttons = new[] { "Ok" };
             alertView.Show(result => { _completed = true; });
 
             _shown = true;

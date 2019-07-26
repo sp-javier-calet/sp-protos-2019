@@ -92,7 +92,7 @@ public class GameInstaller : Installer
             _userService = userService;
         }
 
-#region IPlayerData implementation
+        #region IPlayerData implementation
 
         public string Id => _userService.UserId.ToString();
 
@@ -100,6 +100,6 @@ public class GameInstaller : Installer
 
         public int Level => 0; // TODO IVAN
 
-#endregion
+        #endregion
     }
 }

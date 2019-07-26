@@ -7,7 +7,7 @@
 
 using SocialPoint.GUIControl;
 
-public class ScrollViewExampleCellItem: UIScrollRectCellItem<ScrollViewExampleCellData>
+public class ScrollViewExampleCellItem : UIScrollRectCellItem<ScrollViewExampleCellData>
 {
     public SPText NameText;
     public SPText DescriptionText;

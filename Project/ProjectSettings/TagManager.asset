@@ -4,7 +4,6 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - MultiplayerParent
   - TooltipTrigger
   layers:
   - Default
@@ -40,12 +39,6 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: HUD
-    uniqueID: 4155421895
-    locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Develop
-    uniqueID: 65475407
     locked: 0
