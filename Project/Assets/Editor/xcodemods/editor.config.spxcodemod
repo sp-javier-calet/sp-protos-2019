@@ -2,7 +2,6 @@
 {
   "buildSettings": {
     "CC": "$(SRCROOT)/clang++-distcc-ccache",
-    "LDPLUSPLUS": "$(SRCROOT)/clang++-distcc-ccache",
     "GCC_PRECOMPILE_PREFIX_HEADER": "NO"
   },
   "copyFiles": {
