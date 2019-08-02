@@ -10,9 +10,7 @@ using SocialPoint.Base;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
-using SocialPoint.Locale;
 using SocialPoint.Notifications;
-using SocialPoint.Social;
 
 public class GameServicesInstaller : Installer, IInitializable
 {
@@ -22,14 +20,6 @@ public class GameServicesInstaller : Installer, IInitializable
 
         // Purchase store // TODO IVAN
         //container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
-
-        // Social Framework - Game chat rooms
-        container.Bind<ChatRoom<PublicChatMessage>>().ToMethod(CreatePublicChatRoom);
-        container.Bind<IChatRoom>().ToLookup<ChatRoom<PublicChatMessage>>();
-        container.Listen<ChatRoom<PublicChatMessage>>().Then(SetupPublicChatRoom);
-        container.Bind<ChatRoom<AllianceChatMessage>>().ToMethod(CreateAllianceChatRoom);
-        container.Bind<IChatRoom>().ToLookup<ChatRoom<AllianceChatMessage>>();
-        container.Listen<ChatRoom<AllianceChatMessage>>().Then(SetupAllianceChatRoom);
     }
 
     public void Initialize(IResolutionContainer container)
@@ -99,34 +89,5 @@ public class GameServicesInstaller : Installer, IInitializable
         _gameOperation.Finish();
 
         Log.i("GameOperation Finished");
-    }
-
-    ChatRoom<PublicChatMessage> CreatePublicChatRoom(IResolutionContainer container)
-    {
-        return new ChatRoom<PublicChatMessage>("public");
-    }
-
-    void SetupPublicChatRoom(IResolutionContainer container, ChatRoom<PublicChatMessage> room)
-    {
-        room.ChatManager = container.Resolve<ChatManager>();
-        room.Localization = container.Resolve<Localization>();
-
-        // Configure optional events to manage custom data
-        room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
-        room.ParseExtraInfo = PublicChatMessage.ParseExtraInfo;
-        room.SerializeExtraInfo = PublicChatMessage.SerializeExtraInfo;
-    }
-
-    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom(IResolutionContainer container)
-    {
-        return new ChatRoom<AllianceChatMessage>("alliance");
-    }
-
-    void SetupAllianceChatRoom(IResolutionContainer container, ChatRoom<AllianceChatMessage> room)
-    {
-        // Configure optional events to manage custom data
-        room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
-        room.ParseExtraInfo = AllianceChatMessage.ParseExtraInfo;
-        room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 }
