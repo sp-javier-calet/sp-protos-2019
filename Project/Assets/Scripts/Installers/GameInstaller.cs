@@ -13,7 +13,6 @@ using SocialPoint.GameLoading;
 using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.Restart;
 using SocialPoint.Social;
 using SocialPoint.Tutorial;
 using SocialPoint.Utils;

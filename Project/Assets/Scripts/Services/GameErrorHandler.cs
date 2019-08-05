@@ -9,7 +9,6 @@ using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Helpshift;
 using SocialPoint.Locale;
-using SocialPoint.Restart;
 
 class GameErrorHandler : SocialPoint.GameLoading.GameErrorHandler
 {
