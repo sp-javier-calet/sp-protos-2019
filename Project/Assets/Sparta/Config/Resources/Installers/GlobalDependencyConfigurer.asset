@@ -15,6 +15,7 @@ MonoBehaviour:
   _isGlobal: 1
   Installers:
   - {fileID: 11400000, guid: 06fa8f8640d404cab8abcb96557bc737, type: 2}
+  - {fileID: 11400000, guid: 8ef7d6f42e685436d8da8991aeaf5c65, type: 2}
   - {fileID: 11400000, guid: 39d65c5e81b424351a25b06d030d98c1, type: 2}
   - {fileID: 11400000, guid: 2d7cc26d83ff34aafae19fa7b877fd72, type: 2}
   - {fileID: 11400000, guid: 7ca7d15dbd0664eabaeabc1eb99bac63, type: 2}
