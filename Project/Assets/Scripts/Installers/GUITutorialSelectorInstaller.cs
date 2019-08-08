@@ -44,7 +44,7 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
             throw new InvalidOperationException("Could not find screens controller for initial screen");
         }
 
-        var tutorialManager = container.Resolve<TutorialManager>();
+        var tutorialManager = container.Resolve<ITutorialManager>();
         if(tutorialManager == null)
         {
             throw new InvalidOperationException("Could not find tutorial manager for tutorials selector");

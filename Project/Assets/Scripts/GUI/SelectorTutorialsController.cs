@@ -6,7 +6,6 @@
 //-----------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using SocialPoint.Alert;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,9 +21,8 @@ public class SelectorTutorialsController : UIViewController
 
     public Action<string> OnGoToTutorial { get; set; }
 
-    TutorialManager _tutorialManager;
+    ITutorialManager _tutorialManager;
     IAlertView _alertPrototype;
-    List<string> _tutorials;
 
     public SelectorTutorialsController()
     {
@@ -41,20 +39,18 @@ public class SelectorTutorialsController : UIViewController
             throw new InvalidOperationException("Could not find alert view");
         }
 
-        _tutorialManager = Services.Instance.Resolve<TutorialManager>();
+        _tutorialManager = Services.Instance.Resolve<ITutorialManager>();
         if(_tutorialManager == null)
         {
             throw new InvalidOperationException("Could not find tutorial manager for tutorials selector");
         }
-
-        _tutorials = _tutorialManager.Tutorials;
 
         ShowTutorialsUI();
     }
 
     void ShowTutorialsUI()
     {
-        foreach(string t in _tutorials)
+        foreach(string t in _tutorialManager.Tutorials)
         {
             InstantiateScenesButton(t);
         }
@@ -70,7 +66,7 @@ public class SelectorTutorialsController : UIViewController
         button.onClick.AddListener(() => OnStartTutorial(tutorialName));
     }
 
-    public void OnStartTutorial(string tutorialName)
+    void OnStartTutorial(string tutorialName)
     {
         if(_tutorialManager.HasActiveTutorial == false)
         {

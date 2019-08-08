@@ -31,7 +31,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
     }
 
     IEventProcessor _processor;
-    TutorialManager _tutorialManager;
+    ITutorialManager _tutorialManager;
     bool _initialised;
     bool _triggerTutorial;
 
@@ -59,7 +59,7 @@ public class ScriptEventTrigger : MonoBehaviour, IScriptEventsBridge
 
     void Init()
     {
-        _tutorialManager = Services.Instance.Resolve<TutorialManager>();
+        _tutorialManager = Services.Instance.Resolve<ITutorialManager>();
         _tutorialManager.TutorialCompleted += OnTutorialCompleted;
 
         var processor = Services.Instance.Resolve<IScriptEventProcessor>();
