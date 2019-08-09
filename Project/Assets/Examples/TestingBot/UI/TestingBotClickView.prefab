@@ -8,7 +8,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 22477512}
-  - component: {fileID: 11490124}
   - component: {fileID: 22205628}
   - component: {fileID: 11476980}
   m_Layer: 5
@@ -44,7 +43,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 22489646}
-  - component: {fileID: 11443060}
   - component: {fileID: 22277842}
   - component: {fileID: 11479370}
   m_Layer: 5
@@ -85,17 +83,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 9569428}
   _minDuration: 1
---- !u!114 &11443060
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 125290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434f139c8525748058ddca376614d318, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &11476980
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -150,17 +137,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &11490124
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 116180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434f139c8525748058ddca376614d318, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!222 &22205628
 CanvasRenderer:
   m_ObjectHideFlags: 1

@@ -10,6 +10,7 @@ using SocialPoint.Base;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
+using SocialPoint.GUIControl;
 using SocialPoint.Notifications;
 
 public class GameServicesInstaller : Installer, IInitializable
