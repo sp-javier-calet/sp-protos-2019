@@ -13,6 +13,7 @@ using SocialPoint.Base;
 using SocialPoint.Login;
 using UnityEngine.SceneManagement;
 
+[InstallerGameCategory]
 public class GUISceneSelectorInstaller : Installer, IInitializable
 {
     [Serializable]
@@ -26,10 +27,6 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
     public SettingsData Settings = new SettingsData();
 
     private string[] _scenes;
-
-    public GUISceneSelectorInstaller() : base(ModuleType.Game)
-    {
-    }
 
     public override void InstallBindings(IBindingContainer container)
     {

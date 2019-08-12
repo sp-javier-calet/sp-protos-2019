@@ -13,6 +13,7 @@ using SocialPoint.GameLoading;
 using SocialPoint.GUIControl;
 using SocialPoint.Notifications;
 
+[InstallerGameCategory]
 public class GameServicesInstaller : Installer, IInitializable
 {
     public override void InstallBindings(IBindingContainer container)

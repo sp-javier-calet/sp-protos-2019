@@ -11,6 +11,7 @@ using SocialPoint.GUIControl;
 using SocialPoint.Tutorial;
 using UnityEngine;
 
+[InstallerGameCategory]
 public class GUITutorialSelectorInstaller : Installer, IInitializable
 {
     [Serializable]
@@ -21,10 +22,6 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
     }
 
     public SettingsData Settings = new SettingsData();
-
-    public GUITutorialSelectorInstaller() : base(ModuleType.Game)
-    {
-    }
 
     public override void InstallBindings(IBindingContainer container)
     {
