@@ -15,7 +15,6 @@ MonoBehaviour:
   _isGlobal: 1
   Installers:
   - {fileID: 11400000, guid: 06fa8f8640d404cab8abcb96557bc737, type: 2}
-  - {fileID: 11400000, guid: 8ef7d6f42e685436d8da8991aeaf5c65, type: 2}
   - {fileID: 11400000, guid: 39d65c5e81b424351a25b06d030d98c1, type: 2}
   - {fileID: 11400000, guid: 2d7cc26d83ff34aafae19fa7b877fd72, type: 2}
   - {fileID: 11400000, guid: 7ca7d15dbd0664eabaeabc1eb99bac63, type: 2}
@@ -39,6 +38,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f9e8e73643a20465ca44a40487b14934, type: 2}
   - {fileID: 11400000, guid: b90687caff76f4155bdf3c66853122d5, type: 2}
   - {fileID: 11400000, guid: 43d6ddf35b88a490ba14acb1f5563933, type: 2}
-  - {fileID: 11400000, guid: 90a1b5e183be24288add4ed5cce6ea47, type: 2}
   - {fileID: 11400000, guid: 345451d80691f41299c3b423d5a36a9f, type: 2}
   - {fileID: 11400000, guid: 2ca3aebef0608460ab915314e108698b, type: 2}
+  - {fileID: 11400000, guid: 8031b4d2de09a4e36b1a958686e91368, type: 2}
