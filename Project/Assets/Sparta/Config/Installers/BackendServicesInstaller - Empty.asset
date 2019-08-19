@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd85d1992203410e8995420a693b61c, type: 3}
+  m_Name: BackendServicesInstaller - Empty
+  m_EditorClassIdentifier: 
+  _isGlobal: 0
+  Settings:
+    Sync:
+      UseEmpty: 1
+      IgnoreResponses: 0
+      SendInterval: 20
+      MaxOutOfSyncInterval: 0
+      Timeout: 60
+      BackoffMultiplier: 1.1
+      PingEnabled: 1
+    Login:
+      TypeLogin: 1
+      Timeout: 120
+      ActivityTimeout: 15
+      AutoupdateFriendsPhotoSize: 0
+      MaxSecurityTokenErrorRetries: 5
+      MaxConnectivityErrorRetries: 0
+      EnableLinkConfirmRetries: 0
+      UserMappingsBlock: 50
+    Events:
+      UseEmpty: 1
+      AutoStart: 1
+      MaxOutOfSyncInterval: 0
+      SendInterval: 5
+      Timeout: 30
+    Notifications:
+      AutoRegisterForRemote: 1
+      channels: []
+    Crashes:
+      UseEmpty: 1
+      SendInterval: 20
+      ErrorLogActive: 1
+      ExceptionLogActive: 1
+      EnableSendingCrashesBeforeLogin: 0
+      NumRetriesBeforeSendingCrashBeforeLogin: 3
+    QualityStats:
+      UseEmpty: 1
+    MessageCenter:
+      UseEmpty: 1
+    CrossPromotion:
+      XPromoTests:
+        XPromoAndroid: {fileID: 0}
+        XPromoIos: {fileID: 0}
+        XPromoTestFail: {fileID: 0}
+      CrossPromotion:
+        ButtonPrefab: {fileID: 0}
+        PopupPrefab: {fileID: 0}
+    UserAgreementService:
+      Enable: 0
+      PopupPrefab: {fileID: 0}
+    SessionConnectivity:
+      AllowOfflineSessions: 0
+      OfflineSessionTimeout: 120

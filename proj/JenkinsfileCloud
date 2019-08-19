@@ -1,0 +1,22 @@
+@Library('sptools')_
+
+spUnityPipeline {
+    agentName = "unity_base_game"
+    onUpdate = {
+        sh "export"
+    }
+    onPrepare = {
+    }
+    onGenerate = {
+    }
+    onBuild = {
+    }
+    onCheck = {
+    }
+    onDeploy = {
+    }
+    onSuccess = {
+    }
+    onFailure = {
+    }
+}

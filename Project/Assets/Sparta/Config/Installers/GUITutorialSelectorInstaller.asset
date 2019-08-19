@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7be738fd721c504f912ad5d79e001d7, type: 3}
+  m_Name: GUITutorialSelectorInstaller
+  m_EditorClassIdentifier: 
+  _isGlobal: 0
+  Settings:
+    InitialScreenPrefab: {fileID: 1675610529506478, guid: f0191aeeab3ec82428fcf71078d3a33d,
+      type: 2}
+    Tutorials: {fileID: 11400000, guid: e93d0b66a1ea50049aecf0f0c6a15e35, type: 2}

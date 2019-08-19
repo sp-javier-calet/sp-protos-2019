@@ -1,0 +1,13 @@
+@Library('sptools')_
+
+spUnityIntegrationPipeline {
+    agentName = "unity_base_game"
+    onUpdate = {
+        sh "export"
+    }
+    enableUnitTests = true
+    enableGenerate = true
+    environment = [
+        CONFIG: "Shipping"
+    ]
+}

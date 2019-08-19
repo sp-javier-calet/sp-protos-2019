@@ -1,0 +1,56 @@
+[
+	{
+		"name": "action.alert",
+		"args": {
+			"id": "test_event_alert_id",
+			"title": "Test Event Script",
+			"message": "This is a test event script that will send a server command when there is a memory warning.",
+			"buttons": ["Ok", "Cancel"],
+			"actions": [
+				{
+					"name": "event.test_script_alert_ok"
+				}
+			]
+		},
+		"forward": {
+			"type": "name",
+			"value": "event.test_script_alert_ok"
+		}
+	},
+	{
+		"name": "action.log",
+		"args": "Starting script in 1 second!"
+	},
+	{
+		"name": "action.wait",
+		"args": {
+			"secs": 1,
+			"action": {
+				"name": "event.test_script_wait_finished"
+			}
+		},
+		"forward": {
+			"type": "name",
+			"value": "event.test_script_wait_finished"
+		}
+	},
+	{
+		"name": "action.log",
+		"args": "Starting script!"
+	},
+	{
+		"forward": {
+			"type": "name",
+			"value": "event.app.memory_warning"
+		}
+	},
+	{
+		"name": "action.server.command",
+		"args": {
+			"name": "game.memory_warning",
+			"args": {
+				"test": "lala"
+			}
+		}
+	}
+]

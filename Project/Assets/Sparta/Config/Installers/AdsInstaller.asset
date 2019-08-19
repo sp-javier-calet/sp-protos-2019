@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01bd266d1570841a9af81934326e0299, type: 3}
+  m_Name: AdsInstaller
+  m_EditorClassIdentifier: 
+  _isGlobal: 1
+  Environments:
+  - Name: IRONSOURCE_TEST_APP
+    iOSSettings:
+      AppKey: 7d43d435
+      Segments:
+      - all
+      - adcolony
+      - admob
+      - facebook
+      - hyprmx
+      - ironsource
+      - tapjoy
+      - unityads
+      - vungle
+    AndroidSettings:
+      AppKey: 7d4566ed
+      Segments:
+      - all
+      - adcolony
+      - admob
+      - facebook
+      - hyprmx
+      - ironsource
+      - tapjoy
+      - unityads
+      - vungle
+  - Name: IRONSOURCE_DC_APP
+    iOSSettings:
+      AppKey: 2f8037f5
+      Segments: []
+    AndroidSettings:
+      AppKey: 2f7f184d
+      Segments: []
+  ExtraSettings:
+    EnableRewardedVideos: 1
+    RewardedVideosLoadTimeout: 5
+    EnableInterstitials: 1
+    EnableOfferWall: 1
+    EnableBanners: 1
+    UsersAreAnonymousByDefault: 0

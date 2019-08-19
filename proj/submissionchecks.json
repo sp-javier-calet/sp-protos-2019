@@ -1,0 +1,61 @@
+{
+    "common": {
+        "facebook_id": 0
+    },
+    "ios": {
+        "url_schema": "basegame",
+        "min_ios_version": "9.0",
+        "min_sdk_version": "12.1",
+        "architectures": ["armv7", "arm64"],
+        "device_family": ["iphone", "ipad"],
+        "provisioning_profile": "",
+        "orientations": {
+            "iphone": ["portrait", "landscape_right", "landscape_left"],
+            "ipad": ["portrait", "landscape_right", "landscape_left"]
+        },
+        "icons": {
+            "iphone": [40, 60, 20, 29, 58, 87, 120, 80, 180],
+            "ipad": [20, 29, 40, 58, 60, 76, 80, 87, 120, 152, 167, 180]
+        },
+        "launch_images": [],
+        "capabilities": ["armv7", "gamekit"],
+        "pkg_download_size": {
+            "error": 110,
+            "warning": 90
+        }
+    },
+    "android": {
+        "api_level": {
+            "min": 16,
+            "target": 27
+        },
+        "permissions": {
+            "expected": ["com.android.vending.BILLING", "com.google.android.c2dm.permission.RECEIVE"],
+            "forbidden": ["android.permission.READ_PHONE_STATE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
+        },
+        "orientation": "fullSensor",
+        "icons": {
+            "ldpi": 36,
+            "mdpi": 48,
+            "hdpi": 72,
+            "xhdpi": 96,
+            "xxhdpi": 144,
+            "xxxhdpi": 192
+        },
+        "pkg_size": {
+            "error": 110,
+            "warning": 90
+        },
+        "main_activity": "es.socialpoint.unity.base.SPUnityActivity"
+    },
+    "android_arm64-v8a": {
+        "architectures": ["arm64-v8a"]
+    },
+    "android_armeabi-v7a": {
+        "architectures": ["armeabi-v7a"]
+    },
+    "android_google": {
+    },
+    "android_amazon": {
+    }
+}
