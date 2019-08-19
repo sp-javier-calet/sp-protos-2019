@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -12,6 +13,6 @@ MonoBehaviour:
   m_Name: MainSceneMeta
   m_EditorClassIdentifier: 
   MainScene:
-    _sceneAsset: {fileID: 102900000, guid: 55a5cd0863a2d4ed2a760efef9580f65, type: 3}
-    _sceneName: MainScene
+    _sceneAsset: {fileID: 102900000, guid: cd5c245ed0d9f448d9d23bb3b1529d12, type: 3}
+    _sceneName: GameScene
   SceneNames: []
