@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 49492
+  _instanceID: 77314
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: c3ff29a04e8f12e4a87617a44acea6f4, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -732,7 +732,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!65 &6698676498396410933
 BoxCollider:
@@ -1015,7 +1015,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 49452
+  _instanceID: 77274
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 7355381b1e2ffcd47b5f74c87e263dd5, type: 2}
   _originalMaterialIsUIDefault: 0

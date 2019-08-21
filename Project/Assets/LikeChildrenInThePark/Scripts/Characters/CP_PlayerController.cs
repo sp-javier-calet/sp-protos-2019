@@ -1,4 +1,5 @@
 ﻿
+using DG.Tweening;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -30,8 +31,13 @@ public class CP_PlayerController : MonoBehaviour
     Animation _animator = null;
     Camera _gameCamera = null;
     CP_SceneManager _sceneManager = null;
-    RaycastHit _hit;
+    RaycastHit _hitDown;
+    RaycastHit _hitForward;
     float _initialDistance = 0f;
+    Vector3 _direction = Vector3.right;
+
+    bool _pressedDown = false;
+    bool _pressedUp = false;
 
     void Awake()
     {
@@ -48,23 +54,23 @@ public class CP_PlayerController : MonoBehaviour
         transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 1.5f, 1.0f, -1.2f);
 
         var dist = 0f;
-        GetHitDistance(out dist);
+        GetHitDistance(out dist, out _hitDown, -Vector3.up);
         _initialDistance = dist;
 
         Walk();
     }
 
-    bool GetHitDistance(out float distance)
+    bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 direction, float maxDistance = 0.0001f)
     {
         distance = 0f;
 
         int layerMask = 1 << 9;
         layerMask = ~layerMask;
 
-        Ray downRay = new Ray(transform.position, -Vector3.up);
-        if (Physics.Raycast(downRay, out _hit, 0.0001f, layerMask))
+        Ray downRay = new Ray(transform.position, direction);
+        if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
         {
-            distance = _hit.distance;
+            distance = hit.distance;
             return true;
         }
 
@@ -76,14 +82,31 @@ public class CP_PlayerController : MonoBehaviour
         _sceneManager = sceneManager;
     }
 
+    public void Turn()
+    {
+        if (_direction == Vector3.right)
+        {
+            _direction = Vector3.left;
+            transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f);
+        }
+        else
+        {
+            _direction = Vector3.right;
+            transform.DOLocalRotate(new Vector3(0f, 130f, 0f), 0.1f);
+        }
+    }
+
     void Walk()
     {
-        if(_animator != null)
+        if (_playerState != PlayerState.E_WALKING)
         {
-            _animator.Play("walk");
-        }
+            if(_animator != null)
+            {
+                _animator.Play("walk");
+            }
 
-        _playerState = PlayerState.E_WALKING;
+            _playerState = PlayerState.E_WALKING;
+        }
     }
 
     void Jump()
@@ -116,12 +139,21 @@ public class CP_PlayerController : MonoBehaviour
     {
         if (_playerState == PlayerState.E_WALKING)
         {
-            transform.position += (Vector3.right * kMoveForce);
+            transform.position += (_direction * kMoveForce);
         }
         else
         {
-            transform.position += (Vector3.right * kMoveJumpingForce);  
+            transform.position += (_direction * kMoveJumpingForce);  
         }
+    }
+
+    public void OnPressedDown()
+    {
+        _pressedDown = true;
+    }
+    public void OnPressedUp()
+    {
+        _pressedUp = true;
     }
 
     void LateUpdate()
@@ -133,20 +165,22 @@ public class CP_PlayerController : MonoBehaviour
 
         if(!_holding)
         {
-            if(Input.GetMouseButtonDown(0))
+            //if(Input.GetMouseButtonDown(0))
+            if (_pressedDown)
             {
                 _holding = true;
                 _holdingStartTime = TimeUtils.TimestampMilliseconds;
             }
         }
 
-        if(Input.GetMouseButtonUp(0))
+        //if(Input.GetMouseButtonUp(0))
+        if (_pressedUp)
         {
             _holding = false;
 
             if (TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
             {
-                if (_playerState == PlayerState.E_WALKING)
+                if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
                 {
                     Jump();
                 } 
@@ -184,21 +218,29 @@ public class CP_PlayerController : MonoBehaviour
             }
         }
 
-        if (_playerState == PlayerState.E_WALKING ||
-            _playerState == PlayerState.E_JUMPING ||
-            _playerState == PlayerState.E_JUMPING_FALL)
-        {
-            MoveForward();
-        }
-
         var dist = 0f;
-        if (GetHitDistance(out dist))
+        if (GetHitDistance(out dist, out _hitDown, -Vector3.up))
         {
-            Debug.Log(_hit.collider.name);
+            Debug.Log(_hitDown.collider.name);
 
             if(_playerState == PlayerState.E_JUMPING_FALL)
             {
                 Walk();
+            }
+        }
+
+        if(_playerState == PlayerState.E_JUMPING_FALL && _rigidBody.velocity.y == 0.0f)
+        {
+            Walk();
+        }
+
+        if (!GetHitDistance(out dist, out _hitForward, _direction, 1.25f))
+        {
+            if (_playerState == PlayerState.E_WALKING ||
+                _playerState == PlayerState.E_JUMPING ||
+                _playerState == PlayerState.E_JUMPING_FALL)
+            {
+                MoveForward();
             }
         }
 
@@ -210,5 +252,8 @@ public class CP_PlayerController : MonoBehaviour
 
             _gameCamera.transform.position = _vectTemp;
         }
+
+        _pressedDown = false;
+        _pressedUp = false;
     }
 }

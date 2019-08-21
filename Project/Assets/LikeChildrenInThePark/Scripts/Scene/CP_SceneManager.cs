@@ -1,10 +1,19 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using SocialPoint.Utils;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CP_SceneManager : MonoBehaviour
 {
+    public enum SceneObjectTypes
+    {
+        E_WALL_LEFT = (1 << 0),
+        E_WALL_RIGHT = (1 << 1)
+
+    }
+
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
 
@@ -12,9 +21,12 @@ public class CP_SceneManager : MonoBehaviour
     public List<GameObject> SceneBackgrounds = null;
     public int ScenePiecesLength = -1;
     public GameObject PlayerGO = null;
+    public Button TurnBack = null;
+    public Button TurnForward = null;
 
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
+    List<int> _sceneObjects = new List<int>();
     List<GameObject> _sceneBackgroundsGO = new List<GameObject>();
     CP_PlayerController _player = null;
 
@@ -47,6 +59,7 @@ public class CP_SceneManager : MonoBehaviour
     void GenerateMapData(int length)
     {
         _sceneBackgrounds.Clear();
+        _sceneObjects.Clear();
 
         List<int> previousRandoms = new List<int>();
 
@@ -64,15 +77,24 @@ public class CP_SceneManager : MonoBehaviour
             }
 
             previousRandoms.Add(randomBackground);
-
             _sceneBackgrounds.Add(randomBackground);
+
+            var sceneObjects = 0;
+            if (i == 0)
+            {
+                sceneObjects += (int) SceneObjectTypes.E_WALL_LEFT;
+            }
+            else if (i == length-1)
+            {
+                sceneObjects += (int) SceneObjectTypes.E_WALL_RIGHT;
+            }
+
+            _sceneObjects.Add(sceneObjects);
         }
     }
 
     void GenerateMap(int mapPos, int mapIndex, bool goingRight)
     {
-        Debug.Log("GenerateMap " + mapPos + " " + mapIndex + " " + goingRight);
-
         if(SceneMainPiece != null)
         {
             GameObject newSceneMainPiece = Instantiate(SceneMainPiece);
@@ -85,6 +107,8 @@ public class CP_SceneManager : MonoBehaviour
                 GameObject newSceneBackground = Instantiate(SceneBackgrounds[_sceneBackgrounds[mapIndex]]);
                 newSceneBackground.transform.SetParent(newSceneMainPiece.transform, false);
             }
+
+            GenerateSceneObjects(mapPos, _sceneObjects[mapIndex], newSceneMainPiece);
 
             if (_sceneBackgroundsGO.Count == 3)
             {
@@ -106,6 +130,23 @@ public class CP_SceneManager : MonoBehaviour
             else
             {
                 _sceneBackgroundsGO.Add(newSceneMainPiece);
+            }
+        }
+    }
+
+    void GenerateSceneObjects(int mapPos, int sceneObjects, GameObject parentGO)
+    {
+        foreach(var objectType in Enum.GetValues(typeof(SceneObjectTypes)))
+        {
+            if ((sceneObjects & (int)objectType) != 0)
+            {
+                SceneObjectTypes objectToCreate = (SceneObjectTypes) objectType;
+                GameObject baseGO = Resources.Load("Prefabs/SceneObjects/" + objectToCreate.ToString()) as GameObject;
+                if (baseGO != null)
+                {
+                    GameObject newSceneBackground = Instantiate(baseGO);
+                    newSceneBackground.transform.SetParent(parentGO.transform, false);
+                }
             }
         }
     }
@@ -152,6 +193,54 @@ public class CP_SceneManager : MonoBehaviour
 
                 GenerateMap(playerIndexPosMap, playerIndexPos, goingRight);
             }
+        }
+    }
+
+    public void OnPressedDown()
+    {
+        if (_player != null)
+        {
+            _player.OnPressedDown();
+        }
+    }
+    public void OnPressedUp()
+    {
+        if (_player != null)
+        {
+            _player.OnPressedUp();
+        }
+    }
+
+    public void PressedTurnBack()
+    {
+        if (TurnBack != null)
+        {
+            TurnBack.gameObject.SetActive(false);
+        }
+        if (TurnForward != null)
+        {
+            TurnForward.gameObject.SetActive(true);
+        }
+
+        if (_player != null)
+        {
+            _player.Turn();
+        }
+    }
+    public void PressedTurnForward()
+    {
+        if (TurnBack != null)
+        {
+            TurnBack.gameObject.SetActive(true);
+        }
+        if (TurnForward != null)
+        {
+            TurnForward.gameObject.SetActive(false);
+        }
+
+        if (_player != null)
+        {
+            _player.Turn();
         }
     }
 }
