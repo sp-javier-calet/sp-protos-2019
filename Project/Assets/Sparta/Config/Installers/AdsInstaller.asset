@@ -4,14 +4,15 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01bd266d1570841a9af81934326e0299, type: 3}
   m_Name: AdsInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 1
+  _isGlobal: 0
   Environments:
   - Name: IRONSOURCE_TEST_APP
     iOSSettings:

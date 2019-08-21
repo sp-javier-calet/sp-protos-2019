@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 62080
+  _instanceID: 58564
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 4a66a50594a944f118df43fcd2062d7e, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -84,11 +84,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1234037014619520812}
     m_Modifications:
-    - target: {fileID: 3696350394130761818, guid: 741992866e78a483cb8119f12c344f97,
-        type: 3}
-      propertyPath: m_Name
-      value: Tree
-      objectReference: {fileID: 0}
     - target: {fileID: 6831181566426513674, guid: 741992866e78a483cb8119f12c344f97,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -143,6 +138,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7674345020337197935, guid: 741992866e78a483cb8119f12c344f97,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7674345020337197935, guid: 741992866e78a483cb8119f12c344f97,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3696350394130761818, guid: 741992866e78a483cb8119f12c344f97,
+        type: 3}
+      propertyPath: m_Name
+      value: Tree
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 741992866e78a483cb8119f12c344f97, type: 3}
@@ -219,6 +229,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2424621553904502480, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2424621555547076122, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a655dbe4f36a4e4e9029dffd1b58ead, type: 3}
 --- !u!4 &1234037014598531694 stripped
@@ -234,11 +254,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1234037014619520812}
     m_Modifications:
-    - target: {fileID: 3696350394130761818, guid: 741992866e78a483cb8119f12c344f97,
-        type: 3}
-      propertyPath: m_Name
-      value: Tree
-      objectReference: {fileID: 0}
     - target: {fileID: 6831181566426513674, guid: 741992866e78a483cb8119f12c344f97,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -298,6 +313,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7674345020337197935, guid: 741992866e78a483cb8119f12c344f97,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3696350394130761818, guid: 741992866e78a483cb8119f12c344f97,
+        type: 3}
+      propertyPath: m_Name
+      value: Tree
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 741992866e78a483cb8119f12c344f97, type: 3}

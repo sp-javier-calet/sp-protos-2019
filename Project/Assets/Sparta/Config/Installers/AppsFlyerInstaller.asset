@@ -4,14 +4,15 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f4c585cd51404879a3a8eb9199dcf0a, type: 3}
   m_Name: AppsFlyerInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 1
+  _isGlobal: 0
   Settings:
     ActiveOnIOS: 1
     IosAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3

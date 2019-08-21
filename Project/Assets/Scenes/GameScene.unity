@@ -147,7 +147,7 @@ Transform:
   m_GameObject: {fileID: 19090854}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 3.207902, z: 3.8999996}
-  m_LocalScale: {x: 12, y: 1, z: -4}
+  m_LocalScale: {x: -12, y: 1, z: -4}
   m_Children: []
   m_Father: {fileID: 640754307}
   m_RootOrder: 3
@@ -389,7 +389,7 @@ Transform:
   m_GameObject: {fileID: 411605127}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -3.2820983, z: 3.901}
-  m_LocalScale: {x: 12, y: 1, z: 4}
+  m_LocalScale: {x: -12, y: 1, z: 4}
   m_Children: []
   m_Father: {fileID: 640754307}
   m_RootOrder: 4
@@ -501,7 +501,7 @@ Camera:
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1537
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -683,7 +683,9 @@ MonoBehaviour:
   - {fileID: 3176056070065339465, guid: 5f2f60d60598b42b58ee9b36abaa1457, type: 3}
   - {fileID: 5352327612219120411, guid: 6588c246af64e406185f624d27362756, type: 3}
   - {fileID: 4594292548087179875, guid: a1da2c7d03ee6481ba0551b8705d57bc, type: 3}
-  ScenePiecesLength: 30
+  ScenePiecesLength: -1
+  PlayerGO: {fileID: 6697712995093948240, guid: 9f638399acac4436c86949b9cb3a2f38,
+    type: 3}
 --- !u!1 &2054443283
 GameObject:
   m_ObjectHideFlags: 0
