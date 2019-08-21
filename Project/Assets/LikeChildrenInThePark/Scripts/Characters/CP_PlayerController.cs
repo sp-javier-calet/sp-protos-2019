@@ -11,7 +11,9 @@ public class CP_PlayerController : MonoBehaviour
         E_WALKING,
         E_JUMPING,
         E_JUMPING_FALL,
-        E_STOPPED
+        E_STOPPED,
+        E_DAMAGED,
+        E_DAMAGED_FALL
     }
 
     const int kHoldingJumpMaxMillis = 150;
@@ -56,8 +58,6 @@ public class CP_PlayerController : MonoBehaviour
         var dist = 0f;
         GetHitDistance(out dist, out _hitDown, -Vector3.up);
         _initialDistance = dist;
-
-        Walk();
     }
 
     bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 direction, float maxDistance = 0.0001f)
@@ -80,19 +80,21 @@ public class CP_PlayerController : MonoBehaviour
     public void SetSceneManager(CP_SceneManager sceneManager)
     {
         _sceneManager = sceneManager;
+        
+        Walk();
     }
 
-    public void Turn()
+    public void Turn(bool withAnim = true)
     {
         if (_direction == Vector3.right)
         {
             _direction = Vector3.left;
-            transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f);
+            if (withAnim) transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f);
         }
         else
         {
             _direction = Vector3.right;
-            transform.DOLocalRotate(new Vector3(0f, 130f, 0f), 0.1f);
+            if (withAnim) transform.DOLocalRotate(new Vector3(0f, 130f, 0f), 0.1f);
         }
     }
 
@@ -103,6 +105,12 @@ public class CP_PlayerController : MonoBehaviour
             if(_animator != null)
             {
                 _animator.Play("walk");
+            }
+
+            if (_sceneManager.GirlHeadUI != null)
+            {
+                _sceneManager.GirlHeadUI["walk"].speed = 2.0f;
+                _sceneManager.GirlHeadUI.Play("walk");
             }
 
             _playerState = PlayerState.E_WALKING;
@@ -121,6 +129,13 @@ public class CP_PlayerController : MonoBehaviour
                 _animator["jump"].time = 0.06f;
             }
 
+            if (_sceneManager.GirlHeadUI != null)
+            {
+                _sceneManager.GirlHeadUI.Play("jump");
+                _sceneManager.GirlHeadUI["jump"].speed = 0.5f;
+                _sceneManager.GirlHeadUI["jump"].time = 0.06f;
+            }
+
             _playerState = PlayerState.E_JUMPING;
         }
     }
@@ -132,7 +147,37 @@ public class CP_PlayerController : MonoBehaviour
             _animator.Play("idle");
         }
 
+        if (_sceneManager.GirlHeadUI != null)
+        {
+            _sceneManager.GirlHeadUI.Play("idle");
+        }
+
         _playerState = PlayerState.E_STOPPED;
+    }
+
+    void Hurt()
+    {
+        if(_rigidBody != null)
+        {
+            Turn(false);
+
+            _rigidBody.AddForce(Vector3.up * kJumpForce * 0.75f, ForceMode.Impulse);
+
+            if(_animator != null)
+            {
+                _animator.Play("damage");
+            }
+
+            if (_sceneManager.GirlHeadUI != null)
+            {
+                _sceneManager.GirlHeadUI.Play("damage");
+            }
+
+            _sceneManager.SetTurnEnabled(false);
+            _sceneManager.SetSuicideEnabled(false);
+
+            _playerState = PlayerState.E_DAMAGED;
+        }
     }
 
     void MoveForward()
@@ -143,7 +188,14 @@ public class CP_PlayerController : MonoBehaviour
         }
         else
         {
-            transform.position += (_direction * kMoveJumpingForce);  
+            if (_playerState == PlayerState.E_DAMAGED || _playerState == PlayerState.E_DAMAGED_FALL)
+            {
+                transform.position += (_direction * kMoveJumpingForce * 2.0f);
+            }
+            else
+            {
+                transform.position += (_direction * kMoveJumpingForce);
+            }
         }
     }
 
@@ -155,6 +207,10 @@ public class CP_PlayerController : MonoBehaviour
     {
         _pressedUp = true;
     }
+    public void OnPressedSuicide()
+    {
+        Hurt();
+    }
 
     void LateUpdate()
     {
@@ -165,7 +221,6 @@ public class CP_PlayerController : MonoBehaviour
 
         if(!_holding)
         {
-            //if(Input.GetMouseButtonDown(0))
             if (_pressedDown)
             {
                 _holding = true;
@@ -173,7 +228,6 @@ public class CP_PlayerController : MonoBehaviour
             }
         }
 
-        //if(Input.GetMouseButtonUp(0))
         if (_pressedUp)
         {
             _holding = false;
@@ -217,19 +271,38 @@ public class CP_PlayerController : MonoBehaviour
                 }
             }
         }
+        if(_playerState == PlayerState.E_DAMAGED)
+        {
+            if(_rigidBody != null)
+            {
+                if(_rigidBody.velocity.y < 0.0f)
+                {
+                    _playerState = PlayerState.E_DAMAGED_FALL;
+                }
+            }
+        }
 
         var dist = 0f;
         if (GetHitDistance(out dist, out _hitDown, -Vector3.up))
         {
             Debug.Log(_hitDown.collider.name);
 
-            if(_playerState == PlayerState.E_JUMPING_FALL)
+            if(_playerState == PlayerState.E_JUMPING_FALL || 
+               _playerState == PlayerState.E_DAMAGED_FALL)
             {
+                if (_playerState == PlayerState.E_DAMAGED_FALL)
+                {
+                    _sceneManager.SetTurnEnabled(true);
+                    _sceneManager.SetSuicideEnabled(true);
+
+                    Turn(false);
+                }
+
                 Walk();
             }
         }
 
-        if(_playerState == PlayerState.E_JUMPING_FALL && _rigidBody.velocity.y == 0.0f)
+        if ((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
         {
             Walk();
         }
@@ -238,7 +311,9 @@ public class CP_PlayerController : MonoBehaviour
         {
             if (_playerState == PlayerState.E_WALKING ||
                 _playerState == PlayerState.E_JUMPING ||
-                _playerState == PlayerState.E_JUMPING_FALL)
+                _playerState == PlayerState.E_JUMPING_FALL ||
+                _playerState == PlayerState.E_DAMAGED ||
+                _playerState == PlayerState.E_DAMAGED_FALL)
             {
                 MoveForward();
             }

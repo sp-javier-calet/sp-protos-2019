@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+using SocialPoint.Rendering.Components;
 
 public class CP_SceneManager : MonoBehaviour
 {
@@ -23,12 +24,18 @@ public class CP_SceneManager : MonoBehaviour
     public GameObject PlayerGO = null;
     public Button TurnBack = null;
     public Button TurnForward = null;
+    public Button Suicide = null;
+    public Animation GirlHeadUI = null;
+    public PlayerStats PlayerStats = null;
 
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
     List<int> _sceneObjects = new List<int>();
     List<GameObject> _sceneBackgroundsGO = new List<GameObject>();
     CP_PlayerController _player = null;
+    BCSHModifier SuicideBCSH = null;
+    BCSHModifier TurnForwardBCSH = null;
+    BCSHModifier TurnBackBCSH = null;
 
     int _sceneMapLastGeneratedIndex = -1;
 
@@ -208,6 +215,86 @@ public class CP_SceneManager : MonoBehaviour
         if (_player != null)
         {
             _player.OnPressedUp();
+        }
+    }
+
+    public void OnPressedSuicide()
+    {
+        if (_player != null)
+        {
+            _player.OnPressedSuicide();
+        }
+    }
+
+    public void SetTurnEnabled(bool enabled)
+    {
+        if (TurnBack != null)
+        {
+            TurnBack.interactable = enabled;
+            
+            if (TurnBackBCSH == null)
+            {
+                TurnBackBCSH = Suicide.GetComponent<BCSHModifier>();
+            }
+
+            if (TurnBackBCSH != null)
+            {
+                if (enabled)
+                {
+                    TurnBackBCSH.ApplyBCSHState("default");
+                }
+                else
+                {
+                    TurnBackBCSH.ApplyBCSHState("disabled");
+                }
+            }
+        }
+
+        if (TurnForward != null)
+        {
+            TurnForward.interactable = enabled;
+            
+            if (TurnForwardBCSH == null)
+            {
+                TurnForwardBCSH = Suicide.GetComponent<BCSHModifier>();
+            }
+
+            if (TurnForwardBCSH != null)
+            {
+                if (enabled)
+                {
+                    TurnForwardBCSH.ApplyBCSHState("default");
+                }
+                else
+                {
+                    TurnForwardBCSH.ApplyBCSHState("disabled");
+                }
+            }
+        }
+    }
+
+    public void SetSuicideEnabled(bool enabled)
+    {
+        if (Suicide != null)
+        {
+            Suicide.interactable = enabled;
+            
+            if (SuicideBCSH == null)
+            {
+                SuicideBCSH = Suicide.GetComponent<BCSHModifier>();
+            }
+
+            if (SuicideBCSH != null)
+            {
+                if (enabled)
+                {
+                    SuicideBCSH.ApplyBCSHState("default");
+                }
+                else
+                {
+                    SuicideBCSH.ApplyBCSHState("disabled");
+                }
+            }
         }
     }
 
