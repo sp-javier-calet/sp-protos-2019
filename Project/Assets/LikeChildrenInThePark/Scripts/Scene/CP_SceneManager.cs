@@ -11,8 +11,9 @@ public class CP_SceneManager : MonoBehaviour
     public enum SceneObjectTypes
     {
         E_WALL_LEFT = (1 << 0),
-        E_WALL_RIGHT = (1 << 1)
+        E_WALL_RIGHT = (1 << 1),
 
+        E_CHECKPOINT = (1 << 2)
     }
 
     const int kMaxSceneSize = 256;
@@ -96,6 +97,11 @@ public class CP_SceneManager : MonoBehaviour
                 sceneObjects += (int) SceneObjectTypes.E_WALL_RIGHT;
             }
 
+            if(i % 4 == 3)
+            {
+                sceneObjects += (int) SceneObjectTypes.E_CHECKPOINT;
+            }
+
             _sceneObjects.Add(sceneObjects);
         }
     }
@@ -163,7 +169,7 @@ public class CP_SceneManager : MonoBehaviour
         if(PlayerGO != null)
         {
             GameObject playerGO = Instantiate(PlayerGO);
-            _player = playerGO.GetComponent<CP_PlayerController>();            
+            _player = playerGO.GetComponent<CP_PlayerController>();
 
             if (_player != null)
             {
@@ -183,10 +189,10 @@ public class CP_SceneManager : MonoBehaviour
             {
                 var goingRight = (playerIndexPos > _sceneMapLastGeneratedIndex);
                 _sceneMapLastGeneratedIndex = playerIndexPos;
-                
+
                 if (goingRight) playerIndexPos++;
                 else playerIndexPos--;
-                    
+
                 var playerIndexPosMap = playerIndexPos;
 
                 if (playerIndexPos < 0)
@@ -231,7 +237,7 @@ public class CP_SceneManager : MonoBehaviour
         if (TurnBack != null)
         {
             TurnBack.interactable = enabled;
-            
+
             if (TurnBackBCSH == null)
             {
                 TurnBackBCSH = Suicide.GetComponent<BCSHModifier>();
@@ -253,7 +259,7 @@ public class CP_SceneManager : MonoBehaviour
         if (TurnForward != null)
         {
             TurnForward.interactable = enabled;
-            
+
             if (TurnForwardBCSH == null)
             {
                 TurnForwardBCSH = Suicide.GetComponent<BCSHModifier>();
@@ -278,7 +284,7 @@ public class CP_SceneManager : MonoBehaviour
         if (Suicide != null)
         {
             Suicide.interactable = enabled;
-            
+
             if (SuicideBCSH == null)
             {
                 SuicideBCSH = Suicide.GetComponent<BCSHModifier>();

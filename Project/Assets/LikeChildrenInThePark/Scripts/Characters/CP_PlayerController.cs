@@ -37,6 +37,7 @@ public class CP_PlayerController : MonoBehaviour
     RaycastHit _hitForward;
     float _initialDistance = 0f;
     Vector3 _direction = Vector3.right;
+    Vector3 _suicideLastPosition = Vector3.zero;
 
     bool _pressedDown = false;
     bool _pressedUp = false;
@@ -54,10 +55,27 @@ public class CP_PlayerController : MonoBehaviour
         _gameCamera = GameObject.Find("GameCamera").GetComponent<Camera>();
 
         transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 1.5f, 1.0f, -1.2f);
+        _suicideLastPosition = transform.position;
 
         var dist = 0f;
         GetHitDistance(out dist, out _hitDown, -Vector3.up);
         _initialDistance = dist;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("CP_PlayerController OnTriggerEnter: " + other.name);
+
+        if (string.CompareOrdinal(other.name, "Checkpoint") == 0)
+        {
+            CP_Checkpoint checkpoint = other.GetComponent<CP_Checkpoint>();
+            if(checkpoint != null)
+            {
+                checkpoint.PlayAnimation();
+            }
+
+            _suicideLastPosition = transform.position;
+        }
     }
 
     bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 direction, float maxDistance = 0.0001f)
@@ -66,6 +84,7 @@ public class CP_PlayerController : MonoBehaviour
 
         int layerMask = 1 << 9;
         layerMask = ~layerMask;
+        layerMask -= (1 << 12);
 
         Ray downRay = new Ray(transform.position, direction);
         if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
@@ -80,7 +99,7 @@ public class CP_PlayerController : MonoBehaviour
     public void SetSceneManager(CP_SceneManager sceneManager)
     {
         _sceneManager = sceneManager;
-        
+
         Walk();
     }
 
@@ -129,13 +148,6 @@ public class CP_PlayerController : MonoBehaviour
                 _animator["jump"].time = 0.06f;
             }
 
-            if (_sceneManager.GirlHeadUI != null)
-            {
-                _sceneManager.GirlHeadUI.Play("jump");
-                _sceneManager.GirlHeadUI["jump"].speed = 0.5f;
-                _sceneManager.GirlHeadUI["jump"].time = 0.06f;
-            }
-
             _playerState = PlayerState.E_JUMPING;
         }
     }
@@ -175,6 +187,7 @@ public class CP_PlayerController : MonoBehaviour
 
             _sceneManager.SetTurnEnabled(false);
             _sceneManager.SetSuicideEnabled(false);
+            _sceneManager.PlayerStats.TakeDamage(0.5f);
 
             _playerState = PlayerState.E_DAMAGED;
         }
@@ -209,7 +222,9 @@ public class CP_PlayerController : MonoBehaviour
     }
     public void OnPressedSuicide()
     {
-        Hurt();
+        //Hurt();
+
+        transform.position = _suicideLastPosition;
     }
 
     void LateUpdate()
@@ -237,7 +252,7 @@ public class CP_PlayerController : MonoBehaviour
                 if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
                 {
                     Jump();
-                } 
+                }
             }
             else
             {
@@ -287,7 +302,7 @@ public class CP_PlayerController : MonoBehaviour
         {
             Debug.Log(_hitDown.collider.name);
 
-            if(_playerState == PlayerState.E_JUMPING_FALL || 
+            if(_playerState == PlayerState.E_JUMPING_FALL ||
                _playerState == PlayerState.E_DAMAGED_FALL)
             {
                 if (_playerState == PlayerState.E_DAMAGED_FALL)
