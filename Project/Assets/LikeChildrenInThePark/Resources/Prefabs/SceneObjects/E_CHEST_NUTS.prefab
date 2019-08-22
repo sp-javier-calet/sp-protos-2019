@@ -308,7 +308,7 @@ PrefabInstance:
         type: 3}
       propertyPath: ChestNutRenderer
       value: 
-      objectReference: {fileID: 1744534451218731728}
+      objectReference: {fileID: 6870334534194631163}
     - target: {fileID: 5150616468319060581, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
       propertyPath: ChestNutRigidBody
@@ -323,6 +323,31 @@ PrefabInstance:
         type: 3}
       propertyPath: ChestNutOffsetTime
       value: 1600
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 760452193965362941, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 17
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
@@ -344,9 +369,9 @@ Rigidbody:
     type: 3}
   m_PrefabInstance: {fileID: 1757638282537813068}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &1744534451218731728 stripped
+--- !u!23 &6870334534194631163 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+  m_CorrespondingSourceObject: {fileID: 5133037526009664951, guid: 8fa35cdad352cfa4297d3be64705ecf1,
     type: 3}
   m_PrefabInstance: {fileID: 1757638282537813068}
   m_PrefabAsset: {fileID: 0}
@@ -423,7 +448,7 @@ PrefabInstance:
         type: 3}
       propertyPath: ChestNutRenderer
       value: 
-      objectReference: {fileID: 1950909608887640651}
+      objectReference: {fileID: 6664911830482362720}
     - target: {fileID: 5150616468319060581, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
       propertyPath: ChestNutRigidBody
@@ -438,6 +463,36 @@ PrefabInstance:
         type: 3}
       propertyPath: ChestNutOffsetTime
       value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 760452193965362941, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 5133037526009664951, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
@@ -459,9 +514,9 @@ Rigidbody:
     type: 3}
   m_PrefabInstance: {fileID: 1964329820552525015}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &1950909608887640651 stripped
+--- !u!23 &6664911830482362720 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+  m_CorrespondingSourceObject: {fileID: 5133037526009664951, guid: 8fa35cdad352cfa4297d3be64705ecf1,
     type: 3}
   m_PrefabInstance: {fileID: 1964329820552525015}
   m_PrefabAsset: {fileID: 0}
@@ -529,6 +584,11 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6358282011222640253, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
       propertyPath: m_Constraints
@@ -538,7 +598,7 @@ PrefabInstance:
         type: 3}
       propertyPath: ChestNutRenderer
       value: 
-      objectReference: {fileID: 2360086245571118446}
+      objectReference: {fileID: 7470686606808745541}
     - target: {fileID: 5150616468319060581, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
       propertyPath: ChestNutRigidBody
@@ -549,6 +609,31 @@ PrefabInstance:
       propertyPath: ChestNutCollider
       value: 
       objectReference: {fileID: 2339600930548118532}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2105436961630331573, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 760452193965362941, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 17
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
 --- !u!4 &2350657391300187050 stripped
@@ -569,9 +654,9 @@ Rigidbody:
     type: 3}
   m_PrefabInstance: {fileID: 2346660781331108850}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &2360086245571118446 stripped
+--- !u!23 &7470686606808745541 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+  m_CorrespondingSourceObject: {fileID: 5133037526009664951, guid: 8fa35cdad352cfa4297d3be64705ecf1,
     type: 3}
   m_PrefabInstance: {fileID: 2346660781331108850}
   m_PrefabAsset: {fileID: 0}

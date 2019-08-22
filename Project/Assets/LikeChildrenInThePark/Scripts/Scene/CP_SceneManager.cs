@@ -31,8 +31,17 @@ public class CP_SceneManager : MonoBehaviour
         E_CHEST_NUTS = (1 << 16)
     }
 
-    int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_01 + (int) SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_02};
+    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_01 + (int) SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_02};
     //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_BALL_MEDIUM, (int)SceneObjectTypes.E_BALL_HIGH};
+    int[] Stage01 =
+    {
+        (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BALL_LOW,
+        (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01,
+        (int)SceneObjectTypes.E_BALL_MEDIUM, (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BALL_HIGH,
+        (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_CHEST_NUTS,
+        (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_HIGH, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_BALL_LOW + (int)SceneObjectTypes.E_CHEST_NUTS,
+        (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BOXES_01
+    };
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
