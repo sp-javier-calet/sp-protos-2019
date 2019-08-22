@@ -10,11 +10,20 @@ public class CP_SceneManager : MonoBehaviour
 {
     public enum SceneObjectTypes
     {
+        E_NONE = 0,
+
         E_WALL_LEFT = (1 << 0),
         E_WALL_RIGHT = (1 << 1),
 
-        E_CHECKPOINT = (1 << 2)
+        E_CHECKPOINT = (1 << 2),
+
+        E_BOXES_01 = (1 << 3),
+        E_BOXES_02 = (1 << 4),
+
+        E_WATER_01 = (1 << 7),
     }
+
+    int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_02};
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
@@ -28,6 +37,7 @@ public class CP_SceneManager : MonoBehaviour
     public Button Suicide = null;
     public Animation GirlHeadUI = null;
     public PlayerStats PlayerStats = null;
+    public bool SuicideEnabled = true;
 
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
@@ -104,6 +114,12 @@ public class CP_SceneManager : MonoBehaviour
 
             _sceneObjects.Add(sceneObjects);
         }
+
+        var startingIndex = 1;
+        for(var i = 0; i < Stage01.Length; ++i)
+        {
+            _sceneObjects[startingIndex+i] += Stage01[i];
+        }
     }
 
     void GenerateMap(int mapPos, int mapIndex, bool goingRight)
@@ -151,6 +167,11 @@ public class CP_SceneManager : MonoBehaviour
     {
         foreach(var objectType in Enum.GetValues(typeof(SceneObjectTypes)))
         {
+            if((SceneObjectTypes) objectType == SceneObjectTypes.E_NONE)
+            {
+                continue;
+            }
+
             if ((sceneObjects & (int)objectType) != 0)
             {
                 SceneObjectTypes objectToCreate = (SceneObjectTypes) objectType;
@@ -279,10 +300,15 @@ public class CP_SceneManager : MonoBehaviour
         }
     }
 
-    public void SetSuicideEnabled(bool enabled)
+    public void SetSuicideEnabled(bool enabled, bool gameplayReason = false)
     {
         if (Suicide != null)
         {
+            if(gameplayReason)
+            {
+                SuicideEnabled = enabled;
+            }
+
             Suicide.interactable = enabled;
 
             if (SuicideBCSH == null)

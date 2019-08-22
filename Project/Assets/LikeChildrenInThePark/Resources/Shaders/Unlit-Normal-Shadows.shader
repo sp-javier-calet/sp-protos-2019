@@ -8,13 +8,15 @@
 Shader "Unlit/Texture Shadows" {
 Properties {
     _MainTex ("Base (RGB)", 2D) = "white" {}
-    _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
+    _Cutoff ("Alpha cutoff", Range(0,1)) = 0.01
+    _Color ("Tint Color", Color) = (1,1,1,1)
 
     [HideInInspector] _BCSHTintColor ("BCSH Tint Color", Color) = (1,1,1,1)
 }
 
 SubShader {
-    Tags { "RenderType"="Opaque" }
+    Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+    Blend SrcAlpha OneMinusSrcAlpha
     LOD 100
 
     Pass {
@@ -37,7 +39,7 @@ SubShader {
 
             struct v2f {
                 float4 vertex : SV_POSITION;
-                fixed4 color    : COLOR;
+                float4 color    : COLOR;
                 float2 texcoord : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 UNITY_VERTEX_OUTPUT_STEREO
@@ -46,6 +48,7 @@ SubShader {
             sampler2D _MainTex;
             float4 _MainTex_ST;
             fixed _Cutoff;
+            float4 _Color;
 
             #ifdef SHADER_MODULE_BCSH
             #include "./../../../Plugins/Sparta/Assets/Rendering/CGIncludes/ShaderModuleBCSH.cginc"
@@ -57,7 +60,7 @@ SubShader {
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.color = v.color;
+                o.color = v.color * _Color;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
 
@@ -71,10 +74,10 @@ SubShader {
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.texcoord);
+                col *= i.color;
                 clip(col.a - _Cutoff);
 
                 UNITY_APPLY_FOG(i.fogCoord, col);
-                UNITY_OPAQUE_ALPHA(col.a);
 
                 #ifdef SHADER_MODULE_BCSH
                 col = ApplyModuleBCSH (col);

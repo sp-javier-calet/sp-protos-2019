@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using DG.Tweening;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -17,16 +18,20 @@ public class CP_PlayerController : MonoBehaviour
     }
 
     const int kHoldingJumpMaxMillis = 150;
+    const int kDamageInvulnerableMaxMillis = 2750;
     const float kMoveForce = 0.05f;
-    const float kMoveJumpingForce = 0.03f;
+    const float kMoveJumpingForce = 0.05f;
     const float kJumpForce = 11.0f;
     const float kFallingThreshold = 1f;
     const float kMaxFallingThreshold = 20f;
 
     Vector3 _vectTemp = new Vector3();
+    Color _colorTemp = Color.white;
 
     bool _holding = false;
     long _holdingStartTime = 0;
+    bool _damageInvulnerable = false;
+    long _damageInvulnerableStartTime = 0;
     PlayerState _playerState = PlayerState.E_NONE;
 
     Rigidbody _rigidBody = null;
@@ -38,6 +43,7 @@ public class CP_PlayerController : MonoBehaviour
     float _initialDistance = 0f;
     Vector3 _direction = Vector3.right;
     Vector3 _suicideLastPosition = Vector3.zero;
+    List<Material> _playerMaterials = new List<Material>();
 
     bool _pressedDown = false;
     bool _pressedUp = false;
@@ -58,7 +64,7 @@ public class CP_PlayerController : MonoBehaviour
         _suicideLastPosition = transform.position;
 
         var dist = 0f;
-        GetHitDistance(out dist, out _hitDown, -Vector3.up);
+        GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up);
         _initialDistance = dist;
     }
 
@@ -76,17 +82,26 @@ public class CP_PlayerController : MonoBehaviour
 
             _suicideLastPosition = transform.position;
         }
+
+        if(!_damageInvulnerable)
+        {
+            if(string.CompareOrdinal(other.name, "Water") == 0)
+            {
+                Hurt();
+            }
+        }
     }
 
-    bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 direction, float maxDistance = 0.0001f)
+    bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f)
     {
         distance = 0f;
 
         int layerMask = 1 << 9;
         layerMask = ~layerMask;
         layerMask -= (1 << 12);
+        layerMask -= (1 << 13);
 
-        Ray downRay = new Ray(transform.position, direction);
+        Ray downRay = new Ray(initPosition, direction);
         if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
         {
             distance = hit.distance;
@@ -189,6 +204,9 @@ public class CP_PlayerController : MonoBehaviour
             _sceneManager.SetSuicideEnabled(false);
             _sceneManager.PlayerStats.TakeDamage(0.5f);
 
+            _damageInvulnerable = true;
+            _damageInvulnerableStartTime = TimeUtils.TimestampMilliseconds;
+
             _playerState = PlayerState.E_DAMAGED;
         }
     }
@@ -222,13 +240,67 @@ public class CP_PlayerController : MonoBehaviour
     }
     public void OnPressedSuicide()
     {
-        //Hurt();
+        _sceneManager.PlayerStats.TakeDamage(1.0f);
+        if(_sceneManager.PlayerStats.Health <= 1.0f)
+        {
+            _sceneManager.SetSuicideEnabled(false, true);
+        }
 
         transform.position = _suicideLastPosition;
+        if (_sceneManager != null)
+        {
+            _sceneManager.CheckMapGeneration();
+        }
+    }
+
+    void AfterDamage()
+    {
+        _sceneManager.SetTurnEnabled(true);
+        _sceneManager.SetSuicideEnabled(_sceneManager.SuicideEnabled);
+
+        Turn(false);
     }
 
     void LateUpdate()
     {
+        if (_damageInvulnerable)
+        {
+            if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
+            {
+                _damageInvulnerable = false;
+            }
+
+            if(_playerMaterials.Count == 0)
+            {
+                Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
+                if(renderers != null)
+                {
+                    for(var j = 0; j < renderers.Length; ++j)
+                    {
+                        _playerMaterials.Add(renderers[j].material);
+                    }
+                }
+            }
+
+            for(var i = 0; i < _playerMaterials.Count; ++i)
+            {
+                if(!_damageInvulnerable)
+                {
+                    _colorTemp = Color.white;
+                    _colorTemp.a = 1.0f;
+                }
+                else
+                {
+                    _colorTemp = Color.red;
+                    _colorTemp.g = 0.5f;
+                    _colorTemp.b = 0.5f;
+                    _colorTemp.a = 0.85f + (0.25f * Mathf.Sin(Time.time * 16.0f));
+                }
+
+                _playerMaterials[i].SetColor("_Color", _colorTemp);
+            }
+        }
+
         if (_sceneManager != null)
         {
             _sceneManager.CheckMapGeneration();
@@ -298,7 +370,7 @@ public class CP_PlayerController : MonoBehaviour
         }
 
         var dist = 0f;
-        if (GetHitDistance(out dist, out _hitDown, -Vector3.up))
+        if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up))
         {
             Debug.Log(_hitDown.collider.name);
 
@@ -307,10 +379,7 @@ public class CP_PlayerController : MonoBehaviour
             {
                 if (_playerState == PlayerState.E_DAMAGED_FALL)
                 {
-                    _sceneManager.SetTurnEnabled(true);
-                    _sceneManager.SetSuicideEnabled(true);
-
-                    Turn(false);
+                    AfterDamage();
                 }
 
                 Walk();
@@ -319,10 +388,18 @@ public class CP_PlayerController : MonoBehaviour
 
         if ((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
         {
+            if (_playerState == PlayerState.E_DAMAGED_FALL)
+            {
+                AfterDamage();
+            }
+
             Walk();
         }
 
-        if (!GetHitDistance(out dist, out _hitForward, _direction, 1.25f))
+        _vectTemp.x = 0.0f;
+        _vectTemp.y = 0.4f;
+        _vectTemp.z = 0.0f;
+        if (!GetHitDistance(out dist, out _hitForward, transform.position + _vectTemp, _direction, 1.25f))
         {
             if (_playerState == PlayerState.E_WALKING ||
                 _playerState == PlayerState.E_JUMPING ||
