@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29c377e933975ea498610d2023029c77, type: 3}
-  m_Name: AdminPanelLogInstaller
+  m_Script: {fileID: 11500000, guid: fcf531ede2e3482286b8b272d6f83fd2, type: 3}
+  m_Name: TutorialInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1

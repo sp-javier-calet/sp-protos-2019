@@ -14,6 +14,7 @@ using SocialPoint.AdminPanel;
 
 #endif
 
+[InstallerGameCategory]
 public class GameInstaller : Installer
 {
     [Serializable]
