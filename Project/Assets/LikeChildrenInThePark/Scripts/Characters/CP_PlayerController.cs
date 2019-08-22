@@ -60,7 +60,7 @@ public class CP_PlayerController : MonoBehaviour
 
         _gameCamera = GameObject.Find("GameCamera").GetComponent<Camera>();
 
-        transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 1.5f, 1.0f, -1.2f);
+        transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 0.5f, 1.0f, -1.2f);
         _suicideLastPosition = transform.position;
 
         var dist = 0f;
@@ -328,7 +328,7 @@ public class CP_PlayerController : MonoBehaviour
 
         if(!_holding)
         {
-            if (_pressedDown)
+            if (_pressedDown && (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_JUMPING || _playerState == PlayerState.E_JUMPING_FALL))
             {
                 _holding = true;
                 _holdingStartTime = TimeUtils.TimestampMilliseconds;
@@ -433,7 +433,7 @@ public class CP_PlayerController : MonoBehaviour
 
         if(_gameCamera != null)
         {
-            _vectTemp.x = transform.position.x;
+            _vectTemp.x = transform.position.x + (2.5f);
             _vectTemp.y = _gameCamera.transform.position.y;
             _vectTemp.z = _gameCamera.transform.position.z;
 
