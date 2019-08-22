@@ -89,6 +89,22 @@ public class CP_PlayerController : MonoBehaviour
             {
                 Hurt();
             }
+            else if(string.CompareOrdinal(other.name, "Fish") == 0)
+            {
+                Hurt();
+            }
+            else if(string.CompareOrdinal(other.name, "Ball") == 0)
+            {
+                Hurt();
+            }
+            else if(string.CompareOrdinal(other.name, "Apple") == 0)
+            {
+                CP_Chestnut chestNut = other.GetComponent<CP_Chestnut>();
+                if(chestNut != null && chestNut._fishState == CP_Chestnut.BallState.E_FALLING)
+                {
+                    Hurt();
+                }
+            }
         }
     }
 
@@ -100,6 +116,10 @@ public class CP_PlayerController : MonoBehaviour
         layerMask = ~layerMask;
         layerMask -= (1 << 12);
         layerMask -= (1 << 13);
+        layerMask -= (1 << 14);
+        layerMask -= (1 << 15);
+        layerMask -= (1 << 16);
+        layerMask -= (1 << 17);
 
         Ray downRay = new Ray(initPosition, direction);
         if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))

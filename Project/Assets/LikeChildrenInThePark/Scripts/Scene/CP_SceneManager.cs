@@ -21,9 +21,18 @@ public class CP_SceneManager : MonoBehaviour
         E_BOXES_02 = (1 << 4),
 
         E_WATER_01 = (1 << 7),
+
+        E_FISHES = (1 << 10),
+
+        E_BALL_LOW = (1 << 13),
+        E_BALL_MEDIUM = (1 << 14),
+        E_BALL_HIGH = (1 << 15),
+
+        E_CHEST_NUTS = (1 << 16)
     }
 
-    int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_02};
+    int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_01 + (int) SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BOXES_02};
+    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_BALL_MEDIUM, (int)SceneObjectTypes.E_BALL_HIGH};
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
