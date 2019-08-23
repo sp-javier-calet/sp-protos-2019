@@ -8,13 +8,14 @@ using SocialPoint.Rendering.Components;
 
 public class CP_SceneManager : MonoBehaviour
 {
-    public enum GameState
+    public enum BattleState
     {
         E_NONE,
         E_SEMAPHORE,
         E_PLAYING,
         E_WIN,
-        E_GAMEOVER
+        E_GAMEOVER,
+        E_GAMEOVER_AFTER
     }
 
     public enum SceneObjectTypes
@@ -64,7 +65,7 @@ public class CP_SceneManager : MonoBehaviour
     public Animation GirlHeadUI = null;
     public PlayerStats PlayerStats = null;
     public bool SuicideEnabled = true;
-    public GameState CurrentGameState = GameState.E_NONE;
+    public BattleState CurrentBattleState = BattleState.E_NONE;
     public CP_Semaphore Semaphore = null;
     public GameObject GameOverTextGO = null;
     public GameObject YouWinTextGO = null;
@@ -106,14 +107,14 @@ public class CP_SceneManager : MonoBehaviour
 
         GeneratePlayer();
 
-        SetCurrentGameState(GameState.E_SEMAPHORE);
+        SetCurrentGameState(BattleState.E_SEMAPHORE);
     }
 
-    public void SetCurrentGameState(GameState state)
+    public void SetCurrentGameState(BattleState state)
     {
         switch(state)
         {
-            case GameState.E_SEMAPHORE:
+            case BattleState.E_SEMAPHORE:
             {
                 SetTurnEnabled(false);
                 SetSuicideEnabled(false);
@@ -126,7 +127,7 @@ public class CP_SceneManager : MonoBehaviour
                 break;
             }
 
-            case GameState.E_PLAYING:
+            case BattleState.E_PLAYING:
             {
                 SetTurnEnabled(true);
 
@@ -138,7 +139,7 @@ public class CP_SceneManager : MonoBehaviour
                 break;
             }
 
-            case GameState.E_GAMEOVER:
+            case BattleState.E_GAMEOVER:
             {
                 SetTurnEnabled(false);
                 SetSuicideEnabled(false);
@@ -150,9 +151,24 @@ public class CP_SceneManager : MonoBehaviour
 
                 break;
             }
+
+            case BattleState.E_GAMEOVER_AFTER:
+            {
+                if(GameOverTextGO != null)
+                {
+                    GameOverTextGO.SetActive(false);
+                }
+
+                if(CP_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
+                {
+                    CP_GameManager.Instance.SetGameState(CP_GameManager.GameState.E_TITLE);
+                }
+
+                break;
+            }
         }
 
-        CurrentGameState = state;
+        CurrentBattleState = state;
     }
 
     void GenerateMapData(int length)
@@ -360,7 +376,7 @@ public class CP_SceneManager : MonoBehaviour
 
             if (TurnBackBCSH == null)
             {
-                TurnBackBCSH = Suicide.GetComponent<BCSHModifier>();
+                TurnBackBCSH = TurnBack.GetComponent<BCSHModifier>();
             }
 
             if (TurnBackBCSH != null)
@@ -382,7 +398,7 @@ public class CP_SceneManager : MonoBehaviour
 
             if (TurnForwardBCSH == null)
             {
-                TurnForwardBCSH = Suicide.GetComponent<BCSHModifier>();
+                TurnForwardBCSH = TurnForward.GetComponent<BCSHModifier>();
             }
 
             if (TurnForwardBCSH != null)

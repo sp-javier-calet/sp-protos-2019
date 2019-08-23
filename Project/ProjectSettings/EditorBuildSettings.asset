@@ -9,8 +9,14 @@ EditorBuildSettings:
     path: Assets/Plugins/Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity
     guid: 9150cf06fcb48449ba6c690d1dfbb921
   - enabled: 1
+    path: Assets/Scenes/BaseLoading.unity
+    guid: 1d28a4140a1e64a3eb1d62fabd0a1044
+  - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
     guid: 6db6bc6b0983b4d23b40d32f0164b9a7
+  - enabled: 1
+    path: Assets/Scenes/TitleScene.unity
+    guid: 8a26070e357f5463f81af1257aafe8f2
   - enabled: 1
     path: Assets/Scenes/GameScene.unity
     guid: cd5c245ed0d9f448d9d23bb3b1529d12

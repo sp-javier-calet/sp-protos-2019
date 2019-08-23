@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using SocialPoint.Utils;
@@ -210,6 +211,31 @@ public class CP_PlayerController : MonoBehaviour
         _playerState = PlayerState.E_STOPPED;
     }
 
+    void Die()
+    {
+        for(var i = 0; i < _playerMaterials.Count; ++i)
+        {
+            _colorTemp = Color.white;
+            _colorTemp.a = 1.0f;
+
+            _playerMaterials[i].SetColor("_Color", _colorTemp);
+        }
+
+        transform.DOScale(Vector3.zero, 3.0f);
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f));
+        seq.Append(transform.DOLocalRotate(new Vector3(0f, 20f, 0f), 0.1f));
+        seq.SetLoops(15);
+        seq.onComplete += AfterDying;
+        seq.Play();
+    }
+
+    void AfterDying()
+    {
+        _sceneManager.SetCurrentGameState(CP_SceneManager.BattleState.E_GAMEOVER_AFTER);
+    }
+
     void Hurt()
     {
         if(_rigidBody != null)
@@ -272,8 +298,8 @@ public class CP_PlayerController : MonoBehaviour
         _sceneManager.PlayerStats.TakeDamage(1.0f);
         if(_sceneManager.PlayerStats.Health <= 0.0f)
         {
-            Stop();
-            _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_GAMEOVER);
+            Die();
+            _sceneManager.SetCurrentGameState(CP_SceneManager.BattleState.E_GAMEOVER);
         }
         else
         {
@@ -294,14 +320,15 @@ public class CP_PlayerController : MonoBehaviour
 
         if(_sceneManager.PlayerStats.Health <= 0.0f)
         {
-            Stop();
-            _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_GAMEOVER);
+            Die();
+
+            _sceneManager.SetCurrentGameState(CP_SceneManager.BattleState.E_GAMEOVER);
         }
     }
 
     void LateUpdate()
     {
-        if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
+        if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
         {
             if (_damageInvulnerable)
             {
@@ -410,7 +437,7 @@ public class CP_PlayerController : MonoBehaviour
                         AfterDamage();
                     }
 
-                    if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
+                    if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
                     {
                         if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
                         {
@@ -439,7 +466,7 @@ public class CP_PlayerController : MonoBehaviour
                         AfterDamage();
                     }
 
-                    if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
+                    if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
                     {
                         if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
                         {

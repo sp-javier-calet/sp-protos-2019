@@ -112,7 +112,7 @@ public class CP_Semaphore : MonoBehaviour
 
                 if(_sceneManager != null)
                 {
-                    _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_PLAYING);
+                    _sceneManager.SetCurrentGameState(CP_SceneManager.BattleState.E_PLAYING);
                 }
 
                 break;
