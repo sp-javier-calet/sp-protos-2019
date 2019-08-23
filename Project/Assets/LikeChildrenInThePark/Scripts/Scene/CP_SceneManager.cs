@@ -66,6 +66,11 @@ public class CP_SceneManager : MonoBehaviour
     public bool SuicideEnabled = true;
     public GameState CurrentGameState = GameState.E_NONE;
     public CP_Semaphore Semaphore = null;
+    public GameObject GameOverTextGO = null;
+    public GameObject YouWinTextGO = null;
+    public GameObject SecondTextGO = null;
+    public GameObject ThirdTextGO = null;
+    public GameObject FourthTextGO = null;
 
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
@@ -124,11 +129,23 @@ public class CP_SceneManager : MonoBehaviour
             case GameState.E_PLAYING:
             {
                 SetTurnEnabled(true);
-                SetSuicideEnabled(true);
 
                 if(_player != null)
                 {
                     _player.StartRun();
+                }
+
+                break;
+            }
+
+            case GameState.E_GAMEOVER:
+            {
+                SetTurnEnabled(false);
+                SetSuicideEnabled(false);
+
+                if(GameOverTextGO != null)
+                {
+                    GameOverTextGO.SetActive(true);
                 }
 
                 break;
@@ -171,7 +188,7 @@ public class CP_SceneManager : MonoBehaviour
                 sceneObjects += (int) SceneObjectTypes.E_WALL_RIGHT;
             }
 
-            if(i % 4 == 3)
+            if(i == 1 || i % 4 == 1)
             {
                 sceneObjects += (int) SceneObjectTypes.E_CHECKPOINT;
             }
@@ -263,33 +280,51 @@ public class CP_SceneManager : MonoBehaviour
         }
     }
 
-    public void CheckMapGeneration()
+    public void CheckMapGeneration(bool forced = false)
     {
         if (_player != null)
         {
             var playerXPosition = (int) _player.transform.position.x;
             var playerIndexPos = playerXPosition / kScenePieceSize;
 
-            if (playerIndexPos != _sceneMapLastGeneratedIndex)
+            if(forced)
             {
-                var goingRight = (playerIndexPos > _sceneMapLastGeneratedIndex);
                 _sceneMapLastGeneratedIndex = playerIndexPos;
 
-                if (goingRight) playerIndexPos++;
-                else playerIndexPos--;
-
-                var playerIndexPosMap = playerIndexPos;
-
-                if (playerIndexPos < 0)
+                for(var i = 0; i < _sceneBackgroundsGO.Count; ++i)
                 {
-                    playerIndexPos += _sceneBackgrounds.Count;
+                    Destroy(_sceneBackgroundsGO[i]);
                 }
-                else if (playerIndexPos >= _sceneBackgrounds.Count)
-                {
-                    playerIndexPos -= _sceneBackgrounds.Count;
-                }
+                _sceneBackgroundsGO.Clear();
 
-                GenerateMap(playerIndexPosMap, playerIndexPos, goingRight);
+                for (var i = -1; i < 2; ++i)
+                {
+                    GenerateMap(_sceneMapLastGeneratedIndex+i, _sceneMapLastGeneratedIndex+i, true);
+                }
+            }
+            else
+            {
+                if (playerIndexPos != _sceneMapLastGeneratedIndex || forced)
+                {
+                    var goingRight = (playerIndexPos > _sceneMapLastGeneratedIndex);
+                    _sceneMapLastGeneratedIndex = playerIndexPos;
+
+                    if (goingRight) playerIndexPos++;
+                    else playerIndexPos--;
+
+                    var playerIndexPosMap = playerIndexPos;
+
+                    if (playerIndexPos < 0)
+                    {
+                        playerIndexPos += _sceneBackgrounds.Count;
+                    }
+                    else if (playerIndexPos >= _sceneBackgrounds.Count)
+                    {
+                        playerIndexPos -= _sceneBackgrounds.Count;
+                    }
+
+                    GenerateMap(playerIndexPosMap, playerIndexPos, goingRight);
+                }
             }
         }
     }

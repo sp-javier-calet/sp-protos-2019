@@ -62,7 +62,6 @@ public class CP_PlayerController : MonoBehaviour
         _gameCamera = GameObject.Find("GameCamera").GetComponent<Camera>();
 
         transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 0.5f, 1.0f, -1.2f);
-        _suicideLastPosition = transform.position;
 
         var dist = 0f;
         GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up);
@@ -77,6 +76,11 @@ public class CP_PlayerController : MonoBehaviour
             if(checkpoint != null)
             {
                 checkpoint.PlayAnimation();
+            }
+
+            if(_suicideLastPosition == Vector3.zero)
+            {
+                _sceneManager.SetSuicideEnabled(true);
             }
 
             _suicideLastPosition = transform.position;
@@ -268,6 +272,7 @@ public class CP_PlayerController : MonoBehaviour
         _sceneManager.PlayerStats.TakeDamage(1.0f);
         if(_sceneManager.PlayerStats.Health <= 0.0f)
         {
+            Stop();
             _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_GAMEOVER);
         }
         else
@@ -275,7 +280,7 @@ public class CP_PlayerController : MonoBehaviour
             transform.position = _suicideLastPosition;
             if (_sceneManager != null)
             {
-                _sceneManager.CheckMapGeneration();
+                _sceneManager.CheckMapGeneration(true);
             }
         }
     }
@@ -286,6 +291,12 @@ public class CP_PlayerController : MonoBehaviour
         _sceneManager.SetSuicideEnabled(_sceneManager.SuicideEnabled);
 
         Turn(false);
+
+        if(_sceneManager.PlayerStats.Health <= 0.0f)
+        {
+            Stop();
+            _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_GAMEOVER);
+        }
     }
 
     void LateUpdate()
@@ -399,15 +410,18 @@ public class CP_PlayerController : MonoBehaviour
                         AfterDamage();
                     }
 
-                    if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                    if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
                     {
-                        _memoryJump = false;
+                        if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                        {
+                            _memoryJump = false;
 
-                        Jump();
-                    }
-                    else
-                    {
-                        Walk();
+                            Jump();
+                        }
+                        else
+                        {
+                            Walk();
+                        }
                     }
                 }
             }
@@ -425,15 +439,18 @@ public class CP_PlayerController : MonoBehaviour
                         AfterDamage();
                     }
 
-                    if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                    if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
                     {
-                        _memoryJump = false;
+                        if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                        {
+                            _memoryJump = false;
 
-                        Jump();
-                    }
-                    else
-                    {
-                        Walk();
+                            Jump();
+                        }
+                        else
+                        {
+                            Walk();
+                        }
                     }
                 }
             }
