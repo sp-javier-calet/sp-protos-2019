@@ -30,6 +30,7 @@ public class CP_PlayerController : MonoBehaviour
 
     bool _holding = false;
     long _holdingStartTime = 0;
+    bool _memoryJump = false;
     bool _damageInvulnerable = false;
     long _damageInvulnerableStartTime = 0;
     PlayerState _playerState = PlayerState.E_NONE;
@@ -70,8 +71,6 @@ public class CP_PlayerController : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("CP_PlayerController OnTriggerEnter: " + other.name);
-
         if (string.CompareOrdinal(other.name, "Checkpoint") == 0)
         {
             CP_Checkpoint checkpoint = other.GetComponent<CP_Checkpoint>();
@@ -342,10 +341,11 @@ public class CP_PlayerController : MonoBehaviour
                 {
                     _holding = true;
                     _holdingStartTime = TimeUtils.TimestampMilliseconds;
+                    _memoryJump = false;
                 }
             }
 
-            if (_pressedUp)
+            if (!_pressedDown && _pressedUp)
             {
                 _holding = false;
 
@@ -354,6 +354,11 @@ public class CP_PlayerController : MonoBehaviour
                     if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
                     {
                         Jump();
+                    }
+
+                    if(_playerState == PlayerState.E_JUMPING_FALL)
+                    {
+                        _memoryJump = true;
                     }
                 }
                 else
@@ -378,6 +383,61 @@ public class CP_PlayerController : MonoBehaviour
                 }
             }
 
+            var dist = 0f;
+            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.1f))
+            {
+                if(_playerState == PlayerState.E_JUMPING_FALL ||
+                   _playerState == PlayerState.E_DAMAGED_FALL)
+                {
+                    if(_rigidBody != null)
+                    {
+                        _rigidBody.velocity = Vector3.zero;
+                    }
+
+                    if (_playerState == PlayerState.E_DAMAGED_FALL)
+                    {
+                        AfterDamage();
+                    }
+
+                    if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                    {
+                        _memoryJump = false;
+
+                        Jump();
+                    }
+                    else
+                    {
+                        Walk();
+                    }
+                }
+            }
+            else
+            {
+                if((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
+                {
+                    if(_rigidBody != null)
+                    {
+                        _rigidBody.velocity = Vector3.zero;
+                    }
+
+                    if(_playerState == PlayerState.E_DAMAGED_FALL)
+                    {
+                        AfterDamage();
+                    }
+
+                    if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
+                    {
+                        _memoryJump = false;
+
+                        Jump();
+                    }
+                    else
+                    {
+                        Walk();
+                    }
+                }
+            }
+
             if(_playerState == PlayerState.E_JUMPING)
             {
                 if(_rigidBody != null)
@@ -397,33 +457,6 @@ public class CP_PlayerController : MonoBehaviour
                         _playerState = PlayerState.E_DAMAGED_FALL;
                     }
                 }
-            }
-
-            var dist = 0f;
-            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up))
-            {
-                Debug.Log(_hitDown.collider.name);
-
-                if(_playerState == PlayerState.E_JUMPING_FALL ||
-                   _playerState == PlayerState.E_DAMAGED_FALL)
-                {
-                    if (_playerState == PlayerState.E_DAMAGED_FALL)
-                    {
-                        AfterDamage();
-                    }
-
-                    Walk();
-                }
-            }
-
-            if ((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
-            {
-                if (_playerState == PlayerState.E_DAMAGED_FALL)
-                {
-                    AfterDamage();
-                }
-
-                Walk();
             }
 
             _vectTemp.x = 0.0f;
