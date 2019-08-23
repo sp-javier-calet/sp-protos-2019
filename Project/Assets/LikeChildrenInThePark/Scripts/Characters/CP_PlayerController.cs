@@ -108,6 +108,11 @@ public class CP_PlayerController : MonoBehaviour
         }
     }
 
+    public void StartRun()
+    {
+        Walk();
+    }
+
     bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f)
     {
         distance = 0f;
@@ -135,7 +140,7 @@ public class CP_PlayerController : MonoBehaviour
     {
         _sceneManager = sceneManager;
 
-        Walk();
+        Stop();
     }
 
     public void Turn(bool withAnim = true)
@@ -208,6 +213,7 @@ public class CP_PlayerController : MonoBehaviour
         {
             Turn(false);
 
+            _rigidBody.velocity = Vector3.zero;
             _rigidBody.AddForce(Vector3.up * kJumpForce * 0.75f, ForceMode.Impulse);
 
             if(_animator != null)
@@ -261,15 +267,17 @@ public class CP_PlayerController : MonoBehaviour
     public void OnPressedSuicide()
     {
         _sceneManager.PlayerStats.TakeDamage(1.0f);
-        if(_sceneManager.PlayerStats.Health <= 1.0f)
+        if(_sceneManager.PlayerStats.Health <= 0.0f)
         {
-            _sceneManager.SetSuicideEnabled(false, true);
+            _sceneManager.SetCurrentGameState(CP_SceneManager.GameState.E_GAMEOVER);
         }
-
-        transform.position = _suicideLastPosition;
-        if (_sceneManager != null)
+        else
         {
-            _sceneManager.CheckMapGeneration();
+            transform.position = _suicideLastPosition;
+            if (_sceneManager != null)
+            {
+                _sceneManager.CheckMapGeneration();
+            }
         }
     }
 
@@ -283,119 +291,132 @@ public class CP_PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
-        if (_damageInvulnerable)
+        if(_sceneManager.CurrentGameState == CP_SceneManager.GameState.E_PLAYING)
         {
-            if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
+            if (_damageInvulnerable)
             {
-                _damageInvulnerable = false;
-            }
-
-            if(_playerMaterials.Count == 0)
-            {
-                Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
-                if(renderers != null)
+                if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
                 {
-                    for(var j = 0; j < renderers.Length; ++j)
+                    _damageInvulnerable = false;
+                }
+
+                if(_playerMaterials.Count == 0)
+                {
+                    Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
+                    if(renderers != null)
                     {
-                        _playerMaterials.Add(renderers[j].material);
+                        for(var j = 0; j < renderers.Length; ++j)
+                        {
+                            _playerMaterials.Add(renderers[j].material);
+                        }
                     }
+                }
+
+                for(var i = 0; i < _playerMaterials.Count; ++i)
+                {
+                    if(!_damageInvulnerable)
+                    {
+                        _colorTemp = Color.white;
+                        _colorTemp.a = 1.0f;
+                    }
+                    else
+                    {
+                        _colorTemp = Color.red;
+                        _colorTemp.g = 0.5f;
+                        _colorTemp.b = 0.5f;
+                        _colorTemp.a = 0.85f + (0.25f * Mathf.Sin(Time.time * 16.0f));
+                    }
+
+                    _playerMaterials[i].SetColor("_Color", _colorTemp);
                 }
             }
 
-            for(var i = 0; i < _playerMaterials.Count; ++i)
+            if (_sceneManager != null)
             {
-                if(!_damageInvulnerable)
+                _sceneManager.CheckMapGeneration();
+            }
+
+            if(!_holding)
+            {
+                if (_pressedDown && (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_JUMPING || _playerState == PlayerState.E_JUMPING_FALL))
                 {
-                    _colorTemp = Color.white;
-                    _colorTemp.a = 1.0f;
+                    _holding = true;
+                    _holdingStartTime = TimeUtils.TimestampMilliseconds;
+                }
+            }
+
+            if (_pressedUp)
+            {
+                _holding = false;
+
+                if (TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
+                {
+                    if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
+                    {
+                        Jump();
+                    }
                 }
                 else
                 {
-                    _colorTemp = Color.red;
-                    _colorTemp.g = 0.5f;
-                    _colorTemp.b = 0.5f;
-                    _colorTemp.a = 0.85f + (0.25f * Mathf.Sin(Time.time * 16.0f));
-                }
-
-                _playerMaterials[i].SetColor("_Color", _colorTemp);
-            }
-        }
-
-        if (_sceneManager != null)
-        {
-            _sceneManager.CheckMapGeneration();
-        }
-
-        if(!_holding)
-        {
-            if (_pressedDown && (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_JUMPING || _playerState == PlayerState.E_JUMPING_FALL))
-            {
-                _holding = true;
-                _holdingStartTime = TimeUtils.TimestampMilliseconds;
-            }
-        }
-
-        if (_pressedUp)
-        {
-            _holding = false;
-
-            if (TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
-            {
-                if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
-                {
-                    Jump();
+                    if (_playerState == PlayerState.E_STOPPED)
+                    {
+                        Walk();
+                    }
                 }
             }
             else
             {
-                if (_playerState == PlayerState.E_STOPPED)
+                if(_holding)
                 {
-                    Walk();
-                }
-            }
-        }
-        else
-        {
-            if(_holding)
-            {
-                if(TimeUtils.TimestampMilliseconds > _holdingStartTime + kHoldingJumpMaxMillis)
-                {
-                    if (_playerState == PlayerState.E_WALKING)
+                    if(TimeUtils.TimestampMilliseconds > _holdingStartTime + kHoldingJumpMaxMillis)
                     {
-                        Stop();
+                        if (_playerState == PlayerState.E_WALKING)
+                        {
+                            Stop();
+                        }
                     }
                 }
             }
-        }
 
-        if(_playerState == PlayerState.E_JUMPING)
-        {
-            if(_rigidBody != null)
+            if(_playerState == PlayerState.E_JUMPING)
             {
-                if(_rigidBody.velocity.y < 0.0f)
+                if(_rigidBody != null)
                 {
-                    _playerState = PlayerState.E_JUMPING_FALL;
+                    if(_rigidBody.velocity.y < 0.0f)
+                    {
+                        _playerState = PlayerState.E_JUMPING_FALL;
+                    }
                 }
             }
-        }
-        if(_playerState == PlayerState.E_DAMAGED)
-        {
-            if(_rigidBody != null)
+            if(_playerState == PlayerState.E_DAMAGED)
             {
-                if(_rigidBody.velocity.y < 0.0f)
+                if(_rigidBody != null)
                 {
-                    _playerState = PlayerState.E_DAMAGED_FALL;
+                    if(_rigidBody.velocity.y < 0.0f)
+                    {
+                        _playerState = PlayerState.E_DAMAGED_FALL;
+                    }
                 }
             }
-        }
 
-        var dist = 0f;
-        if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up))
-        {
-            Debug.Log(_hitDown.collider.name);
+            var dist = 0f;
+            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up))
+            {
+                Debug.Log(_hitDown.collider.name);
 
-            if(_playerState == PlayerState.E_JUMPING_FALL ||
-               _playerState == PlayerState.E_DAMAGED_FALL)
+                if(_playerState == PlayerState.E_JUMPING_FALL ||
+                   _playerState == PlayerState.E_DAMAGED_FALL)
+                {
+                    if (_playerState == PlayerState.E_DAMAGED_FALL)
+                    {
+                        AfterDamage();
+                    }
+
+                    Walk();
+                }
+            }
+
+            if ((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
             {
                 if (_playerState == PlayerState.E_DAMAGED_FALL)
                 {
@@ -404,30 +425,20 @@ public class CP_PlayerController : MonoBehaviour
 
                 Walk();
             }
-        }
 
-        if ((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
-        {
-            if (_playerState == PlayerState.E_DAMAGED_FALL)
+            _vectTemp.x = 0.0f;
+            _vectTemp.y = 0.4f;
+            _vectTemp.z = 0.0f;
+            if (!GetHitDistance(out dist, out _hitForward, transform.position + _vectTemp, _direction, 1.25f))
             {
-                AfterDamage();
-            }
-
-            Walk();
-        }
-
-        _vectTemp.x = 0.0f;
-        _vectTemp.y = 0.4f;
-        _vectTemp.z = 0.0f;
-        if (!GetHitDistance(out dist, out _hitForward, transform.position + _vectTemp, _direction, 1.25f))
-        {
-            if (_playerState == PlayerState.E_WALKING ||
-                _playerState == PlayerState.E_JUMPING ||
-                _playerState == PlayerState.E_JUMPING_FALL ||
-                _playerState == PlayerState.E_DAMAGED ||
-                _playerState == PlayerState.E_DAMAGED_FALL)
-            {
-                MoveForward();
+                if (_playerState == PlayerState.E_WALKING ||
+                    _playerState == PlayerState.E_JUMPING ||
+                    _playerState == PlayerState.E_JUMPING_FALL ||
+                    _playerState == PlayerState.E_DAMAGED ||
+                    _playerState == PlayerState.E_DAMAGED_FALL)
+                {
+                    MoveForward();
+                }
             }
         }
 

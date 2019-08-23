@@ -46,6 +46,12 @@ public class CP_Fish : MonoBehaviour
         {
             case FishState.E_INVISIBLE:
             {
+                if(FishRigidBody != null)
+                {
+                    FishRigidBody.velocity = Vector3.zero;
+                    FishRigidBody.useGravity = false;
+                }
+
                 if(FishRenderer != null)
                 {
                     FishRenderer.enabled = false;
@@ -75,11 +81,7 @@ public class CP_Fish : MonoBehaviour
                 if(FishRigidBody != null)
                 {
                     FishRigidBody.AddForce(Vector3.up * 18.0f, ForceMode.Impulse);
-                }
-
-                if(FishCollider != null)
-                {
-                    FishCollider.isTrigger = true;
+                    FishRigidBody.useGravity = true;
                 }
 
                 break;
@@ -135,11 +137,6 @@ public class CP_Fish : MonoBehaviour
                 var dist = 0f;
                 if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.5f))
                 {
-                    if(FishCollider != null)
-                    {
-                        FishCollider.isTrigger = false;
-                    }
-
                     ProceedState(FishState.E_INVISIBLE);
                 }
 

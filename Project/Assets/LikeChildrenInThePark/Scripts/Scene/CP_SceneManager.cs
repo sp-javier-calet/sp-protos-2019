@@ -8,6 +8,15 @@ using SocialPoint.Rendering.Components;
 
 public class CP_SceneManager : MonoBehaviour
 {
+    public enum GameState
+    {
+        E_NONE,
+        E_SEMAPHORE,
+        E_PLAYING,
+        E_WIN,
+        E_GAMEOVER
+    }
+
     public enum SceneObjectTypes
     {
         E_NONE = 0,
@@ -31,7 +40,7 @@ public class CP_SceneManager : MonoBehaviour
         E_CHEST_NUTS = (1 << 16)
     }
 
-    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE};
+    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE};
     int[] Stage01 =
     {
         (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BALL_LOW,
@@ -41,7 +50,6 @@ public class CP_SceneManager : MonoBehaviour
         (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_HIGH, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_BALL_LOW + (int)SceneObjectTypes.E_CHEST_NUTS,
         (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_02
     };
-
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
@@ -56,6 +64,8 @@ public class CP_SceneManager : MonoBehaviour
     public Animation GirlHeadUI = null;
     public PlayerStats PlayerStats = null;
     public bool SuicideEnabled = true;
+    public GameState CurrentGameState = GameState.E_NONE;
+    public CP_Semaphore Semaphore = null;
 
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
@@ -90,6 +100,42 @@ public class CP_SceneManager : MonoBehaviour
         _sceneMapLastGeneratedIndex = 1;
 
         GeneratePlayer();
+
+        SetCurrentGameState(GameState.E_SEMAPHORE);
+    }
+
+    public void SetCurrentGameState(GameState state)
+    {
+        switch(state)
+        {
+            case GameState.E_SEMAPHORE:
+            {
+                SetTurnEnabled(false);
+                SetSuicideEnabled(false);
+
+                if(Semaphore != null)
+                {
+                    Semaphore.StartSemaphore(this);
+                }
+
+                break;
+            }
+
+            case GameState.E_PLAYING:
+            {
+                SetTurnEnabled(true);
+                SetSuicideEnabled(true);
+
+                if(_player != null)
+                {
+                    _player.StartRun();
+                }
+
+                break;
+            }
+        }
+
+        CurrentGameState = state;
     }
 
     void GenerateMapData(int length)
