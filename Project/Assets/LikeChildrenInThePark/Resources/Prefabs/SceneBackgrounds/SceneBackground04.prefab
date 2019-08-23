@@ -27,9 +27,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 988085325627176767}
+  - {fileID: 988085325627176737}
   - {fileID: 3184448675449757459}
-  - {fileID: 8840111720869194196}
+  - {fileID: 8840111720869194185}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -62,7 +62,7 @@ Transform:
   m_LocalPosition: {x: 15.05, y: 1.11, z: 1.39}
   m_LocalScale: {x: 0.8, y: 1, z: 0.4}
   m_Children: []
-  m_Father: {fileID: 988085325627176767}
+  m_Father: {fileID: 988085325627176737}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
 --- !u!33 &978632188035951749
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8840111720869194718}
+  m_GameObject: {fileID: 8840111720869194708}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
@@ -128,7 +128,7 @@ MonoBehaviour:
   _originalMaterialIsUIDefault: 0
   SerializedComponents:
     HasBeenSerialised: 1
-    Renderer: {fileID: 8840111720869193822}
+    Renderer: {fileID: 8840111720869193808}
     MaskableGraphic: {fileID: 0}
     TextMeshProGUI: {fileID: 0}
     RendererIsSprite: 0
@@ -243,7 +243,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a655dbe4f36a4e4e9029dffd1b58ead, type: 3}
---- !u!4 &988085325627176767 stripped
+--- !u!4 &988085325627176737 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2424621555024612413, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
     type: 3}
@@ -386,19 +386,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 741992866e78a483cb8119f12c344f97, type: 3}
---- !u!4 &8840111720869194196 stripped
+--- !u!4 &8840111720869194185 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6831181566426513674, guid: 741992866e78a483cb8119f12c344f97,
     type: 3}
   m_PrefabInstance: {fileID: 8840111720869194619}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &8840111720869194718 stripped
+--- !u!1 &8840111720869194708 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 401365367656315378, guid: 741992866e78a483cb8119f12c344f97,
     type: 3}
   m_PrefabInstance: {fileID: 8840111720869194619}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &8840111720869193822 stripped
+--- !u!23 &8840111720869193808 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 7674345020337197935, guid: 741992866e78a483cb8119f12c344f97,
     type: 3}

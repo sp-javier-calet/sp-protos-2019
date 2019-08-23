@@ -330,7 +330,7 @@ public class CP_PlayerController : MonoBehaviour
     {
         if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
         {
-            if (_damageInvulnerable)
+            if(_damageInvulnerable)
             {
                 if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
                 {
@@ -368,14 +368,17 @@ public class CP_PlayerController : MonoBehaviour
                 }
             }
 
-            if (_sceneManager != null)
+            if(_sceneManager != null)
             {
                 _sceneManager.CheckMapGeneration();
             }
 
             if(!_holding)
             {
-                if (_pressedDown && (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_JUMPING || _playerState == PlayerState.E_JUMPING_FALL))
+                if(_pressedDown
+                    && (_playerState == PlayerState.E_WALKING
+                        || _playerState == PlayerState.E_JUMPING
+                        || _playerState == PlayerState.E_JUMPING_FALL))
                 {
                     _holding = true;
                     _holdingStartTime = TimeUtils.TimestampMilliseconds;
@@ -383,13 +386,13 @@ public class CP_PlayerController : MonoBehaviour
                 }
             }
 
-            if (!_pressedDown && _pressedUp)
+            if(!_pressedDown && _pressedUp)
             {
                 _holding = false;
 
-                if (TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
+                if(TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
                 {
-                    if (_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
+                    if(_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
                     {
                         Jump();
                     }
@@ -401,7 +404,7 @@ public class CP_PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if (_playerState == PlayerState.E_STOPPED)
+                    if(_playerState == PlayerState.E_STOPPED)
                     {
                         Walk();
                     }
@@ -413,7 +416,7 @@ public class CP_PlayerController : MonoBehaviour
                 {
                     if(TimeUtils.TimestampMilliseconds > _holdingStartTime + kHoldingJumpMaxMillis)
                     {
-                        if (_playerState == PlayerState.E_WALKING)
+                        if(_playerState == PlayerState.E_WALKING)
                         {
                             Stop();
                         }
@@ -422,17 +425,16 @@ public class CP_PlayerController : MonoBehaviour
             }
 
             var dist = 0f;
-            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.1f))
+            if(GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.1f))
             {
-                if(_playerState == PlayerState.E_JUMPING_FALL ||
-                   _playerState == PlayerState.E_DAMAGED_FALL)
+                if(_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL)
                 {
                     if(_rigidBody != null)
                     {
                         _rigidBody.velocity = Vector3.zero;
                     }
 
-                    if (_playerState == PlayerState.E_DAMAGED_FALL)
+                    if(_playerState == PlayerState.E_DAMAGED_FALL)
                     {
                         AfterDamage();
                     }
@@ -454,7 +456,8 @@ public class CP_PlayerController : MonoBehaviour
             }
             else
             {
-                if((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL) && _rigidBody.velocity.y == 0.0f)
+                if((_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL)
+                    && _rigidBody.velocity.y == 0.0f)
                 {
                     if(_rigidBody != null)
                     {
@@ -492,6 +495,7 @@ public class CP_PlayerController : MonoBehaviour
                     }
                 }
             }
+
             if(_playerState == PlayerState.E_DAMAGED)
             {
                 if(_rigidBody != null)
@@ -502,6 +506,11 @@ public class CP_PlayerController : MonoBehaviour
                     }
                 }
             }
+        }
+
+        if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING || _sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_WIN)
+        {
+            var dist = 0f;
 
             _vectTemp.x = 0.0f;
             _vectTemp.y = 0.4f;

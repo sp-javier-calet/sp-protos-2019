@@ -14,6 +14,7 @@ public class CP_SceneManager : MonoBehaviour
         E_SEMAPHORE,
         E_PLAYING,
         E_WIN,
+        E_WIN_AFTER,
         E_GAMEOVER,
         E_GAMEOVER_AFTER
     }
@@ -41,6 +42,7 @@ public class CP_SceneManager : MonoBehaviour
         E_CHEST_NUTS = (1 << 16)
     }
 
+    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE};
     //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE};
     int[] Stage01 =
     {
@@ -83,6 +85,7 @@ public class CP_SceneManager : MonoBehaviour
     BCSHModifier TurnBackBCSH = null;
 
     int _sceneMapLastGeneratedIndex = -1;
+    int _sceneMapLastChekpointIndex = -1;
 
     void Awake()
     {
@@ -98,6 +101,7 @@ public class CP_SceneManager : MonoBehaviour
         }
 
         GenerateMapData(ScenePiecesLength);
+        SearchForLastChekpointIndex();
 
         for (var i = 0; i < 3; ++i)
         {
@@ -108,6 +112,17 @@ public class CP_SceneManager : MonoBehaviour
         GeneratePlayer();
 
         SetCurrentGameState(BattleState.E_SEMAPHORE);
+    }
+
+    void SearchForLastChekpointIndex()
+    {
+        for(var i = 0; i < _sceneObjects.Count; ++i)
+        {
+            if((_sceneObjects[i] & (int)SceneObjectTypes.E_CHECKPOINT) != 0)
+            {
+                _sceneMapLastChekpointIndex = i;
+            }
+        }
     }
 
     public void SetCurrentGameState(BattleState state)
@@ -134,6 +149,37 @@ public class CP_SceneManager : MonoBehaviour
                 if(_player != null)
                 {
                     _player.StartRun();
+                }
+
+                break;
+            }
+
+            case BattleState.E_WIN:
+            {
+                SetTurnEnabled(false);
+                SetSuicideEnabled(false);
+
+                if(CP_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
+                {
+                    if(YouWinTextGO != null)
+                    {
+                        YouWinTextGO.SetActive(true);
+                    }
+                }
+
+                break;
+            }
+
+            case BattleState.E_WIN_AFTER:
+            {
+                if(YouWinTextGO != null)
+                {
+                    YouWinTextGO.SetActive(false);
+                }
+
+                if(CP_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
+                {
+                    CP_GameManager.Instance.SetGameState(CP_GameManager.GameState.E_TITLE);
                 }
 
                 break;
@@ -277,6 +323,15 @@ public class CP_SceneManager : MonoBehaviour
                 {
                     GameObject newSceneBackground = Instantiate(baseGO);
                     newSceneBackground.transform.SetParent(parentGO.transform, false);
+
+                    if((SceneObjectTypes)objectType == SceneObjectTypes.E_CHECKPOINT && mapPos == _sceneMapLastChekpointIndex)
+                    {
+                        CP_Checkpoint checkpoint = newSceneBackground.GetComponentInChildren<CP_Checkpoint>();
+                        if(checkpoint != null)
+                        {
+                            checkpoint.SetVictoryCheckpoint(this);
+                        }
+                    }
                 }
             }
         }
