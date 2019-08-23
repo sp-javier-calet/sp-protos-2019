@@ -46,12 +46,13 @@ public class CP_SceneManager : MonoBehaviour
     //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE};
     int[] Stage01 =
     {
-        (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BALL_LOW,
-        (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_WATER_01,
-        (int)SceneObjectTypes.E_BALL_MEDIUM, (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BALL_HIGH,
-        (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_CHEST_NUTS, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_CHEST_NUTS,
-        (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_HIGH, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_BALL_LOW + (int)SceneObjectTypes.E_CHEST_NUTS,
-        (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_02
+        (int)SceneObjectTypes.E_NONE,                 (int)SceneObjectTypes.E_BALL_LOW,                                                                     (int)SceneObjectTypes.E_CHEST_NUTS,                                                                          (int)SceneObjectTypes.E_BOXES_01,
+        (int)SceneObjectTypes.E_NONE,                 (int)SceneObjectTypes.E_WATER_01,                                                                     (int)SceneObjectTypes.E_BALL_MEDIUM,                                                                         (int)SceneObjectTypes.E_BOXES_02,
+        (int)SceneObjectTypes.E_NONE,                 (int)SceneObjectTypes.E_BALL_HIGH,                                                                    (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES,                                           (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_CHEST_NUTS,
+        (int)SceneObjectTypes.E_NONE,                 (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_WATER_01,                                  (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_BALL_LOW,                                       (int)SceneObjectTypes.E_CHEST_NUTS + (int)SceneObjectTypes.E_WATER_01,
+        (int)SceneObjectTypes.E_BALL_HIGH,            (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_01, (int)SceneObjectTypes.E_BOXES_02 + (int)SceneObjectTypes.E_CHEST_NUTS,                                       (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_BALL_LOW,
+        (int)SceneObjectTypes.E_CHEST_NUTS,           (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BALL_HIGH,       (int)SceneObjectTypes.E_NONE,
+        (int)SceneObjectTypes.E_NONE
     };
 
     const int kMaxSceneSize = 256;
