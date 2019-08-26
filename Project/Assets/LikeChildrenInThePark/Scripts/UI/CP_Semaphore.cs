@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CP_Semaphore : MonoBehaviour
 {
-    enum SemaphoreState
+    public enum SemaphoreState
     {
         E_NONE,
         E_INVISIBLE,
@@ -20,7 +20,7 @@ public class CP_Semaphore : MonoBehaviour
     public List<CP_SemaphoreLight> Lights;
 
     CP_SceneManager _sceneManager;
-    SemaphoreState _semaphoreState;
+    public SemaphoreState CurrentsemaphoreState;
     long _stateStartTime = 0;
     long _stateRandomTime = 0;
 
@@ -119,7 +119,7 @@ public class CP_Semaphore : MonoBehaviour
             }
         }
 
-        _semaphoreState = state;
+        CurrentsemaphoreState = state;
     }
 
     public void StartSemaphore(CP_SceneManager sceneManager)
@@ -129,11 +129,18 @@ public class CP_Semaphore : MonoBehaviour
         ProceedState(SemaphoreState.E_WAITING);
     }
 
+    public float DeltaInterStates()
+    {
+        var delta = (TimeUtils.TimestampMilliseconds - _stateStartTime) / (float)_stateRandomTime;
+
+        return delta;
+    }
+
     void Update()
     {
         var passedStateTime = (TimeUtils.TimestampMilliseconds > _stateStartTime + _stateRandomTime);
 
-        switch(_semaphoreState)
+        switch(CurrentsemaphoreState)
         {
             case SemaphoreState.E_WAITING:
             {

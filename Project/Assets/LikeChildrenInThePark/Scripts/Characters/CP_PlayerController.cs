@@ -20,16 +20,24 @@ public class CP_PlayerController : MonoBehaviour
 
     const int kHoldingJumpMaxMillis = 150;
     const int kDamageInvulnerableMaxMillis = 2750;
+    const int kAccumulatedStartTotalTimeMillis = 1000;
     const float kMoveForce = 0.05f;
+    const float kMoveForceStart = 0.5f;
     const float kMoveJumpingForce = 0.05f;
     const float kJumpForce = 11.0f;
     const float kFallingThreshold = 1f;
     const float kMaxFallingThreshold = 20f;
+    const float kAccumulatedStartThreshold = 0.75f;
 
     Vector3 _vectTemp = new Vector3();
     Color _colorTemp = Color.white;
 
     bool _holding = false;
+    bool _holdingStart = false;
+    bool _failStart = false;
+    float _accumulatedStart = 0f;
+    long _accumulatedStartTime = 0;
+    float _accumulatedSpeedAdded = 0f;
     long _holdingStartTime = 0;
     bool _memoryJump = false;
     bool _damageInvulnerable = false;
@@ -114,6 +122,35 @@ public class CP_PlayerController : MonoBehaviour
 
     public void StartRun()
     {
+        if(_animator != null)
+        {
+            _animator["walk"].speed = 2.0f;
+        }
+
+        if(_accumulatedStart > kAccumulatedStartThreshold)
+        {
+            _failStart = true;
+            _accumulatedStart = 0f;
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f));
+            seq.Append(transform.DOLocalRotate(new Vector3(0f, 20f, 0f), 0.1f));
+            seq.SetLoops(8);
+            seq.onComplete += StartRunAfterFail;
+        }
+        else
+        {
+            _accumulatedStartTime = TimeUtils.TimestampMilliseconds;
+
+            Walk();
+        }
+    }
+
+    public void StartRunAfterFail()
+    {
+        transform.localRotation = Quaternion.Euler(0f, 130f, 0f);
+        _failStart = false;
+
         Walk();
     }
 
@@ -224,8 +261,8 @@ public class CP_PlayerController : MonoBehaviour
         transform.DOScale(Vector3.zero, 3.0f);
 
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOLocalRotate(new Vector3(0f, 220f, 0f), 0.1f));
-        seq.Append(transform.DOLocalRotate(new Vector3(0f, 20f, 0f), 0.1f));
+        seq.Append(transform.DOLocalRotate(new Vector3(0f, 310f, 0f), 0.1f));
+        seq.Append(transform.DOLocalRotate(new Vector3(0f, 130f, 0f), 0.1f));
         seq.SetLoops(15);
         seq.onComplete += AfterDying;
         seq.Play();
@@ -270,7 +307,7 @@ public class CP_PlayerController : MonoBehaviour
     {
         if (_playerState == PlayerState.E_WALKING)
         {
-            transform.position += (_direction * kMoveForce);
+            transform.position += (_direction * (kMoveForce + _accumulatedSpeedAdded));
         }
         else
         {
@@ -280,7 +317,7 @@ public class CP_PlayerController : MonoBehaviour
             }
             else
             {
-                transform.position += (_direction * kMoveJumpingForce);
+                transform.position += (_direction * (kMoveJumpingForce + _accumulatedSpeedAdded));
             }
         }
     }
@@ -328,8 +365,72 @@ public class CP_PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
+        if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_SEMAPHORE)
+        {
+            if(_sceneManager.Semaphore.CurrentsemaphoreState == CP_Semaphore.SemaphoreState.E_P3)
+            {
+                if(!_holdingStart)
+                {
+                    if(_pressedDown)
+                    {
+                        _holdingStart = true;
+                        _accumulatedStart = 1.0f - _sceneManager.Semaphore.DeltaInterStates();
+
+                        Debug.Log("_accumulatedStart: " + _accumulatedStart);
+
+                        if(_animator != null)
+                        {
+                            _animator.Play("walk");
+                        }
+                    }
+                }
+
+                if(!_pressedDown && _pressedUp)
+                {
+                    _holdingStart = false;
+                    _accumulatedStart = 0.0f;
+
+                    if(_animator != null)
+                    {
+                        _animator.Play("idle");
+                    }
+                }
+
+                if(_holdingStart)
+                {
+                    if(_animator != null)
+                    {
+                        float deltaSpeed = _sceneManager.Semaphore.DeltaInterStates() * 5.0f;
+
+                        _animator["walk"].speed = 2.0f + (deltaSpeed * _accumulatedStart);
+                    }
+                }
+            }
+        }
+
         if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
         {
+            if(_failStart)
+            {
+                return;
+            }
+
+            if(_accumulatedStart > 0f)
+            {
+                var delta = 1f - ((TimeUtils.TimestampMilliseconds - _accumulatedStartTime) / (float)kAccumulatedStartTotalTimeMillis);
+
+                _accumulatedSpeedAdded = kMoveForceStart * delta;
+
+                if(delta >= 1f || delta < 0f)
+                {
+                    _accumulatedSpeedAdded = 0f;
+                }
+            }
+            else
+            {
+                _accumulatedSpeedAdded = 0f;
+            }
+
             if(_damageInvulnerable)
             {
                 if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
@@ -530,7 +631,7 @@ public class CP_PlayerController : MonoBehaviour
 
         if(_gameCamera != null)
         {
-            _vectTemp.x = transform.position.x + (2.5f);
+            _vectTemp.x = transform.position.x + (2.2f);
             _vectTemp.y = _gameCamera.transform.position.y;
             _vectTemp.z = _gameCamera.transform.position.z;
 

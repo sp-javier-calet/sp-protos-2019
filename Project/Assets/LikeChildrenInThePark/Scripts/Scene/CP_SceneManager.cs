@@ -61,7 +61,7 @@ public class CP_SceneManager : MonoBehaviour
         (int)SceneObjectTypes.E_CHEST_NUTS,           (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BALL_HIGH,       (int)SceneObjectTypes.E_NONE,
         (int)SceneObjectTypes.E_NONE
     };
-    
+
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
