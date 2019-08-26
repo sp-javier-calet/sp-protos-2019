@@ -169,6 +169,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1234037014619520812}
     m_Modifications:
+    - target: {fileID: 2424621555024612412, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
+        type: 3}
+      propertyPath: m_Name
+      value: Bushes
+      objectReference: {fileID: 0}
     - target: {fileID: 2424621555024612413, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -223,11 +228,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2424621555024612412, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
-        type: 3}
-      propertyPath: m_Name
-      value: Bushes
       objectReference: {fileID: 0}
     - target: {fileID: 2424621553904502480, guid: 8a655dbe4f36a4e4e9029dffd1b58ead,
         type: 3}

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   App:
-    ProductName: Unity Base Game
+    ProductName: Like Children In A Park
     Version: 1.0
     BuildNumber: 1611111111
     OverrideBuild: 0
     UseIconFromPlayerSettings: 0
-    IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+    IconTexture: {fileID: 2800000, guid: 46ce0724750c245e085f91c8c702825f, type: 3}
     OverrideIcon: 0
   Common:
     Flags: ODIN_INSPECTOR
@@ -39,6 +39,7 @@ MonoBehaviour:
     ToolsProjectName: Unity Base Game
     SlackChannel: 
     XcodeVersion: = 10.1
+    AdditionalAssemblyPrefixes: []
   Ios:
     BundleIdentifier: game.unitybasegame
     Flags: 

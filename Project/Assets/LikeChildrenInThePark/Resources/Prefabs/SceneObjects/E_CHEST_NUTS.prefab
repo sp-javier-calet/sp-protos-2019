@@ -374,6 +374,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 48550299625486399}
     m_Modifications:
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1000013678658166, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_Name
       value: Apple
@@ -430,16 +440,6 @@ PrefabInstance:
     - target: {fileID: 4000013381597554, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6358282011222640253, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
@@ -535,6 +535,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 48550299625486399}
     m_Modifications:
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1000013678658166, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_Name
       value: Apple
@@ -591,16 +601,6 @@ PrefabInstance:
     - target: {fileID: 4000013381597554, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6358282011222640253, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
@@ -696,6 +696,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 48550299625486399}
     m_Modifications:
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1000013678658166, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_Name
       value: Apple
@@ -752,16 +762,6 @@ PrefabInstance:
     - target: {fileID: 4000013381597554, guid: 8fa35cdad352cfa4297d3be64705ecf1, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 23000011664627356, guid: 8fa35cdad352cfa4297d3be64705ecf1,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6358282011222640253, guid: 8fa35cdad352cfa4297d3be64705ecf1,
         type: 3}
