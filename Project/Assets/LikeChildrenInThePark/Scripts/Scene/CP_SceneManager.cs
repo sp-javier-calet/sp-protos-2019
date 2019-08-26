@@ -238,6 +238,7 @@ public class CP_SceneManager : MonoBehaviour
         _sceneObjects.Clear();
 
         List<int> previousRandoms = new List<int>();
+        List<int> previousPowerUpRandoms = new List<int>();
 
         for(var i = 0; i < length; ++i)
         {
@@ -279,7 +280,17 @@ public class CP_SceneManager : MonoBehaviour
 
             if(i > 1 && i % 3 == 0)
             {
-                scenePowerUps = RandomUtils.Range(0, ScenePowerUps.Count);
+                while(scenePowerUps == -1 || previousPowerUpRandoms.Contains(scenePowerUps))
+                {
+                    scenePowerUps = RandomUtils.Range(0, ScenePowerUps.Count);
+                }
+
+                if (previousPowerUpRandoms.Count == 2)
+                {
+                    previousPowerUpRandoms.RemoveAt(0);
+                }
+                previousPowerUpRandoms.Add(scenePowerUps);
+
                 scenePowerUpPos = RandomUtils.Range(0, 5);
             }
 

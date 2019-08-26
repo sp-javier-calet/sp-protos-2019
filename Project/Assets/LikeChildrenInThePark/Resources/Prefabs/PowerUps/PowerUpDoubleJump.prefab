@@ -1,5 +1,49 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &8285173171362349748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3093994196046294862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _instanceID: -505242
+  _serializedMaterial: {fileID: 0}
+  _originalMaterial: {fileID: 2100000, guid: bfb1a5f0ed11e69419b719b3d12a5414, type: 2}
+  _originalMaterialIsUIDefault: 0
+  SerializedComponents:
+    HasBeenSerialised: 1
+    Renderer: {fileID: 3093994196044296590}
+    MaskableGraphic: {fileID: 0}
+    TextMeshProGUI: {fileID: 0}
+    RendererIsSprite: 0
+    BCSHModifier: {fileID: 8285173171362349748}
+    PhotoshopGradient: {fileID: 0}
+  BCSHStates:
+  - Name: default
+    Brightness: 1
+    Contrast: 1
+    Saturation: 1
+    Hue: 0
+    TintColor: {r: 1, g: 1, b: 1, a: 1}
+    TintColorApply: 0
+  - Name: 
+    Brightness: 0.596
+    Contrast: 1.123
+    Saturation: 1
+    Hue: 0
+    TintColor: {r: 1, g: 1, b: 1, a: 1}
+    TintColorApply: 0
+  ApplyRecursively: 0
+  _currentAppliedBCSHState: 1
+  _recursiveChildDataKeys: []
+  _recursiveChildDataValues: []
+  _progressiveCurveAnimations: []
 --- !u!1 &3318168917698043393
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,8 +418,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90.00001
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 1ef5db392fb49494e9e9e3896002f82b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ef5db392fb49494e9e9e3896002f82b, type: 3}
+--- !u!1 &3093994196046294862 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: 1ef5db392fb49494e9e9e3896002f82b,
+    type: 3}
+  m_PrefabInstance: {fileID: 3093994196046195182}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3093994196046066542 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 1ef5db392fb49494e9e9e3896002f82b,
