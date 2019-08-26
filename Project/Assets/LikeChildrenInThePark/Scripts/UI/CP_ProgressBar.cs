@@ -55,7 +55,7 @@ public class CP_ProgressBar : MonoBehaviour
             if(ProgressBarPlayerContent != null)
             {
                 var delta = (currentPlayerPos - kInitCheckPointPosition) / (_lastCheckPointPosition - kInitCheckPointPosition);
-                _vecTemp.x = 10.0f + ((ProgressBarPlayerContent.rect.width - 10) * delta);
+                _vecTemp.x = 10.0f + ((ProgressBarPlayerContent.rect.width - 15) * delta);
 
                 _followingPlayersUI[i].SetIconPosition(_vecTemp);
             }
