@@ -42,8 +42,13 @@ public class CP_SceneManager : MonoBehaviour
         E_CHEST_NUTS = (1 << 16)
     }
 
-    //int[] Stage01 = {(int)SceneObjectTypes.E_NONE};
+    int[] Stage01 =
+    {
+        (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE,
+        (int)SceneObjectTypes.E_NONE
+    };
     //int[] Stage01 = {(int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_BOXES_01 + (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES, (int)SceneObjectTypes.E_NONE, (int)SceneObjectTypes.E_NONE};
+    /*
     int[] Stage01 =
     {
         (int)SceneObjectTypes.E_NONE,                 (int)SceneObjectTypes.E_BALL_LOW,                                                                     (int)SceneObjectTypes.E_CHEST_NUTS,                                                                          (int)SceneObjectTypes.E_BOXES_01,
@@ -54,6 +59,7 @@ public class CP_SceneManager : MonoBehaviour
         (int)SceneObjectTypes.E_CHEST_NUTS,           (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BOXES_02, (int)SceneObjectTypes.E_WATER_01 + (int)SceneObjectTypes.E_FISHES + (int)SceneObjectTypes.E_BALL_HIGH,       (int)SceneObjectTypes.E_NONE,
         (int)SceneObjectTypes.E_NONE
     };
+    */
 
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
@@ -70,6 +76,7 @@ public class CP_SceneManager : MonoBehaviour
     public bool SuicideEnabled = true;
     public BattleState CurrentBattleState = BattleState.E_NONE;
     public CP_Semaphore Semaphore = null;
+    public CP_ProgressBar ProgressBar = null;
     public GameObject GameOverTextGO = null;
     public GameObject YouWinTextGO = null;
     public GameObject SecondTextGO = null;
@@ -98,7 +105,8 @@ public class CP_SceneManager : MonoBehaviour
 
         if (ScenePiecesLength == -1 || ScenePiecesLength > kMaxSceneSize)
         {
-            ScenePiecesLength = kMaxSceneSize;
+            //ScenePiecesLength = kMaxSceneSize;
+            ScenePiecesLength = Stage01.Length + 1;
         }
 
         GenerateMapData(ScenePiecesLength);
@@ -348,6 +356,11 @@ public class CP_SceneManager : MonoBehaviour
             if (_player != null)
             {
                 _player.SetSceneManager(this);
+
+                if(ProgressBar != null)
+                {
+                    ProgressBar.AddPlayerToFollow(playerGO, _sceneMapLastChekpointIndex);
+                }
             }
         }
     }

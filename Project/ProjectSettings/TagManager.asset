@@ -37,7 +37,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - UI_ProgressBar
   m_SortingLayers:
   - name: Default
     uniqueID: 0
