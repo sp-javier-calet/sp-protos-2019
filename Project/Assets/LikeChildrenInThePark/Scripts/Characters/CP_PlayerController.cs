@@ -517,8 +517,6 @@ public class CP_PlayerController : MonoBehaviour
                         _holdingStart = true;
                         _accumulatedStart = 1.0f - _sceneManager.Semaphore.DeltaInterStates();
 
-                        Debug.Log("_accumulatedStart: " + _accumulatedStart);
-
                         if(_animator != null)
                         {
                             _animator.Play("walk");
