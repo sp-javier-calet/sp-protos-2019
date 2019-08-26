@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: -505242
+  _instanceID: 34988
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: bfb1a5f0ed11e69419b719b3d12a5414, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -100,7 +100,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
+  - {fileID: 2100000, guid: 4f971b950a7e64abbbe2288d13d135f0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
