@@ -68,6 +68,7 @@ public class CP_SceneManager : MonoBehaviour
 
     public GameObject SceneMainPiece = null;
     public List<GameObject> SceneBackgrounds = null;
+    public List<GameObject> ScenePowerUps = null;
     public int ScenePiecesLength = -1;
     public GameObject PlayerGO = null;
     public Button TurnBack = null;
@@ -79,6 +80,7 @@ public class CP_SceneManager : MonoBehaviour
     public BattleState CurrentBattleState = BattleState.E_NONE;
     public CP_Semaphore Semaphore = null;
     public CP_ProgressBar ProgressBar = null;
+    public CP_PowerUpTime PowerUpTime = null;
     public GameObject GameOverTextGO = null;
     public GameObject YouWinTextGO = null;
     public GameObject SecondTextGO = null;
@@ -88,6 +90,8 @@ public class CP_SceneManager : MonoBehaviour
     GameObject _sceneObjectBase = null;
     List<int> _sceneBackgrounds = new List<int>();
     List<int> _sceneObjects = new List<int>();
+    List<int> _scenePowerUps = new List<int>();
+    List<int> _scenePowerUpPos = new List<int>();
     List<GameObject> _sceneBackgroundsGO = new List<GameObject>();
     CP_PlayerController _player = null;
     BCSHModifier SuicideBCSH = null;
@@ -100,7 +104,7 @@ public class CP_SceneManager : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = 60;
-        //Time.fixedDeltaTime =  Time.timeScale * 0.02f;
+        Time.fixedDeltaTime =  Time.timeScale * 0.02f;
 
         _sceneObjectBase = new GameObject("SceneBase");
         _sceneObjectBase.transform.SetParent(transform, true);
@@ -267,6 +271,20 @@ public class CP_SceneManager : MonoBehaviour
             }
 
             _sceneObjects.Add(sceneObjects);
+
+
+
+            var scenePowerUps = -1;
+            var scenePowerUpPos = -1;
+
+            if(i > 1 && i % 3 == 0)
+            {
+                scenePowerUps = RandomUtils.Range(0, ScenePowerUps.Count);
+                scenePowerUpPos = RandomUtils.Range(0, 5);
+            }
+
+            _scenePowerUps.Add(scenePowerUps);
+            _scenePowerUpPos.Add(scenePowerUpPos);
         }
 
         var startingIndex = 1;
@@ -291,7 +309,7 @@ public class CP_SceneManager : MonoBehaviour
                 newSceneBackground.transform.SetParent(newSceneMainPiece.transform, false);
             }
 
-            GenerateSceneObjects(mapPos, _sceneObjects[mapIndex], newSceneMainPiece);
+            GenerateSceneObjects(mapPos, _sceneObjects[mapIndex], _scenePowerUps[mapIndex], _scenePowerUpPos[mapIndex], newSceneMainPiece);
 
             if (_sceneBackgroundsGO.Count == 3)
             {
@@ -317,7 +335,7 @@ public class CP_SceneManager : MonoBehaviour
         }
     }
 
-    void GenerateSceneObjects(int mapPos, int sceneObjects, GameObject parentGO)
+    void GenerateSceneObjects(int mapPos, int sceneObjects, int powerUps, int powerUpPos, GameObject parentGO)
     {
         foreach(var objectType in Enum.GetValues(typeof(SceneObjectTypes)))
         {
@@ -344,6 +362,18 @@ public class CP_SceneManager : MonoBehaviour
                         }
                     }
                 }
+            }
+        }
+
+        if(powerUps != -1)
+        {
+            GameObject powerUp = Instantiate(ScenePowerUps[powerUps]);
+            powerUp.transform.SetParent(parentGO.transform, false);
+
+            CP_PowerUp powerUpScript = powerUp.GetComponent<CP_PowerUp>();
+            if(powerUpScript != null)
+            {
+                powerUpScript.SetPosition(powerUpPos);
             }
         }
     }

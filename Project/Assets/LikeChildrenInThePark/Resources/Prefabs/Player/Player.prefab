@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 127598
+  _instanceID: 211938
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: c3ff29a04e8f12e4a87617a44acea6f4, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -152,7 +152,7 @@ MonoBehaviour:
     Hue: 0
     TintColor: {r: 1, g: 1, b: 1, a: 1}
     TintColorApply: 0
-  - Name: 
+  - Name: angry
     Brightness: 1.208
     Contrast: 1.181
     Saturation: 1
@@ -670,7 +670,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6699329112157556212}
-  - component: {fileID: 6748036410067169206}
   - component: {fileID: 6698676498396410922}
   - component: {fileID: 6698676498396410933}
   - component: {fileID: 7859339481383718153}
@@ -699,25 +698,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 130, z: 0}
---- !u!95 &6748036410067169206
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6697712995093948240}
-  m_Enabled: 0
-  m_Avatar: {fileID: 9000000, guid: bfd44368c17054c48adce6072f660c3e, type: 3}
-  m_Controller: {fileID: 9100000, guid: bb3b801b400af0b46a15a691ab16aa40, type: 2}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!54 &6698676498396410922
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -759,6 +739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5c61a7e719840cc83fa9cde17ade13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HeadBCSH: {fileID: 7059467470723759548}
 --- !u!111 &6698676498765609320
 Animation:
   m_ObjectHideFlags: 0
@@ -1015,7 +996,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 127558
+  _instanceID: 211900
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 7355381b1e2ffcd47b5f74c87e263dd5, type: 2}
   _originalMaterialIsUIDefault: 0

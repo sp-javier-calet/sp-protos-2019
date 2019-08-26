@@ -1,7 +1,7 @@
 ﻿
-using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -18,6 +18,21 @@ public class CP_PlayerController : MonoBehaviour
         E_DAMAGED_FALL
     }
 
+    public enum PowerUpType
+    {
+        E_NONE,
+        E_SPEED_UP,
+        E_ANGRY,
+        E_LIFE,
+        E_DOUBLE_JUMP,
+        E_INVINCIBLE
+    }
+
+    int[] PowerUpTimes =
+    {
+        0, 12000, 16000, 0, 16000, 8000
+    };
+
     const int kHoldingJumpMaxMillis = 150;
     const int kDamageInvulnerableMaxMillis = 2750;
     const int kAccumulatedStartTotalTimeMillis = 1000;
@@ -28,6 +43,8 @@ public class CP_PlayerController : MonoBehaviour
     const float kFallingThreshold = 1f;
     const float kMaxFallingThreshold = 20f;
     const float kAccumulatedStartThreshold = 0.75f;
+
+    public BCSHModifier HeadBCSH = null;
 
     Vector3 _vectTemp = new Vector3();
     Color _colorTemp = Color.white;
@@ -43,6 +60,12 @@ public class CP_PlayerController : MonoBehaviour
     bool _damageInvulnerable = false;
     long _damageInvulnerableStartTime = 0;
     PlayerState _playerState = PlayerState.E_NONE;
+    long _powerUpStartTime = 0;
+    float _moveForcePowerUp = 0.0f;
+    PowerUpType _currentPowerUp = PowerUpType.E_NONE;
+    bool _hasDoubleHump = false;
+    long _lastAngryTurnTime = 0;
+    int _currentAngryRandomTime = 0;
 
     Rigidbody _rigidBody = null;
     Animation _animator = null;
@@ -75,6 +98,102 @@ public class CP_PlayerController : MonoBehaviour
         var dist = 0f;
         GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up);
         _initialDistance = dist;
+    }
+
+    void AddPowerUp(PowerUpType powerUp)
+    {
+        _powerUpStartTime = TimeUtils.TimestampMilliseconds;
+
+        switch(powerUp)
+        {
+            case PowerUpType.E_SPEED_UP:
+            {
+                _moveForcePowerUp = 0.075f;
+                _animator["walk"].speed = 4f;
+
+                break;
+            }
+            case PowerUpType.E_ANGRY:
+            {
+                _moveForcePowerUp = 0.0375f;
+                _animator["walk"].speed = 3f;
+
+                _lastAngryTurnTime = TimeUtils.TimestampMilliseconds;
+                _currentAngryRandomTime = RandomUtils.Range(1000, 3500);
+
+                break;
+            }
+            case PowerUpType.E_INVINCIBLE:
+            {
+                _moveForcePowerUp = 0.0375f;
+                _animator["walk"].speed = 3f;
+
+                break;
+            }
+            case PowerUpType.E_LIFE:
+            {
+                _sceneManager.PlayerStats.Heal(2f);
+                break;
+            }
+        }
+
+        if(powerUp != PowerUpType.E_LIFE)
+        {
+            if(_sceneManager.PowerUpTime != null)
+            {
+                _sceneManager.PowerUpTime.ShowPowerUpTime(powerUp);
+            }
+
+            _currentPowerUp = powerUp;
+        }
+    }
+
+    void ResetPowerUp()
+    {
+        switch(_currentPowerUp)
+        {
+            case PowerUpType.E_SPEED_UP:
+            {
+                _moveForcePowerUp = 0f;
+                _animator["walk"].speed = 2.0f;
+
+                break;
+            }
+            case PowerUpType.E_ANGRY:
+            {
+                _moveForcePowerUp = 0f;
+                _animator["walk"].speed = 2.0f;
+
+                if(HeadBCSH != null)
+                {
+                    HeadBCSH.ApplyBCSHState("default");
+                }
+
+                break;
+            }
+            case PowerUpType.E_INVINCIBLE:
+            {
+                _moveForcePowerUp = 0f;
+                _animator["walk"].speed = 2.0f;
+
+                for(var i = 0; i < _playerMaterials.Count; ++i)
+                {
+                    _colorTemp = Color.white;
+                    _colorTemp.a = 1f;
+
+                    _playerMaterials[i].SetColor("_Color", _colorTemp);
+                }
+
+                break;
+            }
+        }
+
+        if(_sceneManager.PowerUpTime != null)
+        {
+            _sceneManager.PowerUpTime.SetEnabled(false);
+        }
+
+        _currentPowerUp = PowerUpType.E_NONE;
     }
 
     void OnTriggerEnter(Collider other)
@@ -116,6 +235,22 @@ public class CP_PlayerController : MonoBehaviour
                 {
                     Hurt();
                 }
+            }
+        }
+
+        if(other.name.Contains("PowerUp"))
+        {
+            CP_PowerUp powerUp = other.GetComponent<CP_PowerUp>();
+            if(powerUp != null)
+            {
+                if(_currentPowerUp != PowerUpType.E_NONE)
+                {
+                    ResetPowerUp();
+                }
+
+                AddPowerUp((PowerUpType) (powerUp.PowerUpType + 1));
+
+                powerUp.Taken();
             }
         }
     }
@@ -166,6 +301,8 @@ public class CP_PlayerController : MonoBehaviour
         layerMask -= (1 << 15);
         layerMask -= (1 << 16);
         layerMask -= (1 << 17);
+        layerMask -= (1 << 18);
+        layerMask -= (1 << 31);
 
         Ray downRay = new Ray(initPosition, direction);
         if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
@@ -213,6 +350,7 @@ public class CP_PlayerController : MonoBehaviour
                 _sceneManager.GirlHeadUI.Play("walk");
             }
 
+            _hasDoubleHump = false;
             _playerState = PlayerState.E_WALKING;
         }
     }
@@ -221,6 +359,7 @@ public class CP_PlayerController : MonoBehaviour
     {
         if(_rigidBody != null)
         {
+            _rigidBody.velocity = Vector3.zero;
             _rigidBody.AddForce(Vector3.up * kJumpForce, ForceMode.Impulse);
 
             if(_animator != null)
@@ -228,6 +367,8 @@ public class CP_PlayerController : MonoBehaviour
                 _animator.Play("jump");
                 _animator["jump"].time = 0.06f;
             }
+
+            _memoryJump = false;
 
             _playerState = PlayerState.E_JUMPING;
         }
@@ -275,7 +416,7 @@ public class CP_PlayerController : MonoBehaviour
 
     void Hurt()
     {
-        if(_rigidBody != null)
+        if(_rigidBody != null && _currentPowerUp != PowerUpType.E_INVINCIBLE)
         {
             Turn(false);
 
@@ -307,7 +448,7 @@ public class CP_PlayerController : MonoBehaviour
     {
         if (_playerState == PlayerState.E_WALKING)
         {
-            transform.position += (_direction * (kMoveForce + _accumulatedSpeedAdded));
+            transform.position += (_direction * (kMoveForce + _accumulatedSpeedAdded + _moveForcePowerUp));
         }
         else
         {
@@ -431,6 +572,72 @@ public class CP_PlayerController : MonoBehaviour
                 _accumulatedSpeedAdded = 0f;
             }
 
+            if(_currentPowerUp != PowerUpType.E_NONE)
+            {
+                var powerUpDelta = (TimeUtils.TimestampMilliseconds - _powerUpStartTime) / (float)PowerUpTimes[(int)_currentPowerUp];
+
+                if(_sceneManager.PowerUpTime != null)
+                {
+                    _sceneManager.PowerUpTime.SetDelta(powerUpDelta);
+                }
+
+                if(TimeUtils.TimestampMilliseconds > _powerUpStartTime + PowerUpTimes[(int)_currentPowerUp])
+                {
+                    ResetPowerUp();
+                }
+            }
+
+            if(_currentPowerUp == PowerUpType.E_INVINCIBLE)
+            {
+                if(_playerMaterials.Count == 0)
+                {
+                    Renderer[] renderers = transform.GetComponentsInChildren<Renderer>();
+                    if(renderers != null)
+                    {
+                        for(var j = 0; j < renderers.Length; ++j)
+                        {
+                            _playerMaterials.Add(renderers[j].material);
+                        }
+                    }
+                }
+
+                for(var i = 0; i < _playerMaterials.Count; ++i)
+                {
+                    _colorTemp = Color.white;
+                    _colorTemp.a = 0.85f + (0.25f * Mathf.Sin(Time.time * 16.0f));
+
+                    _playerMaterials[i].SetColor("_Color", _colorTemp);
+                }
+            }
+
+            if(_currentPowerUp == PowerUpType.E_ANGRY)
+            {
+                if(HeadBCSH != null)
+                {
+                    float delta = (TimeUtils.TimestampMilliseconds - _lastAngryTurnTime) / (float)_currentAngryRandomTime;
+                    if(delta > 0.75f && HeadBCSH.CurrentAppliedBCSHState == 0)
+                    {
+                        HeadBCSH.ApplyBCSHState("angry");
+                    }
+                }
+
+                if(TimeUtils.TimestampMilliseconds > _lastAngryTurnTime + _currentAngryRandomTime)
+                {
+                    if(_playerState != PlayerState.E_DAMAGED && _playerState != PlayerState.E_DAMAGED_FALL)
+                    {
+                        Turn();
+                    }
+
+                    if(HeadBCSH != null)
+                    {
+                        HeadBCSH.ApplyBCSHState("default");
+                    }
+
+                    _lastAngryTurnTime = TimeUtils.TimestampMilliseconds;
+                    _currentAngryRandomTime = RandomUtils.Range(1000, 3500);
+                }
+            }
+
             if(_damageInvulnerable)
             {
                 if(TimeUtils.TimestampMilliseconds > _damageInvulnerableStartTime + kDamageInvulnerableMaxMillis)
@@ -493,7 +700,17 @@ public class CP_PlayerController : MonoBehaviour
 
                 if(TimeUtils.TimestampMilliseconds <= _holdingStartTime + kHoldingJumpMaxMillis)
                 {
-                    if(_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED)
+                    var canJumpAgain = false;
+                    if(_currentPowerUp == PowerUpType.E_DOUBLE_JUMP && !_hasDoubleHump)
+                    {
+                        if(_playerState == PlayerState.E_JUMPING || _playerState == PlayerState.E_JUMPING_FALL)
+                        {
+                            _hasDoubleHump = true;
+                            canJumpAgain = true;
+                        }
+                    }
+
+                    if(_playerState == PlayerState.E_WALKING || _playerState == PlayerState.E_STOPPED || canJumpAgain)
                     {
                         Jump();
                     }
@@ -544,6 +761,7 @@ public class CP_PlayerController : MonoBehaviour
                     {
                         if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
                         {
+                            _hasDoubleHump = false;
                             _memoryJump = false;
 
                             Jump();
@@ -574,6 +792,7 @@ public class CP_PlayerController : MonoBehaviour
                     {
                         if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
                         {
+                            _hasDoubleHump = false;
                             _memoryJump = false;
 
                             Jump();
