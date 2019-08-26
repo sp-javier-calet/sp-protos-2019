@@ -98,7 +98,7 @@ public class CP_SceneManager : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = 60;
-        Time.fixedDeltaTime =  Time.timeScale * 0.02f;
+        //Time.fixedDeltaTime =  Time.timeScale * 0.02f;
 
         _sceneObjectBase = new GameObject("SceneBase");
         _sceneObjectBase.transform.SetParent(transform, true);

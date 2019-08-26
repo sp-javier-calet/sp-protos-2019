@@ -28,7 +28,10 @@ public class CP_ProgressBar : MonoBehaviour
                 GameObject newPlayerBar = Instantiate(ProgressBarPlayer);
                 newPlayerBar.transform.SetParent(ProgressBarPlayerContent.transform, false);
 
-                _followingPlayersUI.Add(newPlayerBar.GetComponent<CP_ProgressBarPlayer>());
+                CP_ProgressBarPlayer progressBarPlayer = newPlayerBar.GetComponent<CP_ProgressBarPlayer>();
+                progressBarPlayer.GirlTransform.transform.position = new Vector3(-2000f, 2000 * _followingPlayers.Count, 0f);
+
+                _followingPlayersUI.Add(progressBarPlayer);
             }
         }
 
@@ -52,7 +55,7 @@ public class CP_ProgressBar : MonoBehaviour
             if(ProgressBarPlayerContent != null)
             {
                 var delta = (currentPlayerPos - kInitCheckPointPosition) / (_lastCheckPointPosition - kInitCheckPointPosition);
-                _vecTemp.x = 10.0f + (ProgressBarPlayerContent.rect.width * delta);
+                _vecTemp.x = 10.0f + ((ProgressBarPlayerContent.rect.width - 10) * delta);
 
                 _followingPlayersUI[i].SetIconPosition(_vecTemp);
             }

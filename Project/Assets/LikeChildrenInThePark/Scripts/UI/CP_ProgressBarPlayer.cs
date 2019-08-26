@@ -7,6 +7,7 @@ public class CP_ProgressBarPlayer : MonoBehaviour
     public RectTransform IconTransform;
     public Camera CameraRendering = null;
     public RawImage ImageTarget = null;
+    public GameObject GirlTransform = null;
 
     RenderTexture _renderTexture;
 

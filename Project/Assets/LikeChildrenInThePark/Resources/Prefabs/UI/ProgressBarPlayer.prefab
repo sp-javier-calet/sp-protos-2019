@@ -53,6 +53,7 @@ MonoBehaviour:
   IconTransform: {fileID: 7706887825471133690}
   CameraRendering: {fileID: 6063423911367688413}
   ImageTarget: {fileID: 8988018876192226741}
+  GirlTransform: {fileID: 4492544655315569786}
 --- !u!1 &1414607064571967788
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,7 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 64430
+  _instanceID: 73776
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 7355381b1e2ffcd47b5f74c87e263dd5, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -1129,7 +1130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 64306
+  _instanceID: 73652
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: c3ff29a04e8f12e4a87617a44acea6f4, type: 2}
   _originalMaterialIsUIDefault: 0
