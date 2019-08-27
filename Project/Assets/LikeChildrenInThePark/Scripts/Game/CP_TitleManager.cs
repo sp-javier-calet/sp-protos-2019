@@ -48,6 +48,9 @@ public class CP_TitleManager : MonoBehaviour
 
     void Start()
     {
+        NetworkController.StopClient();
+        NetworkController.StopHost();
+
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
 
@@ -71,6 +74,9 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressed4Back()
     {
+        NetworkController.StopClient();
+        NetworkController.StopHost();
+
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
     }
@@ -91,7 +97,8 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressedConnect()
     {
-
+        NetworkController.networkAddress = InputField.text;
+        NetworkController.StartClient();
     }
 
     public void OnPressedStart()

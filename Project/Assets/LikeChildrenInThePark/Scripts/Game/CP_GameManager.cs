@@ -1,6 +1,5 @@
 ﻿
 using System.Collections;
-using SocialPoint.Rendering.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

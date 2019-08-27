@@ -62,9 +62,10 @@ public class CP_SceneManager : MonoBehaviour
         (int)SceneObjectTypes.E_NONE
     };
 
-
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
+
+    public static List<GameObject> VersusPlayers = new List<GameObject>();
 
     public GameObject SceneMainPiece = null;
     public List<GameObject> SceneBackgrounds = null;
@@ -109,24 +110,26 @@ public class CP_SceneManager : MonoBehaviour
         _sceneObjectBase = new GameObject("SceneBase");
         _sceneObjectBase.transform.SetParent(transform, true);
 
-        if (ScenePiecesLength == -1 || ScenePiecesLength > kMaxSceneSize)
+        if (CP_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
         {
-            //ScenePiecesLength = kMaxSceneSize;
-            ScenePiecesLength = Stage01.Length + 1;
+            if (ScenePiecesLength == -1 || ScenePiecesLength > kMaxSceneSize)
+            {
+                //ScenePiecesLength = kMaxSceneSize;
+                ScenePiecesLength = Stage01.Length + 1;
+            }
+
+            GenerateMapData(ScenePiecesLength);
+            SearchForLastChekpointIndex();
+
+            for (var i = 0; i < 3; ++i)
+            {
+                GenerateMap(i, i, true);
+            }
+            _sceneMapLastGeneratedIndex = 1;
+
+            GeneratePlayer();
+            SetCurrentGameState(BattleState.E_SEMAPHORE);
         }
-
-        GenerateMapData(ScenePiecesLength);
-        SearchForLastChekpointIndex();
-
-        for (var i = 0; i < 3; ++i)
-        {
-            GenerateMap(i, i, true);
-        }
-        _sceneMapLastGeneratedIndex = 1;
-
-        GeneratePlayer();
-
-        SetCurrentGameState(BattleState.E_SEMAPHORE);
     }
 
     void SearchForLastChekpointIndex()
