@@ -23,9 +23,16 @@ MonoBehaviour:
     Enabled: 1
   - Name: Graybox Library
     Enabled: 0
+  - Name: Master Audio
+    Enabled: 0
   - Name: Multiplayer
     Enabled: 0
   - Name: Social Framework
     Enabled: 0
+  - Name: Spine-3.6
+    Enabled: 0
+  - Name: Spine-3.8
+    Enabled: 1
   - Name: Transparent Bundles
     Enabled: 0
+  _spartaPackagePrefix: 
