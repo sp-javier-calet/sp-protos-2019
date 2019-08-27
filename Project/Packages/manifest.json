@@ -9,6 +9,7 @@
     "es.socialpoint.sparta.external.facebook": "file:../Assets/Plugins/Sparta/Packages~/External/Facebook",
     "es.socialpoint.sparta.external.ironsource": "file:../Assets/Plugins/Sparta/Packages~/External/IronSource",
     "com.unity.modules.ai": "1.0.0",
+    "com.unity.multiplayer-hlapi": "1.0.2",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
