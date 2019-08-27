@@ -21,21 +21,6 @@ public class CP_TitleManager : MonoBehaviour
     public Image QRCodeImage;
     public TMP_InputField InputField;
 
-    CP_NetworkController _networkController;
-
-    CP_NetworkController NetworkController
-    {
-        get
-        {
-            if(_networkController == null)
-            {
-                _networkController = FindObjectOfType<CP_NetworkController>();
-            }
-
-            return _networkController;
-        }
-    }
-
     void SetScreenEnabled(CanvasGroup canvas, bool enabled)
     {
         if(canvas != null)
@@ -48,8 +33,8 @@ public class CP_TitleManager : MonoBehaviour
 
     void Start()
     {
-        NetworkController.StopClient();
-        NetworkController.StopHost();
+        CP_GameManager.Instance.NetworkController.StopClient();
+        CP_GameManager.Instance.NetworkController.StopHost();
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
@@ -74,8 +59,8 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressed4Back()
     {
-        NetworkController.StopClient();
-        NetworkController.StopHost();
+        CP_GameManager.Instance.NetworkController.StopClient();
+        CP_GameManager.Instance.NetworkController.StopHost();
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
@@ -83,7 +68,7 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressedServer()
     {
-        NetworkController.StartHost();
+        CP_GameManager.Instance.NetworkController.StartHost();
 
         SetScreenEnabled(BehaviourScreen, false);
         SetScreenEnabled(ServerScreen, true);
@@ -97,8 +82,8 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressedConnect()
     {
-        NetworkController.networkAddress = InputField.text;
-        NetworkController.StartClient();
+        CP_GameManager.Instance.NetworkController.networkAddress = InputField.text;
+        CP_GameManager.Instance.NetworkController.StartClient();
     }
 
     public void OnPressedStart()

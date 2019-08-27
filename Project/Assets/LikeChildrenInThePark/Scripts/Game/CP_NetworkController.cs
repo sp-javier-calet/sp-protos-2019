@@ -46,6 +46,8 @@ public class CP_NetworkController : NetworkManager
         public int ChosenCharacter;
     }
 
+
+
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader messageReader)
     {
         //        var numOfAllowedPlayers = PlayerPrefs.GetInt(MainMenuController.kNumberOfPlayersKey) + 1;
@@ -80,6 +82,9 @@ public class CP_NetworkController : NetworkManager
 
         var player = GeneratePlayer();
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+
+        CP_GameManager.Instance.NumPlayers++;
+        CP_SceneManager.VersusPlayers.Add(player);
     }
 
     GameObject GeneratePlayer()

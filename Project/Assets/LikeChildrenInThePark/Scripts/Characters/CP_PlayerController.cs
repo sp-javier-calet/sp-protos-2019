@@ -91,9 +91,22 @@ public class CP_PlayerController : MonoBehaviour
             _animator["jump"].speed = 0.5f;
         }
 
-        _gameCamera = GameObject.Find("GameCamera").GetComponent<Camera>();
-
         transform.position = new Vector3(CP_SceneManager.kScenePieceSize * 0.5f, 1.0f, -1.2f);
+
+        if(CP_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
+        {
+            Init();
+        }
+    }
+
+    public void Init()
+    {
+        if(_rigidBody != null)
+        {
+            _rigidBody.useGravity = true;
+        }
+
+        _gameCamera = GameObject.Find("GameCamera").GetComponent<Camera>();
 
         var dist = 0f;
         GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up);
