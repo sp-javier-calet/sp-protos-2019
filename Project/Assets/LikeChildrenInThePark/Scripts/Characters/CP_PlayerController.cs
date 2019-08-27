@@ -4,8 +4,9 @@ using DG.Tweening;
 using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class CP_PlayerController : MonoBehaviour
+public class CP_PlayerController : NetworkBehaviour
 {
     enum PlayerState
     {
@@ -97,6 +98,21 @@ public class CP_PlayerController : MonoBehaviour
         {
             Init();
         }
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        Debug.Log("OnStartLocalPlayer");
+
+        base.OnStartLocalPlayer();
+
+        UpdateNumPlayers();
+    }
+
+    [Command]
+    void UpdateNumPlayers()
+    {
+        CP_GameManager.Instance.NumPlayers++;
     }
 
     public void Init()
