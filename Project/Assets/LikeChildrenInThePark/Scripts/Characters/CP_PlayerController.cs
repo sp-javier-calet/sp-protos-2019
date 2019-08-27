@@ -519,6 +519,11 @@ public class CP_PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
+        if(_sceneManager == null)
+        {
+            return;
+        }
+
         if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_SEMAPHORE)
         {
             if(_sceneManager.Semaphore.CurrentsemaphoreState == CP_Semaphore.SemaphoreState.E_P3)
