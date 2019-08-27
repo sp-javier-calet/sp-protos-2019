@@ -18,7 +18,7 @@ public class CP_GameManager : NetworkBehaviour
 
     CP_NetworkController _networkController;
 
-    [SyncVar(hook = "NumPlayers")]
+    [SyncVar(hook = "SetNumPlayers")]
     int _numPlayers = 0;
 
     public int NumPlayers { get { return _numPlayers; } }
