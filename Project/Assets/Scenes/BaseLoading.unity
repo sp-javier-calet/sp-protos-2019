@@ -151,6 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentGameState: 0
+  PlayerGO: {fileID: 6697712995093948240, guid: 9f638399acac4436c86949b9cb3a2f38,
+    type: 3}
 --- !u!4 &412389215
 Transform:
   m_ObjectHideFlags: 0
