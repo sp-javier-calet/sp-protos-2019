@@ -16,6 +16,7 @@ public class CP_GameManager : MonoBehaviour
     }
 
     public GameState CurrentGameState = GameState.E_NONE;
+    public GameObject PlayerGO = null;
 
     void Awake()
     {

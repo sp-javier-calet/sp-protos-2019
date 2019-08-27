@@ -41,6 +41,11 @@ public class CP_NetworkController : NetworkManager
     }
     */
 
+    class NetworkMessage : MessageBase
+    {
+        public int ChosenCharacter;
+    }
+
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader messageReader)
     {
         //        var numOfAllowedPlayers = PlayerPrefs.GetInt(MainMenuController.kNumberOfPlayersKey) + 1;
@@ -65,9 +70,6 @@ public class CP_NetworkController : NetworkManager
         yield return null;
 
         /*
-        // we add this return just to avoid problems when trying to access to singletons that are not loaded in Awake
-        yield return null;
-
         var message = messageReader.ReadMessage<NetworkMessage>();
         var selectedClass = message.ChosenCharacter;
 
@@ -75,15 +77,29 @@ public class CP_NetworkController : NetworkManager
         var player = Instantiate(Players[selectedClass], startPos.position, startPos.rotation);
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
         */
+
+        var player = GeneratePlayer();
+        NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+    }
+
+    GameObject GeneratePlayer()
+    {
+        if(CP_GameManager.Instance.PlayerGO != null)
+        {
+            GameObject playerGO = Instantiate(CP_GameManager.Instance.PlayerGO);
+            return playerGO;
+        }
+
+        return null;
     }
 
     public override void OnClientConnect(NetworkConnection conn)
     {
         Debug.Log("OnClientConnect");
 
-        //var clientConnectMsg = new NetworkMessage();
+        var clientConnectMsg = new NetworkMessage();
         //clientConnectMsg.ChosenCharacter = ChosenCharacter;
 
-        //ClientScene.AddPlayer(conn, 0, clientConnectMsg);
+        ClientScene.AddPlayer(conn, 0, clientConnectMsg);
     }
 }

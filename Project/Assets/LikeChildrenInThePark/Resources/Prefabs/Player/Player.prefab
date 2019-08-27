@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 211938
+  _instanceID: 60592
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: c3ff29a04e8f12e4a87617a44acea6f4, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -674,6 +674,8 @@ GameObject:
   - component: {fileID: 6698676498396410933}
   - component: {fileID: 7859339481383718153}
   - component: {fileID: 6698676498765609320}
+  - component: {fileID: 4032050242418400374}
+  - component: {fileID: 1042799533684857425}
   m_Layer: 9
   m_Name: Player
   m_TagString: Untagged
@@ -760,6 +762,56 @@ Animation:
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &4032050242418400374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6697712995093948240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8258ea15b8f74c4889ce485d21cbbb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 0
+    i1: 0
+    i2: 0
+    i3: 0
+    i4: 0
+    i5: 0
+    i6: 0
+    i7: 0
+    i8: 0
+    i9: 0
+    i10: 0
+    i11: 0
+    i12: 0
+    i13: 0
+    i14: 0
+    i15: 0
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 1
+--- !u!114 &1042799533684857425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6697712995093948240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff27c7674f07c4f4ea6d974d507175f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _posLerpRate: 15
+  _rotLerpRate: 15
+  _posThreshold: 0.1
+  _rotThreshold: 1
+  _networkSendInterval: 0.01
 --- !u!1 &6697749505492746170
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,7 +1048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 211900
+  _instanceID: 60554
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 7355381b1e2ffcd47b5f74c87e263dd5, type: 2}
   _originalMaterialIsUIDefault: 0

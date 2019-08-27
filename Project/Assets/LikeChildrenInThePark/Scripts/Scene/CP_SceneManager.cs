@@ -71,7 +71,6 @@ public class CP_SceneManager : MonoBehaviour
     public List<GameObject> SceneBackgrounds = null;
     public List<GameObject> ScenePowerUps = null;
     public int ScenePiecesLength = -1;
-    public GameObject PlayerGO = null;
     public Button TurnBack = null;
     public Button TurnForward = null;
     public Button Suicide = null;
@@ -394,9 +393,9 @@ public class CP_SceneManager : MonoBehaviour
 
     void GeneratePlayer()
     {
-        if(PlayerGO != null)
+        if(CP_GameManager.Instance.PlayerGO != null)
         {
-            GameObject playerGO = Instantiate(PlayerGO);
+            GameObject playerGO = Instantiate(CP_GameManager.Instance.PlayerGO);
             _player = playerGO.GetComponent<CP_PlayerController>();
 
             if (_player != null)
