@@ -18,9 +18,17 @@ public class CP_GameManager : NetworkBehaviour
 
     CP_NetworkController _networkController;
 
-    [SyncVar]
+    [SyncVar(hook = "NumPlayers")]
     int _numPlayers = 0;
-    public int NumPlayers { get { return _numPlayers; } set { _numPlayers = value; } }
+
+    public int NumPlayers { get { return _numPlayers; } }
+
+    public void SetNumPlayers(int numPlayers)
+    {
+        Debug.Log("SetNumPlayers" + numPlayers);
+
+        _numPlayers = numPlayers;
+    }
 
     public CP_NetworkController NetworkController
     {

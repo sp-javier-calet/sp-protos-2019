@@ -83,7 +83,7 @@ public class CP_NetworkController : NetworkManager
         var player = GeneratePlayer();
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
 
-        CP_GameManager.Instance.NumPlayers++;
+        CP_GameManager.Instance.SetNumPlayers(CP_GameManager.Instance.NumPlayers + 1);
         CP_SceneManager.VersusPlayers.Add(player);
     }
 
