@@ -65,8 +65,6 @@ public class CP_SceneManager : MonoBehaviour
     const int kMaxSceneSize = 256;
     public const int kScenePieceSize = 16;
 
-    public static List<GameObject> VersusPlayers = new List<GameObject>();
-
     public GameObject SceneMainPiece = null;
     public List<GameObject> SceneBackgrounds = null;
     public List<GameObject> ScenePowerUps = null;
@@ -393,9 +391,9 @@ public class CP_SceneManager : MonoBehaviour
 
     void GeneratePlayer()
     {
-        if(CP_GameManager.Instance.PlayerGO != null)
+        if(CP_GameManager.Instance.PlayerOfflineGO != null)
         {
-            GameObject playerGO = Instantiate(CP_GameManager.Instance.PlayerGO);
+            GameObject playerGO = Instantiate(CP_GameManager.Instance.PlayerOfflineGO);
             _player = playerGO.GetComponent<CP_PlayerController>();
 
             if (_player != null)

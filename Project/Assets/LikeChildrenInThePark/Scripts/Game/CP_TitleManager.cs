@@ -1,5 +1,6 @@
 ﻿
 using System.Collections;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using SocialPoint.Rendering.Components;
 using TMPro;
@@ -15,11 +16,16 @@ public class CP_TitleManager : MonoBehaviour
     public CanvasGroup BehaviourScreen = null;
     public CanvasGroup ClientScreen = null;
     public CanvasGroup ServerScreen = null;
+    public CanvasGroup PlayersScreen = null;
     public BCSHModifier TitleBCSH = null;
+
+    public List<BCSHModifier> PlayerSlots = new List<BCSHModifier>();
 
     public TextMeshProUGUI YourIpLabel;
     public Image QRCodeImage;
     public TMP_InputField InputField;
+
+    public static int ServerHost = -1;
 
     void SetScreenEnabled(CanvasGroup canvas, bool enabled)
     {
@@ -31,15 +37,30 @@ public class CP_TitleManager : MonoBehaviour
         }
     }
 
+
+
     void Start()
     {
-        CP_GameManager.Instance.NetworkController.StopClient();
-        CP_GameManager.Instance.NetworkController.StopHost();
+        StopServerOrClients();
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
 
         StartCoroutine(UpdateIpAddress());
+    }
+
+    void StopServerOrClients()
+    {
+        if (ServerHost == 1)
+        {
+            CP_GameManager.Instance.NetworkController.StopHost();
+        }
+        else if (ServerHost == 0)
+        {
+            CP_GameManager.Instance.NetworkController.StopClient();
+        }
+
+        ServerHost = -1;
     }
 
     public void OnPressed1Player()
@@ -55,12 +76,12 @@ public class CP_TitleManager : MonoBehaviour
         SetScreenEnabled(BehaviourScreen, true);
         SetScreenEnabled(ServerScreen, false);
         SetScreenEnabled(ClientScreen, false);
+        SetScreenEnabled(PlayersScreen, false);
     }
 
     public void OnPressed4Back()
     {
-        CP_GameManager.Instance.NetworkController.StopClient();
-        CP_GameManager.Instance.NetworkController.StopHost();
+        StopServerOrClients();
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
@@ -68,20 +89,26 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressedServer()
     {
+        ServerHost = 1;
+
         CP_GameManager.Instance.NetworkController.StartHost();
 
         SetScreenEnabled(BehaviourScreen, false);
         SetScreenEnabled(ServerScreen, true);
+        SetScreenEnabled(PlayersScreen, true);
     }
 
     public void OnPressedClient()
     {
         SetScreenEnabled(BehaviourScreen, false);
         SetScreenEnabled(ClientScreen, true);
+        SetScreenEnabled(PlayersScreen, true);
     }
 
     public void OnPressedConnect()
     {
+        ServerHost = 0;
+
         CP_GameManager.Instance.NetworkController.networkAddress = InputField.text;
         CP_GameManager.Instance.NetworkController.StartClient();
     }
@@ -150,6 +177,22 @@ public class CP_TitleManager : MonoBehaviour
             if(TitleBCSH.Hue > 1.0f)
             {
                 TitleBCSH.Hue -= 1.0f;
+            }
+        }
+
+        if (ServerHost != -1)
+        {
+            for(var i = 0; i < 4; ++i)
+            {
+                var bchsEnabled = CP_GameManager.Instance.NetworkGameState.GetPlayerBCSH(i) != -1;
+                if(bchsEnabled)
+                {
+                    PlayerSlots[i].ApplyBCSHState("enabled");
+                }
+                else
+                {
+                    PlayerSlots[i].ApplyBCSHState("disabled");
+                }
             }
         }
     }

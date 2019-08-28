@@ -1,10 +1,9 @@
 ﻿
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
-public class CP_GameManager : NetworkBehaviour
+public class CP_GameManager : MonoBehaviour
 {
     public static CP_GameManager Instance = null;
 
@@ -17,19 +16,6 @@ public class CP_GameManager : NetworkBehaviour
     }
 
     CP_NetworkController _networkController;
-
-    [SyncVar(hook = "SetNumPlayers")]
-    int _numPlayers = 0;
-
-    public int NumPlayers { set { _numPlayers = value; Debug.Log("NumPlayers: " + _numPlayers); } get { return _numPlayers; } }
-
-    public void SetNumPlayers(int numPlayers)
-    {
-        Debug.Log("SetNumPlayers" + numPlayers);
-
-        _numPlayers = numPlayers;
-    }
-
     public CP_NetworkController NetworkController
     {
         get
@@ -43,8 +29,11 @@ public class CP_GameManager : NetworkBehaviour
         }
     }
 
+    public CP_GameState NetworkGameState;
+
     public GameState CurrentGameState = GameState.E_NONE;
-    public GameObject PlayerGO = null;
+    public GameObject PlayerOfflineGO = null;
+    public GameObject PlayerOnlineGO = null;
 
     void Awake()
     {
@@ -91,10 +80,5 @@ public class CP_GameManager : NetworkBehaviour
         {
             yield return null;
         }
-    }
-
-    void Update()
-    {
-        //Debug.Log("NumPlayers: " + _numPlayers);
     }
 }

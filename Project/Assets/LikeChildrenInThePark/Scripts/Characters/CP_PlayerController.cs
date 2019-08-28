@@ -4,9 +4,8 @@ using DG.Tweening;
 using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class CP_PlayerController : NetworkBehaviour
+public class CP_PlayerController : MonoBehaviour
 {
     enum PlayerState
     {
@@ -45,6 +44,7 @@ public class CP_PlayerController : NetworkBehaviour
     const float kMaxFallingThreshold = 20f;
     const float kAccumulatedStartThreshold = 0.75f;
 
+    public BCSHModifier BodyBCSH = null;
     public BCSHModifier HeadBCSH = null;
 
     Vector3 _vectTemp = new Vector3();
@@ -98,21 +98,6 @@ public class CP_PlayerController : NetworkBehaviour
         {
             Init();
         }
-    }
-
-    public override void OnStartLocalPlayer()
-    {
-        Debug.Log("OnStartLocalPlayer");
-
-        base.OnStartLocalPlayer();
-
-        UpdateNumPlayers();
-    }
-
-    [Command]
-    void UpdateNumPlayers()
-    {
-        CP_GameManager.Instance.NumPlayers++;
     }
 
     public void Init()
