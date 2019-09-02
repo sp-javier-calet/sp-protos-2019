@@ -5,14 +5,19 @@ using UnityEngine.Networking;
 
 public class CP_GameState : NetworkBehaviour
 {
-    public const int kMaxPlayers = 4;
-
     // SERVER ONLY SET DATA ////////////////////////////////////////////////////////////////////////////////
 
+    [System.Serializable]
+    public struct NetPlayerData
+    {
+        public int Id;
+        public int AssignedBCSH;
+    };
+
+    public class NetPlayerDatas : SyncListStruct<NetPlayerData> {}
+
     [SyncVar]
-    public int[] PlayerAssignedBCSHId = new int[kMaxPlayers];
-    [SyncVar]
-    public int[] PlayerAssignedBCSHIndex = new int[kMaxPlayers];
+    NetPlayerDatas _netPlayerDatas = new NetPlayerDatas();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,26 +25,32 @@ public class CP_GameState : NetworkBehaviour
 
     [SyncVar]
     int _numPlayers = 0;
-    public int NumPlayers { set { _numPlayers = value; Debug.Log("NumPlayers: " + _numPlayers); } get { return _numPlayers; } }
+    public int NumPlayers { set { _numPlayers = value; } get { return _numPlayers; } }
 
     public List<GameObject> VersusPlayers = new List<GameObject>();
 
     void Awake()
     {
-        for(var i = 0; i < kMaxPlayers; ++i)
-        {
-            PlayerAssignedBCSHId[i] = -1;
-            PlayerAssignedBCSHIndex[i] = -1;
-        }
+        _netPlayerDatas.Callback = NetPlayerDatasChanged;
+    }
+
+    void NetPlayerDatasChanged(SyncList<NetPlayerData>.Operation op, int itemIndex)
+    {
+        Debug.Log("NetPlayerDatas changed:" + op);
+    }
+
+    public void ClearPlayerDatas()
+    {
+        _netPlayerDatas.Clear();
     }
 
     public int GetPlayerBCSH(int playerId)
     {
-        for(var i = 0; i < kMaxPlayers; ++i)
+        for(var i = 0; i < _netPlayerDatas.Count; ++i)
         {
-            if(PlayerAssignedBCSHId[i] == playerId)
+            if(_netPlayerDatas[i].Id == playerId)
             {
-                return PlayerAssignedBCSHIndex[i];
+                return _netPlayerDatas[i].AssignedBCSH;
             }
         }
 
@@ -48,42 +59,77 @@ public class CP_GameState : NetworkBehaviour
 
     public int GetFreeBCSH()
     {
-        for(var i = 0; i < kMaxPlayers; ++i)
+        for(var j = 1; j < 5; ++j)
         {
-            if(PlayerAssignedBCSHIndex[i] == -1)
+            var found = false;
+            for(var i = 0; i < _netPlayerDatas.Count; ++i)
             {
-                return (i+1);
+                if(_netPlayerDatas[i].AssignedBCSH == j)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found)
+            {
+                return j;
             }
         }
 
         return -1;
     }
 
-    public void SetPlayerBCSH(int playerId, int bcshIndex)
+    [Command]
+    public void CmdSetPlayerBCSH(int playerId, int bcshIndex)
     {
-        for(var i = 0; i < kMaxPlayers; ++i)
+        for(var i = 0; i < _netPlayerDatas.Count; ++i)
         {
-            if(PlayerAssignedBCSHId[i] == -1)
+            if(_netPlayerDatas[i].Id == -1)
             {
-                PlayerAssignedBCSHId[i] = playerId;
-                PlayerAssignedBCSHIndex[i] = bcshIndex;
+                NetPlayerData data = _netPlayerDatas[i];
+                data.AssignedBCSH = bcshIndex;
+
+                _netPlayerDatas[i] = data;
+
+                return;
+            }
+        }
+
+        NetPlayerData newData = new NetPlayerData();
+        newData.Id = playerId;
+        newData.AssignedBCSH = bcshIndex;
+
+        _netPlayerDatas.Add(newData);
+    }
+
+    public void RemovePlayerBCSH(int playerId)
+    {
+        for(var i = 0; i < _netPlayerDatas.Count; ++i)
+        {
+            if(_netPlayerDatas[i].Id == playerId)
+            {
+                _netPlayerDatas.RemoveAt(i);
 
                 return;
             }
         }
     }
 
-    public void RemovePlayerBCSH(int playerId)
+    int prevNumPlayers = -1;
+    int prevCount = -1;
+    void Update()
     {
-        for(var i = 0; i < kMaxPlayers; ++i)
+        if(prevNumPlayers != _numPlayers)
         {
-            if(PlayerAssignedBCSHId[i] == playerId)
-            {
-                PlayerAssignedBCSHId[i] = -1;
-                PlayerAssignedBCSHIndex[i] = -1;
+            Debug.Log("NumPlayers: " + _numPlayers);
+            prevNumPlayers = _numPlayers;
+        }
 
-                return;
-            }
+        if(prevCount != _netPlayerDatas.Count)
+        {
+            Debug.Log("NetPlayerDatas count: " + _netPlayerDatas.Count);
+            prevCount = _netPlayerDatas.Count;
         }
     }
 

@@ -46,7 +46,7 @@ public class CP_NetworkController : NetworkManager
 
     class NetworkMessage : MessageBase
     {
-        public int ChosenCharacter;
+        public int AssignedBCSH;
     }
 
     short _playerControllerId = -1;
@@ -95,19 +95,15 @@ public class CP_NetworkController : NetworkManager
         // we add this return just to avoid problems when trying to access to singletons that are not loaded in Awake
         yield return null;
 
+        var message = messageReader.ReadMessage<NetworkMessage>();
+
         var player = GeneratePlayer();
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
 
         CP_PlayerOnlineController playerCtrl = player.GetComponent<CP_PlayerOnlineController>();
         if(playerCtrl != null)
         {
-            var searchForBCSH = CP_GameManager.Instance.NetworkGameState.GetFreeBCSH();
-            if(searchForBCSH != -1)
-            {
-                CP_GameManager.Instance.NetworkGameState.SetPlayerBCSH(conn.connectionId, searchForBCSH);
-
-                playerCtrl.CurrentBCSHApplied = searchForBCSH;
-            }
+            playerCtrl.CurrentBCSHApplied = message.AssignedBCSH;
         }
 
         CP_GameManager.Instance.NetworkGameState.NumPlayers++;
@@ -127,8 +123,17 @@ public class CP_NetworkController : NetworkManager
 
     public override void OnClientConnect(NetworkConnection conn)
     {
-        var clientConnectMsg = new NetworkMessage();
         _playerControllerId = (short) conn.connectionId;
+
+        var clientConnectMsg = new NetworkMessage();
+
+        var searchForBCSH = CP_GameManager.Instance.NetworkGameState.GetFreeBCSH();
+        if(searchForBCSH != -1)
+        {
+            CP_GameManager.Instance.NetworkGameState.CmdSetPlayerBCSH(conn.connectionId, searchForBCSH);
+
+            clientConnectMsg.AssignedBCSH = searchForBCSH;
+        }
 
         Debug.Log("OnClientConnect: " + _playerControllerId);
 

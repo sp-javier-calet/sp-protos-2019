@@ -18,6 +18,8 @@ public class CP_TitleManager : MonoBehaviour
     public CanvasGroup ServerScreen = null;
     public CanvasGroup PlayersScreen = null;
     public BCSHModifier TitleBCSH = null;
+    public Button ConnectButton = null;
+    public Button ServerStartButton = null;
 
     public List<BCSHModifier> PlayerSlots = new List<BCSHModifier>();
 
@@ -70,6 +72,9 @@ public class CP_TitleManager : MonoBehaviour
 
     public void OnPressed4Versus()
     {
+        ConnectButton.interactable = true;
+        ServerStartButton.interactable = false;
+
         SetScreenEnabled(LogoScreen, false);
         SetScreenEnabled(VersusScreen, true);
 
@@ -108,6 +113,7 @@ public class CP_TitleManager : MonoBehaviour
     public void OnPressedConnect()
     {
         ServerHost = 0;
+        ConnectButton.interactable = false;
 
         CP_GameManager.Instance.NetworkController.networkAddress = InputField.text;
         CP_GameManager.Instance.NetworkController.StartClient();
@@ -120,15 +126,27 @@ public class CP_TitleManager : MonoBehaviour
 
     IEnumerator UpdateIpAddress()
     {
+        yield return null;
+
         var ip = "No wifi";
         while (true)
         {
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
+                if(ni == null)
+                {
+                    continue;
+                }
+
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                 {
                     foreach (var ipInfo in ni.GetIPProperties().UnicastAddresses)
                     {
+                        if(ipInfo == null)
+                        {
+                            continue;
+                        }
+
                         if (ipInfo.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         {
                             ip = ipInfo.Address.ToString();
@@ -171,6 +189,11 @@ public class CP_TitleManager : MonoBehaviour
 
     void Update()
     {
+        if(ServerStartButton != null)
+        {
+            ServerStartButton.interactable = (CP_GameManager.Instance.NetworkGameState.NumPlayers > 1);
+        }
+
         if(TitleBCSH != null)
         {
             TitleBCSH.Hue += 0.01f;
