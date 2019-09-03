@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
@@ -21,7 +22,12 @@ public class GSB_TitleManager : MonoBehaviour
 
     public TextMeshProUGUI YourIpLabel;
     public Image QRCodeImage;
+    public GameObject CameraPanel;
+    public RawImage CamImage;
     public TMP_InputField InputField;
+
+    WebCamTexture _camTexture;
+    Coroutine _qrReadCoroutine = null;
 
     public static int ServerHost = -1;
 
@@ -178,6 +184,59 @@ public class GSB_TitleManager : MonoBehaviour
         encoded.SetPixels32(color32);
         encoded.Apply();
         return encoded;
+    }
+
+    public void OnPhotoButtonClicked()
+    {
+        _camTexture = new WebCamTexture();
+
+        CamImage.texture = _camTexture;
+        CamImage.material.mainTexture = _camTexture;
+
+        _camTexture.requestedHeight = Screen.height;
+        _camTexture.requestedWidth = Screen.width;
+        _camTexture.Play();
+
+        if (!_camTexture.isPlaying)
+        {
+            return;
+        }
+
+        CameraPanel.SetActive(true);
+        _qrReadCoroutine = StartCoroutine(TryToReadQrCode());
+    }
+
+    IEnumerator TryToReadQrCode()
+    {
+        while(true)
+        {
+            try
+            {
+                var barcodeReader = new BarcodeReader();
+                var result = barcodeReader.Decode(_camTexture.GetPixels32(), _camTexture.width, _camTexture.height);
+                if (result != null)
+                {
+                    InputField.text = result.Text;
+                    OnClosePhotoPanelButtonClicked();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning (ex.Message);
+            }
+
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
+    public void OnClosePhotoPanelButtonClicked()
+    {
+        StopCoroutine(_qrReadCoroutine);
+        _qrReadCoroutine = null;
+
+        _camTexture.Stop();
+        _camTexture = null;
+        CameraPanel.SetActive(false);
     }
 
     void Update()
