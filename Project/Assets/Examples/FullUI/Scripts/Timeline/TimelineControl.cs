@@ -5,11 +5,9 @@
 //
 //-----------------------------------------------------------------------
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 
@@ -17,8 +15,8 @@ public class TimelineControl : MonoBehaviour
 {
     public PlayableDirector Director;
     public Slider TimeControlSlider;
-    public Text MaxTimeLabel;
-    public Text CurrentTimeLabel;
+    public TextMeshProUGUI MaxTimeLabel;
+    public TextMeshProUGUI CurrentTimeLabel;
 
     void Start()
     {
@@ -28,8 +26,9 @@ public class TimelineControl : MonoBehaviour
 
     void LateUpdate()
     {
-        CurrentTimeLabel.text = Director.time.ToString("F");
-        TimeControlSlider.value = (float)Director.time;
+        double time;
+        CurrentTimeLabel.text = (time = Director.time).ToString("F");
+        TimeControlSlider.value = (float)time;
     }
 
     public void PlayTimeline()

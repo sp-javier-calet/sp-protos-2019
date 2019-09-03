@@ -10,10 +10,9 @@ using SocialPoint.Alert;
 using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
 using SocialPoint.Tutorial;
 
-public class SelectorTutorialsController : UIViewController
+public class SelectorTutorialsController : MonoBehaviour
 {
     [SerializeField] Button _prefabButton;
 
@@ -24,15 +23,8 @@ public class SelectorTutorialsController : UIViewController
     ITutorialManager _tutorialManager;
     IAlertView _alertPrototype;
 
-    public SelectorTutorialsController()
+    void Start()
     {
-        IsFullScreen = true;
-    }
-
-    protected override void OnStart()
-    {
-        base.OnStart();
-
         _alertPrototype = Services.Instance.Resolve<IAlertView>();
         if(_alertPrototype == null)
         {
