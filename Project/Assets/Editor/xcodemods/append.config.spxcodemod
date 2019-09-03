@@ -1,8 +1,0 @@
-{
-  "infoPlist": {
-    "CFBundleURLTypes":[{
-      "CFBundleURLName":"basegame",
-      "CFBundleURLSchemes":["basegame"]
-    }]
-  }
-}

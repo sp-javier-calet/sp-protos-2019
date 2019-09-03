@@ -4,11 +4,12 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55924b73fcdb84c7b97aeadd9107911c, type: 3}
-  m_Name: RestarterInstaller
+  m_Script: {fileID: 11500000, guid: fcf531ede2e3482286b8b272d6f83fd2, type: 3}
+  m_Name: TutorialInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
