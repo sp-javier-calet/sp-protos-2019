@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -14,7 +15,11 @@ public class GSB_PlayerController : MonoBehaviour
     long _holdingStartTime = 0;
 
     public List<GSB_EnemyController> SelectingEnemies = new List<GSB_EnemyController>();
+    public List<GSB_EnemyController> ExplodingEnemies = new List<GSB_EnemyController>();
     public List<GSB_EnemyController> EnemiesInside = new List<GSB_EnemyController>();
+
+    public List<GameObject> HullGOs = new List<GameObject>();
+    public List<BCSHModifier> AmmoBCSH = new List<BCSHModifier>();
 
     List<GSB_EnemyController> CurrentEnemies = new List<GSB_EnemyController>();
 
@@ -28,6 +33,22 @@ public class GSB_PlayerController : MonoBehaviour
         */
 
         CurrentEnemies.AddRange(FindObjectsOfType<GSB_EnemyController>());
+    }
+
+    void Start()
+    {
+        if(GSB_SceneManager.Instance.HealthBox != null)
+        {
+            for(var i = 0; i < GSB_SceneManager.Instance.HealthBox.transform.childCount; ++i)
+            {
+                HullGOs.Add(GSB_SceneManager.Instance.HealthBox.transform.GetChild(i).gameObject);
+            }
+        }
+
+        if(GSB_SceneManager.Instance.AmmoBox != null)
+        {
+            AmmoBCSH.AddRange(GSB_SceneManager.Instance.AmmoBox.GetComponentsInChildren<BCSHModifier>());
+        }
     }
 
     public void Init()
@@ -59,6 +80,7 @@ public class GSB_PlayerController : MonoBehaviour
     }
     public void OnPressedUp()
     {
+        Debug.Log("OnPressedUp");
         _pressedUp = true;
     }
 
@@ -227,7 +249,21 @@ public class GSB_PlayerController : MonoBehaviour
             GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
         }
 
+        for(var i = 0; i < SelectingEnemies.Count; ++i)
+        {
+            SelectingEnemies[i].SetTargetEnabled(false);
+        }
         SelectingEnemies.Clear();
+    }
+
+    void ChangeLastLineColor(Color c)
+    {
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[GSB_SceneManager.Instance.SelectionLine.Count-1];
+        if(currentLine != null)
+        {
+            currentLine.startColor = c;
+            currentLine.endColor = c;
+        }
     }
 
     void LateUpdate()
@@ -242,6 +278,7 @@ public class GSB_PlayerController : MonoBehaviour
                     ResetSelection();
 
                     SelectingEnemies.Add(enemyTouch);
+                    enemyTouch.SetTargetEnabled(true);
 
                     AddPositionToSelectionLine(enemyTouch);
 
@@ -276,8 +313,16 @@ public class GSB_PlayerController : MonoBehaviour
                         if(SelectingEnemies.Count < 4)
                         {
                             SelectingEnemies.Add(enemyTouch);
+                            enemyTouch.SetTargetEnabled(true);
 
                             AddPositionToSelectionLine(enemyTouch);
+                        }
+                        else
+                        {
+                            if(!_shapeIsClosed)
+                            {
+                                ChangeLastLineColor(Color.red);
+                            }
                         }
                     }
                     else
@@ -291,9 +336,18 @@ public class GSB_PlayerController : MonoBehaviour
                                 if(_shapeIsClosed)
                                 {
                                     UpdateLastPositionToSelectionLine(enemyTouch.transform.position, true);
+
+                                    ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f));
                                 }
                             }
                         }
+                    }
+                }
+                else
+                {
+                    if(!_shapeIsClosed && SelectingEnemies.Count == 4)
+                    {
+                        ChangeLastLineColor(Color.yellow);
                     }
                 }
 
@@ -333,6 +387,7 @@ public class GSB_PlayerController : MonoBehaviour
                                 if(removeSelectedShip)
                                 {
                                     RemovePositionToSelectionLine();
+                                    SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false);
                                     SelectingEnemies.RemoveAt(SelectingEnemies.Count - 1);
                                 }
 
@@ -346,7 +401,7 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(!_pressedDown && _pressedUp)
         {
-            SelectingEnemies.Clear();
+            ResetSelection();
 
             Time.timeScale = 1f;
             Time.fixedDeltaTime = 0.02f * Time.timeScale;

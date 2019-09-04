@@ -18,7 +18,7 @@ PhysicsManager:
   m_ClothInterCollisionStiffness: 0
   m_ContactsGeneration: 1
   m_LayerCollisionMatrix: c800f07fc800f07fc800f07fffffffffc800f07fc800f07fffffffffffffffffc800f07fc8fcff7fc8c2f07fc802f07fc802f07fc802f07fc806f07fc806f07fc802f07fc802f07fc802f07fc802f07fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc800f07f
-  m_AutoSimulation: 1
+  m_AutoSimulation: 0
   m_AutoSyncTransforms: 0
   m_ReuseCollisionCallbacks: 0
   m_ClothInterCollisionSettingsToggle: 0
@@ -31,5 +31,5 @@ PhysicsManager:
   m_WorldSubdivisions: 8
   m_FrictionType: 0
   m_EnableEnhancedDeterminism: 0
-  m_EnableUnifiedHeightmaps: 1
+  m_EnableUnifiedHeightmaps: 0
   m_DefaultMaxAngularSpeed: 7
