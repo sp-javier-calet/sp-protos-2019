@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GSB_SceneManager : MonoBehaviour
@@ -7,7 +8,7 @@ public class GSB_SceneManager : MonoBehaviour
 
     public GSB_PlayerController Player;
     public MeshFilter SelectionMesh;
-    public LineRenderer SelectionLine;
+    public List<LineRenderer> SelectionLine = new List<LineRenderer>();
     public float SlowDown = 0.1f;
 
     void Awake()

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SelectionMesh
+  m_Name: Line
   m_Shader: {fileID: 4800000, guid: 216f2de5cadf34dc380319bb0790bdac, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -63,6 +63,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _InvFade: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -74,5 +75,5 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BCSHTintColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.14159843, g: 0.3696551, b: 0.8113208, a: 0.5019608}
+    - _Color: {r: 0.20038268, g: 0.486296, b: 0.745283, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

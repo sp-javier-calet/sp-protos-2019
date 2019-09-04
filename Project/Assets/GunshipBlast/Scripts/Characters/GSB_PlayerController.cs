@@ -10,6 +10,7 @@ public class GSB_PlayerController : MonoBehaviour
 
     Triangulator _triangulator = null;
     bool _holding = false;
+    bool _shapeIsClosed = false;
     long _holdingStartTime = 0;
 
     public List<GSB_EnemyController> SelectingEnemies = new List<GSB_EnemyController>();
@@ -75,6 +76,23 @@ public class GSB_PlayerController : MonoBehaviour
         return null;
     }
 
+    GSB_EnemyController CheckLineCrossingEnemies()
+    {
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+
+        Vector3 enemyToLineRay = currentLine.GetPosition(1) - SelectingEnemies[SelectingEnemies.Count-1].transform.position;
+        var distance = enemyToLineRay.magnitude;
+
+        RaycastHit hit;
+        var layerMaskEnemies = (1 << 19);
+        if (Physics.Raycast(SelectingEnemies[SelectingEnemies.Count-1].transform.position, enemyToLineRay.normalized, out hit, distance, layerMaskEnemies))
+        {
+            return hit.transform.GetComponent<GSB_EnemyController>();
+        }
+
+        return null;
+    }
+
     void CheckBackgroundTouch(out Vector3 hitPosition)
     {
         hitPosition = Vector3.zero;
@@ -97,7 +115,7 @@ public class GSB_PlayerController : MonoBehaviour
             Vector2[] vertices2D = new Vector2[SelectingEnemies.Count];
             for(var i = 0; i < SelectingEnemies.Count; ++i)
             {
-                vertices2D[i] = new Vector2(SelectingEnemies[i].transform.position.x, SelectingEnemies[i].transform.position.z);
+                vertices2D[i] = new Vector2(SelectingEnemies[i].transform.position.x, SelectingEnemies[i].transform.position.y);
             }
 
             _triangulator = new Triangulator(vertices2D);
@@ -107,7 +125,7 @@ public class GSB_PlayerController : MonoBehaviour
             Vector3[] vertices = new Vector3[vertices2D.Length];
             for (int i = 0; i < vertices.Length; i++)
             {
-                vertices[i] = new Vector3(vertices2D[i].x,0, vertices2D[i].y);
+                vertices[i] = new Vector3(vertices2D[i].x,vertices2D[i].y, -0.15f);
             }
 
             if(GSB_SceneManager.Instance.SelectionMesh.sharedMesh == null)
@@ -167,28 +185,49 @@ public class GSB_PlayerController : MonoBehaviour
 
     void AddPositionToSelectionLine(GSB_EnemyController enemy)
     {
-        if(GSB_SceneManager.Instance.SelectionLine != null)
-        {
-            if(enemy != null)
-            {
-                if(GSB_SceneManager.Instance.SelectionLine.positionCount == 0)
-                {
-                    GSB_SceneManager.Instance.SelectionLine.positionCount++;
-                }
-                GSB_SceneManager.Instance.SelectionLine.SetPosition(GSB_SceneManager.Instance.SelectionLine.positionCount-1, enemy.transform.position);
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        currentLine.positionCount = 2;
 
-                GSB_SceneManager.Instance.SelectionLine.positionCount++;
-                GSB_SceneManager.Instance.SelectionLine.SetPosition(GSB_SceneManager.Instance.SelectionLine.positionCount-1, enemy.transform.position);
-            }
+        currentLine.SetPosition(0, enemy.transform.position);
+        currentLine.SetPosition(1, enemy.transform.position);
+
+        if(SelectingEnemies.Count > 1)
+        {
+            LineRenderer previousLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-2];
+            previousLine.SetPosition(1, enemy.transform.position);
         }
     }
 
-    void UpdateLastPositionToSelectionLine(Vector3 position)
+    void RemovePositionToSelectionLine()
     {
-        if(GSB_SceneManager.Instance.SelectionLine != null && GSB_SceneManager.Instance.SelectionLine.positionCount > 1)
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        currentLine.positionCount = 0;
+    }
+
+    private Color mio;
+
+    void UpdateLastPositionToSelectionLine(Vector3 position, bool forced = false)
+    {
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        if(currentLine != null)
         {
-            GSB_SceneManager.Instance.SelectionLine.SetPosition(GSB_SceneManager.Instance.SelectionLine.positionCount-1, position);
+            currentLine.SetPosition(1, position);
         }
+    }
+
+    void ResetSelection()
+    {
+        for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)
+        {
+            GSB_SceneManager.Instance.SelectionLine[i].positionCount = 0;
+        }
+
+        if(GSB_SceneManager.Instance.SelectionMesh != null)
+        {
+            GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
+        }
+
+        SelectingEnemies.Clear();
     }
 
     void LateUpdate()
@@ -200,23 +239,19 @@ public class GSB_PlayerController : MonoBehaviour
                 GSB_EnemyController enemyTouch = CheckEnemyTouch();
                 if(enemyTouch != null)
                 {
-                    Debug.Log("enemyTouch: " + enemyTouch.name);
+                    ResetSelection();
 
-                    if(GSB_SceneManager.Instance.SelectionLine != null)
-                    {
-                        GSB_SceneManager.Instance.SelectionLine.positionCount = 0;
-                    }
+                    SelectingEnemies.Add(enemyTouch);
 
                     AddPositionToSelectionLine(enemyTouch);
-
-                    SelectingEnemies.Clear();
-                    SelectingEnemies.Add(enemyTouch);
 
                     Time.timeScale = GSB_SceneManager.Instance.SlowDown;
                     Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
                     _holding = true;
                     _holdingStartTime = TimeUtils.TimestampMilliseconds;
+
+                    _shapeIsClosed = false;
                 }
             }
         }
@@ -228,53 +263,85 @@ public class GSB_PlayerController : MonoBehaviour
 
             if(touchBackground != Vector3.zero)
             {
-                UpdateLastPositionToSelectionLine(touchBackground);
-            }
-
-            /*
-            GSB_EnemyController enemyTouch = CheckEnemyTouch();
-            if(enemyTouch != null)
-            {
-                if(!SelectingEnemies.Contains(enemyTouch) && SelectingEnemies.Count < 4)
+                if(!_shapeIsClosed)
                 {
-                    Debug.Log("enemyTouch: " + enemyTouch.name);
-
-                    AddPositionToSelectionLine(enemyTouch);
-
-                    SelectingEnemies.Add(enemyTouch);
+                    UpdateLastPositionToSelectionLine(touchBackground);
                 }
-                else
-                {
-                    if(SelectingEnemies.Count > 2)
-                    {
-                        if(enemyTouch == SelectingEnemies[0])
-                        {
-                            bool isClosedMesh = GenerateCollisionShapeFromEnemies();
-                            if(isClosedMesh)
-                            {
-                                CheckEnemiesInside(out EnemiesInside);
 
-                                for(var i = 0; i < EnemiesInside.Count; ++i)
+                GSB_EnemyController enemyTouch = CheckLineCrossingEnemies();
+                if(enemyTouch != null)
+                {
+                    if(!SelectingEnemies.Contains(enemyTouch))
+                    {
+                        if(SelectingEnemies.Count < 4)
+                        {
+                            SelectingEnemies.Add(enemyTouch);
+
+                            AddPositionToSelectionLine(enemyTouch);
+                        }
+                    }
+                    else
+                    {
+                        if(SelectingEnemies.Count > 2)
+                        {
+                            if(enemyTouch == SelectingEnemies[0] && !_shapeIsClosed)
+                            {
+                                _shapeIsClosed = GenerateCollisionShapeFromEnemies();
+
+                                if(_shapeIsClosed)
                                 {
-                                    Debug.Log(EnemiesInside[i].name);
+                                    UpdateLastPositionToSelectionLine(enemyTouch.transform.position, true);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                enemyTouch = CheckEnemyTouch();
+                if(enemyTouch != null)
+                {
+                    if(SelectingEnemies.Contains(enemyTouch))
+                    {
+                        if(SelectingEnemies.Count >= 2)
+                        {
+                            var removeLastLine = false;
+
+                            if(_shapeIsClosed)
+                            {
+                                if(enemyTouch == SelectingEnemies[SelectingEnemies.Count - 1])
+                                {
+                                    removeLastLine = true;
+                                }
+                            }
+                            else
+                            {
+                                if(enemyTouch == SelectingEnemies[SelectingEnemies.Count - 2])
+                                {
+                                    removeLastLine = true;
                                 }
                             }
 
-                            Debug.Log("isClosedMesh: " + isClosedMesh);
+                            if (removeLastLine)
+                            {
+                                RemovePositionToSelectionLine();
+
+                                if(GSB_SceneManager.Instance.SelectionMesh != null)
+                                {
+                                    GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
+                                }
+
+                                SelectingEnemies.RemoveAt(SelectingEnemies.Count-1);
+
+                                _shapeIsClosed = false;
+                            }
                         }
                     }
                 }
             }
-            */
         }
 
         if(!_pressedDown && _pressedUp)
         {
-            if(GSB_SceneManager.Instance.SelectionMesh != null)
-            {
-                GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
-            }
-
             SelectingEnemies.Clear();
 
             Time.timeScale = 1f;
@@ -282,40 +349,6 @@ public class GSB_PlayerController : MonoBehaviour
 
             _holding = false;
         }
-
-        /*
-        var dist = 0f;
-        if(GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.1f))
-        {
-            if(_playerState == PlayerState.E_JUMPING_FALL || _playerState == PlayerState.E_DAMAGED_FALL)
-            {
-                if(_rigidBody != null)
-                {
-                    _rigidBody.velocity = Vector3.zero;
-                }
-
-                if(_playerState == PlayerState.E_DAMAGED_FALL)
-                {
-                    AfterDamage();
-                }
-
-                if(_sceneManager.CurrentBattleState == CP_SceneManager.BattleState.E_PLAYING)
-                {
-                    if(_playerState == PlayerState.E_JUMPING_FALL && _memoryJump)
-                    {
-                        _hasDoubleHump = false;
-                        _memoryJump = false;
-
-                        Jump();
-                    }
-                    else
-                    {
-                        Walk();
-                    }
-                }
-            }
-        }
-        */
 
         _pressedDown = false;
         _pressedUp = false;
