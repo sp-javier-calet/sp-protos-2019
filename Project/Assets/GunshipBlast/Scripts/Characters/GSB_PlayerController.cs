@@ -305,12 +305,14 @@ public class GSB_PlayerController : MonoBehaviour
                         if(SelectingEnemies.Count >= 2)
                         {
                             var removeLastLine = false;
+                            var removeSelectedShip = true;
 
                             if(_shapeIsClosed)
                             {
                                 if(enemyTouch == SelectingEnemies[SelectingEnemies.Count - 1])
                                 {
                                     removeLastLine = true;
+                                    removeSelectedShip = false;
                                 }
                             }
                             else
@@ -323,14 +325,16 @@ public class GSB_PlayerController : MonoBehaviour
 
                             if (removeLastLine)
                             {
-                                RemovePositionToSelectionLine();
-
                                 if(GSB_SceneManager.Instance.SelectionMesh != null)
                                 {
                                     GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
                                 }
 
-                                SelectingEnemies.RemoveAt(SelectingEnemies.Count-1);
+                                if(removeSelectedShip)
+                                {
+                                    RemovePositionToSelectionLine();
+                                    SelectingEnemies.RemoveAt(SelectingEnemies.Count - 1);
+                                }
 
                                 _shapeIsClosed = false;
                             }
