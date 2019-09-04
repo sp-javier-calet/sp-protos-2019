@@ -15,6 +15,11 @@ public class GSB_SceneManager : MonoBehaviour
     public List<LineRenderer> SelectionLine = new List<LineRenderer>();
     public float SlowDown = 0.1f;
 
+    public int HealthMax = 18;
+    public int AmmoMax = 4;
+    public float AmmoRegenerationTime = 0.75f;
+    public int TargetTimeMS = 2000;
+
     void Awake()
     {
         Instance = this;

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class GSB_PlayerController : MonoBehaviour
 {
@@ -11,17 +13,21 @@ public class GSB_PlayerController : MonoBehaviour
 
     Triangulator _triangulator = null;
     bool _holding = false;
-    bool _shapeIsClosed = false;
     long _holdingStartTime = 0;
+    bool _shapeIsClosed = false;
 
-    public List<GSB_EnemyController> SelectingEnemies = new List<GSB_EnemyController>();
-    public List<GSB_EnemyController> ExplodingEnemies = new List<GSB_EnemyController>();
-    public List<GSB_EnemyController> EnemiesInside = new List<GSB_EnemyController>();
+    List<GSB_EnemyController> SelectingEnemies = new List<GSB_EnemyController>();
+    List<GSB_EnemyController> ExplodingEnemies = new List<GSB_EnemyController>();
+    List<GSB_EnemyController> EnemiesInside = new List<GSB_EnemyController>();
 
-    public List<GameObject> HullGOs = new List<GameObject>();
-    public List<BCSHModifier> AmmoBCSH = new List<BCSHModifier>();
+    List<GameObject> HullGOs = new List<GameObject>();
+    List<BCSHModifier> AmmoBCSH = new List<BCSHModifier>();
 
     List<GSB_EnemyController> CurrentEnemies = new List<GSB_EnemyController>();
+
+    Vector3 _vecTemp = Vector3.zero;
+    Timer _ammoRefillTimer = new Timer();
+    int _currentAmmo = -1;
 
     void Awake()
     {
@@ -49,6 +55,8 @@ public class GSB_PlayerController : MonoBehaviour
         {
             AmmoBCSH.AddRange(GSB_SceneManager.Instance.AmmoBox.GetComponentsInChildren<BCSHModifier>());
         }
+
+        _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
     }
 
     public void Init()
@@ -80,7 +88,6 @@ public class GSB_PlayerController : MonoBehaviour
     }
     public void OnPressedUp()
     {
-        Debug.Log("OnPressedUp");
         _pressedUp = true;
     }
 
@@ -142,7 +149,6 @@ public class GSB_PlayerController : MonoBehaviour
 
             _triangulator = new Triangulator(vertices2D);
             int[] indices = _triangulator.Triangulate();
-            Debug.Log("indices: " + indices.Length);
 
             Vector3[] vertices = new Vector3[vertices2D.Length];
             for (int i = 0; i < vertices.Length; i++)
@@ -226,8 +232,6 @@ public class GSB_PlayerController : MonoBehaviour
         currentLine.positionCount = 0;
     }
 
-    private Color mio;
-
     void UpdateLastPositionToSelectionLine(Vector3 position, bool forced = false)
     {
         LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
@@ -254,6 +258,11 @@ public class GSB_PlayerController : MonoBehaviour
             SelectingEnemies[i].SetTargetEnabled(false);
         }
         SelectingEnemies.Clear();
+
+        if(GSB_SceneManager.Instance.TimeBarFiller != null)
+        {
+            GSB_SceneManager.Instance.TimeBarFiller.transform.localScale = Vector3.one;
+        }
     }
 
     void ChangeLastLineColor(Color c)
@@ -266,14 +275,48 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
+    void UpdateAmmoUI()
+    {
+        for(var i = 0; i < AmmoBCSH.Count; ++i)
+        {
+            var stateToSet = "disabled";
+
+            if(i < _currentAmmo)
+            {
+                stateToSet = "default";
+
+                if(_holding)
+                {
+                    if(i < SelectingEnemies.Count)
+                    {
+                        stateToSet = "bright";
+                    }
+                }
+            }
+
+            AmmoBCSH[i].ApplyBCSHState(stateToSet);
+        }
+    }
+
     void LateUpdate()
     {
+        if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax)
+        {
+            if(_ammoRefillTimer.IsFinished)
+            {
+                _currentAmmo++;
+                UpdateAmmoUI();
+
+                _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
+            }
+        }
+
         if(!_holding)
         {
             if(_pressedDown)
             {
                 GSB_EnemyController enemyTouch = CheckEnemyTouch();
-                if(enemyTouch != null)
+                if(enemyTouch != null && _currentAmmo > 0)
                 {
                     ResetSelection();
 
@@ -289,12 +332,24 @@ public class GSB_PlayerController : MonoBehaviour
                     _holdingStartTime = TimeUtils.TimestampMilliseconds;
 
                     _shapeIsClosed = false;
+
+                    UpdateAmmoUI();
                 }
             }
         }
 
         if(_holding)
         {
+            var deltaHolding = (TimeUtils.TimestampMilliseconds - _holdingStartTime) / (float)GSB_SceneManager.Instance.TargetTimeMS;
+
+            if(GSB_SceneManager.Instance.TimeBarFiller != null)
+            {
+                _vecTemp = Vector3.one;
+                _vecTemp.x = 1f - deltaHolding;
+
+                GSB_SceneManager.Instance.TimeBarFiller.transform.localScale = _vecTemp;
+            }
+
             Vector3 touchBackground = Vector3.zero;
             CheckBackgroundTouch(out touchBackground);
 
@@ -310,12 +365,14 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     if(!SelectingEnemies.Contains(enemyTouch))
                     {
-                        if(SelectingEnemies.Count < 4)
+                        if(SelectingEnemies.Count < _currentAmmo)
                         {
                             SelectingEnemies.Add(enemyTouch);
                             enemyTouch.SetTargetEnabled(true);
 
                             AddPositionToSelectionLine(enemyTouch);
+
+                            UpdateAmmoUI();
                         }
                         else
                         {
@@ -345,7 +402,7 @@ public class GSB_PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if(!_shapeIsClosed && SelectingEnemies.Count == 4)
+                    if(!_shapeIsClosed && SelectingEnemies.Count == _currentAmmo)
                     {
                         ChangeLastLineColor(Color.yellow);
                     }
@@ -389,6 +446,8 @@ public class GSB_PlayerController : MonoBehaviour
                                     RemovePositionToSelectionLine();
                                     SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false);
                                     SelectingEnemies.RemoveAt(SelectingEnemies.Count - 1);
+
+                                    UpdateAmmoUI();
                                 }
 
                                 _shapeIsClosed = false;
@@ -397,16 +456,20 @@ public class GSB_PlayerController : MonoBehaviour
                     }
                 }
             }
-        }
 
-        if(!_pressedDown && _pressedUp)
-        {
-            ResetSelection();
+            if((!_pressedDown && _pressedUp) || (_holding && deltaHolding >= 1f))
+            {
+                _currentAmmo -= SelectingEnemies.Count;
+                _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
 
-            Time.timeScale = 1f;
-            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+                ResetSelection();
+                UpdateAmmoUI();
 
-            _holding = false;
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+                _holding = false;
+            }
         }
 
         _pressedDown = false;
