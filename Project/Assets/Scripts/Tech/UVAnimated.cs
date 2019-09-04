@@ -23,7 +23,7 @@ public class UVAnimated : MonoBehaviour
             {
                 if(_renderers[i].material != null)
                 {
-                    _renderers[i].material.mainTextureOffset += UVSpeed;
+                    _renderers[i].material.mainTextureOffset += (UVSpeed * Time.timeScale);
                 }
             }
         }
@@ -31,8 +31,8 @@ public class UVAnimated : MonoBehaviour
         if(_rawImage != null)
         {
             Rect r = _rawImage.uvRect;
-            r.x += UVSpeed.x;
-            r.y += UVSpeed.y;
+            r.x += (UVSpeed.x * Time.timeScale);
+            r.y += (UVSpeed.y * Time.timeScale);
 
             _rawImage.uvRect = r;
         }
