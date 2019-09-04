@@ -246,6 +246,8 @@ public class GSB_PlayerController : MonoBehaviour
         for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)
         {
             GSB_SceneManager.Instance.SelectionLine[i].positionCount = 0;
+
+            ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f), i);
         }
 
         if(GSB_SceneManager.Instance.SelectionMesh != null)
@@ -265,9 +267,9 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
-    void ChangeLastLineColor(Color c)
+    void ChangeLastLineColor(Color c, int lineIndex)
     {
-        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[GSB_SceneManager.Instance.SelectionLine.Count-1];
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[lineIndex];
         if(currentLine != null)
         {
             currentLine.startColor = c;
@@ -306,6 +308,11 @@ public class GSB_PlayerController : MonoBehaviour
             {
                 _currentAmmo++;
                 UpdateAmmoUI();
+
+                for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)
+                {
+                    ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f), i);
+                }
 
                 _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
             }
@@ -378,7 +385,7 @@ public class GSB_PlayerController : MonoBehaviour
                         {
                             if(!_shapeIsClosed)
                             {
-                                ChangeLastLineColor(Color.red);
+                                ChangeLastLineColor(Color.red, _currentAmmo-1);
                             }
                         }
                     }
@@ -394,7 +401,7 @@ public class GSB_PlayerController : MonoBehaviour
                                 {
                                     UpdateLastPositionToSelectionLine(enemyTouch.transform.position, true);
 
-                                    ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f));
+                                    ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f), _currentAmmo-1);
                                 }
                             }
                         }
@@ -404,7 +411,7 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     if(!_shapeIsClosed && SelectingEnemies.Count == _currentAmmo)
                     {
-                        ChangeLastLineColor(Color.yellow);
+                        ChangeLastLineColor(Color.yellow, _currentAmmo-1);
                     }
                 }
 
