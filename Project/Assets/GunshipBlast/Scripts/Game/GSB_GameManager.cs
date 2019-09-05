@@ -38,6 +38,9 @@ public class GSB_GameManager : MonoBehaviour
 
     void Awake()
     {
+        Application.targetFrameRate = 60;
+        Time.fixedDeltaTime =  Time.timeScale * 0.02f;
+
         Instance = this;
         DontDestroyOnLoad(this);
 

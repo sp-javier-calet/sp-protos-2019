@@ -24,6 +24,7 @@ public class GSB_TitleManager : MonoBehaviour
     public Image QRCodeImage;
     public GameObject CameraPanel;
     public RawImage CamImage;
+    public AspectRatioFitter AspectRatioFitter;
     public TMP_InputField InputField;
 
     WebCamTexture _camTexture;
@@ -245,5 +246,26 @@ public class GSB_TitleManager : MonoBehaviour
         {
             ServerStartButton.interactable = (GSB_GameManager.Instance.NetworkGameState.NumPlayers > 1);
         }
+
+        if (!CameraPanel.activeSelf)
+        {
+            return;
+        }
+
+        if (_camTexture == null)
+        {
+            return;
+        }
+
+        var ratio = _camTexture.width / (float) _camTexture.height;
+        AspectRatioFitter.aspectRatio = ratio;
+
+        var cameraRectTransform = CamImage.rectTransform;
+
+        var scaleY = _camTexture.videoVerticallyMirrored ? -1f : 1f;
+        cameraRectTransform.localScale = new Vector3(1f, scaleY, 1f);
+
+        var orient = -_camTexture.videoRotationAngle;
+        cameraRectTransform.localEulerAngles = new Vector3(0f, 0f, orient);
     }
 }
