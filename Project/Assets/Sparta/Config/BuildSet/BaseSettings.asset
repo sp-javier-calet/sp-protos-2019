@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   App:
-    ProductName: Like Children In A Park
+    ProductName: Gunship Blast
     Version: 1.0
     BuildNumber: 1611111111
     OverrideBuild: 0
     UseIconFromPlayerSettings: 0
-    IconTexture: {fileID: 2800000, guid: 46ce0724750c245e085f91c8c702825f, type: 3}
+    IconTexture: {fileID: 2800000, guid: a18bc0ca75f15403990fcca54cb11dba, type: 3}
     OverrideIcon: 0
   Common:
     Flags: ODIN_INSPECTOR
