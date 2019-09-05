@@ -46,6 +46,7 @@ public class GSB_SceneManager : MonoBehaviour
     public int TargetTimeMS = 2000;
     public float RhythmInterWave = 1f;
     public int HealthRecoveryAfterWave = 3;
+    public int ShootStopTime = 1000;
 
     GSB_PlayerController _player;
     public GSB_PlayerController Player { get { return _player; } }

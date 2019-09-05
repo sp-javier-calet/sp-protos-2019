@@ -106,7 +106,7 @@ public class GSB_EnemyController : MonoBehaviour
             }
         }
 
-        if(inPlayerShip && ExplosionDestroyed != null)
+        if(ExplosionDestroyed != null)
         {
             GameObject explosion = Instantiate(ExplosionDestroyed);
             if(explosion != null)
@@ -141,7 +141,7 @@ public class GSB_EnemyController : MonoBehaviour
             _bcshTimer.Wait(0.25f * Time.timeScale);
         }
 
-        if(_shipData != null)
+        if(_shipData != null && !GSB_SceneManager.Instance.Player.Shooting)
         {
             transform.position += (Vector3.down * _shipData.MovementSpeed * Time.timeScale);
 

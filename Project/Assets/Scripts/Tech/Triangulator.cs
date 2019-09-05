@@ -148,4 +148,23 @@ public class Triangulator
 
         return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
     }
+
+    public bool InsideTriangle (Vector3 A, Vector3 B, Vector3 C, Vector3 P)
+    {
+        float ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
+        float cCROSSap, bCROSScp, aCROSSbp;
+
+        ax = C.x - B.x; ay = B.y - C.y;
+        bx = A.x - C.x; by = C.y - A.y;
+        cx = B.x - A.x; cy = A.y - B.y;
+        apx = P.x - A.x; apy = A.y - P.y;
+        bpx = P.x - B.x; bpy = B.y - P.y;
+        cpx = P.x - C.x; cpy = C.y - P.y;
+
+        aCROSSbp = ax * bpy - ay * bpx;
+        cCROSSap = cx * apy - cy * apx;
+        bCROSScp = bx * cpy - by * cpx;
+
+        return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
+    }
 }

@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Plugins/Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity
-    guid: 9150cf06fcb48449ba6c690d1dfbb921
+    path: Assets/Plugins/Sparta/SocialPoint/IntroAnimation/IntroAnimation-parrot.unity
+    guid: 380242558dc95422092a686894a1491c
   - enabled: 1
     path: Assets/Scenes/BaseLoading.unity
     guid: 1d28a4140a1e64a3eb1d62fabd0a1044
