@@ -34,6 +34,7 @@ public class GSB_GameManager : MonoBehaviour
     public GameState CurrentGameState = GameState.E_NONE;
     public GameObject PlayerOfflineGO = null;
     public GameObject PlayerOnlineGO = null;
+    public GameObject EnemyGO = null;
 
     void Awake()
     {

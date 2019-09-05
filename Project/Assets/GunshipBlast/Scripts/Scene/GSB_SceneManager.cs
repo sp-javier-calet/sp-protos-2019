@@ -28,8 +28,6 @@ public class GSB_SceneManager : MonoBehaviour
 
     public static GSB_SceneManager Instance = null;
 
-    public GameObject PlayerOfflineGO = null;
-    public GameObject EnemyGO = null;
     public GameObject HealthBox = null;
     public GameObject AmmoBox = null;
     public GameObject TimeBar = null;
@@ -82,10 +80,9 @@ public class GSB_SceneManager : MonoBehaviour
 
     void GeneratePlayer()
     {
-        //if(GSB_GameManager.Instance.PlayerOfflineGO != null)
-        if(PlayerOfflineGO != null)
+        if(GSB_GameManager.Instance.PlayerOfflineGO != null)
         {
-            GameObject player = Instantiate(PlayerOfflineGO);
+            GameObject player = Instantiate(GSB_GameManager.Instance.PlayerOfflineGO);
             if(player != null)
             {
                 _player = player.GetComponent<GSB_PlayerController>();
@@ -201,10 +198,9 @@ public class GSB_SceneManager : MonoBehaviour
 
         _lastEnemyPositions.Add(randomPosition);
 
-        //if(GSB_GameManager.Instance.EnemyGO != null)
-        if(EnemyGO != null)
+        if(GSB_GameManager.Instance.EnemyGO != null)
         {
-            GameObject newEnemy = Instantiate(EnemyGO);
+            GameObject newEnemy = Instantiate(GSB_GameManager.Instance.EnemyGO);
             if(newEnemy != null)
             {
                 newEnemy.transform.position = new Vector3(-2f + (randomPosition * 0.5f), 6f, -0.15f);

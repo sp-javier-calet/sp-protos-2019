@@ -115,6 +115,11 @@ public class GSB_EnemyController : MonoBehaviour
             }
         }
 
+        transform.DOScale(Vector3.zero, 0.4f).onComplete += DestroyShipInternal;
+    }
+
+    void DestroyShipInternal()
+    {
         Destroy(gameObject);
     }
 
