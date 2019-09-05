@@ -106,6 +106,15 @@ public class GSB_EnemyController : MonoBehaviour
             }
         }
 
+        if(inPlayerShip && ExplosionDestroyed != null)
+        {
+            GameObject explosion = Instantiate(ExplosionDestroyed);
+            if(explosion != null)
+            {
+                explosion.transform.position = transform.position;
+            }
+        }
+
         Destroy(gameObject);
     }
 
