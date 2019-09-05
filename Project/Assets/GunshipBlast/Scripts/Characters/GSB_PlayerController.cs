@@ -28,6 +28,7 @@ public class GSB_PlayerController : MonoBehaviour
     Vector3 _vecTemp = Vector3.zero;
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
+    int _currentHealth = -1;
 
     Vector2[] _shapeVertices2D = null;
     Vector3[] _shapeVertices3D = null;
@@ -56,11 +57,7 @@ public class GSB_PlayerController : MonoBehaviour
         }
 
         _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-
+        _currentHealth = GSB_SceneManager.Instance.HealthMax;
     }
 
     bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f, int layerMask = 0)
@@ -329,6 +326,34 @@ public class GSB_PlayerController : MonoBehaviour
 
             AmmoBCSH[i].ApplyBCSHState(stateToSet);
         }
+    }
+
+    void UpdateHealthUI()
+    {
+        for(var i = 0; i < HullGOs.Count; ++i)
+        {
+            HullGOs[i].SetActive(i < _currentHealth ? true : false);
+        }
+    }
+
+    public void MakeDamage(int damage)
+    {
+        _currentHealth -= damage;
+        if(_currentHealth < 0)
+        {
+            _currentHealth = 0;
+        }
+        if(_currentHealth > GSB_SceneManager.Instance.HealthMax)
+        {
+            _currentHealth = GSB_SceneManager.Instance.HealthMax;
+        }
+
+        if(_currentHealth == 0)
+        {
+            GSB_SceneManager.Instance.ChangeState(GSB_SceneManager.EBattleState.E_GAMEOVER);
+        }
+
+        UpdateHealthUI();
     }
 
     void LateUpdate()

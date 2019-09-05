@@ -21,6 +21,7 @@ public class GSB_EnemyController : MonoBehaviour
     GSB_ShipData _shipData = null;
     BCSHModifier _shipTargetedBCSH;
     Timer _bcshTimer = new Timer();
+    RaycastHit _hitDown;
     bool _firstSelectedShip = false;
 
     void Awake()
@@ -73,6 +74,30 @@ public class GSB_EnemyController : MonoBehaviour
         }
     }
 
+    bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f, int layerMask = 1 << 9)
+    {
+        distance = 0f;
+
+        Ray downRay = new Ray(initPosition, direction);
+        if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
+        {
+            distance = hit.distance;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void DestroyShip()
+    {
+        if(GSB_SceneManager.Instance.Enemies.Contains(this))
+        {
+            GSB_SceneManager.Instance.Enemies.Remove(this);
+        }
+
+        Destroy(gameObject);
+    }
+
     void Update()
     {
         if(_shipTargetedBCSH != null && _bcshTimer.IsFinished)
@@ -99,6 +124,14 @@ public class GSB_EnemyController : MonoBehaviour
         if(_shipData != null)
         {
             transform.position += (Vector3.down * _shipData.MovementSpeed * Time.timeScale);
+
+            var dist = 0f;
+            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.01f))
+            {
+                GSB_SceneManager.Instance.Player.MakeDamage(_shipData.DamagePoints);
+
+                DestroyShip();
+            }
         }
     }
 }

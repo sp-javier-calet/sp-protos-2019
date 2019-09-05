@@ -45,6 +45,7 @@ public class GSB_SceneManager : MonoBehaviour
     public float AmmoRegenerationTime = 0.75f;
     public int TargetTimeMS = 2000;
     public float RhythmInterWave = 1f;
+    public int HealthRecoveryAfterWave = 3;
 
     GSB_PlayerController _player;
     public GSB_PlayerController Player { get { return _player; } }
@@ -124,6 +125,11 @@ public class GSB_SceneManager : MonoBehaviour
                     WaveLabel.gameObject.SetActive(true);
                 }
 
+                if(Player != null)
+                {
+                    Player.MakeDamage(-HealthRecoveryAfterWave);
+                }
+
                 _stateTime = 3000;
 
                 break;
@@ -142,6 +148,18 @@ public class GSB_SceneManager : MonoBehaviour
             case EBattleState.E_WAVE_END:
             {
                 _stateTime = 2000;
+
+                break;
+            }
+
+            case EBattleState.E_GAMEOVER:
+            {
+                if(GameOverLabel != null)
+                {
+                    GameOverLabel.gameObject.SetActive(true);
+                }
+
+                _stateTime = 4000;
 
                 break;
             }
@@ -282,6 +300,19 @@ public class GSB_SceneManager : MonoBehaviour
                 if(TimeUtils.TimestampMilliseconds > _stateStartTime + _stateTime)
                 {
                     ChangeState(EBattleState.E_WAVE_START);
+                }
+
+                break;
+            }
+
+            case EBattleState.E_GAMEOVER:
+            {
+                if(TimeUtils.TimestampMilliseconds > _stateStartTime + _stateTime)
+                {
+                    //if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
+                    {
+                        GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_TITLE);
+                    }
                 }
 
                 break;
