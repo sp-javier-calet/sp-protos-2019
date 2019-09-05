@@ -1,7 +1,6 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Bson;
 using SocialPoint.Utils;
 using TMPro;
 using UnityEngine;
@@ -36,6 +35,8 @@ public class GSB_SceneManager : MonoBehaviour
     public List<LineRenderer> SelectionLine = new List<LineRenderer>();
     public TextMeshProUGUI WaveLabel = null;
     public TextMeshProUGUI GameOverLabel = null;
+    public TextMeshProUGUI WinLabel = null;
+    public TextMeshProUGUI LoseLabel = null;
 
     public float SlowDown = 0.1f;
     public int HealthMax = 18;
