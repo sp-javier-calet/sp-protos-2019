@@ -221,8 +221,6 @@ public class GSB_PlayerController : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log("CheckEnemiesInside 3: " + enemiesInside.Count);
     }
 
     void AddPositionToSelectionLine(GSB_EnemyController enemy)
