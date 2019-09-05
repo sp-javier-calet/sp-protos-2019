@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7905175170578279753}
   - component: {fileID: 759974534671447261}
+  - component: {fileID: 829582002915051646}
   m_Layer: 19
   m_Name: FighterShipGreen
   m_TagString: Untagged
@@ -79,6 +80,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &829582002915051646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231248644840899182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4a6dcc843684bb1aa1b657723c46a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DamagePoints: 1
+  MovementSpeed: 0.0105
 --- !u!1 &1358882501249142871
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,6 +104,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4287685862587490325}
   - component: {fileID: 7217649269504309439}
+  - component: {fileID: 6874940324108698981}
   m_Layer: 19
   m_Name: FighterShipRed
   m_TagString: Untagged
@@ -158,6 +174,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &6874940324108698981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358882501249142871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4a6dcc843684bb1aa1b657723c46a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DamagePoints: 1
+  MovementSpeed: 0.011
 --- !u!1 &2126286392681058083
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,6 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4499521407837877254}
   - component: {fileID: 3847001759535307338}
+  - component: {fileID: 3047710692106774461}
   m_Layer: 19
   m_Name: FighterShipBlue
   m_TagString: Untagged
@@ -237,6 +268,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3047710692106774461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126286392681058083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4a6dcc843684bb1aa1b657723c46a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DamagePoints: 1
+  MovementSpeed: 0.01
 --- !u!1 &3830586672479596609
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,7 +439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 88564
+  _instanceID: 128982
   _serializedMaterial: {fileID: 2100000, guid: d38b54230d2f840c1b648eac1a429060, type: 2}
   _originalMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   _originalMaterialIsUIDefault: 0
@@ -428,6 +473,20 @@ MonoBehaviour:
     Hue: 0
     TintColor: {r: 1, g: 1, b: 1, a: 1}
     TintColorApply: 0
+  - Name: bright_first
+    Brightness: 0.98
+    Contrast: 0.987
+    Saturation: 1.509
+    Hue: 0.818
+    TintColor: {r: 1, g: 0.9490197, b: 0, a: 1}
+    TintColorApply: 1
+  - Name: dark_first
+    Brightness: 0.693
+    Contrast: 0.987
+    Saturation: 1
+    Hue: 0.818
+    TintColor: {r: 1, g: 0.9490196, b: 0, a: 1}
+    TintColorApply: 1
   ApplyRecursively: 0
   _currentAppliedBCSHState: 2
   _recursiveChildDataKeys: []
@@ -443,6 +502,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6721528348719245718}
   - component: {fileID: 6747781646794924573}
+  - component: {fileID: 970430647367440416}
   m_Layer: 19
   m_Name: FighterShipOrange
   m_TagString: Untagged
@@ -512,6 +572,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &970430647367440416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6775879598221542573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4a6dcc843684bb1aa1b657723c46a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DamagePoints: 1
+  MovementSpeed: 0.0095
 --- !u!1 &8060350582396586118
 GameObject:
   m_ObjectHideFlags: 0

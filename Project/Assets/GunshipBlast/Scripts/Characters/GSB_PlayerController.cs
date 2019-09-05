@@ -11,7 +11,7 @@ public class GSB_PlayerController : MonoBehaviour
     bool _pressedDown = false;
     bool _pressedUp = false;
 
-    Triangulator _triangulator = null;
+    Triangulator _triangulator = new Triangulator();
     bool _holding = false;
     long _holdingStartTime = 0;
     bool _shapeIsClosed = false;
@@ -29,14 +29,13 @@ public class GSB_PlayerController : MonoBehaviour
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
 
+    Vector2[] _shapeVertices2D = null;
+    Vector3[] _shapeVertices3D = null;
+
     void Awake()
     {
-        /*
-        if(GSB_GameManager.Instance.CurrentGameState == CP_GameManager.GameState.E_PLAYING_1_PLAYER)
-        {
-            Init();
-        }
-        */
+        _shapeVertices2D = new Vector2[GSB_SceneManager.Instance.AmmoMax];
+        _shapeVertices3D = new Vector3[GSB_SceneManager.Instance.AmmoMax];
 
         CurrentEnemies.AddRange(FindObjectsOfType<GSB_EnemyController>());
     }
@@ -57,10 +56,6 @@ public class GSB_PlayerController : MonoBehaviour
         }
 
         _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
-    }
-
-    public void Init()
-    {
     }
 
     void OnTriggerEnter(Collider other)
@@ -141,40 +136,55 @@ public class GSB_PlayerController : MonoBehaviour
     {
         if(GSB_SceneManager.Instance.SelectionMesh != null)
         {
-            Vector2[] vertices2D = new Vector2[SelectingEnemies.Count];
             for(var i = 0; i < SelectingEnemies.Count; ++i)
             {
-                vertices2D[i] = new Vector2(SelectingEnemies[i].transform.position.x, SelectingEnemies[i].transform.position.y);
+                _shapeVertices2D[i].x = SelectingEnemies[i].transform.position.x;
+                _shapeVertices2D[i].y = SelectingEnemies[i].transform.position.y;
             }
 
-            _triangulator = new Triangulator(vertices2D);
+            _triangulator.Init(_shapeVertices2D, SelectingEnemies.Count);
             int[] indices = _triangulator.Triangulate();
 
-            Vector3[] vertices = new Vector3[vertices2D.Length];
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                vertices[i] = new Vector3(vertices2D[i].x,vertices2D[i].y, -0.15f);
-            }
+            Mesh shapeMesh = null;
+            var setTriangles = false;
 
             if(GSB_SceneManager.Instance.SelectionMesh.sharedMesh == null)
             {
-                Mesh newMesh = new Mesh();
-                newMesh.vertices = vertices;
-                newMesh.triangles = indices;
-                newMesh.RecalculateBounds();
+                setTriangles = true;
+                shapeMesh = new Mesh();
 
-                GSB_SceneManager.Instance.SelectionMesh.sharedMesh = newMesh;
+                GSB_SceneManager.Instance.SelectionMesh.sharedMesh = shapeMesh;
             }
             else
             {
-                GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices = vertices;
-                GSB_SceneManager.Instance.SelectionMesh.sharedMesh.RecalculateBounds();
+                shapeMesh = GSB_SceneManager.Instance.SelectionMesh.sharedMesh;
+            }
+
+            if(_shapeVertices3D == null || SelectingEnemies.Count > _shapeVertices3D.Length)
+            {
+                _shapeVertices3D = new Vector3[SelectingEnemies.Count];
+            }
+
+            for (int i = 0; i < SelectingEnemies.Count; i++)
+            {
+                _shapeVertices3D[i].x = _shapeVertices2D[i].x;
+                _shapeVertices3D[i].y = _shapeVertices2D[i].y;
+                _shapeVertices3D[i].z = -0.15f;
+            }
+
+            if (shapeMesh != null)
+            {
+                shapeMesh.vertices = _shapeVertices3D;
+                if(setTriangles)
+                {
+                    shapeMesh.triangles = indices;
+                }
+
+                shapeMesh.RecalculateBounds();
             }
 
             if(indices.Length == 3 && SelectingEnemies.Count == 4)
             {
-                _triangulator = null;
-
                 return false;
             }
 
@@ -241,6 +251,27 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
+    void UpdatePositionToSelectionLines()
+    {
+        for(var i = 0; i < SelectingEnemies.Count; ++i)
+        {
+            LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[i];
+            currentLine.SetPosition(0, SelectingEnemies[i].transform.position);
+
+            if(i < SelectingEnemies.Count - 1)
+            {
+                currentLine.SetPosition(1, SelectingEnemies[i+1].transform.position);
+            }
+        }
+
+        if (_shapeIsClosed)
+        {
+            LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+            currentLine.SetPosition(0, SelectingEnemies[SelectingEnemies.Count-1].transform.position);
+            currentLine.SetPosition(1, SelectingEnemies[0].transform.position);
+        }
+    }
+
     void ResetSelection()
     {
         for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)
@@ -257,7 +288,7 @@ public class GSB_PlayerController : MonoBehaviour
 
         for(var i = 0; i < SelectingEnemies.Count; ++i)
         {
-            SelectingEnemies[i].SetTargetEnabled(false);
+            SelectingEnemies[i].SetTargetEnabled(false, false);
         }
         SelectingEnemies.Clear();
 
@@ -328,7 +359,7 @@ public class GSB_PlayerController : MonoBehaviour
                     ResetSelection();
 
                     SelectingEnemies.Add(enemyTouch);
-                    enemyTouch.SetTargetEnabled(true);
+                    enemyTouch.SetTargetEnabled(true, true);
 
                     AddPositionToSelectionLine(enemyTouch);
 
@@ -347,6 +378,13 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(_holding)
         {
+            UpdatePositionToSelectionLines();
+
+            if(_shapeIsClosed)
+            {
+                _shapeIsClosed = GenerateCollisionShapeFromEnemies();
+            }
+
             var deltaHolding = (TimeUtils.TimestampMilliseconds - _holdingStartTime) / (float)GSB_SceneManager.Instance.TargetTimeMS;
 
             if(GSB_SceneManager.Instance.TimeBarFiller != null)
@@ -368,14 +406,14 @@ public class GSB_PlayerController : MonoBehaviour
                 }
 
                 GSB_EnemyController enemyTouch = CheckLineCrossingEnemies();
-                if(enemyTouch != null)
+                if(enemyTouch != null && !_shapeIsClosed)
                 {
                     if(!SelectingEnemies.Contains(enemyTouch))
                     {
                         if(SelectingEnemies.Count < _currentAmmo)
                         {
                             SelectingEnemies.Add(enemyTouch);
-                            enemyTouch.SetTargetEnabled(true);
+                            enemyTouch.SetTargetEnabled(true, false);
 
                             AddPositionToSelectionLine(enemyTouch);
 
@@ -393,7 +431,7 @@ public class GSB_PlayerController : MonoBehaviour
                     {
                         if(SelectingEnemies.Count > 2)
                         {
-                            if(enemyTouch == SelectingEnemies[0] && !_shapeIsClosed)
+                            if(enemyTouch == SelectingEnemies[0])
                             {
                                 _shapeIsClosed = GenerateCollisionShapeFromEnemies();
 
@@ -451,7 +489,7 @@ public class GSB_PlayerController : MonoBehaviour
                                 if(removeSelectedShip)
                                 {
                                     RemovePositionToSelectionLine();
-                                    SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false);
+                                    SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false, false);
                                     SelectingEnemies.RemoveAt(SelectingEnemies.Count - 1);
 
                                     UpdateAmmoUI();

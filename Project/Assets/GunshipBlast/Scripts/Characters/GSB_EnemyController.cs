@@ -7,11 +7,21 @@ using Timer = SocialPoint.Utils.Timer;
 
 public class GSB_EnemyController : MonoBehaviour
 {
+    public enum EShipType
+    {
+        E_SHIP_BLUE,
+        E_SHIP_GREEN,
+        E_SHIP_ORANGE,
+        E_SHIP_RED
+    }
+
     public List<GameObject> ShipTypes = new List<GameObject>();
     public GameObject ShipTargeted = null;
 
+    GSB_ShipData _shipData = null;
     BCSHModifier _shipTargetedBCSH;
     Timer _bcshTimer = new Timer();
+    bool _firstSelectedShip = false;
 
     void Awake()
     {
@@ -25,6 +35,44 @@ public class GSB_EnemyController : MonoBehaviour
         }
     }
 
+    public void SetShipType(EShipType shipType)
+    {
+        var shipTypeInt = (int) shipType;
+
+        for(var i = 0; i < 4; ++i)
+        {
+            var shipTypeActive = (i == shipTypeInt) ? true : false;
+
+            ShipTypes[i].SetActive(shipTypeActive);
+            if(shipTypeActive)
+            {
+                _shipData = ShipTypes[i].GetComponent<GSB_ShipData>();
+            }
+        }
+    }
+
+    public void SetTargetEnabled(bool enabled, bool firstSelectedShip)
+    {
+        if(ShipTargeted != null)
+        {
+            ShipTargeted.SetActive(enabled);
+        }
+
+        _firstSelectedShip = firstSelectedShip;
+
+        if(_shipTargetedBCSH != null)
+        {
+            var nextState = "dark";
+            if(_firstSelectedShip)
+            {
+                nextState = "dark_first";
+            }
+
+            _shipTargetedBCSH.ApplyBCSHStateProgressive(nextState, 0, 0f);
+            _bcshTimer.Wait(0f);
+        }
+    }
+
     void Update()
     {
         if(_shipTargetedBCSH != null && _bcshTimer.IsFinished)
@@ -35,16 +83,22 @@ public class GSB_EnemyController : MonoBehaviour
                 nextState = "dark";
             }
 
+            if(_firstSelectedShip)
+            {
+                nextState = "bright_first";
+                if(_shipTargetedBCSH.CurrentAppliedBCSHState == 3)
+                {
+                    nextState = "dark_first";
+                }
+            }
+
             _shipTargetedBCSH.ApplyBCSHStateProgressive(nextState, 0, 0.25f * Time.timeScale);
             _bcshTimer.Wait(0.25f * Time.timeScale);
         }
-    }
 
-    public void SetTargetEnabled(bool enabled)
-    {
-        if(ShipTargeted != null)
+        if(_shipData != null)
         {
-            ShipTargeted.SetActive(enabled);
+            transform.position += (Vector3.down * _shipData.MovementSpeed * Time.timeScale);
         }
     }
 }

@@ -5,19 +5,43 @@ using System.Collections.Generic;
 public class Triangulator
 {
     List<Vector2> m_points = new List<Vector2>();
+    List<int> m_indices = new List<int>();
 
-    public Triangulator (Vector2[] points)
+    int _currentPoints = -1;
+
+    public Triangulator()
     {
-        m_points = new List<Vector2>(points);
+        _currentPoints = -1;
+    }
+
+    public void Init (Vector2[] points, int numPoints = -1)
+    {
+        m_points.Clear();
+
+        if(numPoints == -1)
+        {
+            m_points.AddRange(points);
+
+            _currentPoints = points.Length;
+        }
+        else
+        {
+            for(var i = 0; i < numPoints; ++i)
+            {
+                m_points.Add(points[i]);
+            }
+
+            _currentPoints = numPoints;
+        }
     }
 
     public int[] Triangulate()
     {
-        List<int> indices = new List<int>();
+        m_indices.Clear();
 
-        int n = m_points.Count;
+        int n = _currentPoints;
         if (n < 3)
-            return indices.ToArray();
+            return m_indices.ToArray();
 
         int[] V = new int[n];
         if (Area() > 0)
@@ -36,7 +60,7 @@ public class Triangulator
         for (int v = nv - 1; nv > 2; )
         {
             if ((count--) <= 0)
-                return indices.ToArray();
+                return m_indices.ToArray();
 
             int u = v;
             if (nv <= u)
@@ -54,9 +78,9 @@ public class Triangulator
                 a = V[u];
                 b = V[v];
                 c = V[w];
-                indices.Add(a);
-                indices.Add(b);
-                indices.Add(c);
+                m_indices.Add(a);
+                m_indices.Add(b);
+                m_indices.Add(c);
                 for (s = v, t = v + 1; t < nv; s++, t++)
                     V[s] = V[t];
                 nv--;
@@ -64,13 +88,13 @@ public class Triangulator
             }
         }
 
-        indices.Reverse();
-        return indices.ToArray();
+        m_indices.Reverse();
+        return m_indices.ToArray();
     }
 
     float Area ()
     {
-        int n = m_points.Count;
+        int n = _currentPoints;
         float A = 0.0f;
 
         for (int p = n - 1, q = 0; q < n; p = q++)
