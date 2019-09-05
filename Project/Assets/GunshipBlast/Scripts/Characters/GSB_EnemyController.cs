@@ -20,6 +20,9 @@ public class GSB_EnemyController : MonoBehaviour
     public GameObject ExplosionInPlayerShip = null;
     public GameObject ExplosionDestroyed = null;
 
+    EShipType _shipType = EShipType.E_SHIP_RED;
+    public EShipType ShipType { get { return _shipType; } }
+
     GSB_ShipData _shipData = null;
     BCSHModifier _shipTargetedBCSH;
     Timer _bcshTimer = new Timer();
@@ -52,6 +55,8 @@ public class GSB_EnemyController : MonoBehaviour
                 _shipData = ShipTypes[i].GetComponent<GSB_ShipData>();
             }
         }
+
+        _shipType = shipType;
     }
 
     public void SetTargetEnabled(bool enabled, bool firstSelectedShip)

@@ -39,6 +39,7 @@ public class GSB_PlayerController : MonoBehaviour
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
     int _ammoWasted = 0;
+    int _differentColorsExploding = 0;
     int _currentHealth = -1;
     bool _dying = false;
     Timer _explosionTimer = new Timer();
@@ -423,6 +424,20 @@ public class GSB_PlayerController : MonoBehaviour
             {
                 CheckEnemiesInside(out EnemiesInside);
                 EnemiesToShoot.AddRange(EnemiesInside);
+            }
+        }
+
+        _differentColorsExploding = 0;
+        for(var i = 0; i < 4; ++i)
+        {
+            for(var j = 0; j < EnemiesToShoot.Count; ++j)
+            {
+                if(EnemiesToShoot[j].ShipType == (GSB_EnemyController.EShipType)i)
+                {
+                    _differentColorsExploding++;
+
+                    break;
+                }
             }
         }
 
