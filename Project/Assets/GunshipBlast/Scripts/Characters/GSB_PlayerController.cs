@@ -378,13 +378,13 @@ public class GSB_PlayerController : MonoBehaviour
                 if(GSB_SceneManager.Instance.BattleState != GSB_SceneManager.EBattleState.E_GAMEOVER)
                 {
                     _tremblingAnimation = DOTween.Sequence();
-                    _tremblingAnimation.Append(ShipTransform.transform.DOLocalMove(new Vector3(0.06f, 0.0f, -0.10f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
+                    _tremblingAnimation.Append(ShipTransform.transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
                     _tremblingAnimation.Play();
                 }
                 else
                 {
                     ShipTransform.transform.localPosition = Vector3.zero;
-                    ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, -0.10f), 8f);
+                    ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, 0.0f), 8f);
                 }
             }
 

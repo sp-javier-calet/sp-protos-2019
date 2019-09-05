@@ -17,6 +17,8 @@ public class GSB_EnemyController : MonoBehaviour
 
     public List<GameObject> ShipTypes = new List<GameObject>();
     public GameObject ShipTargeted = null;
+    public GameObject ExplosionInPlayerShip = null;
+    public GameObject ExplosionDestroyed = null;
 
     GSB_ShipData _shipData = null;
     BCSHModifier _shipTargetedBCSH;
@@ -88,11 +90,20 @@ public class GSB_EnemyController : MonoBehaviour
         return false;
     }
 
-    public void DestroyShip()
+    public void DestroyShip(bool inPlayerShip = false)
     {
         if(GSB_SceneManager.Instance.Enemies.Contains(this))
         {
             GSB_SceneManager.Instance.Enemies.Remove(this);
+        }
+
+        if(inPlayerShip && ExplosionInPlayerShip != null)
+        {
+            GameObject explosion = Instantiate(ExplosionInPlayerShip);
+            if(explosion != null)
+            {
+                explosion.transform.position = transform.position;
+            }
         }
 
         Destroy(gameObject);
@@ -130,7 +141,7 @@ public class GSB_EnemyController : MonoBehaviour
             {
                 GSB_SceneManager.Instance.Player.MakeDamage(_shipData.DamagePoints);
 
-                DestroyShip();
+                DestroyShip(true);
             }
         }
     }
