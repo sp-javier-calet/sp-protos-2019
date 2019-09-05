@@ -43,6 +43,8 @@ public class GSB_SceneManager : MonoBehaviour
     public float AmmoRegenerationTime = 0.75f;
     public int TargetTimeMS = 2000;
     public float RhythmInterWave = 1f;
+    public float StartingInterWaves = 5;
+    public int MaxDifficultyWave = 5;
     public int HealthRecoveryAfterWave = 3;
     public int ShootStopTime = 1000;
 
@@ -94,9 +96,20 @@ public class GSB_SceneManager : MonoBehaviour
     {
         _currentWaveDatasInStage.Clear();
 
-        _currentWaveDatasInStage.Add(WaveDatas[0]);
-        _currentWaveDatasInStage.Add(WaveDatas[1]);
-        _currentWaveDatasInStage.Add(WaveDatas[2]);
+        var difficultyWaveIntervals = WaveDatas.Count / MaxDifficultyWave;
+        var startWaveDataIdx = (_currentWave - 1) * difficultyWaveIntervals;
+        var amountInterWaves = StartingInterWaves + (_currentWave - 1);
+
+        for(var i = 0; i < amountInterWaves; ++i)
+        {
+            var interWaveToAdd = (startWaveDataIdx + RandomUtils.Range(0, difficultyWaveIntervals+1));
+            if(interWaveToAdd >= WaveDatas.Count)
+            {
+                interWaveToAdd = WaveDatas.Count - 1;
+            }
+
+            _currentWaveDatasInStage.Add(WaveDatas[interWaveToAdd]);
+        }
     }
 
     public void ChangeState(EBattleState battleState)

@@ -270,6 +270,7 @@ MonoBehaviour:
     type: 3}
   PlayerOnlineGO: {fileID: 6697712995093948240, guid: 23a82723d1d6345be8062aec22d399aa,
     type: 3}
+  EnemyGO: {fileID: 3830586672479596609, guid: b3123fd96bdffb2488502666fb5e77c0, type: 3}
 --- !u!4 &380502436
 Transform:
   m_ObjectHideFlags: 0
