@@ -200,12 +200,17 @@ public class GSB_SceneManager : MonoBehaviour
     void GenerateEnemy()
     {
         var randomPosition = -1;
-        while(randomPosition == -1 || _lastEnemyPositions.Contains(randomPosition))
+        while(randomPosition == -1)
         {
             randomPosition = RandomUtils.Range(0, 9);
+
+            if(_lastEnemyPositions.Contains(randomPosition) || _lastEnemyPositions.Contains(randomPosition-1) || _lastEnemyPositions.Contains(randomPosition+1))
+            {
+                randomPosition = -1;
+            }
         }
 
-        if (_lastEnemyPositions.Count == 3)
+        if (_lastEnemyPositions.Count == 2)
         {
             _lastEnemyPositions.RemoveAt(0);
         }

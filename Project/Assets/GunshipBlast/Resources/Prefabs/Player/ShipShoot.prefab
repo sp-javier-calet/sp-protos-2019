@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1179809721236326}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.48, y: -4.02, z: -0.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2171114122000915016}
@@ -47,6 +47,7 @@ MonoBehaviour:
   OriginPosition: {x: 0, y: 0, z: 0}
   DestPosition: {x: 0, y: 0, z: 0}
   TimeTravel: 0
+  TargetEnemy: {fileID: 0}
 --- !u!1001 &2171114122001016930
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54,10 +55,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4646355581820306}
     m_Modifications:
-    - target: {fileID: 143884, guid: e15c95dfd981d4247bcc740feb60174e, type: 3}
-      propertyPath: m_Name
-      value: FX_LightProjectile_TL_A
-      objectReference: {fileID: 0}
     - target: {fileID: 438826, guid: e15c95dfd981d4247bcc740feb60174e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -113,6 +110,10 @@ PrefabInstance:
     - target: {fileID: 438826, guid: e15c95dfd981d4247bcc740feb60174e, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 143884, guid: e15c95dfd981d4247bcc740feb60174e, type: 3}
+      propertyPath: m_Name
+      value: FX_LightProjectile_TL_A
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e15c95dfd981d4247bcc740feb60174e, type: 3}

@@ -34,7 +34,7 @@ public class GSB_Shoot : MonoBehaviour
             TargetEnemy.DestroyShip();
 
             Sequence seq = DOTween.Sequence();
-            seq.AppendInterval(0.5f);
+            seq.AppendInterval(0.1f);
             seq.onComplete += DestroyShoot;
         }
     }
