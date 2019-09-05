@@ -336,7 +336,7 @@ MonoBehaviour:
   ShipTargeted: {fileID: 4765344942470736585}
   ExplosionInPlayerShip: {fileID: 1930858943195546, guid: 6e569eb619c4c4b6aaf10038d96cba85,
     type: 3}
-  ExplosionDestroyed: {fileID: 1930858943195546, guid: c36e24c7cd9d842f7b243ed9b5cbba89,
+  ExplosionDestroyed: {fileID: 1762814796714764, guid: 143d4966538e07b4386dd110d380a34d,
     type: 3}
 --- !u!65 &3717899112477037573
 BoxCollider:
