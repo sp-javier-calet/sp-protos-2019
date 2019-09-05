@@ -49,8 +49,6 @@ public class GSB_TitleManager : MonoBehaviour
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
-
-        StartCoroutine(UpdateIpAddress());
     }
 
     void StopServerOrClients()
@@ -95,6 +93,8 @@ public class GSB_TitleManager : MonoBehaviour
 
     public void OnPressedServer()
     {
+        StartCoroutine(UpdateIpAddress());
+
         ServerHost = 1;
 
         GSB_GameManager.Instance.NetworkController.StartHost();

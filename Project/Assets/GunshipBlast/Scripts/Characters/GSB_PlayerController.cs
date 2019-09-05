@@ -390,11 +390,14 @@ public class GSB_PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    ShipTransform.transform.localPosition = Vector3.zero;
-                    ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, 0.0f), 8f);
+                    if(!_dying)
+                    {
+                        ShipTransform.transform.localPosition = Vector3.zero;
+                        ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, 0.0f), 8f);
 
-                    _dying = true;
-                    _explosionTimer.Wait(0f);
+                        _dying = true;
+                        _explosionTimer.Wait(0f);
+                    }
                 }
             }
 
