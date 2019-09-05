@@ -1,4 +1,5 @@
 ﻿
+using DG.Tweening;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -7,9 +8,11 @@ public class GSB_Shoot : MonoBehaviour
     public Vector3 OriginPosition;
     public Vector3 DestPosition;
     public int TimeTravel;
+    public GSB_EnemyController TargetEnemy;
 
     long _startTime;
     Vector3 _diffSpace;
+    bool _destroyed = false;
 
     void Start()
     {
@@ -20,12 +23,24 @@ public class GSB_Shoot : MonoBehaviour
     void Update()
     {
         float delta = (TimeUtils.TimestampMilliseconds - _startTime) / (float)TimeTravel;
+        if(delta > 1f)
+            delta = 1f;
 
         transform.position = OriginPosition + (_diffSpace * delta);
 
-        if(TimeUtils.TimestampMilliseconds > _startTime + TimeTravel)
+        if(!_destroyed && TimeUtils.TimestampMilliseconds > _startTime + TimeTravel)
         {
-            Destroy(gameObject);
+            _destroyed = true;
+            TargetEnemy.DestroyShip();
+
+            Sequence seq = DOTween.Sequence();
+            seq.AppendInterval(0.5f);
+            seq.onComplete += DestroyShoot;
         }
+    }
+
+    void DestroyShoot()
+    {
+        Destroy(gameObject);
     }
 }

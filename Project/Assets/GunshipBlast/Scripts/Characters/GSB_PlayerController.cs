@@ -22,11 +22,13 @@ public class GSB_PlayerController : MonoBehaviour
     bool _shapeIsClosed = false;
 
     bool _shooting = false;
-    long _shootingStartingTime = 0;
+    int _shootToEnemyIdx = 0;
+    Timer _shootTimer = new Timer();
     public bool Shooting { get { return _shooting; } }
 
     List<GSB_EnemyController> SelectingEnemies = new List<GSB_EnemyController>();
     List<GSB_EnemyController> EnemiesInside = new List<GSB_EnemyController>();
+    List<GSB_EnemyController> EnemiesToShoot = new List<GSB_EnemyController>();
 
     List<GameObject> HullGOs = new List<GameObject>();
     List<BCSHModifier> AmmoBCSH = new List<BCSHModifier>();
@@ -401,25 +403,21 @@ public class GSB_PlayerController : MonoBehaviour
 
     void ShootToEnemies()
     {
+        EnemiesToShoot.Clear();
+
         if(ShipShoots != null)
         {
-            for(var i = 0; i < SelectingEnemies.Count; ++i)
-            {
-                GenerateShootToTarget(SelectingEnemies[i]);
-            }
+            EnemiesToShoot.AddRange(SelectingEnemies);
 
             if(_shapeIsClosed)
             {
                 CheckEnemiesInside(out EnemiesInside);
-
-                for(var i = 0; i < EnemiesInside.Count; ++i)
-                {
-                    GenerateShootToTarget(EnemiesInside[i]);
-                }
+                EnemiesToShoot.AddRange(EnemiesInside);
             }
         }
 
-        _shootingStartingTime = TimeUtils.TimestampMilliseconds;
+        _shootToEnemyIdx = 0;
+        _shootTimer.Wait(0f);
         _shooting = true;
     }
 
@@ -434,8 +432,13 @@ public class GSB_PlayerController : MonoBehaviour
                 shootScript.OriginPosition = new Vector3(0.48f, -4.02f, -0.12f);
                 shootScript.DestPosition = target.transform.position;
                 shootScript.TimeTravel = GSB_SceneManager.Instance.ShootStopTime;
+                shootScript.TargetEnemy = target;
             }
         }
+
+        _shootTimer.Wait(GSB_SceneManager.Instance.ShootStopTime / 1000f / EnemiesToShoot.Count);
+
+        _shootToEnemyIdx++;
     }
 
     void LateUpdate()
@@ -488,7 +491,7 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
-        if(_holding || _shooting)
+        if(_holding)
         {
             UpdatePositionToSelectionLines();
 
@@ -621,10 +624,12 @@ public class GSB_PlayerController : MonoBehaviour
             {
                 if(_holding)
                 {
-                    _currentAmmo -= SelectingEnemies.Count;
-                    _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
-
                     ShootToEnemies();
+
+                    Time.timeScale = 1f;
+                    Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+                    ResetSelection();
 
                     _holding = false;
                 }
@@ -633,25 +638,36 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(_shooting)
         {
-            if(TimeUtils.TimestampMilliseconds > _shootingStartingTime + GSB_SceneManager.Instance.ShootStopTime)
+            if(_shootTimer.IsFinished)
             {
-                for(var i = 0; i < SelectingEnemies.Count; ++i)
+                if(_shootToEnemyIdx < EnemiesToShoot.Count)
                 {
-                    SelectingEnemies[i].DestroyShip();
+                    GenerateShootToTarget(EnemiesToShoot[_shootToEnemyIdx]);
                 }
-
-                for(var i = 0; i < EnemiesInside.Count; ++i)
+                else
                 {
-                    EnemiesInside[i].DestroyShip();
+                    var allDestroyed = true;
+                    for(var i = 0; i < EnemiesToShoot.Count; ++i)
+                    {
+                        if(EnemiesToShoot[i] != null)
+                        {
+                            allDestroyed = false;
+                            break;
+                        }
+                    }
+
+                    if(allDestroyed)
+                    {
+                        EnemiesToShoot.Clear();
+
+                        _currentAmmo -= SelectingEnemies.Count;
+                        _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
+
+                        UpdateAmmoUI();
+
+                        _shooting = false;
+                    }
                 }
-
-                ResetSelection();
-                UpdateAmmoUI();
-
-                Time.timeScale = 1f;
-                Time.fixedDeltaTime = 0.02f * Time.timeScale;
-
-                _shooting = false;
             }
         }
 
