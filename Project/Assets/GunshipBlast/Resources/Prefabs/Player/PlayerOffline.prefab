@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 41124
+  _instanceID: 78380
   _serializedMaterial: {fileID: 2100000, guid: d38b54230d2f840c1b648eac1a429060, type: 2}
   _originalMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   _originalMaterialIsUIDefault: 0
@@ -207,6 +207,7 @@ MonoBehaviour:
   ShipTransform: {fileID: 2125927141046737281}
   ShipBCSH: {fileID: 4585772610465060697}
   ShipShoots: {fileID: 1179809721236326, guid: bae3e442db34f4eb1aff5fcb8cf9e740, type: 3}
+  Explosion: {fileID: 1762814796714764, guid: 143d4966538e07b4386dd110d380a34d, type: 3}
 --- !u!65 &7948572797989840190
 BoxCollider:
   m_ObjectHideFlags: 0

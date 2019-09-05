@@ -12,6 +12,7 @@ public class GSB_PlayerController : MonoBehaviour
     public GameObject ShipTransform = null;
     public BCSHModifier ShipBCSH = null;
     public GameObject ShipShoots = null;
+    public GameObject Explosion = null;
 
     bool _pressedDown = false;
     bool _pressedUp = false;
@@ -37,7 +38,10 @@ public class GSB_PlayerController : MonoBehaviour
     Vector3 _vecTemp = Vector3.zero;
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
+    int _ammoWasted = 0;
     int _currentHealth = -1;
+    bool _dying = false;
+    Timer _explosionTimer = new Timer();
 
     Vector2[] _shapeVertices2D = null;
     Vector3[] _shapeVertices3D = null;
@@ -388,6 +392,9 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     ShipTransform.transform.localPosition = Vector3.zero;
                     ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, 0.0f), 8f);
+
+                    _dying = true;
+                    _explosionTimer.Wait(0f);
                 }
             }
 
@@ -448,7 +455,21 @@ public class GSB_PlayerController : MonoBehaviour
             MakeDamage(1);
         }
 
-        if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax)
+        if(_dying && _explosionTimer.IsFinished)
+        {
+            if(Explosion != null)
+            {
+                GameObject explosion = Instantiate(Explosion);
+                if(explosion != null)
+                {
+                    explosion.transform.position = ShipTransform.transform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
+                }
+            }
+
+            _explosionTimer.Wait(0.4f);
+        }
+
+        if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax && !_shooting)
         {
             if(_ammoRefillTimer.IsFinished)
             {
@@ -629,6 +650,8 @@ public class GSB_PlayerController : MonoBehaviour
                     Time.timeScale = 1f;
                     Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
+                    _ammoWasted = SelectingEnemies.Count;
+
                     ResetSelection();
 
                     _holding = false;
@@ -643,6 +666,14 @@ public class GSB_PlayerController : MonoBehaviour
                 if(_shootToEnemyIdx < EnemiesToShoot.Count)
                 {
                     GenerateShootToTarget(EnemiesToShoot[_shootToEnemyIdx]);
+
+                    if(_ammoWasted > 0)
+                    {
+                        _currentAmmo--;
+                        _ammoWasted--;
+
+                        UpdateAmmoUI();
+                    }
                 }
                 else
                 {
@@ -660,10 +691,7 @@ public class GSB_PlayerController : MonoBehaviour
                     {
                         EnemiesToShoot.Clear();
 
-                        _currentAmmo -= SelectingEnemies.Count;
                         _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
-
-                        UpdateAmmoUI();
 
                         _shooting = false;
                     }
