@@ -1,13 +1,18 @@
 ﻿
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using DG.Tweening;
 
 public class GSB_PlayerController : MonoBehaviour
 {
+    public GameObject ShipTransform = null;
+    public BCSHModifier ShipBCSH = null;
+
     bool _pressedDown = false;
     bool _pressedUp = false;
 
@@ -25,6 +30,7 @@ public class GSB_PlayerController : MonoBehaviour
 
     List<GSB_EnemyController> CurrentEnemies = new List<GSB_EnemyController>();
 
+    Sequence _tremblingAnimation = null;
     Vector3 _vecTemp = Vector3.zero;
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
@@ -338,19 +344,55 @@ public class GSB_PlayerController : MonoBehaviour
 
     public void MakeDamage(int damage)
     {
-        _currentHealth -= damage;
-        if(_currentHealth < 0)
+        if(GSB_SceneManager.Instance.BattleState != GSB_SceneManager.EBattleState.E_GAMEOVER)
         {
-            _currentHealth = 0;
-        }
-        if(_currentHealth > GSB_SceneManager.Instance.HealthMax)
-        {
-            _currentHealth = GSB_SceneManager.Instance.HealthMax;
+            _currentHealth -= damage;
+            if(_currentHealth < 0)
+            {
+                _currentHealth = 0;
+            }
+
+            if(_currentHealth > GSB_SceneManager.Instance.HealthMax)
+            {
+                _currentHealth = GSB_SceneManager.Instance.HealthMax;
+            }
+
+            if(_currentHealth == 0)
+            {
+                GSB_SceneManager.Instance.ChangeState(GSB_SceneManager.EBattleState.E_GAMEOVER);
+            }
         }
 
-        if(_currentHealth == 0)
+        if(damage > 0)
         {
-            GSB_SceneManager.Instance.ChangeState(GSB_SceneManager.EBattleState.E_GAMEOVER);
+            if(_tremblingAnimation != null)
+            {
+                _tremblingAnimation.Kill();
+                _tremblingAnimation = null;
+            }
+
+            if(ShipTransform != null)
+            {
+                ShipTransform.transform.localPosition = Vector3.zero;
+
+                if(GSB_SceneManager.Instance.BattleState != GSB_SceneManager.EBattleState.E_GAMEOVER)
+                {
+                    _tremblingAnimation = DOTween.Sequence();
+                    _tremblingAnimation.Append(ShipTransform.transform.DOLocalMove(new Vector3(0.06f, 0.0f, -0.10f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
+                    _tremblingAnimation.Play();
+                }
+                else
+                {
+                    ShipTransform.transform.localPosition = Vector3.zero;
+                    ShipTransform.transform.DOLocalMove(new Vector3(3.0f, -1.5f, -0.10f), 8f);
+                }
+            }
+
+            if(ShipBCSH != null)
+            {
+                ShipBCSH.ApplyBCSHStateProgressive("damaged", 0, 0f);
+                ShipBCSH.ApplyBCSHStateProgressive("default", 0, 0.4f);
+            }
         }
 
         UpdateHealthUI();
@@ -358,6 +400,11 @@ public class GSB_PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            MakeDamage(1);
+        }
+
         if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax)
         {
             if(_ammoRefillTimer.IsFinished)

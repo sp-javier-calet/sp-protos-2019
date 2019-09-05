@@ -54,6 +54,8 @@ public class GSB_SceneManager : MonoBehaviour
     public List<GSB_EnemyController> Enemies { get { return _enemies; } }
 
     EBattleState _battleState = EBattleState.E_NONE;
+    public EBattleState BattleState { get { return _battleState; } }
+
     long _stateStartTime = 0;
     long _stateTime = 0;
     int _currentWave = 0;
