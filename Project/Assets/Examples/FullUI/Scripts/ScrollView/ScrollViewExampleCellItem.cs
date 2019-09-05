@@ -6,11 +6,12 @@
 //-----------------------------------------------------------------------
 
 using SocialPoint.GUIControl;
+using TMPro;
 
 public class ScrollViewExampleCellItem : UIScrollRectCellItem<ScrollViewExampleCellData>
 {
-    public SPText NameText;
-    public SPText DescriptionText;
+    public TextMeshProUGUI NameText;
+    public TextMeshProUGUI DescriptionText;
 
     public override void ShowData()
     {

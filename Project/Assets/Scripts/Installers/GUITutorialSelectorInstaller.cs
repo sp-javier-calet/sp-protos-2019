@@ -7,10 +7,10 @@
 
 using System;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
 using SocialPoint.Tutorial;
 using UnityEngine;
 
+[InstallerGameCategory]
 public class GUITutorialSelectorInstaller : Installer, IInitializable
 {
     [Serializable]
@@ -21,10 +21,6 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
     }
 
     public SettingsData Settings = new SettingsData();
-
-    public GUITutorialSelectorInstaller() : base(ModuleType.Game)
-    {
-    }
 
     public override void InstallBindings(IBindingContainer container)
     {
@@ -38,13 +34,7 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
             return;
         }
 
-        var stackController = container.Resolve<UIStackController>();
-        if(stackController == null)
-        {
-            throw new InvalidOperationException("Could not find screens controller for initial screen");
-        }
-
-        var tutorialManager = container.Resolve<TutorialManager>();
+        var tutorialManager = container.Resolve<ITutorialManager>();
         if(tutorialManager == null)
         {
             throw new InvalidOperationException("Could not find tutorial manager for tutorials selector");
@@ -58,13 +48,11 @@ public class GUITutorialSelectorInstaller : Installer, IInitializable
 
         tutorialManager.AddTutorials(tutorialsList.Tutorials);
 
-        var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
+        var go = Instantiate(Settings.InitialScreenPrefab);
         var ctrl = go.GetComponent<SelectorTutorialsController>();
         if(ctrl == null)
         {
             throw new InvalidOperationException("Initial Screen Prefab does not contain a SelectorTutorialsController");
         }
-
-        stackController.PushImmediate(ctrl);
     }
 }

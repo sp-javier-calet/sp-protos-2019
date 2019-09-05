@@ -1,21 +1,4 @@
 {
-  "targetAttributes": {
-    "SystemCapabilities": {
-      "com.apple.Keychain": {
-        "enabled": 1
-      }
-    }
-  },
-  "buildSettings": {
-    "SEPARATE_STRIP": "YES",
-    "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
-    "ENABLE_BITCODE": "NO",
-    "CLANG_ENABLE_CODE_COVERAGE": "NO",
-    "DEPLOYMENT_POSTPROCESSING": "YES"
-  },
-  "frameworks": [
-    "Security.framework:weak"
-  ],
   "infoPlist": {
     "CFBundleURLTypes":[{
       "CFBundleURLName":"basegame",

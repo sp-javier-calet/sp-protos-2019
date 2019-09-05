@@ -16,3 +16,4 @@ MonoBehaviour:
   Settings:
     UseEmpty: 0
     LoginLink: 1
+    LoginWithUi: 0

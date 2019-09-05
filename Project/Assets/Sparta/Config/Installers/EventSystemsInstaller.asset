@@ -13,6 +13,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    CreateAlways: 1
-    EventSystemPrefab: {fileID: 11431642, guid: 35a6593b317e1438dbd373387966e8f5,
-      type: 2}
+    EventSystemPrefab: {fileID: 0}
