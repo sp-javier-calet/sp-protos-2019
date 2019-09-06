@@ -39,12 +39,20 @@ MonoBehaviour:
     ToolsProjectName: Unity Base Game
     SlackChannel: 
     XcodeVersion: = 10.1
+    AdditionalAssemblyPrefixes: []
+  Addressables:
+    Deployment:
+      EnableRemoteDeployment: 0
+      RemoteBuildPathDisplay: 
+      IntegrationRemoteLoadPath: 
+      ProductioniOSRemoteLoadPath: 
+      ProductionAndroidRemoteLoadPath: 
   Ios:
     BundleIdentifier: game.unitybasegame
     Flags: 
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
-    minimumTargetOsVersion: 9.0
+    minimumTargetOsVersion: 10.0
     UseAppleDeveloperAppId: 0
   Android:
     BundleIdentifier: game.unitybasegame

@@ -25,6 +25,8 @@ MonoBehaviour:
     Enabled: 1
   - Name: Graybox Library
     Enabled: 0
+  - Name: Helpshift
+    Enabled: 1
   - Name: Master Audio
     Enabled: 0
   - Name: Multiplayer
