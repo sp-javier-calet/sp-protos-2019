@@ -12,9 +12,20 @@ public class GSB_SceneManager : MonoBehaviour
     {
         public int NumEnemies;
         public float Rhythm;
+        public float RhythmInterWave;
+        public float EnemiesSpeedMultiplier = 1f;
     }
 
     public List<WaveData> WaveDatas = new List<WaveData>();
+
+    [Serializable]
+    public class CombinationData
+    {
+        public bool ShipColorUnique;
+        public int AmmoReward;
+    }
+
+    public List<CombinationData> CombinationDatas = new List<CombinationData>();
 
     public enum EBattleState
     {
@@ -43,7 +54,6 @@ public class GSB_SceneManager : MonoBehaviour
     public int AmmoMax = 4;
     public float AmmoRegenerationTime = 0.75f;
     public int TargetTimeMS = 2000;
-    public float RhythmInterWave = 1f;
     public float StartingInterWaves = 5;
     public int MaxDifficultyWave = 5;
     public int HealthRecoveryAfterWave = 3;
@@ -66,7 +76,10 @@ public class GSB_SceneManager : MonoBehaviour
 
     List<WaveData> _currentWaveDatasInStage = new List<WaveData>();
     int _currentWaveDataIdx = 0;
+
     WaveData _currentWaveData = null;
+    public WaveData CurrentWaveData { get { return _currentWaveData; } }
+
     Timer _waveTimer = new Timer();
     int _currentWaveEnemy = 0;
     List<int> _lastEnemyPositions = new List<int>();
@@ -302,7 +315,7 @@ public class GSB_SceneManager : MonoBehaviour
 
                             if(_currentWaveEnemy == _currentWaveData.NumEnemies)
                             {
-                                _waveTimer.Wait(RhythmInterWave);
+                                _waveTimer.Wait(_currentWaveData.RhythmInterWave);
                             }
                             else
                             {

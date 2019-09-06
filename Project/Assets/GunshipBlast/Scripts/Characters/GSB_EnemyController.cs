@@ -134,11 +134,12 @@ public class GSB_EnemyController : MonoBehaviour
     {
         if(_shipData != null && !GSB_SceneManager.Instance.Player.Shooting)
         {
-            var speed = (_shipData.MovementSpeed + (_shipData.ExtraSpeedByWave * (GSB_SceneManager.Instance.CurrentWave - 1))) * Time.timeScale * (Time.fixedDeltaTime / Time.deltaTime);
-            if(speed > _shipData.MaxSpeed)
+            var speed = _shipData.MovementSpeed;
+            if(GSB_SceneManager.Instance.CurrentWaveData != null)
             {
-                speed = _shipData.MaxSpeed;
+                speed *= GSB_SceneManager.Instance.CurrentWaveData.EnemiesSpeedMultiplier;
             }
+            speed *= (Time.timeScale * (Time.fixedDeltaTime / Time.deltaTime));
 
             transform.position += (Vector3.down * speed);
 
