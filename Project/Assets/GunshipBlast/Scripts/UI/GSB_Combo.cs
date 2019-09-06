@@ -9,12 +9,14 @@ public class GSB_Combo : MonoBehaviour
     public enum EComboType
     {
         E_COMBO_AMOUNT,
-        E_COMBO_UNIQUES
+        E_COMBO_UNIQUES,
+        E_COMBO_SHAPE
     }
 
     public GameObject Panel = null;
     public TextMeshProUGUI ShipAmount = null;
     public TextMeshProUGUI AmmoReward = null;
+    public GameObject Shape = null;
     public List<GameObject> ShipUniques = new List<GameObject>();
 
     void Start()
@@ -44,6 +46,19 @@ public class GSB_Combo : MonoBehaviour
             for(var i = 0; i < ShipUniques.Count; ++i)
             {
                 ShipUniques[i].SetActive(false);
+            }
+        }
+        else if(type == EComboType.E_COMBO_SHAPE)
+        {
+            if(Shape != null)
+            {
+                Shape.gameObject.SetActive(true);
+            }
+
+            if(ShipAmount != null)
+            {
+                ShipAmount.gameObject.SetActive(true);
+                ShipAmount.text = "x" + shipAmount;
             }
         }
 
