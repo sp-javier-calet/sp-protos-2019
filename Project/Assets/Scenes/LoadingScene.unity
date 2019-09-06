@@ -352,7 +352,6 @@ GameObject:
   - component: {fileID: 1370643094}
   - component: {fileID: 1370643093}
   - component: {fileID: 1370643092}
-  - component: {fileID: 1370643091}
   m_Layer: 5
   m_Name: GSB_Title
   m_TagString: Untagged
@@ -360,30 +359,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1370643091
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1370643090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 361279eac41f445e3a29b6d731290edb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LogoScreen: {fileID: 1864421450}
-  VersusScreen: {fileID: 0}
-  BehaviourScreen: {fileID: 0}
-  ClientScreen: {fileID: 0}
-  ServerScreen: {fileID: 0}
-  ConnectButton: {fileID: 0}
-  ServerStartButton: {fileID: 0}
-  YourIpLabel: {fileID: 0}
-  QRCodeImage: {fileID: 0}
-  CameraPanel: {fileID: 0}
-  CamImage: {fileID: 0}
-  InputField: {fileID: 0}
 --- !u!20 &1370643092
 Camera:
   m_ObjectHideFlags: 0
@@ -615,7 +590,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864421449}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -671,7 +646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 93674
+  _instanceID: 45000
   _serializedMaterial: {fileID: 2100000, guid: 4a16ccb2c82f34d9cb987384e30a7b7d, type: 2}
   _originalMaterial: {fileID: 0}
   _originalMaterialIsUIDefault: 1
@@ -788,7 +763,6 @@ GameObject:
   - component: {fileID: 2023760622}
   - component: {fileID: 2023760621}
   - component: {fileID: 2023760620}
-  - component: {fileID: 2023760619}
   m_Layer: 5
   m_Name: CP_Title
   m_TagString: Untagged
@@ -796,31 +770,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &2023760619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2023760618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eccf732c0457434abc2bc6256d8ad33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LogoScreen: {fileID: 0}
-  VersusScreen: {fileID: 0}
-  BehaviourScreen: {fileID: 0}
-  ClientScreen: {fileID: 0}
-  ServerScreen: {fileID: 0}
-  PlayersScreen: {fileID: 0}
-  TitleBCSH: {fileID: 1934158115}
-  ConnectButton: {fileID: 0}
-  ServerStartButton: {fileID: 0}
-  PlayerSlots: []
-  YourIpLabel: {fileID: 0}
-  QRCodeImage: {fileID: 0}
-  InputField: {fileID: 0}
 --- !u!20 &2023760620
 Camera:
   m_ObjectHideFlags: 0
