@@ -97,6 +97,8 @@ public class GSB_EnemyController : MonoBehaviour
 
     public void DestroyShip(bool inPlayerShip = false)
     {
+        GSB_SceneManager.Instance.Player.ShipHasBeenDestroyed(this);
+
         if(GSB_SceneManager.Instance.Enemies.Contains(this))
         {
             GSB_SceneManager.Instance.Enemies.Remove(this);
@@ -128,7 +130,25 @@ public class GSB_EnemyController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    void Update()
+    void FixedUpdate()
+    {
+        if(_shipData != null && !GSB_SceneManager.Instance.Player.Shooting)
+        {
+            var speed = (_shipData.MovementSpeed + (_shipData.ExtraSpeedByWave * (GSB_SceneManager.Instance.CurrentWave - 1))) * Time.timeScale * (Time.fixedDeltaTime / Time.deltaTime);
+
+            transform.position += (Vector3.down * speed);
+
+            var dist = 0f;
+            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, speed))
+            {
+                GSB_SceneManager.Instance.Player.MakeDamage(_shipData.DamagePoints);
+
+                DestroyShip(true);
+            }
+        }
+    }
+
+    void LateUpdate()
     {
         if(_shipTargetedBCSH != null && _bcshTimer.IsFinished)
         {
@@ -149,19 +169,6 @@ public class GSB_EnemyController : MonoBehaviour
 
             _shipTargetedBCSH.ApplyBCSHStateProgressive(nextState, 0, 0.25f * Time.timeScale);
             _bcshTimer.Wait(0.25f * Time.timeScale);
-        }
-
-        if(_shipData != null && !GSB_SceneManager.Instance.Player.Shooting)
-        {
-            transform.position += (Vector3.down * _shipData.MovementSpeed * Time.timeScale);
-
-            var dist = 0f;
-            if (GetHitDistance(out dist, out _hitDown, transform.position, -Vector3.up, 0.01f))
-            {
-                GSB_SceneManager.Instance.Player.MakeDamage(_shipData.DamagePoints);
-
-                DestroyShip(true);
-            }
         }
     }
 }

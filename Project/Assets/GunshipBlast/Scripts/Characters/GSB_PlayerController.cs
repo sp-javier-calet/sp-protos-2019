@@ -281,6 +281,49 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
+    public void ShipHasBeenDestroyed(GSB_EnemyController enemy)
+    {
+        if(SelectingEnemies.Contains(enemy))
+        {
+            var enemyIdx = SelectingEnemies.IndexOf(enemy);
+
+            if(_shapeIsClosed)
+            {
+                LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+                currentLine.positionCount = 0;
+            }
+
+            for(var i = SelectingEnemies.Count - 1; i >= enemyIdx; i--)
+            {
+                SelectingEnemies[i].SetTargetEnabled(false, i == 0);
+                SelectingEnemies.RemoveAt(i);
+            }
+
+            for(var i = SelectingEnemies.Count; i < GSB_SceneManager.Instance.AmmoMax; i++)
+            {
+                LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[i];
+                currentLine.positionCount = 0;
+            }
+
+            if(SelectingEnemies.Count == 0)
+            {
+                _holding = false;
+
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+                ResetSelection();
+            }
+
+            if(GSB_SceneManager.Instance.SelectionMesh != null)
+            {
+                GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
+            }
+
+            _shapeIsClosed = false;
+        }
+    }
+
     void ResetSelection()
     {
         for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)

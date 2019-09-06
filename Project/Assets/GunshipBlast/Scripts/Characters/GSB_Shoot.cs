@@ -31,7 +31,11 @@ public class GSB_Shoot : MonoBehaviour
         if(!_destroyed && TimeUtils.TimestampMilliseconds > _startTime + TimeTravel)
         {
             _destroyed = true;
-            TargetEnemy.DestroyShip();
+
+            if(TargetEnemy != null)
+            {
+                TargetEnemy.DestroyShip();
+            }
 
             Sequence seq = DOTween.Sequence();
             seq.AppendInterval(0.1f);
