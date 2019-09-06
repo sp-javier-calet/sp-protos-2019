@@ -268,7 +268,7 @@ MonoBehaviour:
   CurrentGameState: 0
   PlayerOfflineGO: {fileID: 6697712995093948240, guid: 409c331182d484f7197e09f26ccb87c5,
     type: 3}
-  PlayerOnlineGO: {fileID: 6697712995093948240, guid: 23a82723d1d6345be8062aec22d399aa,
+  PlayerOnlineGO: {fileID: 6697712995093948240, guid: 4b8c1dc39473647c19254d1badefbe12,
     type: 3}
   EnemyGO: {fileID: 3830586672479596609, guid: b3123fd96bdffb2488502666fb5e77c0, type: 3}
 --- !u!4 &380502436
@@ -546,14 +546,14 @@ MonoBehaviour:
   m_ScriptCRCCheck: 1
   m_MaxDelay: 0.01
   m_LogLevel: 2
-  m_PlayerPrefab: {fileID: 6697712995093948240, guid: 23a82723d1d6345be8062aec22d399aa,
+  m_PlayerPrefab: {fileID: 6697712995093948240, guid: 4b8c1dc39473647c19254d1badefbe12,
     type: 3}
   m_AutoCreatePlayer: 1
   m_PlayerSpawnMethod: 0
   m_OfflineScene: 
   m_OnlineScene: 
   m_SpawnPrefabs:
-  - {fileID: 6697712995093948240, guid: 23a82723d1d6345be8062aec22d399aa, type: 3}
+  - {fileID: 6697712995093948240, guid: 4b8c1dc39473647c19254d1badefbe12, type: 3}
   m_CustomConfig: 0
   m_MaxConnections: 4
   m_ConnectionConfig:
@@ -609,3 +609,4 @@ MonoBehaviour:
   matchSize: 4
   isNetworkActive: 0
   matchMaker: {fileID: 0}
+  IsServer: 0

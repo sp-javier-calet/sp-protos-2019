@@ -71,6 +71,15 @@ public class GSB_GameManager : MonoBehaviour
 
                 break;
             }
+
+            case GameState.E_PLAYING_2_VERSUS:
+            {
+                SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+
+                StartCoroutine(LoadAsyncScene("GSB_BattleScene"));
+
+                break;
+            }
         }
 
         CurrentGameState = gameState;

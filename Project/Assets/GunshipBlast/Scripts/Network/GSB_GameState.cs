@@ -60,6 +60,25 @@ public class GSB_GameState : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    public void RpcStartVersusPlay()
+    {
+        GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_PLAYING_2_VERSUS);
+    }
+
+    [ClientRpc]
+    public void RpcPlayerHasDiedServer(int playerId)
+    {
+        if(playerId != GSB_GameManager.Instance.NetworkController.PlayerControllerId)
+        {
+            GSB_SceneManager.Instance.ChangeSubState(GSB_SceneManager.EBattleState.E_WIN);
+        }
+        else
+        {
+            GSB_SceneManager.Instance.ChangeSubState(GSB_SceneManager.EBattleState.E_LOSE);
+        }
+    }
+
     public override int GetNetworkChannel()
     {
         return Channels.DefaultUnreliable;

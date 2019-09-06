@@ -38,6 +38,8 @@ public class GSB_SceneManager : MonoBehaviour
         E_NONE,
         E_WAVE_START,
         E_PLAYING,
+        E_WIN,
+        E_LOSE,
         E_GAMEOVER,
         E_WAVE_END
     }
@@ -75,6 +77,9 @@ public class GSB_SceneManager : MonoBehaviour
 
     EBattleState _battleState = EBattleState.E_NONE;
     public EBattleState BattleState { get { return _battleState; } }
+
+    EBattleState _battleSubState = EBattleState.E_NONE;
+    public EBattleState BattleSubState { get { return _battleSubState; } }
 
     int _currentWave = 0;
     public int CurrentWave { get { return _currentWave; } }
@@ -136,6 +141,40 @@ public class GSB_SceneManager : MonoBehaviour
         }
     }
 
+    public void ChangeSubState(EBattleState battleState)
+    {
+        _stateStartTime = TimeUtils.TimestampMilliseconds;
+
+        switch(battleState)
+        {
+            case EBattleState.E_WIN:
+            {
+                if(WinLabel != null)
+                {
+                    WinLabel.gameObject.SetActive(true);
+                }
+
+                _stateTime = 4000;
+
+                break;
+            }
+
+            case EBattleState.E_LOSE:
+            {
+                if(LoseLabel != null)
+                {
+                    LoseLabel.gameObject.SetActive(true);
+                }
+
+                _stateTime = 4000;
+
+                break;
+            }
+        }
+
+        _battleSubState = battleState;
+    }
+
     public void ChangeState(EBattleState battleState)
     {
         _stateStartTime = TimeUtils.TimestampMilliseconds;
@@ -191,12 +230,24 @@ public class GSB_SceneManager : MonoBehaviour
 
             case EBattleState.E_GAMEOVER:
             {
-                if(GameOverLabel != null)
+                if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
                 {
-                    GameOverLabel.gameObject.SetActive(true);
-                }
+                    if(GameOverLabel != null)
+                    {
+                        GameOverLabel.gameObject.SetActive(true);
+                    }
 
-                _stateTime = 4000;
+                    _stateTime = 4000;
+                }
+                else if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
+                {
+                    if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
+                    {
+                        GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdPlayerHasDiedClient(GSB_GameManager.Instance.NetworkController.PlayerControllerId);
+                    }
+
+                    _stateTime = 0;
+                }
 
                 break;
             }
@@ -349,10 +400,26 @@ public class GSB_SceneManager : MonoBehaviour
             {
                 if(TimeUtils.TimestampMilliseconds > _stateStartTime + _stateTime)
                 {
-                    //if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
+                    if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
                     {
                         GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_TITLE);
                     }
+                }
+
+                break;
+            }
+        }
+
+        switch(_battleSubState)
+        {
+            case EBattleState.E_WIN:
+            case EBattleState.E_LOSE:
+            {
+                if(TimeUtils.TimestampMilliseconds > _stateStartTime + _stateTime)
+                {
+                    //for (var i = 0; i < GSB_GameManager.Instance.NetworkController.PlayerOnlineControllers
+
+                    GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_TITLE);
                 }
 
                 break;

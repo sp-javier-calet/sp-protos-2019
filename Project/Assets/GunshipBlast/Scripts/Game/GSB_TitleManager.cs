@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using SocialPoint.Rendering.Components;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using ZXing;
 using ZXing.QrCode;
@@ -63,6 +64,8 @@ public class GSB_TitleManager : MonoBehaviour
             GSB_GameManager.Instance.NetworkController.StopClient();
         }
 
+        GSB_GameManager.Instance.NetworkGameState.NumPlayers = 0;
+
         ServerHost = -1;
     }
 
@@ -98,6 +101,7 @@ public class GSB_TitleManager : MonoBehaviour
 
         ServerHost = 1;
 
+        GSB_GameManager.Instance.NetworkController.IsServer = true;
         GSB_GameManager.Instance.NetworkController.StartHost();
 
         SetScreenEnabled(BehaviourScreen, false);
@@ -115,14 +119,18 @@ public class GSB_TitleManager : MonoBehaviour
         ServerHost = 0;
         ConnectButton.interactable = false;
 
+        GSB_GameManager.Instance.NetworkController.IsServer = false;
+
         GSB_GameManager.Instance.NetworkController.networkAddress = InputField.text;
         GSB_GameManager.Instance.NetworkController.StartClient();
     }
 
     public void OnPressedStart()
     {
-
+        GSB_GameManager.Instance.NetworkGameState.RpcStartVersusPlay();
     }
+
+
 
     IEnumerator UpdateIpAddress()
     {

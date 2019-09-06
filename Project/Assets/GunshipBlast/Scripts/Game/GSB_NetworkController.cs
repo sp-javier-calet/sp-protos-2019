@@ -6,50 +6,20 @@ using UnityEngine.Networking;
 
 public class GSB_NetworkController : NetworkManager
 {
-
-
-
-    /*
-    [HideInInspector]
-    public int ChosenCharacter = 0;
-    public List<GameObject> Players = new List<GameObject>();
-
-    private int _numPlayers;
-
-    //subclass for sending network messages
-    private class NetworkMessage : MessageBase
-    {
-        public int ChosenCharacter;
-    }
-
-    public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader messageReader)
-    {
-//        var numOfAllowedPlayers = PlayerPrefs.GetInt(MainMenuController.kNumberOfPlayersKey) + 1;
-//        _numPlayers++;
-//        if (_numPlayers > numOfAllowedPlayers)
-//        {
-//            StopClient();
-//            return;
-//        }
-
-        // TODO check to avoid joining more clients
-        StartCoroutine(AddPlayer(conn, playerControllerId, messageReader));
-    }
-
-
-
-    public override void OnClientSceneChanged(NetworkConnection conn)
-    {
-        //base.OnClientSceneChanged(conn);
-    }
-    */
-
     class NetworkMessage : MessageBase
     {
         public int AssignedBCSH;
     }
 
     short _playerControllerId = -1;
+    public short PlayerControllerId { get { return _playerControllerId; } }
+
+    GSB_PlayerOnlineController _playerOnlineController = null;
+    public GSB_PlayerOnlineController PlayerOnlineController { get { return _playerOnlineController; } set { _playerOnlineController = value; } }
+
+    public bool IsServer = false;
+
+    public List<GameObject> PlayerOnlineControllers = new List<GameObject>();
 
     public override void OnServerDisconnect(NetworkConnection conn)
     {
@@ -92,18 +62,32 @@ public class GSB_NetworkController : NetworkManager
 
         var message = messageReader.ReadMessage<NetworkMessage>();
 
-        var player = GeneratePlayer();
+        var player = GeneratePlayer(playerControllerId);
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
 
         GSB_GameManager.Instance.NetworkGameState.NumPlayers++;
         GSB_GameManager.Instance.NetworkGameState.VersusPlayers.Add(player);
     }
 
-    GameObject GeneratePlayer()
+    GameObject GeneratePlayer(short playerControllerId)
     {
+        Debug.Log("NETWORK GeneratePlayer: " + playerControllerId + "    I AM " + _playerControllerId);
+
         if(GSB_GameManager.Instance.PlayerOnlineGO != null)
         {
             GameObject playerGO = Instantiate(GSB_GameManager.Instance.PlayerOnlineGO);
+            if(playerGO != null)
+            {
+                if(playerControllerId == _playerControllerId)
+                {
+                    _playerOnlineController = playerGO.GetComponent<GSB_PlayerOnlineController>();
+                }
+
+                PlayerOnlineControllers.Add(playerGO);
+
+                DontDestroyOnLoad(playerGO);
+            }
+
             return playerGO;
         }
 

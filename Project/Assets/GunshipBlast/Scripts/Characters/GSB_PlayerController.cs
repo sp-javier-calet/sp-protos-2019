@@ -6,6 +6,7 @@ using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using DG.Tweening;
+using UnityEngine.Networking;
 
 public class GSB_PlayerController : MonoBehaviour
 {
@@ -381,6 +382,11 @@ public class GSB_PlayerController : MonoBehaviour
 
     public void MakeDamage(int damage)
     {
+        if(GSB_SceneManager.Instance.BattleSubState == GSB_SceneManager.EBattleState.E_WIN)
+        {
+            return;
+        }
+
         if(GSB_SceneManager.Instance.BattleState != GSB_SceneManager.EBattleState.E_GAMEOVER)
         {
             _currentHealth -= damage;
@@ -618,18 +624,28 @@ public class GSB_PlayerController : MonoBehaviour
             MakeDamage(1);
         }
 
-        if(_dying && _explosionTimer.IsFinished)
+        if(GSB_SceneManager.Instance.BattleSubState == GSB_SceneManager.EBattleState.E_WIN)
         {
-            if(Explosion != null)
+            return;
+        }
+
+        if(_dying)
+        {
+            if(_explosionTimer.IsFinished)
             {
-                GameObject explosion = Instantiate(Explosion);
-                if(explosion != null)
+                if(Explosion != null)
                 {
-                    explosion.transform.position = ShipTransform.transform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
+                    GameObject explosion = Instantiate(Explosion);
+                    if(explosion != null)
+                    {
+                        explosion.transform.position = ShipTransform.transform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
+                    }
                 }
+
+                _explosionTimer.Wait(0.2f);
             }
 
-            _explosionTimer.Wait(0.2f);
+            return;
         }
 
         if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax && !_shooting)
