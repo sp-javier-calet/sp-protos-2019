@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Plugins/Sparta/SocialPoint/IntroAnimation/IntroAnimation-Spine-3.8.unity
+    path: Assets/Plugins/Sparta/Extensions/IntroAnimation/IntroAnimation-Spine-3.8.unity
     guid: 3a90ad609ad4c414d994e4b66a562288
   - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
