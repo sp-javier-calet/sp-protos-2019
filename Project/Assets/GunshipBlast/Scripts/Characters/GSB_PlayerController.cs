@@ -457,10 +457,7 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
-        _ammoAsCombinationReward = EnemiesInside.Count;
-
-
-
+        var extraCombos = 0;
         Vector3 comboUICenter = Vector3.zero;
         for(var j = 0; j < SelectingEnemies.Count; ++j)
         {
@@ -468,7 +465,26 @@ public class GSB_PlayerController : MonoBehaviour
         }
         comboUICenter /= SelectingEnemies.Count;
 
-        var extraCombos = 0;
+        _ammoAsCombinationReward = EnemiesInside.Count;
+        if(_ammoAsCombinationReward > 0)
+        {
+            if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
+            {
+                GameObject comboUI = Instantiate(GSB_SceneManager.Instance.WorldUICombo);
+                if(comboUI != null)
+                {
+                    comboUI.transform.SetParent(GSB_SceneManager.Instance.WorldUIParent.transform, false);
+                    comboUI.transform.position = comboUICenter + (-Vector3.up * extraCombos);
+                    extraCombos++;
+
+                    GSB_Combo comboScript = comboUI.GetComponent<GSB_Combo>();
+                    if(comboScript != null)
+                    {
+                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_SHAPE, _ammoAsCombinationReward, _ammoAsCombinationReward);
+                    }
+                }
+            }
+        }
 
         for(var i = 0; i < 4; ++i)
         {
