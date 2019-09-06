@@ -9,9 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a9679d2e4bbd4ab2b232738e0327119, type: 3}
-  m_Name: IntroScreen
+  m_Script: {fileID: 11500000, guid: b33e900b1dae42b197477e5880f81431, type: 3}
+  m_Name: SpartaEditorListener
   m_EditorClassIdentifier: 
-  _nextScene:
-    _sceneAsset: {fileID: 102900000, guid: 6db6bc6b0983b4d23b40d32f0164b9a7, type: 3}
-    _sceneName: LoadingScene

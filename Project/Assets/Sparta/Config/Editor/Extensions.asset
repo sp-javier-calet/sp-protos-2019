@@ -21,6 +21,8 @@ MonoBehaviour:
     Enabled: 1
   - Name: Firebase Analytics
     Enabled: 1
+  - Name: Google Play Games
+    Enabled: 1
   - Name: Graybox Library
     Enabled: 0
   - Name: Master Audio
