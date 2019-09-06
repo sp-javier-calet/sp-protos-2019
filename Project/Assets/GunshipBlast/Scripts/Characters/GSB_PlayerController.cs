@@ -381,10 +381,10 @@ public class GSB_PlayerController : MonoBehaviour
 
             if(ShipTransform != null)
             {
-                ShipTransform.transform.localPosition = Vector3.zero;
-
                 if(GSB_SceneManager.Instance.BattleState != GSB_SceneManager.EBattleState.E_GAMEOVER)
                 {
+                    ShipTransform.transform.localPosition = Vector3.zero;
+
                     _tremblingAnimation = DOTween.Sequence();
                     _tremblingAnimation.Append(ShipTransform.transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
                     _tremblingAnimation.Play();
@@ -484,7 +484,7 @@ public class GSB_PlayerController : MonoBehaviour
                 }
             }
 
-            _explosionTimer.Wait(0.4f);
+            _explosionTimer.Wait(0.2f);
         }
 
         if(_currentAmmo < GSB_SceneManager.Instance.AmmoMax && !_shooting)
