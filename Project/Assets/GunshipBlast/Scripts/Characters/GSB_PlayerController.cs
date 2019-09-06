@@ -511,6 +511,65 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
+        List<bool> uniqueTypes = new List<bool>();
+        for(var i = 0; i < 4; ++i)
+        {
+            uniqueTypes.Add(false);
+        }
+
+        var accumulatedUniqueness = -1;
+        for(var i = 0; i < SelectingEnemies.Count; ++i)
+        {
+            var unique = true;
+            for(var j = 0; j < SelectingEnemies.Count; ++j)
+            {
+                if(SelectingEnemies[i] != SelectingEnemies[j])
+                {
+                    if(SelectingEnemies[i].ShipType == SelectingEnemies[j].ShipType)
+                    {
+                        unique = false;
+                    }
+                }
+            }
+
+            if(unique)
+            {
+                uniqueTypes[(int)SelectingEnemies[i].ShipType] = true;
+
+                accumulatedUniqueness++;
+            }
+        }
+
+        if(accumulatedUniqueness >= 0 && GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward > 0)
+        {
+            _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;
+
+            if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
+            {
+                GameObject comboUI = Instantiate(GSB_SceneManager.Instance.WorldUICombo);
+                if(comboUI != null)
+                {
+                    comboUI.transform.SetParent(GSB_SceneManager.Instance.WorldUIParent.transform, false);
+                    comboUI.transform.position = comboUICenter + (-Vector3.up * extraCombos);
+                    extraCombos++;
+
+                    GSB_Combo comboScript = comboUI.GetComponent<GSB_Combo>();
+                    if(comboScript != null)
+                    {
+                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_UNIQUES, GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward);
+
+                        for(var i = 0; i < uniqueTypes.Count; ++i)
+                        {
+                            if(uniqueTypes[i])
+                            {
+                                comboScript.AddComboUniqueShip((GSB_EnemyController.EShipType)i);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         _shootToEnemyIdx = 0;
         _shootTimer.Wait(0f);
         _shooting = true;
