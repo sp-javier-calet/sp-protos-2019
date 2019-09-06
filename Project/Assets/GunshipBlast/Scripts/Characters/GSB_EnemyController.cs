@@ -28,6 +28,7 @@ public class GSB_EnemyController : MonoBehaviour
     Timer _bcshTimer = new Timer();
     RaycastHit _hitDown;
     bool _firstSelectedShip = false;
+    float _waveSpeedMultiplier = 1;
 
     void Awake()
     {
@@ -57,6 +58,11 @@ public class GSB_EnemyController : MonoBehaviour
         }
 
         _shipType = shipType;
+    }
+
+    public void SetWaveSpeedMultiplier(float waveSpeedMultiplier)
+    {
+        _waveSpeedMultiplier = waveSpeedMultiplier;
     }
 
     public void SetTargetEnabled(bool enabled, bool firstSelectedShip)
@@ -135,10 +141,7 @@ public class GSB_EnemyController : MonoBehaviour
         if(_shipData != null && !GSB_SceneManager.Instance.Player.Shooting)
         {
             var speed = _shipData.MovementSpeed;
-            if(GSB_SceneManager.Instance.CurrentWaveData != null)
-            {
-                speed *= GSB_SceneManager.Instance.CurrentWaveData.EnemiesSpeedMultiplier;
-            }
+            speed *= _waveSpeedMultiplier;
             speed *= (Time.timeScale * (Time.fixedDeltaTime / Time.deltaTime));
 
             transform.position += (Vector3.down * speed);

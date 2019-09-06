@@ -255,9 +255,8 @@ public class GSB_SceneManager : MonoBehaviour
 
                     _lastEnemyTypes.Add(randomType);
 
-
-
                     enemyCtrl.SetShipType((GSB_EnemyController.EShipType) randomType);
+                    enemyCtrl.SetWaveSpeedMultiplier(_currentWaveData.EnemiesSpeedMultiplier);
 
                     _enemies.Add(enemyCtrl);
                 }
