@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DamagePoints: 1
-  MovementSpeed: 0.0105
+  MovementSpeed: 0.01
 --- !u!1 &1358882501249142871
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DamagePoints: 1
-  MovementSpeed: 0.011
+  MovementSpeed: 0.01
 --- !u!1 &2126286392681058083
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,7 +589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DamagePoints: 1
-  MovementSpeed: 0.0095
+  MovementSpeed: 0.01
 --- !u!1 &8060350582396586118
 GameObject:
   m_ObjectHideFlags: 0
