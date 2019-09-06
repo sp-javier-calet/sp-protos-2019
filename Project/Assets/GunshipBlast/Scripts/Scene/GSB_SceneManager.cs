@@ -19,13 +19,19 @@ public class GSB_SceneManager : MonoBehaviour
     public List<WaveData> WaveDatas = new List<WaveData>();
 
     [Serializable]
-    public class CombinationData
+    public class CombinationUniqueData
     {
-        public bool ShipColorUnique;
-        public int AmmoReward;
+        public int ShipColorUniqueAmmoReward;
+    }
+    [Serializable]
+    public class CombinationRepeatData
+    {
+        public int ShipColorRepeatAmount;
+        public int ShipColorRepeatAmmoReward;
     }
 
-    public List<CombinationData> CombinationDatas = new List<CombinationData>();
+    public List<CombinationUniqueData> CombinationDatas = new List<CombinationUniqueData>();
+    public List<CombinationRepeatData> CombinationRepeatDatas = new List<CombinationRepeatData>();
 
     public enum EBattleState
     {
@@ -38,6 +44,8 @@ public class GSB_SceneManager : MonoBehaviour
 
     public static GSB_SceneManager Instance = null;
 
+    public GameObject WorldUIParent = null;
+    public GameObject WorldUICombo = null;
     public GameObject HealthBox = null;
     public GameObject AmmoBox = null;
     public GameObject TimeBar = null;

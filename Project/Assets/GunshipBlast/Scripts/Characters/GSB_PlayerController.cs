@@ -39,7 +39,7 @@ public class GSB_PlayerController : MonoBehaviour
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
     int _ammoWasted = 0;
-    int _differentColorsExploding = 0;
+    int _ammoAsCombinationReward = 0;
     int _currentHealth = -1;
     bool _dying = false;
     Timer _explosionTimer = new Timer();
@@ -70,20 +70,6 @@ public class GSB_PlayerController : MonoBehaviour
 
         _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
         _currentHealth = GSB_SceneManager.Instance.HealthMax;
-    }
-
-    bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f, int layerMask = 0)
-    {
-        distance = 0f;
-
-        Ray downRay = new Ray(initPosition, direction);
-        if (Physics.Raycast(downRay, out hit, maxDistance, layerMask))
-        {
-            distance = hit.distance;
-            return true;
-        }
-
-        return false;
     }
 
     public void OnPressedDown()
@@ -462,6 +448,7 @@ public class GSB_PlayerController : MonoBehaviour
         if(ShipShoots != null)
         {
             EnemiesToShoot.AddRange(SelectingEnemies);
+            EnemiesInside.Clear();
 
             if(_shapeIsClosed)
             {
@@ -470,14 +457,54 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
-        _differentColorsExploding = 0;
+        _ammoAsCombinationReward = EnemiesInside.Count;
+
+
+
+        Vector3 comboUICenter = Vector3.zero;
+        for(var j = 0; j < SelectingEnemies.Count; ++j)
+        {
+            comboUICenter += SelectingEnemies[j].transform.position;
+        }
+        comboUICenter /= SelectingEnemies.Count;
+
+        var extraCombos = 0;
+
         for(var i = 0; i < 4; ++i)
         {
-            for(var j = 0; j < EnemiesToShoot.Count; ++j)
+            var sameColorAmount = 0;
+
+            for(var j = 0; j < SelectingEnemies.Count; ++j)
             {
-                if(EnemiesToShoot[j].ShipType == (GSB_EnemyController.EShipType)i)
+                if(SelectingEnemies[j].ShipType == (GSB_EnemyController.EShipType)i)
                 {
-                    _differentColorsExploding++;
+                    sameColorAmount++;
+                }
+            }
+
+            for(var j = GSB_SceneManager.Instance.CombinationRepeatDatas.Count-1; j >= 0; j--)
+            {
+                if(sameColorAmount >= GSB_SceneManager.Instance.CombinationRepeatDatas[j].ShipColorRepeatAmount)
+                {
+                    _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationRepeatDatas[j].ShipColorRepeatAmmoReward;
+
+                    if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
+                    {
+                        GameObject comboUI = Instantiate(GSB_SceneManager.Instance.WorldUICombo);
+                        if(comboUI != null)
+                        {
+                            comboUI.transform.SetParent(GSB_SceneManager.Instance.WorldUIParent.transform, false);
+                            comboUI.transform.position = comboUICenter + (-Vector3.up * extraCombos);
+                            extraCombos++;
+
+                            GSB_Combo comboScript = comboUI.GetComponent<GSB_Combo>();
+                            if(comboScript != null)
+                            {
+                                comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_AMOUNT, GSB_SceneManager.Instance.CombinationRepeatDatas[j].ShipColorRepeatAmmoReward, sameColorAmount);
+                                comboScript.AddComboUniqueShip((GSB_EnemyController.EShipType)i);
+                            }
+                        }
+                    }
 
                     break;
                 }
@@ -751,6 +778,13 @@ public class GSB_PlayerController : MonoBehaviour
                     if(allDestroyed)
                     {
                         EnemiesToShoot.Clear();
+
+                        _currentAmmo += _ammoAsCombinationReward;
+                        if(_currentAmmo > GSB_SceneManager.Instance.AmmoMax)
+                        {
+                            _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
+                        }
+                        UpdateAmmoUI();
 
                         _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
 
