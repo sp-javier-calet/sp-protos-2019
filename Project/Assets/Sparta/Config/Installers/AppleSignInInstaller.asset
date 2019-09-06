@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e21a0abd2373849d5a129f45bbd00be2, type: 3}
   m_Name: AppleSignInInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     UseEmpty: 0
     LoginLink: 1
