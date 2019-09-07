@@ -51,6 +51,9 @@ public class GSB_TitleManager : MonoBehaviour
 
         SetScreenEnabled(LogoScreen, true);
         SetScreenEnabled(VersusScreen, false);
+
+        GameAudioManager.SharedInstance.StopAllSounds();
+        GameAudioManager.SharedInstance.PlaySound("Audio/Music/01_GSB_Title", true);
     }
 
     void StopServerOrClients()
@@ -71,7 +74,15 @@ public class GSB_TitleManager : MonoBehaviour
 
     public void OnPressed1Player()
     {
+        GameAudioManager.SharedInstance.StopAllSounds();
+        GameAudioManager.SharedInstance.PlaySound("Audio/Music/02_GSB_Battle", true);
+
         GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_PLAYING_1_PLAYER);
+    }
+
+    public void OnPressedTutorial()
+    {
+        GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_TUTORIAL);
     }
 
     public void OnPressed2Versus()
@@ -127,6 +138,9 @@ public class GSB_TitleManager : MonoBehaviour
 
     public void OnPressedStart()
     {
+        GameAudioManager.SharedInstance.StopAllSounds();
+        GameAudioManager.SharedInstance.PlaySound("Audio/Music/02_GSB_Battle", true);
+
         GSB_GameManager.Instance.NetworkGameState.RpcStartVersusPlay();
     }
 
