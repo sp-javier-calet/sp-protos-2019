@@ -307,6 +307,8 @@ public class GSB_PlayerController : MonoBehaviour
                 GSB_SceneManager.Instance.SelectionMesh.sharedMesh = null;
             }
 
+            GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_cancel");
+
             _shapeIsClosed = false;
         }
     }
@@ -615,6 +617,11 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
+        if (extraCombos > 0)
+        {
+            GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_ammoreward");
+        }
+
         _shootToEnemyIdx = 0;
         _shootTimer.Wait(0f);
         _shooting = true;
@@ -636,6 +643,8 @@ public class GSB_PlayerController : MonoBehaviour
         }
 
         _shootTimer.Wait(GSB_SceneManager.Instance.ShootStopTime / 1000f / EnemiesToShoot.Count);
+
+        GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_canon");
 
         _shootToEnemyIdx++;
     }
@@ -663,6 +672,8 @@ public class GSB_PlayerController : MonoBehaviour
                     {
                         explosion.transform.position = ShipTransform.transform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
                     }
+
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion", false, 0.2f);
                 }
 
                 _explosionTimer.Wait(0.2f);
@@ -677,6 +688,15 @@ public class GSB_PlayerController : MonoBehaviour
             {
                 _currentAmmo++;
                 UpdateAmmoUI();
+
+                if (_currentAmmo == GSB_SceneManager.Instance.AmmoMax)
+                {
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_ammofull", false, 0.25f);
+                }
+                else
+                {
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_ammorecover", false, 0.25f);
+                }
 
                 for(var i = 0; i < GSB_SceneManager.Instance.SelectionLine.Count; ++i)
                 {
@@ -778,6 +798,8 @@ public class GSB_PlayerController : MonoBehaviour
 
                                 if(_shapeIsClosed)
                                 {
+                                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_closeshape");
+
                                     UpdateLastPositionToSelectionLine(enemyTouch.transform.position, true);
 
                                     ChangeLastLineColor(new Color(0.2f, 0.486f, 0.745f, 1f), _currentAmmo-1);
@@ -829,6 +851,8 @@ public class GSB_PlayerController : MonoBehaviour
 
                                 if(removeSelectedShip)
                                 {
+                                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_cancel");
+
                                     RemovePositionToSelectionLine();
                                     SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false, false);
                                     SelectingEnemies.RemoveAt(SelectingEnemies.Count - 1);

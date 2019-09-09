@@ -11,6 +11,7 @@ public class GSB_GameManager : MonoBehaviour
     {
         E_NONE,
         E_TITLE,
+        E_TUTORIAL,
         E_PLAYING_1_PLAYER,
         E_PLAYING_2_VERSUS
     }
@@ -44,6 +45,22 @@ public class GSB_GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this);
 
+        GameAudioManager.SharedInstance.Initialise();
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Music/01_GSB_Title");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Music/02_GSB_Battle");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_ammoreward");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_canon");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_damage");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_explosion");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_selectship");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_wavestart");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_closeshape");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_cancel");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_ammorecover");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_ammofull");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_youwin");
+        GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_gameover");
+
         SetGameState(GameState.E_TITLE);
     }
 
@@ -59,6 +76,13 @@ public class GSB_GameManager : MonoBehaviour
                 }
 
                 StartCoroutine(LoadAsyncScene("GSB_TitleScene"));
+
+                break;
+            }
+
+            case GameState.E_TUTORIAL:
+            {
+                StartCoroutine(LoadAsyncScene("GSB_TutorialScene"));
 
                 break;
             }

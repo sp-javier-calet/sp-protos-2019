@@ -149,6 +149,9 @@ public class GSB_SceneManager : MonoBehaviour
         {
             case EBattleState.E_WIN:
             {
+                GameAudioManager.SharedInstance.StopSound(0);
+                GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_youwin");
+
                 if(WinLabel != null)
                 {
                     WinLabel.gameObject.SetActive(true);
@@ -161,6 +164,9 @@ public class GSB_SceneManager : MonoBehaviour
 
             case EBattleState.E_LOSE:
             {
+                GameAudioManager.SharedInstance.StopSound(0);
+                GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_gameover");
+
                 if(LoseLabel != null)
                 {
                     LoseLabel.gameObject.SetActive(true);
@@ -206,6 +212,8 @@ public class GSB_SceneManager : MonoBehaviour
                     Player.MakeDamage(-HealthRecoveryAfterWave);
                 }
 
+                GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_wavestart");
+
                 _stateTime = 3000;
 
                 break;
@@ -232,6 +240,9 @@ public class GSB_SceneManager : MonoBehaviour
             {
                 if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
                 {
+                    GameAudioManager.SharedInstance.StopSound(0);
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_gameover");
+
                     if(GameOverLabel != null)
                     {
                         GameOverLabel.gameObject.SetActive(true);
@@ -417,8 +428,6 @@ public class GSB_SceneManager : MonoBehaviour
             {
                 if(TimeUtils.TimestampMilliseconds > _stateStartTime + _stateTime)
                 {
-                    //for (var i = 0; i < GSB_GameManager.Instance.NetworkController.PlayerOnlineControllers
-
                     GSB_GameManager.Instance.SetGameState(GSB_GameManager.GameState.E_TITLE);
                 }
 

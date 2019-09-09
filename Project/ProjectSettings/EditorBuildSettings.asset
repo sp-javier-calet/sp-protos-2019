@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/GunshipBlast/Scenes/GSB_TitleScene.unity
     guid: 6e4178b1e320648bc9ddb8ecbd152bed
   - enabled: 1
+    path: Assets/GunshipBlast/Scenes/GSB_TutorialScene.unity
+    guid: 3d2ade83cf93c48f9917aa196474fc6d
+  - enabled: 1
     path: Assets/GunshipBlast/Scenes/GSB_BattleScene.unity
     guid: edab0f43081fd4f21bbe625db04aaaa8
   m_configObjects: {}

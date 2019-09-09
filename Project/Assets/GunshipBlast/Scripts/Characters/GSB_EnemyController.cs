@@ -85,6 +85,11 @@ public class GSB_EnemyController : MonoBehaviour
             _shipTargetedBCSH.ApplyBCSHStateProgressive(nextState, 0, 0f);
             _bcshTimer.Wait(0f);
         }
+
+        if (enabled)
+        {
+            GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_selectship");
+        }
     }
 
     bool GetHitDistance(out float distance, out RaycastHit hit, Vector3 initPosition, Vector3 direction, float maxDistance = 0.0001f, int layerMask = 1 << 9)
@@ -117,6 +122,8 @@ public class GSB_EnemyController : MonoBehaviour
             {
                 explosion.transform.position = transform.position;
             }
+
+            GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_damage");
         }
 
         if(ExplosionDestroyed != null)
@@ -126,6 +133,8 @@ public class GSB_EnemyController : MonoBehaviour
             {
                 explosion.transform.position = transform.position;
             }
+
+            GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion");
         }
 
         transform.DOScale(Vector3.zero, 0.4f).onComplete += DestroyShipInternal;
