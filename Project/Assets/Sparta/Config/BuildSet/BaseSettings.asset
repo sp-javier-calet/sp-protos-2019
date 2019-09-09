@@ -48,7 +48,7 @@ MonoBehaviour:
     minimumTargetOsVersion: 9.0
     UseAppleDeveloperAppId: 0
   Android:
-    BundleIdentifier: game.unitybasegame
+    BundleIdentifier: game.gunshipblast
     Flags: 
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
     UseAPKExpansionFile: 0
     Add64BitsSupport: 0
     MinSdkVersion: 16
-    TargetSdkVersion: 27
+    TargetSdkVersion: 28
     RoundIconTexture: {fileID: 0}
     AdaptativeIconForegroundTexture: {fileID: 0}
     AdaptativeIconBackgroundTexture: {fileID: 0}
