@@ -72,15 +72,20 @@ public class GSB_Combo : MonoBehaviour
                     AmmoReward.text = "2-COLOR\nCOMBO";
                     AmmoReward.fontSize = 44;
                 }
-                else if (rewardAmount == 3)
+                else if (rewardAmount == 4)
                 {
                     AmmoReward.text = "3-COLOR\nCOMBO";
                     AmmoReward.fontSize = 52;
                 }
-                else if (rewardAmount == 4)
+                else if (rewardAmount == 6)
                 {
                     AmmoReward.text = "4-COLOR\nCOMBO";
                     AmmoReward.fontSize = 60;
+                }
+                else
+                {
+                    AmmoReward.text = "1-COLOR\nCOMBO";
+                    AmmoReward.fontSize = 36;   
                 }
             }
             else if (type == EComboType.E_COMBO_SHAPE)
