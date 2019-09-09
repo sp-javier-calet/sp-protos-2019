@@ -334,7 +334,7 @@ public class GSB_SceneManager : MonoBehaviour
         }
     }
 
-    void GenerateEnemy()
+    void GenerateEnemy(bool versusShip = false)
     {
         var randomPosition = -1;
         while(randomPosition == -1)
@@ -377,7 +377,7 @@ public class GSB_SceneManager : MonoBehaviour
 
                     _lastEnemyTypes.Add(randomType);
 
-                    enemyCtrl.SetShipType((GSB_EnemyController.EShipType) randomType);
+                    enemyCtrl.SetShipType((GSB_EnemyController.EShipType) randomType, versusShip);
                     enemyCtrl.SetWaveSpeedMultiplier(_currentWaveData.EnemiesSpeedMultiplier);
 
                     _enemies.Add(enemyCtrl);
@@ -484,7 +484,7 @@ public class GSB_SceneManager : MonoBehaviour
                             }
                             else
                             {
-                                GenerateEnemy();
+                                GenerateEnemy(true);
                                 _currentVSWaveEnemy++;
 
                                 if(_currentVSWaveEnemy == _currentVSWaveData.NumEnemies)
