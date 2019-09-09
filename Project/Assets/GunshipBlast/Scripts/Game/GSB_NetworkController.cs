@@ -18,6 +18,7 @@ public class GSB_NetworkController : NetworkManager
     public GSB_PlayerOnlineController PlayerOnlineController { get { return _playerOnlineController; } set { _playerOnlineController = value; } }
 
     public bool IsServer = false;
+    bool _localClientRemoved = false;
 
     public List<GameObject> PlayerOnlineControllers = new List<GameObject>();
 
@@ -103,6 +104,8 @@ public class GSB_NetworkController : NetworkManager
         Debug.Log("OnClientConnect: " + _playerControllerId);
 
         ClientScene.AddPlayer(conn, _playerControllerId, clientConnectMsg);
+
+        _localClientRemoved = false;
     }
 
 
@@ -111,7 +114,12 @@ public class GSB_NetworkController : NetworkManager
     {
         Debug.Log("OnClientDisconnect: " + _playerControllerId);
 
-        //ClientScene.RemovePlayer(_playerControllerId);
+        ClientScene.RemovePlayer((short)conn.connectionId);
+
+        if(!_localClientRemoved && conn.connectionId == _playerControllerId)
+        {
+            _localClientRemoved = true;
+        }
 
         base.OnClientDisconnect(conn);
     }
@@ -120,7 +128,12 @@ public class GSB_NetworkController : NetworkManager
     {
         Debug.Log("OnStopClient: " + _playerControllerId);
 
-        ClientScene.RemovePlayer(_playerControllerId);
+        if(!_localClientRemoved)
+        {
+            ClientScene.RemovePlayer(_playerControllerId);
+        }
+
+        _localClientRemoved = true;
 
         GSB_GameManager.Instance.NetworkGameState.NumPlayers--;
 

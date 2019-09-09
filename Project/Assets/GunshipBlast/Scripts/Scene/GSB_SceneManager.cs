@@ -51,6 +51,7 @@ public class GSB_SceneManager : MonoBehaviour
     public GameObject WorldUIParent = null;
     public GameObject WorldUICombo = null;
     public GameObject HealthBox = null;
+    public GameObject HealthVSBox = null;
     public GameObject AmmoBox = null;
     public Image TimeBarFiller = null;
     public GameObject ManaGO = null;
@@ -62,6 +63,7 @@ public class GSB_SceneManager : MonoBehaviour
     public TextMeshProUGUI WinLabel = null;
     public TextMeshProUGUI LoseLabel = null;
     public TextMeshProUGUI ShipsIncomingLabel = null;
+    public GameObject ShipVersusGO = null;
 
     public float SlowDown = 0.1f;
     public int HealthMax = 18;
@@ -118,7 +120,8 @@ public class GSB_SceneManager : MonoBehaviour
     Timer _waveVSTimer = new Timer();
     int _currentVSWaveEnemy = 0;
 
-
+    Transform _shipVersusTransform = null;
+    public Transform ShipVersusTransform { get { return _shipVersusTransform; } }
 
     void Awake()
     {
@@ -139,6 +142,15 @@ public class GSB_SceneManager : MonoBehaviour
             if(player != null)
             {
                 _player = player.GetComponent<GSB_PlayerController>();
+            }
+        }
+
+        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS && ShipVersusGO != null)
+        {
+            GameObject vsShip = Instantiate(ShipVersusGO);
+            if(vsShip != null)
+            {
+                _shipVersusTransform = vsShip.transform.Find("Ship");
             }
         }
     }

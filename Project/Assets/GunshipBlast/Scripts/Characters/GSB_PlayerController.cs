@@ -32,6 +32,7 @@ public class GSB_PlayerController : MonoBehaviour
     List<GSB_EnemyController> EnemiesToShoot = new List<GSB_EnemyController>();
 
     List<GameObject> HullGOs = new List<GameObject>();
+    List<GameObject> HullVSGOs = new List<GameObject>();
     List<BCSHModifier> AmmoBCSH = new List<BCSHModifier>();
 
     Sequence _tremblingAnimation = null;
@@ -45,6 +46,7 @@ public class GSB_PlayerController : MonoBehaviour
     long _timeProcessStartingTime = 0;
     int _timeProcessAvailableTime = 0;
     bool _dying = false;
+    bool _dyingVSShip = false;
     Timer _explosionTimer = new Timer();
 
     Vector2[] _shapeVertices2D = null;
@@ -63,6 +65,19 @@ public class GSB_PlayerController : MonoBehaviour
             for(var i = 0; i < GSB_SceneManager.Instance.HealthBox.transform.childCount; ++i)
             {
                 HullGOs.Add(GSB_SceneManager.Instance.HealthBox.transform.GetChild(i).gameObject);
+            }
+        }
+
+        if(GSB_SceneManager.Instance.HealthVSBox != null)
+        {
+            for(var i = 0; i < GSB_SceneManager.Instance.HealthVSBox.transform.childCount; ++i)
+            {
+                HullVSGOs.Add(GSB_SceneManager.Instance.HealthVSBox.transform.GetChild(i).gameObject);
+            }
+
+            if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
+            {
+                GSB_SceneManager.Instance.HealthVSBox.SetActive(false);
             }
         }
 
@@ -406,6 +421,26 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
+    public void ShipVersusHealthUpdate(int versusShipHealth)
+    {
+        for(var i = 0; i < HullVSGOs.Count; ++i)
+        {
+            HullVSGOs[i].SetActive(i < versusShipHealth ? true : false);
+        }
+
+        if(versusShipHealth == 0)
+        {
+            if(!_dyingVSShip && GSB_SceneManager.Instance.ShipVersusTransform != null)
+            {
+                GSB_SceneManager.Instance.ShipVersusTransform.transform.localPosition = Vector3.zero;
+                GSB_SceneManager.Instance.ShipVersusTransform.transform.DOLocalMove(new Vector3(3.0f, 1.5f, 0.0f), 8f);
+
+                _dyingVSShip = true;
+                _explosionTimer.Wait(0f);
+            }
+        }
+    }
+
     public void MakeDamage(int damage)
     {
         if(GSB_SceneManager.Instance.BattleSubState == GSB_SceneManager.EBattleState.E_WIN)
@@ -432,6 +467,14 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
+        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
+        {
+            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
+            {
+                GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdDamageReceived(GSB_GameManager.Instance.NetworkController.PlayerControllerId, _currentHealth);
+            }
+        }
+
         if(damage > 0)
         {
             if(_tremblingAnimation != null)
@@ -447,9 +490,7 @@ public class GSB_PlayerController : MonoBehaviour
                     ShipTransform.transform.localPosition = Vector3.zero;
 
                     _tremblingAnimation = DOTween.Sequence();
-                    _tremblingAnimation.Append(ShipTransform
-                                               .transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),
-                                                   500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
+                    _tremblingAnimation.Append(ShipTransform .transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
 
                     _tremblingAnimation.Play();
                 }
@@ -740,6 +781,27 @@ public class GSB_PlayerController : MonoBehaviour
             MakeDamage(1);
         }
 
+        if(_dyingVSShip)
+        {
+            if(_explosionTimer.IsFinished)
+            {
+                if(Explosion != null)
+                {
+                    GameObject explosion = Instantiate(Explosion);
+                    if(explosion != null)
+                    {
+                        explosion.transform.position = GSB_SceneManager.Instance.ShipVersusTransform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
+                    }
+
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion", false, 0.4f);
+                }
+
+                _explosionTimer.Wait(0.2f);
+            }
+
+            return;
+        }
+
         if(GSB_SceneManager.Instance.BattleSubState == GSB_SceneManager.EBattleState.E_WIN)
         {
             return;
@@ -757,7 +819,7 @@ public class GSB_PlayerController : MonoBehaviour
                         explosion.transform.position = ShipTransform.transform.position + new Vector3(-2.5f + Random.Range(0f, 5f), 0.4f - Random.Range(0f, 0.4f), 0f);
                     }
 
-                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion", false, 0.2f);
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion", false, 0.4f);
                 }
 
                 _explosionTimer.Wait(0.2f);
