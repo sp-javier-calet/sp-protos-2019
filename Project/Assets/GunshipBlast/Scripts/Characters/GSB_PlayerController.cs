@@ -20,7 +20,6 @@ public class GSB_PlayerController : MonoBehaviour
 
     Triangulator _triangulator = new Triangulator();
     bool _holding = false;
-    long _holdingStartTime = 0;
     bool _shapeIsClosed = false;
 
     bool _shooting = false;
@@ -42,6 +41,9 @@ public class GSB_PlayerController : MonoBehaviour
     int _ammoWasted = 0;
     int _ammoAsCombinationReward = 0;
     int _currentHealth = -1;
+    float _currentTimePercentage = 1f;
+    long _timeProcessStartingTime = 0;
+    int _timeProcessAvailableTime = 0;
     bool _dying = false;
     Timer _explosionTimer = new Timer();
 
@@ -71,6 +73,9 @@ public class GSB_PlayerController : MonoBehaviour
 
         _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
         _currentHealth = GSB_SceneManager.Instance.HealthMax;
+        _currentTimePercentage = 1f;
+        _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
+        _timeProcessAvailableTime = GSB_SceneManager.Instance.TotalTimeRegeneration;
     }
 
     public void OnPressedDown()
@@ -333,12 +338,16 @@ public class GSB_PlayerController : MonoBehaviour
         }
         SelectingEnemies.Clear();
 
-        if(GSB_SceneManager.Instance.TimeBarFiller != null)
-        {
-            GSB_SceneManager.Instance.TimeBarFiller.transform.localScale = Vector3.one;
-        }
+        _currentTimePercentage = _currentTimePercentage - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
 
         _shapeIsClosed = false;
+    }
+
+    void StartTimeRecovering()
+    {
+        _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
+        _timeProcessAvailableTime = (int) ((1f - _currentTimePercentage) * GSB_SceneManager.Instance.TotalTimeRegeneration);
+        UpdateTimeBarUI(_currentTimePercentage);
     }
 
     void ChangeLastLineColor(Color c, int lineIndex)
@@ -545,15 +554,11 @@ public class GSB_PlayerController : MonoBehaviour
 
         for(var i = 0; i < SelectingEnemies.Count; ++i)
         {
-
-         if (uniqueTypes[(int)SelectingEnemies[i].ShipType] ==false)
-         {
-
-          uniqueTypes[(int)SelectingEnemies[i].ShipType] = true;
-          accumulatedUniqueness++;
-          
-         } 
-   
+            if (uniqueTypes[(int)SelectingEnemies[i].ShipType] ==false)
+            {
+                uniqueTypes[(int)SelectingEnemies[i].ShipType] = true;
+                accumulatedUniqueness++;
+            }
         }
 
         /*
@@ -564,7 +569,7 @@ public class GSB_PlayerController : MonoBehaviour
         }
 
         var accumulatedUniqueness = -1;
-        
+
         for(var i = 0; i < SelectingEnemies.Count; ++i)
         {
             var unique = true;
@@ -587,6 +592,7 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
         */
+
         if(accumulatedUniqueness >= 0 && GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward > 0)
         {
             _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;
@@ -649,6 +655,42 @@ public class GSB_PlayerController : MonoBehaviour
         _shootToEnemyIdx++;
     }
 
+    void UpdateTimeBarUI(float delta)
+    {
+        if(GSB_SceneManager.Instance.TimeBarFiller != null)
+        {
+            _vecTemp = Vector3.one;
+
+            if(delta < 0f)
+            {
+                delta = 0f;
+            }
+            if(delta >= 1f)
+            {
+                delta = 1f;
+            }
+
+            if(delta < GSB_SceneManager.Instance.FlagDownTimePercentage)
+            {
+                if(GSB_SceneManager.Instance.TimeBarFillerBCSH != null && GSB_SceneManager.Instance.TimeBarFillerBCSH.CurrentAppliedBCSHState != 0)
+                {
+                    GSB_SceneManager.Instance.TimeBarFillerBCSH.ApplyBCSHStateProgressive("default", 0, 0f);
+                }
+            }
+            else
+            {
+                if(GSB_SceneManager.Instance.TimeBarFillerBCSH != null && GSB_SceneManager.Instance.TimeBarFillerBCSH.CurrentAppliedBCSHState != 1)
+                {
+                    GSB_SceneManager.Instance.TimeBarFillerBCSH.ApplyBCSHStateProgressive("hasenergy", 0, 0.2f);
+                }
+            }
+
+            _vecTemp.x = delta;
+
+            GSB_SceneManager.Instance.TimeBarFiller.transform.localScale = _vecTemp;
+        }
+    }
+
     void LateUpdate()
     {
         if(Input.GetKeyDown(KeyCode.Space))
@@ -709,7 +751,18 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(!_holding && !_shooting)
         {
-            if(_pressedDown)
+            var deltaRecoveringTime = 1f;
+            if(_timeProcessAvailableTime > 0)
+            {
+                deltaRecoveringTime = _currentTimePercentage + (((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime) * (1f - _currentTimePercentage));
+            }
+            if(deltaRecoveringTime >= 1f)
+            {
+                deltaRecoveringTime = 1f;
+            }
+            UpdateTimeBarUI(deltaRecoveringTime);
+
+            if(_pressedDown && deltaRecoveringTime >= GSB_SceneManager.Instance.FlagDownTimePercentage)
             {
                 GSB_EnemyController enemyTouch = CheckEnemyTouch();
                 if(enemyTouch != null && _currentAmmo > 0)
@@ -725,7 +778,10 @@ public class GSB_PlayerController : MonoBehaviour
                     Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
                     _holding = true;
-                    _holdingStartTime = TimeUtils.TimestampMilliseconds;
+
+                    _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
+                    _timeProcessAvailableTime = (int) (deltaRecoveringTime * GSB_SceneManager.Instance.TargetTimeMS);
+                    _currentTimePercentage = deltaRecoveringTime - GSB_SceneManager.Instance.FlagDownTimePercentage;
 
                     _shapeIsClosed = false;
 
@@ -742,19 +798,9 @@ public class GSB_PlayerController : MonoBehaviour
             {
                 _shapeIsClosed = GenerateCollisionShapeFromEnemies();
             }
-        }
 
-        if(_holding)
-        {
-            var deltaHolding = (TimeUtils.TimestampMilliseconds - _holdingStartTime) / (float)GSB_SceneManager.Instance.TargetTimeMS;
-
-            if(GSB_SceneManager.Instance.TimeBarFiller != null)
-            {
-                _vecTemp = Vector3.one;
-                _vecTemp.x = 1f - deltaHolding;
-
-                GSB_SceneManager.Instance.TimeBarFiller.transform.localScale = _vecTemp;
-            }
+            var deltaHolding = _currentTimePercentage - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
+            UpdateTimeBarUI(deltaHolding);
 
             Vector3 touchBackground = Vector3.zero;
             CheckBackgroundTouch(out touchBackground);
@@ -867,7 +913,7 @@ public class GSB_PlayerController : MonoBehaviour
                 }
             }
 
-            if((!_pressedDown && _pressedUp) || (_holding && deltaHolding >= 1f))
+            if((!_pressedDown && _pressedUp) || (_holding && deltaHolding <= 0f))
             {
                 if(_holding)
                 {
@@ -926,6 +972,7 @@ public class GSB_PlayerController : MonoBehaviour
 
                         _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
 
+                        StartTimeRecovering();
                         _shooting = false;
                     }
                 }

@@ -64,42 +64,38 @@ public class GSB_Combo : MonoBehaviour
 
         if(AmmoReward != null)
         {
-         //AmmoReward.text = "+" + rewardAmount;
-         if (type == EComboType.E_COMBO_UNIQUES)
-         {  
-
-            if (rewardAmount == 2)
+            //AmmoReward.text = "+" + rewardAmount;
+            if (type == EComboType.E_COMBO_UNIQUES)
             {
-             AmmoReward.text = "2-COLOR\nCOMBO"; 
-             AmmoReward.fontSize = 44;
+                if (rewardAmount == 2)
+                {
+                    AmmoReward.text = "2-COLOR\nCOMBO";
+                    AmmoReward.fontSize = 44;
+                }
+                else if (rewardAmount == 3)
+                {
+                    AmmoReward.text = "3-COLOR\nCOMBO";
+                    AmmoReward.fontSize = 52;
+                }
+                else if (rewardAmount == 4)
+                {
+                    AmmoReward.text = "4-COLOR\nCOMBO";
+                    AmmoReward.fontSize = 60;
+                }
             }
-            else if (rewardAmount == 3)
+            else if (type == EComboType.E_COMBO_SHAPE)
             {
-             AmmoReward.text = "3-COLOR\nCOMBO";
-             AmmoReward.fontSize = 52; 
+                if (rewardAmount > 1)
+                {
+                    AmmoReward.text = "\nBONUS\nTARGETS!";
+                    AmmoReward.fontSize = 38;
+                }
+                else
+                {
+                    AmmoReward.text = "\nBONUS\nTARGET!";
+                    AmmoReward.fontSize = 38;
+                }
             }
-            else if (rewardAmount == 4)
-            {
-             AmmoReward.text = "4-COLOR\nCOMBO"; 
-             AmmoReward.fontSize = 60;
-            }
-
-         }
-         else if (type == EComboType.E_COMBO_SHAPE)
-         {
-          if (rewardAmount > 1)
-          {
-           AmmoReward.text = "\nBONUS\nTARGETS!"; 
-           AmmoReward.fontSize = 38; 
-          }
-          else
-          {
-           AmmoReward.text = "\nBONUS\nTARGET!"; 
-           AmmoReward.fontSize = 38;
-          }    
-
-         }
-
         }
     }
 

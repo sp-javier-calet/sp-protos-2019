@@ -43,7 +43,7 @@ public class GameAudioManager : MonoBehaviour
     public AudioMixer[] m_kMusicMixers;
 
     const int c_iMaxInstancesOfSameSound = 1;
-    const float c_iMaxInstancesOfSameSoundByTimeInterval = 0.1f;
+    const float c_iMaxInstancesOfSameSoundByTimeInterval = 0.05f;
 
     AudioSource[] m_kAudioSources = null;
     const int c_iAudioChannels = 15;
@@ -300,7 +300,7 @@ public class GameAudioManager : MonoBehaviour
         s_pInstance = this;
         s_pInstance.Initialise();
 
-        DontDestroyOnLoad(this); 
+        DontDestroyOnLoad(this);
     }
 
 #endregion UNITY METHODS
