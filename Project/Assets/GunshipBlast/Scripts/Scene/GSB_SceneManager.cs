@@ -53,6 +53,7 @@ public class GSB_SceneManager : MonoBehaviour
     public GameObject WorldUICombo = null;
     public GameObject HealthBox = null;
     public GameObject HealthVSBox = null;
+    public TextMeshProUGUI HealthVSBoxText = null;
     public GameObject AmmoBox = null;
     public Image TimeBarFiller = null;
     public GameObject ManaGO = null;
@@ -214,6 +215,11 @@ public class GSB_SceneManager : MonoBehaviour
                     WinLabel.gameObject.SetActive(true);
                 }
 
+                if(Player != null)
+                {
+                    Player.CancelSelection();
+                }
+
                 _stateTime = 4000;
 
                 break;
@@ -227,6 +233,11 @@ public class GSB_SceneManager : MonoBehaviour
                 if(LoseLabel != null)
                 {
                     LoseLabel.gameObject.SetActive(true);
+                }
+
+                if(Player != null)
+                {
+                    Player.CancelSelection();
                 }
 
                 _stateTime = 4000;
@@ -278,6 +289,11 @@ public class GSB_SceneManager : MonoBehaviour
                 }
                 else
                 {
+                    if(HealthVSBoxText != null)
+                    {
+                        HealthVSBoxText.enabled = false;
+                    }
+
                     _stateTime = 0;
                 }
 
@@ -391,7 +407,10 @@ public class GSB_SceneManager : MonoBehaviour
                     _lastEnemyTypes.Add(randomType);
 
                     enemyCtrl.SetShipType((GSB_EnemyController.EShipType) randomType, versusShip);
-                    enemyCtrl.SetWaveSpeedMultiplier(_currentWaveData.EnemiesSpeedMultiplier);
+                    if(_currentWaveData != null)
+                    {
+                        enemyCtrl.SetWaveSpeedMultiplier(_currentWaveData.EnemiesSpeedMultiplier);
+                    }
 
                     _enemies.Add(enemyCtrl);
                 }

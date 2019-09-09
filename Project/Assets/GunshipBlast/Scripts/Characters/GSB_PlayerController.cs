@@ -783,6 +783,18 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
+    public void CancelSelection()
+    {
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        _ammoWasted = SelectingEnemies.Count;
+
+        ResetSelection();
+
+        _holding = false;
+    }
+
     void LateUpdate()
     {
         if(Input.GetKeyDown(KeyCode.Space))
@@ -1032,14 +1044,7 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     ShootToEnemies();
 
-                    Time.timeScale = 1f;
-                    Time.fixedDeltaTime = 0.02f * Time.timeScale;
-
-                    _ammoWasted = SelectingEnemies.Count;
-
-                    ResetSelection();
-
-                    _holding = false;
+                    CancelSelection();
                 }
             }
         }
