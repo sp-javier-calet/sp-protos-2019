@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
@@ -7,6 +8,7 @@ using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using DG.Tweening;
 using UnityEngine.Networking;
+using Random = UnityEngine.Random;
 
 public class GSB_PlayerController : MonoBehaviour
 {
@@ -692,7 +694,7 @@ public class GSB_PlayerController : MonoBehaviour
                 extraVSShips += GSB_SceneManager.Instance.CombinationVSUniqueDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;
             }
 
-            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
+            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null && extraVSShips > 0)
             {
                 GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdSendShips(GSB_GameManager.Instance.NetworkController.PlayerControllerId, extraVSShips);
             }
