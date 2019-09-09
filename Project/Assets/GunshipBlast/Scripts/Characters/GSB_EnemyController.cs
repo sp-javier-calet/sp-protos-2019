@@ -134,7 +134,7 @@ public class GSB_EnemyController : MonoBehaviour
                 explosion.transform.position = transform.position;
             }
 
-            if(GSB_SceneManager.Instance.Player != null)
+            if(!inPlayerShip && GSB_SceneManager.Instance.Player != null)
             {
                 GSB_SceneManager.Instance.Player.GenerateManaParticles(transform.position);
             }

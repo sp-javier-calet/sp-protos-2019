@@ -492,6 +492,11 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
+        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
+        {
+            //CmdSendShips(EnemiesToShoot.Count);
+        }
+
         var extraCombos = 0;
         Vector3 comboUICenter = Vector3.zero;
         for(var j = 0; j < SelectingEnemies.Count; ++j)

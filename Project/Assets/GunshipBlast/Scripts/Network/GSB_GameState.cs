@@ -79,6 +79,15 @@ public class GSB_GameState : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    public void RpcPlayerHasSentShips(int playerId)
+    {
+        if(playerId != GSB_GameManager.Instance.NetworkController.PlayerControllerId)
+        {
+
+        }
+    }
+
     public override int GetNetworkChannel()
     {
         return Channels.DefaultUnreliable;
