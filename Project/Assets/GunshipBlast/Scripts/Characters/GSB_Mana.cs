@@ -1,9 +1,8 @@
 ﻿
 using DG.Tweening;
 
-public class GSB_Shoot : Translation
+public class GSB_Mana : Translation
 {
-    public GSB_EnemyController TargetEnemy;
     bool _destroyed = false;
 
     void Awake()
@@ -16,11 +15,6 @@ public class GSB_Shoot : Translation
         if(!_destroyed)
         {
             _destroyed = true;
-
-            if(TargetEnemy != null)
-            {
-                TargetEnemy.DestroyShip();
-            }
 
             Sequence seq = DOTween.Sequence();
             seq.AppendInterval(0.1f);

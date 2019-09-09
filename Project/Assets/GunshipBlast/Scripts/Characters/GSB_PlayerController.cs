@@ -82,6 +82,7 @@ public class GSB_PlayerController : MonoBehaviour
     {
         _pressedDown = true;
     }
+
     public void OnPressedUp()
     {
         _pressedUp = true;
@@ -93,7 +94,7 @@ public class GSB_PlayerController : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         var layerMaskEnemies = (1 << 19);
-        if (Physics.Raycast(ray, out hit, float.MaxValue, layerMaskEnemies))
+        if(Physics.Raycast(ray, out hit, float.MaxValue, layerMaskEnemies))
         {
             return hit.transform.GetComponent<GSB_EnemyController>();
         }
@@ -103,14 +104,17 @@ public class GSB_PlayerController : MonoBehaviour
 
     GSB_EnemyController CheckLineCrossingEnemies()
     {
-        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
 
-        Vector3 enemyToLineRay = currentLine.GetPosition(1) - SelectingEnemies[SelectingEnemies.Count-1].transform.position;
+        Vector3 enemyToLineRay =
+            currentLine.GetPosition(1) - SelectingEnemies[SelectingEnemies.Count - 1].transform.position;
+
         var distance = enemyToLineRay.magnitude;
 
         RaycastHit hit;
         var layerMaskEnemies = (1 << 19);
-        if (Physics.Raycast(SelectingEnemies[SelectingEnemies.Count-1].transform.position, enemyToLineRay.normalized, out hit, distance, layerMaskEnemies))
+        if(Physics.Raycast(SelectingEnemies[SelectingEnemies.Count - 1].transform.position, enemyToLineRay.normalized,
+            out hit, distance, layerMaskEnemies))
         {
             return hit.transform.GetComponent<GSB_EnemyController>();
         }
@@ -126,7 +130,7 @@ public class GSB_PlayerController : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         var layerMaskBackground = (1 << 10);
-        if (Physics.Raycast(ray, out hit, float.MaxValue, layerMaskBackground))
+        if(Physics.Raycast(ray, out hit, float.MaxValue, layerMaskBackground))
         {
             hitPosition = hit.point;
             hitPosition.z = -0.15f;
@@ -166,14 +170,14 @@ public class GSB_PlayerController : MonoBehaviour
                 _shapeVertices3D = new Vector3[SelectingEnemies.Count];
             }
 
-            for (int i = 0; i < SelectingEnemies.Count; i++)
+            for(int i = 0; i < SelectingEnemies.Count; i++)
             {
                 _shapeVertices3D[i].x = _shapeVertices2D[i].x;
                 _shapeVertices3D[i].y = _shapeVertices2D[i].y;
                 _shapeVertices3D[i].z = -0.15f;
             }
 
-            if (shapeMesh != null)
+            if(shapeMesh != null)
             {
                 shapeMesh.vertices = _shapeVertices3D;
                 if(setTriangles)
@@ -207,9 +211,18 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     for(var j = 0; j < GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles.Length / 3; ++j)
                     {
-                        Vector3 A = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[(j*3)+0]];
-                        Vector3 B = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[(j*3)+1]];
-                        Vector3 C = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[(j*3)+2]];
+                        Vector3 A = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[
+                            GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[
+                                (j * 3) + 0]];
+
+                        Vector3 B = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[
+                            GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[
+                                (j * 3) + 1]];
+
+                        Vector3 C = GSB_SceneManager.Instance.SelectionMesh.sharedMesh.vertices[
+                            GSB_SceneManager.Instance.SelectionMesh.sharedMesh.triangles[
+                                (j * 3) + 2]];
+
                         Vector3 P = GSB_SceneManager.Instance.Enemies[i].transform.position;
 
                         if(_triangulator.InsideTriangle(A, B, C, P))
@@ -224,7 +237,7 @@ public class GSB_PlayerController : MonoBehaviour
 
     void AddPositionToSelectionLine(GSB_EnemyController enemy)
     {
-        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
         currentLine.positionCount = 2;
 
         currentLine.SetPosition(0, enemy.transform.position);
@@ -232,20 +245,20 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(SelectingEnemies.Count > 1)
         {
-            LineRenderer previousLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-2];
+            LineRenderer previousLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 2];
             previousLine.SetPosition(1, enemy.transform.position);
         }
     }
 
     void RemovePositionToSelectionLine()
     {
-        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
         currentLine.positionCount = 0;
     }
 
     void UpdateLastPositionToSelectionLine(Vector3 position, bool forced = false)
     {
-        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+        LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
         if(currentLine != null)
         {
             currentLine.SetPosition(1, position);
@@ -261,14 +274,14 @@ public class GSB_PlayerController : MonoBehaviour
 
             if(i < SelectingEnemies.Count - 1)
             {
-                currentLine.SetPosition(1, SelectingEnemies[i+1].transform.position);
+                currentLine.SetPosition(1, SelectingEnemies[i + 1].transform.position);
             }
         }
 
-        if (_shapeIsClosed)
+        if(_shapeIsClosed)
         {
-            LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
-            currentLine.SetPosition(0, SelectingEnemies[SelectingEnemies.Count-1].transform.position);
+            LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
+            currentLine.SetPosition(0, SelectingEnemies[SelectingEnemies.Count - 1].transform.position);
             currentLine.SetPosition(1, SelectingEnemies[0].transform.position);
         }
     }
@@ -281,7 +294,7 @@ public class GSB_PlayerController : MonoBehaviour
 
             if(_shapeIsClosed)
             {
-                LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count-1];
+                LineRenderer currentLine = GSB_SceneManager.Instance.SelectionLine[SelectingEnemies.Count - 1];
                 currentLine.positionCount = 0;
             }
 
@@ -336,9 +349,11 @@ public class GSB_PlayerController : MonoBehaviour
         {
             SelectingEnemies[i].SetTargetEnabled(false, false);
         }
+
         SelectingEnemies.Clear();
 
-        _currentTimePercentage = _currentTimePercentage - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
+        _currentTimePercentage = _currentTimePercentage
+            - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
 
         _shapeIsClosed = false;
     }
@@ -346,7 +361,9 @@ public class GSB_PlayerController : MonoBehaviour
     void StartTimeRecovering()
     {
         _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
-        _timeProcessAvailableTime = (int) ((1f - _currentTimePercentage) * GSB_SceneManager.Instance.TotalTimeRegeneration);
+        _timeProcessAvailableTime =
+            (int)((1f - _currentTimePercentage) * GSB_SceneManager.Instance.TotalTimeRegeneration);
+
         UpdateTimeBarUI(_currentTimePercentage);
     }
 
@@ -432,7 +449,10 @@ public class GSB_PlayerController : MonoBehaviour
                     ShipTransform.transform.localPosition = Vector3.zero;
 
                     _tremblingAnimation = DOTween.Sequence();
-                    _tremblingAnimation.Append(ShipTransform.transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
+                    _tremblingAnimation.Append(ShipTransform
+                                               .transform.DOLocalMove(new Vector3(0.06f, 0.0f, 0.0f),
+                                                   500 / 1000.0f / 10f).SetLoops(5, LoopType.Yoyo));
+
                     _tremblingAnimation.Play();
                 }
                 else
@@ -480,6 +500,7 @@ public class GSB_PlayerController : MonoBehaviour
         {
             comboUICenter += SelectingEnemies[j].transform.position;
         }
+
         comboUICenter /= SelectingEnemies.Count;
 
         _ammoAsCombinationReward = EnemiesInside.Count;
@@ -497,7 +518,7 @@ public class GSB_PlayerController : MonoBehaviour
                     GSB_Combo comboScript = comboUI.GetComponent<GSB_Combo>();
                     if(comboScript != null)
                     {
-                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_SHAPE, _ammoAsCombinationReward, _ammoAsCombinationReward);
+                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_SHAPE, _ammoAsCombinationReward,_ammoAsCombinationReward);
                     }
                 }
             }
@@ -515,7 +536,7 @@ public class GSB_PlayerController : MonoBehaviour
                 }
             }
 
-            for(var j = GSB_SceneManager.Instance.CombinationRepeatDatas.Count-1; j >= 0; j--)
+            for(var j = GSB_SceneManager.Instance.CombinationRepeatDatas.Count - 1; j >= 0; j--)
             {
                 if(sameColorAmount >= GSB_SceneManager.Instance.CombinationRepeatDatas[j].ShipColorRepeatAmount)
                 {
@@ -554,7 +575,7 @@ public class GSB_PlayerController : MonoBehaviour
 
         for(var i = 0; i < SelectingEnemies.Count; ++i)
         {
-            if (uniqueTypes[(int)SelectingEnemies[i].ShipType] ==false)
+            if(uniqueTypes[(int)SelectingEnemies[i].ShipType] == false)
             {
                 uniqueTypes[(int)SelectingEnemies[i].ShipType] = true;
                 accumulatedUniqueness++;
@@ -609,7 +630,7 @@ public class GSB_PlayerController : MonoBehaviour
                     GSB_Combo comboScript = comboUI.GetComponent<GSB_Combo>();
                     if(comboScript != null)
                     {
-                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_UNIQUES, GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward);
+                        comboScript.SetComboTypeAndData(GSB_Combo.EComboType.E_COMBO_UNIQUES, GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness] .ShipColorUniqueAmmoReward);
 
                         for(var i = 0; i < uniqueTypes.Count; ++i)
                         {
@@ -623,9 +644,11 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
-        if (extraCombos > 0)
+        if(extraCombos > 0)
         {
             GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_ammoreward");
+
+            GenerateManaParticles(comboUICenter);
         }
 
         _shootToEnemyIdx = 0;
@@ -653,6 +676,21 @@ public class GSB_PlayerController : MonoBehaviour
         GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_canon");
 
         _shootToEnemyIdx++;
+    }
+
+    void GenerateManaParticles(Vector3 origin)
+    {
+        GameObject mana = Instantiate(GSB_SceneManager.Instance.ManaGO);
+        if(mana != null)
+        {
+            GSB_Mana manaScript = mana.GetComponentInChildren<GSB_Mana>();
+            if(manaScript != null)
+            {
+                manaScript.OriginPosition = origin;
+                manaScript.DestPosition = new Vector3(1.7f, 4.23f, -0.15f);
+                manaScript.TimeTravel = GSB_SceneManager.Instance.ManaTime;
+            }
+        }
     }
 
     void UpdateTimeBarUI(float delta)
@@ -963,12 +1001,14 @@ public class GSB_PlayerController : MonoBehaviour
                     {
                         EnemiesToShoot.Clear();
 
+                        /*
                         _currentAmmo += _ammoAsCombinationReward;
                         if(_currentAmmo > GSB_SceneManager.Instance.AmmoMax)
                         {
                             _currentAmmo = GSB_SceneManager.Instance.AmmoMax;
                         }
                         UpdateAmmoUI();
+                        */
 
                         _ammoRefillTimer.Wait(GSB_SceneManager.Instance.AmmoRegenerationTime);
 

@@ -53,6 +53,7 @@ public class GSB_SceneManager : MonoBehaviour
     public GameObject HealthBox = null;
     public GameObject AmmoBox = null;
     public Image TimeBarFiller = null;
+    public GameObject ManaGO = null;
     public BCSHModifier TimeBarFillerBCSH = null;
     public MeshFilter SelectionMesh;
     public List<LineRenderer> SelectionLine = new List<LineRenderer>();
@@ -70,6 +71,7 @@ public class GSB_SceneManager : MonoBehaviour
     public int MaxDifficultyWave = 5;
     public int HealthRecoveryAfterWave = 3;
     public int ShootStopTime = 1000;
+    public int ManaTime = 1000;
     public int TotalTimeRegeneration = 2000;
     public float FlagDownTimePercentage = 0.2f;
 
