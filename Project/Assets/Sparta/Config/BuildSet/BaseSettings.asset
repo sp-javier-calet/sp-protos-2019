@@ -48,7 +48,7 @@ MonoBehaviour:
     minimumTargetOsVersion: 9.0
     UseAppleDeveloperAppId: 0
   Android:
-    BundleIdentifier: game.gunshipblast
+    BundleIdentifier: game.unitybasegame
     Flags: 
     RemovedResources: StreamingAssets/ios
     UseKeystore: 0
