@@ -310,7 +310,7 @@ public class GSB_PlayerController : MonoBehaviour
         }
     }
 
-    public void ShipHasBeenDestroyed(GSB_EnemyController enemy)
+    public void ShipHasBeenDestroyed(GSB_EnemyController enemy, bool giveEnergy = false)
     {
         if(SelectingEnemies.Contains(enemy))
         {
@@ -354,10 +354,13 @@ public class GSB_PlayerController : MonoBehaviour
             _shapeIsClosed = false;
         }
 
-        _currentTimePercentage += GSB_SceneManager.Instance.EnergyRecoverPercentageByDamage;
-        if(_currentTimePercentage > 1f)
+        if(giveEnergy)
         {
-            _currentTimePercentage = 1f;
+            _currentTimePercentage += GSB_SceneManager.Instance.EnergyRecoverPercentageByDamage;
+            if(_currentTimePercentage > 1f)
+            {
+                _currentTimePercentage = 1f;
+            }
         }
     }
 

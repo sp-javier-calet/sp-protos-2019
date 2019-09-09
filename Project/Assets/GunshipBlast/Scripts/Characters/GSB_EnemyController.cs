@@ -114,7 +114,7 @@ public class GSB_EnemyController : MonoBehaviour
 
     public void DestroyShip(bool inPlayerShip = false)
     {
-        GSB_SceneManager.Instance.Player.ShipHasBeenDestroyed(this);
+        GSB_SceneManager.Instance.Player.ShipHasBeenDestroyed(this, inPlayerShip);
 
         if(GSB_SceneManager.Instance.Enemies.Contains(this))
         {
