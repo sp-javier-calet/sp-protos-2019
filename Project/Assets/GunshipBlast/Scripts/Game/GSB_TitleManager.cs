@@ -21,6 +21,8 @@ public class GSB_TitleManager : MonoBehaviour
     public Button ConnectButton = null;
     public Button ServerStartButton = null;
 
+    static string LastClientIP = "localhost";
+
     public TextMeshProUGUI YourIpLabel;
     public Image QRCodeImage;
     public GameObject CameraPanel;
@@ -123,6 +125,11 @@ public class GSB_TitleManager : MonoBehaviour
     {
         SetScreenEnabled(BehaviourScreen, false);
         SetScreenEnabled(ClientScreen, true);
+
+        if(InputField != null)
+        {
+            InputField.text = LastClientIP;
+        }
     }
 
     public void OnPressedConnect()
@@ -134,6 +141,8 @@ public class GSB_TitleManager : MonoBehaviour
 
         GSB_GameManager.Instance.NetworkController.networkAddress = InputField.text;
         GSB_GameManager.Instance.NetworkController.StartClient();
+
+        LastClientIP = InputField.text;
     }
 
     public void OnPressedStart()
