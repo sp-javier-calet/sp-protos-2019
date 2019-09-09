@@ -134,6 +134,11 @@ public class GSB_EnemyController : MonoBehaviour
                 explosion.transform.position = transform.position;
             }
 
+            if(GSB_SceneManager.Instance.Player != null)
+            {
+                GSB_SceneManager.Instance.Player.GenerateManaParticles(transform.position);
+            }
+
             GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_explosion");
         }
 

@@ -74,6 +74,7 @@ public class GSB_SceneManager : MonoBehaviour
     public int ManaTime = 1000;
     public int TotalTimeRegeneration = 2000;
     public float FlagDownTimePercentage = 0.2f;
+    public float EnergyRecoverPercentage = 0.05f;
 
     GSB_PlayerController _player;
     public GSB_PlayerController Player { get { return _player; } }

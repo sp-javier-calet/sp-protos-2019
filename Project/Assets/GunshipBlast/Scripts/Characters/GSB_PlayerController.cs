@@ -352,8 +352,7 @@ public class GSB_PlayerController : MonoBehaviour
 
         SelectingEnemies.Clear();
 
-        _currentTimePercentage = _currentTimePercentage
-            - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
+        _currentTimePercentage = _currentTimePercentage - ((TimeUtils.TimestampMilliseconds - _timeProcessStartingTime) / (float)_timeProcessAvailableTime);
 
         _shapeIsClosed = false;
     }
@@ -361,8 +360,7 @@ public class GSB_PlayerController : MonoBehaviour
     void StartTimeRecovering()
     {
         _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
-        _timeProcessAvailableTime =
-            (int)((1f - _currentTimePercentage) * GSB_SceneManager.Instance.TotalTimeRegeneration);
+        _timeProcessAvailableTime = (int)((1f - _currentTimePercentage) * GSB_SceneManager.Instance.TotalTimeRegeneration);
 
         UpdateTimeBarUI(_currentTimePercentage);
     }
@@ -647,8 +645,6 @@ public class GSB_PlayerController : MonoBehaviour
         if(extraCombos > 0)
         {
             GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_ammoreward");
-
-            GenerateManaParticles(comboUICenter);
         }
 
         _shootToEnemyIdx = 0;
@@ -678,7 +674,7 @@ public class GSB_PlayerController : MonoBehaviour
         _shootToEnemyIdx++;
     }
 
-    void GenerateManaParticles(Vector3 origin)
+    public void GenerateManaParticles(Vector3 origin)
     {
         GameObject mana = Instantiate(GSB_SceneManager.Instance.ManaGO);
         if(mana != null)
@@ -1000,6 +996,12 @@ public class GSB_PlayerController : MonoBehaviour
                     if(allDestroyed)
                     {
                         EnemiesToShoot.Clear();
+
+                        _currentTimePercentage += _ammoAsCombinationReward * GSB_SceneManager.Instance.EnergyRecoverPercentage;
+                        if(_currentTimePercentage > 1f)
+                        {
+                            _currentTimePercentage = 1f;
+                        }
 
                         /*
                         _currentAmmo += _ammoAsCombinationReward;
