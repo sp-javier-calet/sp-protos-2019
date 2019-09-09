@@ -17,6 +17,12 @@ public class GSB_PlayerOnlineController : NetworkBehaviour
         GSB_GameManager.Instance.NetworkGameState.RpcPlayerHasSentShips(playerId, numShips);
     }
 
+    [Command]
+    public void CmdDamageReceived(int playerId, int currentHealth)
+    {
+        GSB_GameManager.Instance.NetworkGameState.RpcPlayerHasReceivedDamage(playerId, currentHealth);
+    }
+
     public override void OnStartLocalPlayer()
     {
         _networkIdentity = GetComponent<NetworkIdentity>();

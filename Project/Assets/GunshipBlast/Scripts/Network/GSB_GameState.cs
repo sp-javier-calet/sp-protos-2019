@@ -91,6 +91,18 @@ public class GSB_GameState : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    public void RpcPlayerHasReceivedDamage(int playerId, int currentHealth)
+    {
+        if(playerId != GSB_GameManager.Instance.NetworkController.PlayerControllerId)
+        {
+            if(GSB_SceneManager.Instance.Player != null)
+            {
+                GSB_SceneManager.Instance.Player.ShipVersusHealthUpdate(currentHealth);
+            }
+        }
+    }
+
     public override int GetNetworkChannel()
     {
         return Channels.DefaultUnreliable;

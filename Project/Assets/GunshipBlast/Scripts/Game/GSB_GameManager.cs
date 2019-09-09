@@ -98,6 +98,9 @@ public class GSB_GameManager : MonoBehaviour
 
             case GameState.E_PLAYING_2_VERSUS:
             {
+                GameAudioManager.SharedInstance.StopSound(0);
+                GameAudioManager.SharedInstance.PlaySound("Audio/Music/02_GSB_Battle", true);
+
                 SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
 
                 StartCoroutine(LoadAsyncScene("GSB_BattleScene"));

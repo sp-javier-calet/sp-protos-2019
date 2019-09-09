@@ -139,7 +139,6 @@ public class GSB_TitleManager : MonoBehaviour
     public void OnPressedStart()
     {
         GameAudioManager.SharedInstance.StopAllSounds();
-        GameAudioManager.SharedInstance.PlaySound("Audio/Music/02_GSB_Battle", true);
 
         GSB_GameManager.Instance.NetworkGameState.RpcStartVersusPlay();
     }
