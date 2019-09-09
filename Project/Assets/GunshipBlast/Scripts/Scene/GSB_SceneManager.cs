@@ -108,6 +108,18 @@ public class GSB_SceneManager : MonoBehaviour
     List<int> _lastEnemyPositions = new List<int>();
     List<int> _lastEnemyTypes = new List<int>();
 
+
+
+    List<WaveData> _currentVSWaveDatas = new List<WaveData>();
+
+    WaveData _currentVSWaveData = null;
+    public WaveData CurrentVSWaveData { get { return _currentVSWaveData; } }
+
+    Timer _waveVSTimer = new Timer();
+    int _currentVSWaveEnemy = 0;
+
+
+
     void Awake()
     {
         Instance = this;
@@ -155,10 +167,21 @@ public class GSB_SceneManager : MonoBehaviour
     {
         if(ShipsIncomingLabel != null)
         {
-            ShipsIncomingLabel.text = numShips.ToString() + " more ships incoming!";
-            ShipsIncomingLabel.gameObject.SetActive(true);
+            if(_currentWaveData != null)
+            {
+                ShipsIncomingLabel.text = numShips.ToString() + " more ships incoming!";
+                ShipsIncomingLabel.gameObject.SetActive(true);
 
-            _showingIncomingShipStartTime = TimeUtils.TimestampMilliseconds;
+                _showingIncomingShipStartTime = TimeUtils.TimestampMilliseconds;
+
+                WaveData newVSWaveData = new WaveData();
+                newVSWaveData.Rhythm = _currentWaveData.Rhythm;
+                newVSWaveData.RhythmInterWave = _currentWaveData.RhythmInterWave;
+                newVSWaveData.EnemiesSpeedMultiplier = _currentWaveData.EnemiesSpeedMultiplier;
+                newVSWaveData.NumEnemies = numShips;
+
+                _currentVSWaveDatas.Add(newVSWaveData);
+            }
         }
     }
 
@@ -216,26 +239,34 @@ public class GSB_SceneManager : MonoBehaviour
 
                 GenerateRandomCurrentWave();
 
-                if(WaveLabel != null)
+                if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
                 {
-                    WaveLabel.text = "WAVE ";
-                    if(_currentWave < 10)
+                    if(WaveLabel != null)
                     {
-                        WaveLabel.text += "0";
+                        WaveLabel.text = "WAVE ";
+                        if(_currentWave < 10)
+                        {
+                            WaveLabel.text += "0";
+                        }
+
+                        WaveLabel.text += _currentWave;
+
+                        WaveLabel.gameObject.SetActive(true);
                     }
-                    WaveLabel.text += _currentWave;
 
-                    WaveLabel.gameObject.SetActive(true);
+                    if(Player != null)
+                    {
+                        Player.MakeDamage(-HealthRecoveryAfterWave);
+                    }
+
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_wavestart");
+
+                    _stateTime = 3000;
                 }
-
-                if(Player != null)
+                else
                 {
-                    Player.MakeDamage(-HealthRecoveryAfterWave);
+                    _stateTime = 0;
                 }
-
-                GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_wavestart");
-
-                _stateTime = 3000;
 
                 break;
             }
@@ -392,9 +423,16 @@ public class GSB_SceneManager : MonoBehaviour
                     }
                     else
                     {
-                        if(_enemies.Count == 0)
+                        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
                         {
                             ChangeState(EBattleState.E_WAVE_END);
+                        }
+                        else
+                        {
+                            if(_enemies.Count == 0)
+                            {
+                                ChangeState(EBattleState.E_WAVE_END);
+                            }
                         }
                     }
                 }
@@ -418,6 +456,45 @@ public class GSB_SceneManager : MonoBehaviour
                             else
                             {
                                 _waveTimer.Wait(_currentWaveData.Rhythm);
+                            }
+                        }
+                    }
+                }
+
+                if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
+                {
+                    if(_currentVSWaveData == null)
+                    {
+                        if(_currentVSWaveDatas.Count > 0)
+                        {
+                            _currentVSWaveEnemy = 0;
+                            _currentVSWaveData = _currentVSWaveDatas[0];
+                            _currentVSWaveDatas.RemoveAt(0);
+
+                            _waveVSTimer.Wait(_currentVSWaveData.Rhythm);
+                        }
+                    }
+                    else
+                    {
+                        if(_waveVSTimer.IsFinished)
+                        {
+                            if(_currentVSWaveEnemy == _currentVSWaveData.NumEnemies)
+                            {
+                                _currentVSWaveData = null;
+                            }
+                            else
+                            {
+                                GenerateEnemy();
+                                _currentVSWaveEnemy++;
+
+                                if(_currentVSWaveEnemy == _currentVSWaveData.NumEnemies)
+                                {
+                                    _waveVSTimer.Wait(_currentVSWaveData.RhythmInterWave);
+                                }
+                                else
+                                {
+                                    _waveVSTimer.Wait(_currentVSWaveData.Rhythm);
+                                }
                             }
                         }
                     }
