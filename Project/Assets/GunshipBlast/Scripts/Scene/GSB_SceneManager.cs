@@ -265,6 +265,11 @@ public class GSB_SceneManager : MonoBehaviour
 
                 if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_1_PLAYER)
                 {
+                    if(HealthVSBoxText != null)
+                    {
+                        HealthVSBoxText.enabled = false;
+                    }
+
                     if(WaveLabel != null)
                     {
                         WaveLabel.text = "WAVE ";
@@ -289,11 +294,6 @@ public class GSB_SceneManager : MonoBehaviour
                 }
                 else
                 {
-                    if(HealthVSBoxText != null)
-                    {
-                        HealthVSBoxText.enabled = false;
-                    }
-
                     _stateTime = 0;
                 }
 
