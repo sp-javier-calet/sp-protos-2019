@@ -39,6 +39,7 @@ public class GSB_PlayerController : MonoBehaviour
 
     Sequence _tremblingAnimation = null;
     Sequence _tremblingVSAnimation = null;
+    Sequence _tremblingEnergyAnimation = null;
     Vector3 _vecTemp = Vector3.zero;
     Timer _ammoRefillTimer = new Timer();
     int _currentAmmo = -1;
@@ -699,7 +700,7 @@ public class GSB_PlayerController : MonoBehaviour
         {
             _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;
 
-            if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
+            if(accumulatedUniqueness > 1 && GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
             {
                 GameObject comboUI = Instantiate(GSB_SceneManager.Instance.WorldUICombo);
                 if(comboUI != null)
@@ -927,30 +928,53 @@ public class GSB_PlayerController : MonoBehaviour
             }
             UpdateTimeBarUI(deltaRecoveringTime);
 
-            if(_pressedDown && deltaRecoveringTime >= GSB_SceneManager.Instance.FlagDownTimePercentage)
+            if(_pressedDown)
             {
-                GSB_EnemyController enemyTouch = CheckEnemyTouch();
-                if(enemyTouch != null && _currentAmmo > 0)
+                if(deltaRecoveringTime >= GSB_SceneManager.Instance.FlagDownTimePercentage)
                 {
-                    ResetSelection();
+                    GSB_EnemyController enemyTouch = CheckEnemyTouch();
+                    if(enemyTouch != null && _currentAmmo > 0)
+                    {
+                        ResetSelection();
 
-                    SelectingEnemies.Add(enemyTouch);
-                    enemyTouch.SetTargetEnabled(true, true);
+                        SelectingEnemies.Add(enemyTouch);
+                        enemyTouch.SetTargetEnabled(true, true);
 
-                    AddPositionToSelectionLine(enemyTouch);
+                        AddPositionToSelectionLine(enemyTouch);
 
-                    Time.timeScale = GSB_SceneManager.Instance.SlowDown;
-                    Time.fixedDeltaTime = 0.02f * Time.timeScale;
+                        Time.timeScale = GSB_SceneManager.Instance.SlowDown;
+                        Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-                    _holding = true;
+                        _holding = true;
 
-                    _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
-                    _timeProcessAvailableTime = (int) (deltaRecoveringTime * GSB_SceneManager.Instance.TargetTimeMS);
-                    _currentTimePercentage = deltaRecoveringTime - GSB_SceneManager.Instance.FlagDownTimePercentage;
+                        _timeProcessStartingTime = TimeUtils.TimestampMilliseconds;
+                        _timeProcessAvailableTime = (int)(deltaRecoveringTime * GSB_SceneManager.Instance.TargetTimeMS);
+                        _currentTimePercentage = deltaRecoveringTime - GSB_SceneManager.Instance.FlagDownTimePercentage;
 
-                    _shapeIsClosed = false;
+                        _shapeIsClosed = false;
 
-                    UpdateAmmoUI();
+                        UpdateAmmoUI();
+                    }
+                }
+                else
+                {
+                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_cancel", false, 2f);
+
+                    if(GSB_SceneManager.Instance.TimeBarTransform != null)
+                    {
+                        if(_tremblingEnergyAnimation != null)
+                        {
+                            _tremblingEnergyAnimation.Kill();
+                            _tremblingEnergyAnimation = null;
+                        }
+
+                        GSB_SceneManager.Instance.TimeBarTransform.transform.localScale = Vector3.one;
+
+                        _tremblingEnergyAnimation = DOTween.Sequence();
+                        _tremblingEnergyAnimation.Append(GSB_SceneManager.Instance.TimeBarTransform.transform.DOScale(new Vector3(1.2f, 1.2f, 1.0f),800 / 1000.0f / 10f).SetLoops(2, LoopType.Yoyo));
+
+                        _tremblingEnergyAnimation.Play();
+                    }
                 }
             }
         }
@@ -1062,7 +1086,7 @@ public class GSB_PlayerController : MonoBehaviour
 
                                 if(removeSelectedShip)
                                 {
-                                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_cancel");
+                                    GameAudioManager.SharedInstance.PlaySound("Audio/Sounds/GSB_cancel", false, 2f);
 
                                     RemovePositionToSelectionLine();
                                     SelectingEnemies[SelectingEnemies.Count-1].SetTargetEnabled(false, false);

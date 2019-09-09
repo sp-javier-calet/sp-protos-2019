@@ -55,6 +55,7 @@ public class GSB_SceneManager : MonoBehaviour
     public GameObject HealthVSBox = null;
     public TextMeshProUGUI HealthVSBoxText = null;
     public GameObject AmmoBox = null;
+    public Transform TimeBarTransform = null;
     public Image TimeBarFiller = null;
     public GameObject ManaGO = null;
     public BCSHModifier TimeBarFillerBCSH = null;
