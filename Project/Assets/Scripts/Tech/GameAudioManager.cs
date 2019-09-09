@@ -23,11 +23,11 @@ public class GameAudioManager : MonoBehaviour
             {
                 if(s_pInstance == null)
                 {
-                    GameObject kGameLoop = GameObject.Find("Audio");
+                    GameObject kGameLoop = GameObject.Find("GameLoop/Audio");
 
                     if(kGameLoop != null)
                     {
-                        s_pInstance = GameObject.Find("Audio").GetComponent<GameAudioManager>();
+                        s_pInstance = GameObject.Find("GameLoop/Audio").GetComponent<GameAudioManager>();
                     }
                 }
             }

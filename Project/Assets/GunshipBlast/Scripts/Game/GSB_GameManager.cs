@@ -61,6 +61,8 @@ public class GSB_GameManager : MonoBehaviour
         GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_youwin");
         GameAudioManager.SharedInstance.AddAudioClip("Audio/Sounds/GSB_gameover");
 
+        GSB_CameraManager.SharedInstance.Initialise();
+
         SetGameState(GameState.E_TITLE);
     }
 

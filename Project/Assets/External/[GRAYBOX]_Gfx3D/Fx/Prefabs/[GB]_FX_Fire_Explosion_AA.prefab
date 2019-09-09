@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4708073793023796}
   - component: {fileID: 198006863396856086}
   - component: {fileID: 199696596617942914}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Burst_AA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4821,7 +4821,7 @@ GameObject:
   - component: {fileID: 4876205447167228}
   - component: {fileID: 198335267571489290}
   - component: {fileID: 199997721324544338}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Sparks_AA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9631,7 +9631,7 @@ GameObject:
   - component: {fileID: 4614142050236146}
   - component: {fileID: 198357932984928318}
   - component: {fileID: 199193422474770846}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Bits_AA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14450,7 +14450,7 @@ GameObject:
   - component: {fileID: 4814953202506736}
   - component: {fileID: 198345085831282612}
   - component: {fileID: 199319200842389984}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Flames_AA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19260,7 +19260,7 @@ GameObject:
   - component: {fileID: 4108686526992418}
   - component: {fileID: 198988464161215046}
   - component: {fileID: 199969744632957820}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Flames_AC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24071,7 +24071,7 @@ GameObject:
   - component: {fileID: 198835695504968082}
   - component: {fileID: 199742019344066492}
   - component: {fileID: 3104091806008372580}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: '[GB]_FX_Fire_Explosion_AA'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28843,7 +28843,7 @@ GameObject:
   - component: {fileID: 4759498394909342}
   - component: {fileID: 198986727361179434}
   - component: {fileID: 199077084449969190}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Smoke_AA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33662,7 +33662,7 @@ GameObject:
   - component: {fileID: 4276039039982622}
   - component: {fileID: 198146948963041118}
   - component: {fileID: 199418573152065702}
-  m_Layer: 21
+  m_Layer: 1
   m_Name: Flames_AB
   m_TagString: Untagged
   m_Icon: {fileID: 0}

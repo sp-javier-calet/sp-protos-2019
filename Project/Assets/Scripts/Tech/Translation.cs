@@ -19,7 +19,7 @@ public class Translation : MonoBehaviour
         _diffSpace = DestPosition - OriginPosition;
     }
 
-    void Update()
+    public virtual void Update()
     {
         float delta = (TimeUtils.TimestampMilliseconds - _startTime) / (float)TimeTravel;
         if(delta > 1f)
