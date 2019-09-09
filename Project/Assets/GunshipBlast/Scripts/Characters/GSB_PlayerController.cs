@@ -533,14 +533,6 @@ public class GSB_PlayerController : MonoBehaviour
             }
         }
 
-        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
-        {
-            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
-            {
-                GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdSendShips(GSB_GameManager.Instance.NetworkController.PlayerControllerId, EnemiesToShoot.Count);
-            }
-        }
-
         var extraCombos = 0;
         Vector3 comboUICenter = Vector3.zero;
         for(var j = 0; j < SelectingEnemies.Count; ++j)
@@ -688,6 +680,21 @@ public class GSB_PlayerController : MonoBehaviour
                         }
                     }
                 }
+            }
+        }
+
+        if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
+        {
+            var extraVSShips = EnemiesInside.Count;
+
+            if(accumulatedUniqueness >= 0 && GSB_SceneManager.Instance.CombinationVSUniqueDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward > 0)
+            {
+                extraVSShips += GSB_SceneManager.Instance.CombinationVSUniqueDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;
+            }
+
+            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
+            {
+                GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdSendShips(GSB_GameManager.Instance.NetworkController.PlayerControllerId, extraVSShips);
             }
         }
 

@@ -34,6 +34,7 @@ public class GSB_SceneManager : MonoBehaviour
 
     public List<CombinationUniqueData> CombinationDatas = new List<CombinationUniqueData>();
     public List<CombinationRepeatData> CombinationRepeatDatas = new List<CombinationRepeatData>();
+    public List<CombinationUniqueData> CombinationVSUniqueDatas = new List<CombinationUniqueData>();
 
     public enum EBattleState
     {
