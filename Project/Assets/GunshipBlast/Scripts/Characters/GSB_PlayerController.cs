@@ -352,6 +352,12 @@ public class GSB_PlayerController : MonoBehaviour
 
             _shapeIsClosed = false;
         }
+
+        _currentTimePercentage += GSB_SceneManager.Instance.EnergyRecoverPercentageByDamage;
+        if(_currentTimePercentage > 1f)
+        {
+            _currentTimePercentage = 1f;
+        }
     }
 
     void ResetSelection()
@@ -617,7 +623,7 @@ public class GSB_PlayerController : MonoBehaviour
                 {
                     _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationRepeatDatas[j].ShipColorRepeatAmmoReward;
 
-                    if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
+                    if(sameColorAmount > 1 && GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)
                     {
                         GameObject comboUI = Instantiate(GSB_SceneManager.Instance.WorldUICombo);
                         if(comboUI != null)

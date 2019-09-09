@@ -80,6 +80,7 @@ public class GSB_SceneManager : MonoBehaviour
     public int TotalTimeRegeneration = 2000;
     public float FlagDownTimePercentage = 0.2f;
     public float EnergyRecoverPercentage = 0.05f;
+    public float EnergyRecoverPercentageByDamage = 0.05f;
     public int FullShapeEnergyRecoverMultiplier = 2;
 
     GSB_PlayerController _player;
