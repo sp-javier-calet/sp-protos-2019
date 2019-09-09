@@ -16,6 +16,7 @@ public class GSB_EnemyController : MonoBehaviour
     }
 
     public List<GameObject> ShipTypes = new List<GameObject>();
+    public GameObject VSIcon = null;
     public GameObject ShipTargeted = null;
     public GameObject ExplosionInPlayerShip = null;
     public GameObject ExplosionDestroyed = null;
@@ -42,7 +43,7 @@ public class GSB_EnemyController : MonoBehaviour
         }
     }
 
-    public void SetShipType(EShipType shipType)
+    public void SetShipType(EShipType shipType, bool versusShip = false)
     {
         var shipTypeInt = (int) shipType;
 
@@ -55,6 +56,11 @@ public class GSB_EnemyController : MonoBehaviour
             {
                 _shipData = ShipTypes[i].GetComponent<GSB_ShipData>();
             }
+        }
+
+        if(versusShip && VSIcon != null)
+        {
+            VSIcon.SetActive(true);
         }
 
         _shipType = shipType;
@@ -134,7 +140,7 @@ public class GSB_EnemyController : MonoBehaviour
                 explosion.transform.position = transform.position;
             }
 
-            if(GSB_SceneManager.Instance.Player != null)
+            if(!inPlayerShip && GSB_SceneManager.Instance.Player != null)
             {
                 GSB_SceneManager.Instance.Player.GenerateManaParticles(transform.position);
             }
