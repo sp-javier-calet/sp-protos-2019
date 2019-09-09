@@ -494,7 +494,10 @@ public class GSB_PlayerController : MonoBehaviour
 
         if(GSB_GameManager.Instance.CurrentGameState == GSB_GameManager.GameState.E_PLAYING_2_VERSUS)
         {
-            //CmdSendShips(EnemiesToShoot.Count);
+            if(GSB_GameManager.Instance.NetworkController.PlayerOnlineController != null)
+            {
+                GSB_GameManager.Instance.NetworkController.PlayerOnlineController.CmdSendShips(GSB_GameManager.Instance.NetworkController.PlayerControllerId, EnemiesToShoot.Count);
+            }
         }
 
         var extraCombos = 0;
@@ -506,7 +509,7 @@ public class GSB_PlayerController : MonoBehaviour
 
         comboUICenter /= SelectingEnemies.Count;
 
-        _ammoAsCombinationReward = EnemiesInside.Count;
+        _ammoAsCombinationReward = EnemiesInside.Count * GSB_SceneManager.Instance.FullShapeEnergyRecoverMultiplier;
         if(_ammoAsCombinationReward > 0)
         {
             if(GSB_SceneManager.Instance.WorldUIParent != null && GSB_SceneManager.Instance.WorldUICombo != null)

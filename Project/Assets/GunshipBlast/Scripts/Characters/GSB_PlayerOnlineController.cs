@@ -14,7 +14,7 @@ public class GSB_PlayerOnlineController : NetworkBehaviour
     [Command]
     public void CmdSendShips(int playerId, int numShips)
     {
-
+        GSB_GameManager.Instance.NetworkGameState.RpcPlayerHasSentShips(playerId, numShips);
     }
 
     public override void OnStartLocalPlayer()

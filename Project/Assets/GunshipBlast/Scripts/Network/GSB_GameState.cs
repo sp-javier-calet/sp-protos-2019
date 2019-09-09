@@ -80,11 +80,14 @@ public class GSB_GameState : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcPlayerHasSentShips(int playerId)
+    public void RpcPlayerHasSentShips(int playerId, int numShips)
     {
         if(playerId != GSB_GameManager.Instance.NetworkController.PlayerControllerId)
         {
-
+            if(GSB_SceneManager.Instance.Player != null)
+            {
+                GSB_SceneManager.Instance.GenerateExtraInterWave(numShips);
+            }
         }
     }
 

@@ -61,6 +61,7 @@ public class GSB_SceneManager : MonoBehaviour
     public TextMeshProUGUI GameOverLabel = null;
     public TextMeshProUGUI WinLabel = null;
     public TextMeshProUGUI LoseLabel = null;
+    public TextMeshProUGUI ShipsIncomingLabel = null;
 
     public float SlowDown = 0.1f;
     public int HealthMax = 18;
@@ -75,6 +76,7 @@ public class GSB_SceneManager : MonoBehaviour
     public int TotalTimeRegeneration = 2000;
     public float FlagDownTimePercentage = 0.2f;
     public float EnergyRecoverPercentage = 0.05f;
+    public int FullShapeEnergyRecoverMultiplier = 2;
 
     GSB_PlayerController _player;
     public GSB_PlayerController Player { get { return _player; } }
@@ -93,6 +95,7 @@ public class GSB_SceneManager : MonoBehaviour
 
     long _stateStartTime = 0;
     long _stateTime = 0;
+    long _showingIncomingShipStartTime = 0;
 
     List<WaveData> _currentWaveDatasInStage = new List<WaveData>();
     int _currentWaveDataIdx = 0;
@@ -145,6 +148,17 @@ public class GSB_SceneManager : MonoBehaviour
             }
 
             _currentWaveDatasInStage.Add(WaveDatas[interWaveToAdd]);
+        }
+    }
+
+    public void GenerateExtraInterWave(int numShips)
+    {
+        if(ShipsIncomingLabel != null)
+        {
+            ShipsIncomingLabel.text = numShips.ToString() + " more ships incoming!";
+            ShipsIncomingLabel.gameObject.SetActive(true);
+
+            _showingIncomingShipStartTime = TimeUtils.TimestampMilliseconds;
         }
     }
 
@@ -344,6 +358,14 @@ public class GSB_SceneManager : MonoBehaviour
 
     void Update()
     {
+        if(ShipsIncomingLabel != null && ShipsIncomingLabel.gameObject.activeSelf)
+        {
+            if(TimeUtils.TimestampMilliseconds > _showingIncomingShipStartTime + 1000)
+            {
+                ShipsIncomingLabel.gameObject.SetActive(false);
+            }
+        }
+
         switch(_battleState)
         {
             case EBattleState.E_WAVE_START:
