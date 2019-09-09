@@ -540,6 +540,29 @@ public class GSB_PlayerController : MonoBehaviour
         }
 
         var accumulatedUniqueness = -1;
+
+        for(var i = 0; i < SelectingEnemies.Count; ++i)
+        {
+
+         if (uniqueTypes[(int)SelectingEnemies[i].ShipType] ==false)
+         {
+
+          uniqueTypes[(int)SelectingEnemies[i].ShipType] = true;
+          accumulatedUniqueness++;
+          
+         } 
+   
+        }
+
+        /*
+        List<bool> uniqueTypes = new List<bool>();
+        for(var i = 0; i < 4; ++i)
+        {
+            uniqueTypes.Add(false);
+        }
+
+        var accumulatedUniqueness = -1;
+        
         for(var i = 0; i < SelectingEnemies.Count; ++i)
         {
             var unique = true;
@@ -561,7 +584,7 @@ public class GSB_PlayerController : MonoBehaviour
                 accumulatedUniqueness++;
             }
         }
-
+        */
         if(accumulatedUniqueness >= 0 && GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward > 0)
         {
             _ammoAsCombinationReward += GSB_SceneManager.Instance.CombinationDatas[accumulatedUniqueness].ShipColorUniqueAmmoReward;

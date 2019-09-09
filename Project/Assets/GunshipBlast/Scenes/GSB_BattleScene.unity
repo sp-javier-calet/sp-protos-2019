@@ -155,7 +155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -50, y: -5}
+  m_AnchoredPosition: {x: -28, y: -30}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &20183196
@@ -178,7 +178,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: TIME
+  m_text: ENERGY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 60c2725661391df4381806576c49faa0, type: 2}
   m_sharedMaterial: {fileID: 5328080770577580103, guid: 60c2725661391df4381806576c49faa0,
@@ -190,13 +190,13 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
+  m_enableVertexGradient: 1
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+    topLeft: {r: 1, g: 0.88550186, b: 0, a: 1}
+    topRight: {r: 1, g: 0.88550186, b: 0, a: 1}
+    bottomLeft: {r: 1, g: 0, b: 0, a: 1}
+    bottomRight: {r: 1, g: 0, b: 0, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 20183196}
-    characterCount: 4
+    characterCount: 6
     spriteCount: 0
     spaceCount: 0
     wordCount: 1
@@ -326,66 +326,86 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WaveDatas:
-  - NumEnemies: 4
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 2
-  - NumEnemies: 3
-    Rhythm: 1
-    RhythmInterWave: 1
+  - NumEnemies: 2
+    Rhythm: 0.6
+    RhythmInterWave: 0
     EnemiesSpeedMultiplier: 2
   - NumEnemies: 2
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 2
-  - NumEnemies: 4
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 2
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.25
   - NumEnemies: 3
     Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 3
-  - NumEnemies: 2
-    Rhythm: 1
-    RhythmInterWave: 1
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.5
+  - NumEnemies: 4
+    Rhythm: 1.2
+    RhythmInterWave: 0
     EnemiesSpeedMultiplier: 2
   - NumEnemies: 3
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 4
-  - NumEnemies: 4
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 3
-  - NumEnemies: 5
-    Rhythm: 1
-    RhythmInterWave: 1
+    Rhythm: 0.8
+    RhythmInterWave: 0
     EnemiesSpeedMultiplier: 3
   - NumEnemies: 4
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 2
+    Rhythm: 0.6
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.5
   - NumEnemies: 5
     Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 4
-  - NumEnemies: 6
-    Rhythm: 1
-    RhythmInterWave: 1
+    RhythmInterWave: 0
     EnemiesSpeedMultiplier: 3
   - NumEnemies: 5
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 2
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.25
   - NumEnemies: 6
-    Rhythm: 1
-    RhythmInterWave: 1
-    EnemiesSpeedMultiplier: 4
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.75
+  - NumEnemies: 7
+    Rhythm: 1.2
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 3
+  - NumEnemies: 6
+    Rhythm: 0.6
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 3.5
   - NumEnemies: 7
     Rhythm: 1
-    RhythmInterWave: 1
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.25
+  - NumEnemies: 7
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.75
+  - NumEnemies: 8
+    Rhythm: 0.6
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 3.25
+  - NumEnemies: 9
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.25
+  - NumEnemies: 8
+    Rhythm: 0.4
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 4
+  - NumEnemies: 10
+    Rhythm: 0.8
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 3.25
+  - NumEnemies: 9
+    Rhythm: 0.6
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.5
+  - NumEnemies: 12
+    Rhythm: 0.8
+    RhythmInterWave: 0
     EnemiesSpeedMultiplier: 3
+  - NumEnemies: 11
+    Rhythm: 1
+    RhythmInterWave: 0
+    EnemiesSpeedMultiplier: 2.75
   CombinationDatas:
   - ShipColorUniqueAmmoReward: 0
   - ShipColorUniqueAmmoReward: 2
@@ -412,12 +432,12 @@ MonoBehaviour:
   SlowDown: 0.25
   HealthMax: 18
   AmmoMax: 4
-  AmmoRegenerationTime: 1.5
+  AmmoRegenerationTime: 2.5
   TargetTimeMS: 3000
   StartingInterWaves: 5
-  MaxDifficultyWave: 5
+  MaxDifficultyWave: 8
   HealthRecoveryAfterWave: 3
-  ShootStopTime: 500
+  ShootStopTime: 250
 --- !u!1 &196030472
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,7 +503,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1203679993}
+  - {fileID: 870521867}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -523,7 +543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 25158
+  _instanceID: 138896
   _serializedMaterial: {fileID: 0}
   _originalMaterial: {fileID: 2100000, guid: 4bc2f97e93f51488dad99f6860b5efee, type: 2}
   _originalMaterialIsUIDefault: 0
@@ -781,7 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 25176
+  _instanceID: 138914
   _serializedMaterial: {fileID: 2100000, guid: 4a16ccb2c82f34d9cb987384e30a7b7d, type: 2}
   _originalMaterial: {fileID: 0}
   _originalMaterialIsUIDefault: 1
@@ -855,7 +875,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 131.3, y: 90}
+  m_AnchoredPosition: {x: 126, y: 114}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &372943478
@@ -890,13 +910,13 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
+  m_enableVertexGradient: 1
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+    topLeft: {r: 0.91479015, g: 1, b: 0, a: 1}
+    topRight: {r: 0.91479015, g: 1, b: 0, a: 1}
+    bottomLeft: {r: 1, g: 0.19999999, b: 0, a: 1}
+    bottomRight: {r: 1, g: 0.19999999, b: 0, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -907,8 +927,8 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 52
+  m_fontSizeBase: 52
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -924,7 +944,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: -1
+  m_firstOverflowCharacterIndex: 0
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0
@@ -1140,7 +1160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 25202
+  _instanceID: 138940
   _serializedMaterial: {fileID: 2100000, guid: 4a16ccb2c82f34d9cb987384e30a7b7d, type: 2}
   _originalMaterial: {fileID: 0}
   _originalMaterialIsUIDefault: 1
@@ -1266,7 +1286,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 25212
+  _instanceID: 138950
   _serializedMaterial: {fileID: 2100000, guid: 4a16ccb2c82f34d9cb987384e30a7b7d, type: 2}
   _originalMaterial: {fileID: 0}
   _originalMaterialIsUIDefault: 1
@@ -1952,7 +1972,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 55.7, y: -46}
+  m_AnchoredPosition: {x: 84, y: -46}
   m_SizeDelta: {x: 149, y: 49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &864248771
@@ -1992,6 +2012,90 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 864248769}
   m_CullTransparentMesh: 0
+--- !u!21 &870521867
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Background (Replaced)
+  m_Shader: {fileID: 4800000, guid: 216f2de5cadf34dc380319bb0790bdac, type: 3}
+  m_ShaderKeywords: ETC1_EXTERNAL_ALPHA SHADER_MODULE_BCSH
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 567ea64efe617e84bb4a105f01ca2802, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BumpScale: 1
+    - _ColorMask: 15
+    - _Cutoff: 0.01
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UVSec: 0
+    - _UseUIAlphaClip: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _BCSHTintColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1 &886021714
 GameObject:
   m_ObjectHideFlags: 0
@@ -2118,7 +2222,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 144.7, y: -21.400024}
+  m_AnchoredPosition: {x: 144.7, y: -36}
   m_SizeDelta: {x: 295, y: 49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &932410895
@@ -2533,90 +2637,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &1203679993
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Background (Replaced)
-  m_Shader: {fileID: 4800000, guid: 216f2de5cadf34dc380319bb0790bdac, type: 3}
-  m_ShaderKeywords: ETC1_EXTERNAL_ALPHA SHADER_MODULE_BCSH
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailAlbedoMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailMask:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 567ea64efe617e84bb4a105f01ca2802, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _ParallaxMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - _BumpScale: 1
-    - _ColorMask: 15
-    - _Cutoff: 0.01
-    - _DetailNormalMapScale: 1
-    - _DstBlend: 0
-    - _GlossMapScale: 1
-    - _Glossiness: 0.5
-    - _GlossyReflections: 1
-    - _Metallic: 0
-    - _Mode: 0
-    - _OcclusionStrength: 1
-    - _Parallax: 0.02
-    - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 1
-    - _SrcBlend: 1
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UVSec: 0
-    - _UseUIAlphaClip: 0
-    - _ZWrite: 1
-    m_Colors:
-    - _BCSHTintColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1 &1234945901
 GameObject:
   m_ObjectHideFlags: 0
@@ -2829,7 +2849,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f5735c626db4a3cbf7cdf30169f19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceID: 25348
+  _instanceID: 139084
   _serializedMaterial: {fileID: 2100000, guid: 4a16ccb2c82f34d9cb987384e30a7b7d, type: 2}
   _originalMaterial: {fileID: 0}
   _originalMaterialIsUIDefault: 1
@@ -4300,7 +4320,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -73, y: 90}
+  m_AnchoredPosition: {x: -599, y: 1276}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1978942110
@@ -4335,13 +4355,13 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
+  m_enableVertexGradient: 1
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+    topLeft: {r: 1, g: 0.88850486, b: 0, a: 1}
+    topRight: {r: 1, g: 0.88850486, b: 0, a: 1}
+    bottomLeft: {r: 1, g: 0, b: 0, a: 1}
+    bottomRight: {r: 1, g: 0, b: 0, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
