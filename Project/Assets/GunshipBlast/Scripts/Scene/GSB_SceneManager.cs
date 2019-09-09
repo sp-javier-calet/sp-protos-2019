@@ -1,9 +1,11 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using SocialPoint.Rendering.Components;
 using SocialPoint.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GSB_SceneManager : MonoBehaviour
 {
@@ -50,8 +52,8 @@ public class GSB_SceneManager : MonoBehaviour
     public GameObject WorldUICombo = null;
     public GameObject HealthBox = null;
     public GameObject AmmoBox = null;
-    public GameObject TimeBar = null;
-    public RectTransform TimeBarFiller = null;
+    public Image TimeBarFiller = null;
+    public BCSHModifier TimeBarFillerBCSH = null;
     public MeshFilter SelectionMesh;
     public List<LineRenderer> SelectionLine = new List<LineRenderer>();
     public TextMeshProUGUI WaveLabel = null;
@@ -68,6 +70,8 @@ public class GSB_SceneManager : MonoBehaviour
     public int MaxDifficultyWave = 5;
     public int HealthRecoveryAfterWave = 3;
     public int ShootStopTime = 1000;
+    public int TotalTimeRegeneration = 2000;
+    public float FlagDownTimePercentage = 0.2f;
 
     GSB_PlayerController _player;
     public GSB_PlayerController Player { get { return _player; } }
