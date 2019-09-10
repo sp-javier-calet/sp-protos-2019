@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _extensions:
   - Name: Ads
-    Enabled: 1
+    Enabled: 0
   - Name: Asset Graph
     Enabled: 0
   - Name: Facebook
-    Enabled: 1
+    Enabled: 0
   - Name: Firebase Analytics
-    Enabled: 1
+    Enabled: 0
   - Name: Graybox Library
     Enabled: 0
   - Name: Multiplayer
