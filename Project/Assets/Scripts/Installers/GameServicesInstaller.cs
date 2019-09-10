@@ -7,12 +7,11 @@
 
 using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
-using SocialPoint.GUIControl;
 using SocialPoint.Notifications;
 
+[InstallerGameCategory]
 public class GameServicesInstaller : Installer, IInitializable
 {
     public override void InstallBindings(IBindingContainer container)
@@ -26,7 +25,6 @@ public class GameServicesInstaller : Installer, IInitializable
     public void Initialize(IResolutionContainer container)
     {
         SetupNotificationsProvider(container);
-        SetupCrossPromotionManager(container);
         SetupGameLoadingOperations(container);
     }
 
@@ -50,17 +48,6 @@ public class GameServicesInstaller : Installer, IInitializable
                 notify
             };
         };
-    }
-
-    static void SetupCrossPromotionManager(IResolutionContainer container)
-    {
-        var manager = container.Resolve<ICrossPromotionManager>();
-        if(manager == null)
-        {
-            return;
-        }
-
-        manager.PopupController = container.Resolve<PopupsController>();
     }
 
     LoadingOperation _gameOperation;

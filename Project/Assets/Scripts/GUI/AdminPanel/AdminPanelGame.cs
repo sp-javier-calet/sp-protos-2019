@@ -6,18 +6,14 @@
 //-----------------------------------------------------------------------
 
 #if ADMIN_PANEL
-
+using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 
 public class AdminPanelGame : IAdminPanelConfigurer
 {
-    readonly IAppEvents _appEvents;
-
-    public AdminPanelGame(IAppEvents appEvents)
-    {
-        _appEvents = appEvents;
-    }
+    [RequiredDependency]
+    IAppEvents _appEvents;
 
     public void OnConfigure(AdminPanel adminPanel)
     {

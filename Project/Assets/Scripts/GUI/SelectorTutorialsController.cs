@@ -6,15 +6,13 @@
 //-----------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using SocialPoint.Alert;
 using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
 using SocialPoint.Tutorial;
 
-public class SelectorTutorialsController : UIViewController
+public class SelectorTutorialsController : MonoBehaviour
 {
     [SerializeField] Button _prefabButton;
 
@@ -22,39 +20,29 @@ public class SelectorTutorialsController : UIViewController
 
     public Action<string> OnGoToTutorial { get; set; }
 
-    TutorialManager _tutorialManager;
+    ITutorialManager _tutorialManager;
     IAlertView _alertPrototype;
-    List<string> _tutorials;
 
-    public SelectorTutorialsController()
+    void Start()
     {
-        IsFullScreen = true;
-    }
-
-    protected override void OnStart()
-    {
-        base.OnStart();
-
         _alertPrototype = Services.Instance.Resolve<IAlertView>();
         if(_alertPrototype == null)
         {
             throw new InvalidOperationException("Could not find alert view");
         }
 
-        _tutorialManager = Services.Instance.Resolve<TutorialManager>();
+        _tutorialManager = Services.Instance.Resolve<ITutorialManager>();
         if(_tutorialManager == null)
         {
             throw new InvalidOperationException("Could not find tutorial manager for tutorials selector");
         }
-
-        _tutorials = _tutorialManager.Tutorials;
 
         ShowTutorialsUI();
     }
 
     void ShowTutorialsUI()
     {
-        foreach(string t in _tutorials)
+        foreach(string t in _tutorialManager.Tutorials)
         {
             InstantiateScenesButton(t);
         }
@@ -70,7 +58,7 @@ public class SelectorTutorialsController : UIViewController
         button.onClick.AddListener(() => OnStartTutorial(tutorialName));
     }
 
-    public void OnStartTutorial(string tutorialName)
+    void OnStartTutorial(string tutorialName)
     {
         if(_tutorialManager.HasActiveTutorial == false)
         {

@@ -15,22 +15,22 @@ MonoBehaviour:
   _isGlobal: 0
   Settings:
     UseEmpty: 0
-  InstallSettings:
-    ApiKey: e80e75c9fd498d3274f3cdbc637b3866
-    DomainName: socialpoint.helpshift.com
-    iOSAppId: socialpoint_platform_20151021095745155-1b0b401a75542a3
-    AndroidAppId: socialpoint_platform_20151021095745169-3fd755eb172b848
-    DisableEntryExitAnimations: 1
-    EnableInboxPolling: 0
-    EnableLogging: 0
-  APISettings:
-    EnableContactUs: 0
-    PresentFullScreenOniPad: 0
-    EnableFullPrivacy: 0
-    ShowConversationInfoScreen: 0
-    GotoConversation: 0
-    RequireEmail: 0
-    HideNameAndEmail: 0
-    ShowSearchOnNewConversation: 0
-    ShowConversationResolutionQuestion: 0
-    EnableTypingIndicator: 0
+    InstallSettings:
+      ApiKey: e80e75c9fd498d3274f3cdbc637b3866
+      DomainName: socialpoint.helpshift.com
+      iOSAppId: socialpoint_platform_20151021095745155-1b0b401a75542a3
+      AndroidAppId: socialpoint_platform_20151021095745169-3fd755eb172b848
+      DisableEntryExitAnimations: 0
+      EnableInboxPolling: 1
+      EnableLogging: 0
+    APISettings:
+      EnableContactUs: 0
+      PresentFullScreenOniPad: 0
+      EnableFullPrivacy: 0
+      ShowConversationInfoScreen: 0
+      GotoConversation: 0
+      RequireEmail: 0
+      HideNameAndEmail: 0
+      ShowSearchOnNewConversation: 0
+      ShowConversationResolutionQuestion: 0
+      EnableTypingIndicator: 0

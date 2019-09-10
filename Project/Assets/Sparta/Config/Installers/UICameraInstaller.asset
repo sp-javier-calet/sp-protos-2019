@@ -9,7 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29c377e933975ea498610d2023029c77, type: 3}
-  m_Name: AdminPanelLogInstaller
+  m_Script: {fileID: 11500000, guid: 54e48e024fd3f4678be5013625845c76, type: 3}
+  m_Name: UICameraInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
+  Settings:
+    UICameraPrefab: {fileID: 2833691997238768154, guid: 99c51766963774b78b9b56bff65539df,
+      type: 3}

@@ -7,17 +7,16 @@
 
 using UnityEngine;
 using SocialPoint.GUIControl;
-using UnityEngine.UI;
+using TMPro;
 
 public class TooltipTextExample : SPTooltipViewController
 {
     [SerializeField]
-    Text _infoText;
+    TextMeshProUGUI _infoText;
 
     public override void SetTooltipInfo(BaseTooltipData data)
     {
-        var tooltipData = data as SimpleTooltipData;
-        if(tooltipData == null)
+        if(!(data is SimpleTooltipData tooltipData))
         {
             return;
         }

@@ -8,17 +8,15 @@
 using System;
 using UnityEngine;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
 using SocialPoint.Base;
-using SocialPoint.Login;
 using UnityEngine.SceneManagement;
 
+[InstallerGameCategory]
 public class GUISceneSelectorInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
     {
-        public bool UsePrototypeConfig = false;
         public string EntryScene;
         public GameObject InitialScreenPrefab;
     }
@@ -26,10 +24,6 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
     public SettingsData Settings = new SettingsData();
 
     private string[] _scenes;
-
-    public GUISceneSelectorInstaller() : base(ModuleType.Game)
-    {
-    }
 
     public override void InstallBindings(IBindingContainer container)
     {
@@ -43,14 +37,7 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
             return;
         }
 
-        var stackController = container.Resolve<UIStackController>();
-        if(stackController == null)
-        {
-            throw new InvalidOperationException("Could not find screens controller for initial screen");
-        }
-
         _scenes = ScenesData.Instance.ScenesNames;
-
 
         var entryScene = Settings.EntryScene;
         if(!string.IsNullOrEmpty(entryScene) && _scenes.Contains(entryScene))
@@ -59,7 +46,7 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
             return;
         }
 
-        var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
+        var go = Instantiate(Settings.InitialScreenPrefab);
         var ctrl = go.GetComponent<SelectorScenesController>();
         if(ctrl == null)
         {
@@ -67,8 +54,6 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
         }
 
         ctrl.OnGoToScene = GoToScene;
-
-        stackController.PushImmediate(ctrl);
     }
 
     void GoToScene(string nameScene)

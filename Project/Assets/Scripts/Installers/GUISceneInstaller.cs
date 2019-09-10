@@ -8,22 +8,17 @@
 using System;
 using UnityEngine;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
 
+[InstallerGameCategory]
 public class GUISceneInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
     {
         public GameObject InitialScreenPrefab;
-        public bool InitialScreenAnimation;
     }
 
     public SettingsData Settings = new SettingsData();
-
-    public GUISceneInstaller() : base(ModuleType.Game)
-    {
-    }
 
     public override void InstallBindings(IBindingContainer container)
     {
@@ -37,26 +32,6 @@ public class GUISceneInstaller : Installer, IInitializable
             return;
         }
 
-        var stackController = container.Resolve<UIStackController>();
-        if(stackController == null)
-        {
-            throw new InvalidOperationException("Could not find screens controller for initial screen");
-        }
-
-        var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
-        var ctrl = go.GetComponent<UIViewController>();
-        if(ctrl == null)
-        {
-            throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
-        }
-
-        if(Settings.InitialScreenAnimation)
-        {
-            stackController.Push(ctrl);
-        }
-        else
-        {
-            stackController.PushImmediate(ctrl);
-        }
+        Instantiate(Settings.InitialScreenPrefab);
     }
 }

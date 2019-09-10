@@ -1,8 +1,0 @@
-{  
-   "buildSettings":{  
-      "GCC_OPTIMIZATION_LEVEL":"s"
-   },
-   "pushNotificationsEnvironment":{  
-      "isProduction":true
-   }
-}

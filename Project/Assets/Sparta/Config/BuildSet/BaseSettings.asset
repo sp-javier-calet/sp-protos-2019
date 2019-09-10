@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   App:
-    ProductName: Gunship Blast
+    ProductName: Unity Base Game
     Version: 1.0
     BuildNumber: 1611111111
     OverrideBuild: 0
     UseIconFromPlayerSettings: 0
-    IconTexture: {fileID: 2800000, guid: a18bc0ca75f15403990fcca54cb11dba, type: 3}
+    IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
     OverrideIcon: 0
   Common:
     Flags: ODIN_INSPECTOR
@@ -40,12 +40,19 @@ MonoBehaviour:
     SlackChannel: 
     XcodeVersion: = 10.1
     AdditionalAssemblyPrefixes: []
+  Addressables:
+    Deployment:
+      EnableRemoteDeployment: 0
+      RemoteBuildPathDisplay: 
+      IntegrationRemoteLoadPath: 
+      ProductioniOSRemoteLoadPath: 
+      ProductionAndroidRemoteLoadPath: 
   Ios:
     BundleIdentifier: game.unitybasegame
     Flags: 
     XcodeModSchemes: 
     RemovedResources: StreamingAssets/android_etc
-    minimumTargetOsVersion: 9.0
+    minimumTargetOsVersion: 10.0
     UseAppleDeveloperAppId: 0
   Android:
     BundleIdentifier: game.unitybasegame
@@ -60,7 +67,7 @@ MonoBehaviour:
     UseAPKExpansionFile: 0
     Add64BitsSupport: 0
     MinSdkVersion: 16
-    TargetSdkVersion: 28
+    TargetSdkVersion: 27
     RoundIconTexture: {fileID: 0}
     AdaptativeIconForegroundTexture: {fileID: 0}
     AdaptativeIconBackgroundTexture: {fileID: 0}

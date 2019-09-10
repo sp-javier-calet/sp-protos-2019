@@ -8,10 +8,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Base;
-using SocialPoint.GUIControl;
 using System;
 
-public class SelectorScenesController : UIViewController
+public class SelectorScenesController : MonoBehaviour
 {
     [SerializeField] Button _prefabButton;
 
@@ -21,14 +20,8 @@ public class SelectorScenesController : UIViewController
 
     string[] _scenes;
 
-    public SelectorScenesController()
+    void Start()
     {
-        IsFullScreen = true;
-    }
-
-    protected override void OnStart()
-    {
-        base.OnStart();
         _scenes = ScenesData.Instance.ScenesNames;
 
         ShowScenesUI();
@@ -56,6 +49,6 @@ public class SelectorScenesController : UIViewController
     {
         OnGoToScene?.Invoke(nameScene);
 
-        Hide();
+        gameObject.SetActive(false);
     }
 }
