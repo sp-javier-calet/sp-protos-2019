@@ -4,6 +4,7 @@
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.timeline": "1.0.0",
     "es.socialpoint.sparta.extensions.ads": "file:../Assets/Plugins/Sparta/Packages~/Extensions/Ads",
+    "es.socialpoint.sparta.extensions.applesignin": "file:../Assets/Plugins/Sparta/Packages~/Extensions/AppleSignIn",
     "es.socialpoint.sparta.extensions.facebook": "file:../Assets/Plugins/Sparta/Packages~/Extensions/Facebook",
     "es.socialpoint.sparta.extensions.firebaseanalytics": "file:../Assets/Plugins/Sparta/Packages~/Extensions/FirebaseAnalytics",
     "es.socialpoint.sparta.extensions.gameframework": "file:../Assets/Plugins/Sparta/Packages~/Extensions/GameFramework",
