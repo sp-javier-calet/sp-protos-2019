@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd5b2b3b5d34240db96f19b4a5168a09, type: 3}
   m_Name: MarketingInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     DebugMode: 0
