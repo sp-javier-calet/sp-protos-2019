@@ -6,24 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Plugins/Sparta/Extensions/IntroAnimation/IntroAnimation-Spine-3.8.unity
-    guid: 3a90ad609ad4c414d994e4b66a562288
+    path: Assets/Scenes/IntroAnimation-parrot-new.unity
+    guid: b98ea0d01948f0747bc37852c99f0a20
+  - enabled: 1
+    path: Assets/Scenes/BaseLoading.unity
+    guid: 1d28a4140a1e64a3eb1d62fabd0a1044
   - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
     guid: 6db6bc6b0983b4d23b40d32f0164b9a7
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
-    guid: 55a5cd0863a2d4ed2a760efef9580f65
+    path: Assets/GunshipBlast/Scenes/GSB_TitleScene.unity
+    guid: 6e4178b1e320648bc9ddb8ecbd152bed
   - enabled: 1
-    path: Assets/Scenes/TutorialScene.unity
-    guid: c5ac369cfd8eb4fd0815033c0f87a41c
-  - enabled: 0
-    path: Assets/Examples/FullUI/UIScene.unity
-    guid: 5a364a2f22cb041a884a7e4f16acf150
-  - enabled: 0
-    path: Assets/Examples/FullUI/UIScrollViewScene.unity
-    guid: af0b165cd216048fd977c715928dd697
-  - enabled: 0
-    path: Assets/Examples/FullUI/UITimelineScene.unity
-    guid: e0ede4a810f5e4154b9bbc703f07c4fa
+    path: Assets/GunshipBlast/Scenes/GSB_BattleScene.unity
+    guid: edab0f43081fd4f21bbe625db04aaaa8
+  - enabled: 1
+    path: Assets/GunshipBlast/Scenes/GSB_TutorialScene.unity
+    guid: 3d2ade83cf93c48f9917aa196474fc6d
   m_configObjects: {}
