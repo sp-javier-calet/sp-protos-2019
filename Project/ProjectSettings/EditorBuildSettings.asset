@@ -7,7 +7,7 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/IntroAnimation-parrot-new.unity
-    guid: b98ea0d01948f0747bc37852c99f0a20
+    guid: eed59babb2ae040a79cfcf0b6d29c562
   - enabled: 1
     path: Assets/Scenes/BaseLoading.unity
     guid: 1d28a4140a1e64a3eb1d62fabd0a1044
